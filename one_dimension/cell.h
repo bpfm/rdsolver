@@ -1,7 +1,0 @@
-class cell(){
-
-public:
-
-private:
-	
-};

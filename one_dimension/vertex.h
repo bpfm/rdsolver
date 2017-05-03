@@ -1,3 +1,15 @@
+/* 	class containing conserved and primative variables of fluid at the position of the vertex
+		x = position
+		mass = mass contained in cell
+		momentum = momentum of material in cell
+		energy = energy density (?) of cell
+		density = density of material in cell
+		velocity = velocity of material in cell
+		pressure = pressure in cell
+		u_variables = array conatining values of vector U (see README)
+		f_variables = array of values for vector F(U) (see README)
+*/
+
 class vertex{
 
 private:
@@ -5,13 +17,14 @@ private:
 	float x;
 	float mass,momentum,energy;
 	float density,velocity,pressure;
-	float u_variables[3],fluxes[3];
+	float u_variables[3],f_variables[3];
 	float residual;
 
 public:
 
 
-//setter functions preventing varaibles being changes accidentally
+	// setter functions preventing varaibles being changed accidentally
+	// (no setter functions for U and F(U) as these are set by the other variables)
 	void set_x(float new_x){
 		x = new_x;
 	}
@@ -83,15 +96,15 @@ public:
 	}
 
 	float get_f0(){
-		return fluxes[0];
+		return f_variables[0];
 	}
 
 	float get_f1(){
-		return fluxes[1];
+		return f_variables[1];
 	}
 
 	float get_f2(){
-		return fluxes[2];
+		return f_variables[2];
 	}
 
 };

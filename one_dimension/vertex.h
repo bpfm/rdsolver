@@ -107,4 +107,18 @@ public:
 		return f_variables[2];
 	}
 
+	//functions to set up variable and flux arrays
+	void setup_u_variables(){
+		u_variables[0] = density;
+		u_variables[1] = density*velocity;
+		u_variables[2] = density*energy;
+	}
+
+	void setup_fluxes(){
+		fluxes[0] = density*velocity;
+		fluxes[1] = density*velocity*velocity + pressure;
+		fluxes[2] = (density*energy+pressure) * velocity;
+	}
+
+
 };

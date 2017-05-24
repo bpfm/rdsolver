@@ -5,47 +5,53 @@
 	nodal_residual = value of residual distributed from this element to that node
 */
 
+using namespace std;
+
 class cell{
 
 private:
 
-	int *vertex_0,*vertex_1;
+	vertex *vertex_0,*vertex_1;
 	float element_residual,weight_0,weight_1;
 
 public:
 
-	void set_vertex_0(int *new_vertex_0){
+	void set_vertex_0(vertex* new_vertex_0){
 		vertex_0 = new_vertex_0;
 	}
 
-	void set_vertex_1(int *new_vertex_1){
+	void set_vertex_1(vertex* new_vertex_1){
 		vertex_1 = new_vertex_1;
 	}
 
-	int get_vertex_0(){
+	vertex* get_vertex_0(){
 		return vertex_0;
 	}
 
-	int get_vertex_1(){
+	vertex* get_vertex_1(){
 		return vertex_1;
+	}
+
+	float get_element_residual(){
+		return element_residual;
 	}
 
 	/* 	calculate element residual (based on equation 7 of Deconinick et al.)
 			res = element residual 
 	*/
-	void calc_element_residual(vertex vertex_lower, vertex vertex_upper){
+	void calc_element_residual(){
 		float res,u,u_plus,q,q_plus,q_half,f,f_plus,f_half,a_half,h_half;
 
 		q = 0.0;		// ignore source terms for now 
 		q_plus = 0.0;
 
-		u = vertex_lower.get_density();
-		u_plus = vertex.get_density();
+		u = vertex_0->get_mass_density();
+		u_plus = vertex_1->get_mass_density();
 
-		f = vertex_lower.get_f0();
-		f_plus = vertex_upper.get_f0();
+		f = vertex_0->get_f0();
+		f_plus = vertex_1->get_f0();
 
-		h_half = (vertex_lower.get_x()+vertex_upper.get_x())/2.0;
+		h_half = (vertex_0->get_x()+vertex_1->get_x())/2.0;
 
 		q_half = (q+q_plus)/2.0;
 		a_half = (f_plus-f)/(u_plus-u);
@@ -56,19 +62,23 @@ public:
 		element_residual = res;
 	}
 
-
 	// returns 1.0 for positive numbers and -1.0 for negative numbers
 	float sign(float x){
-
 		if(x>0.0){
 			return 1.0;
-		}elseif(x<0.0){
+		}else if(x<0.0){
 			return -1.0;
-		}elseif(x==0.0){
-			cout << "ERROR: SIGN FUNCTION UNDEFINED AT 0" << endl;
+		}else{
+			//cout << "ERROR: SIGN FUNCTION UNDEFINED AT 0" << endl;
 			return 0.0;
 		}
 		
 	}
 
-}
+	float calcute_weights(){
+		float beta_0,beta_1;
+
+		beta_0 = 1.0/2.0
+	}
+
+};

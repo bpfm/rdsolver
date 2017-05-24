@@ -10,7 +10,7 @@
 
 using namespace std;
 
-extern float approximation(float x,float lower,float upper, float lower_value,float upper_value);
+extern float approximation(float x,float lower,float upper,float lower_value,float upper_value);
 
 int main(){
 

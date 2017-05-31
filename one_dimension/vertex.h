@@ -15,10 +15,11 @@ class vertex{
 private:
 
 	float x;
-	float mass,momentum,energy;
+//	float mass,momentum,energy;
 	float mass_density,velocity,pressure,energy_density;
-	float u_variables[3],f_variables[3];
-	float residual;
+	float u_variables[3],f_variables[3],du[3];
+//	float residual;
+//	float residual_cont_0,residual_cont_1;
 
 public:
 
@@ -28,21 +29,17 @@ public:
 		x = new_x;
 	}
 
-	void set_mass(float new_mass){
-		mass = new_mass;
-	}
+//	void set_mass(float new_mass){
+//		mass = new_mass;
+//	}
 
-	void set_momentum(float new_momentum){
-		momentum = new_momentum;
-	}
+//	void set_momentum(float new_momentum){
+//		momentum = new_momentum;
+//	}
 
-	void set_energy(float new_energy){
-		energy = new_energy;
-	}
-
-	void set_energy(float new_energy){
-		energy = new_energy;
-	}
+//	void set_energy(float new_energy){
+//		energy = new_energy;
+//	}
 
 	void set_mass_density(float new_mass_density){
 		mass_density = new_mass_density;
@@ -56,18 +53,30 @@ public:
 		pressure = new_pressure;
 	}
 
+//	void set_residual_cont_0(float new_res){
+//		residual_cont_0 = new_res;
+//	}
+
+//	void set_residual_cont_1(float new_res){
+//		residual_cont_1 = new_res;
+//	}
+
 	//getter functions for extracting values of variables
 	float get_x(){
 		return x;
 	}
 
-	float get_mass(){
-		return mass;
-	}
+//	float get_mass(){
+//		return mass;
+//	}
 
-	float get_momentum(){
-		return momentum;
-	}
+//	float get_momentum(){
+//		return momentum;
+//	}
+
+//	float get_energy(){
+//		return energy;
+//	}
 
 	float get_energy_density(){
 		return energy_density;
@@ -109,21 +118,53 @@ public:
 		return f_variables[2];
 	}
 
+//	float get_residual_cont_0(){
+//		return residual_cont_0;
+//	}
+
+//	float get_residual_cont_1(){
+//		return residual_cont_1;
+//	}
+
 	//functions to set up energy density varaible, and u and f arrays
 	void setup_energy_density(){
 		energy_density = pressure/(0.4*mass_density);
 	}
 
-	void setup_u_variables(){
+	void con_to_prim(){
 		u_variables[0] = mass_density;
 		u_variables[1] = mass_density*velocity;
 		u_variables[2] = mass_density*energy_density;
+	}
+
+	void prim_to_con(){
+		mass_density = u_variables[0];
+		velocity = u_variables[1]/mass_density;
+		energy_density = u_variables[2]/mass_density;
 	}
 
 	void setup_f_variables(){
 		f_variables[0] = mass_density*velocity;
 		f_variables[1] = mass_density*velocity*velocity + pressure;
 		f_variables[2] = (mass_density*energy_density+pressure) * velocity;
+	}
+
+	void reset_du(){
+		du[0] = 0.0;
+		du[1] = 0.0;
+		du[2] = 0.0;
+	}
+
+	void update_du(float new_du[3]){
+		du[0] = du[0] + new_du[0];
+		du[1] = du[1] + new_du[1];
+		du[2] = du[2] + new_du[2];
+	}
+
+	void update_u_variables(){
+		u_variables[0] = u_variables[0] + du[0];
+		u_variables[1] = u_variables[1] + du[1];
+		u_variables[2] = u_variables[2] + du[2];
 	}
 
 };

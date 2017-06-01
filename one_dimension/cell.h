@@ -29,17 +29,14 @@ public:
 		return vertex_1;
 	}
 
-	//float get_element_residual(){
-	//	return element_residual;
-	//}
-
 	/* 	calculate element residual (based on equation 7 of Deconinick et al.)
 			res = element residual 
 	*/
-	void distribute_residual(float dx, float dt){
+	void distribute_residual(double dx, double dt){
 		int i;
-		float res[3],u[3],u_plus[3],q[3],q_plus[3],q_half[3],f[3],f_plus[3],f_half[3],a_half[3],beta_0[3],beta_1[3],du_0[3],du_1[3];
-		float h_half;
+		double res[3],u[3],u_plus[3],q[3],q_plus[3],q_half[3],f[3],f_plus[3],f_half[3];
+		double a_half[3],beta_0[3],beta_1[3],du_0[3],du_1[3];
+		double h_half;
 
 		u[0] = vertex_0->get_u0();
 		u_plus[0] = vertex_1->get_u0();
@@ -62,23 +59,30 @@ public:
 		h_half = (vertex_0->get_x()+vertex_1->get_x())/2.0;
 
 		for(i=0;i<3;i++){
-			q[i] = 0.0;		// ignore source terms for now 
+			q[i] = 0.0;			// ignore source terms for now 
 			q_plus[i] = 0.0;
 
 			q_half[i] = (q[i]+q_plus[i])/2.0;
-			a_half[i] = (f_plus[i]-f[i])/(u_plus[i]-u[i]);
-			f_half[i] = (f[i]+f_plus[i])/2.0 - sign(a_half[i])/2.0*(f_plus[i]-f[i]);
 
-			res[i] = f_plus[i]-f[i]-q_half[i]*h_half;
-
-			beta_0[i] = 0.5*(1.0-(a_half[i])/abs(a_half[i]));
-			beta_1[i] = 0.5*(1.0+(a_half[i])/abs(a_half[i]));
-
-			du_0[i] = beta_0[i]*res[i]*dt/dx;
-			du_1[i] = beta_1[i]*res[i]*dt/dx;
+			if(f_plus[i] != f[i] and vertex_0->get_x()<vertex_1->get_x()){
+				a_half[i] = (f_plus[i]-f[i]);//(u_plus[i]-u[i]);
+				//f_half[i] = (f[i]+f_plus[i])/2.0 - sign(a_half[i])/2.0*(f_plus[i]-f[i]);
+				res[i] = f_plus[i]-f[i]-q_half[i]*h_half;
+				beta_0[i] = 0.5*(1.0-(a_half[i])/abs(a_half[i]));
+				beta_1[i] = 0.5*(1.0+(a_half[i])/abs(a_half[i]));
+				cout << "a_half = " << i << " " << a_half[i] << " " << f_plus[i] << " " << f[i] << endl;
+				cout << "vertex positions = " << vertex_0->get_x() << " " << vertex_1->get_x() << endl;
+			}else{
+				beta_0[i] = 0.5;
+				beta_1[i] = 0.5;
+				res[i] = 0.0;
+			}
+			du_0[i] = -beta_1[i]*res[i]*dt/dx;	// reverse directions do beta_0 is upwind
+			du_1[i] = -beta_0[i]*res[i]*dt/dx;
 		}
 
-		cout << "weights" << " " << beta_0[0] << " " << beta_1[0] << " " << a_half[0] << " " << u[0] << " " << u_plus[0] << endl;
+		//cout << "sum of beta =  " << beta_0[0] << " " << beta_1[0] <<" "<< beta_0[0]+beta_1[0] << endl;
+		//cout << "change in u " << du_0[0] << " " << du_1[0] << endl;
 
 		vertex_0->update_du(du_0);
 		vertex_1->update_du(du_1);
@@ -86,7 +90,7 @@ public:
 	}
 
 	// returns 1.0 for positive numbers and -1.0 for negative numbers
-	float sign(float x){
+	double sign(double x){
 		if(x>0.0){
 			return 1.0;
 		}else if(x<0.0){

@@ -4,10 +4,10 @@ import numpy as np
 #x,density = np.loadtxt("density.txt", usecols = (0,1))
 
 data = np.loadtxt("density.txt")                       # myfile.txt contains 4 columns of numbers
-x0,rho0 = data[0:49,0], data[0:49,1]
-x1,rho1 = data[50:99,0], data[50:99,1]
-x2,rho2 = data[100:149,0], data[100:149,1]
-x3,rho3 = data[150:199,0], data[150:199,1]
+x0,rho0 = data[0:99,0], data[0:99,1]
+x1,rho1 = data[100:199,0], data[100:199,1]
+x2,rho2 = data[200:299,0], data[200:299,1]
+x3,rho3 = data[300:399,0], data[300:399,1]
 
 #print density
 

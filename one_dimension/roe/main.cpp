@@ -6,16 +6,19 @@
 
 #include "vertex.h"
 #include "cell.h"
+#include "setup.cpp"
 
 using namespace std;
+
+extern vertex setup(int n_points, int i, float dx, vertex new_vertex, int ic);
 
 int main(){
 
 	int i,j;							// ******* decalare varaibles and vectors ******
 	int n_points=100;					// n_points = number of vertices
 	int vertex_id_0,vertex_id_1;		// vertex_id_0 and vertex_id_1 = number of
-	double dx,dt,t=0.0,cfl,c_initial;	// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max sound speed
-	double t_tot=0.001,next_time=0.0;
+	double dx,dt,t=0.0,cfl,c_initial;	// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
+	double t_tot=0.1,next_time=0.0;
 	vertex new_vertex;					// new_vertex = temporary vertex to be added to vector of vertices
 	cell new_cell;						// new_cell = temporary cell to be added to vector of cells
 	vertex *vertex_0,*vertex_1;			// *vertex_0 and *vertex_1 = pointers to vertices
@@ -27,7 +30,7 @@ int main(){
 
 	dx = 20.0/double(n_points);
 
-	cfl = 0.001;
+	cfl = 0.1;
     c_initial = 374.17;			// units m/s
     dt = cfl*(dx/c_initial);
 
@@ -36,23 +39,9 @@ int main(){
 	/****** Setup initial conditions of one dimensional tube ******/
 
 	for (i=0;i<n_points;i++){
-			new_vertex.set_x(float(i)*dx);
-
-			if(i<n_points/2){
-				new_vertex.set_mass_density(1.0);						// units kg/m^3
-				new_vertex.set_velocity(0.0);							// units m/s
-				new_vertex.set_pressure(100000.0);						// units N/m^2
-			}else{
-				new_vertex.set_mass_density(0.125);						// units kg/m^3
-				new_vertex.set_velocity(0.0);							// units m/s
-				new_vertex.set_pressure(1000.0);						// units N/m^2
-			}
-			new_vertex.setup_energy_density();
-			new_vertex.con_to_prim();
-			new_vertex.setup_f_variables();
-			new_vertex.reset_du();
-			points.push_back(new_vertex);			// add new vertex to vector of all vertices
-		}
+		new_vertex = setup(n_points,i,dx,new_vertex,0);
+		points.push_back(new_vertex);			// add new vertex to vector of all vertices
+	}
 
 	/****** Setup system of cells ******/
 
@@ -87,13 +76,13 @@ int main(){
 				total_density += points[i].get_mass_density()*dx;
 			}
 
-			cout << "time " << t << " -> total mass = " << total_density << endl;
+			cout << "time " << t << " -> total mass = " << total_density  << " time step =  " << dt << endl;
 			density_map << " " << endl;
 
 		}
 
 		for(it_cell=centers.begin(),i=0;it_cell<centers.end();it_cell++,i++){	// loop over all cells
-			centers[i].construct_state(dx,dt);									// calculate flux through boundary
+			centers[i].construct_state(dx,dt,cfl);									// calculate flux through boundary
 		}
 
 		for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){		// loop over all vertices

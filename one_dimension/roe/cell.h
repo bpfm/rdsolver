@@ -35,7 +35,7 @@ public:
 		return vertex_1;
 	}
 
-	void construct_state(double dx, double dt){
+	void construct_state(double dx, double &dt, double cfl){
 		double density[2],u[2],v[2],w[2],e_tot[2],pressure[2],h_tot[2];
 		double density_avg,u_avg,v_avg,w_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
 		double e_vec[5][5],e_val[5],theta[5],phi[5],epsilon[5];
@@ -84,6 +84,8 @@ public:
 		}
 
 		c_sound = sqrt(gamma*pressure_avg/density_avg);	// calculate averge adiabatic sound speed
+
+		dt = cfl*(dx/c_sound);							// determine time step from sound speed and cfl condition
 
 		e_val[0] = u_avg - c_sound;						// calculate eigen values (for x direction)
 		e_val[1] = u_avg + c_sound;

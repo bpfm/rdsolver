@@ -42,7 +42,7 @@ public:
 		double c_sound,gamma = 1.4,zeta,sum;
 		double e_delta_q[5],delta_q[5],f0[5],f1[5],f_int[5],du0[5],du1[5];
 
-		//if(vertex_0->get_x()==9.8){
+		//if(vertex_0->get_x()>9.79 and vertex_0->get_x()<9.81){
 		density[0] = vertex_0->get_mass_density();	// contruct state on either side of the face
 		density[1] = vertex_1->get_mass_density();
 
@@ -101,7 +101,7 @@ public:
 				theta[k] = 1.0;
 				//phi[k] = flux_limiter();
 			}
-			phi[k] = 1.0;					// simple Lax-Wendroff flux limiter
+			phi[k] = 1.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
 			epsilon[k] = e_val[k]*dt/dx;	// (above equation 6.51 in lecture notes)
 		}
 
@@ -115,21 +115,11 @@ public:
 
 		zeta = u_avg*delta_q[1] + v_avg*delta_q[2] + w_avg*delta_q[3] - delta_q[0];
 
-		e_delta_q[0] = (gamma-1.0)/(2.0*c_sound*c_sound)*(e_kin_avg*delta_q[3]-zeta)-(delta_q[0]-u_avg*delta_q[3])/(2.0*c_sound);
-		e_delta_q[1] = (gamma-1.0)/(2.0*c_sound*c_sound)*(e_kin_avg*delta_q[3]-zeta)+(delta_q[0]-u_avg*delta_q[3])/(2.0*c_sound);
-		e_delta_q[2] = (gamma-1.0)/(2.0*c_sound*c_sound)*((h_tot_avg-2.0*e_kin_avg)*delta_q[3]+zeta);
-		e_delta_q[3] = delta_q[1]-v_avg*delta_q[3];
-		e_delta_q[4] = delta_q[2]-w_avg*delta_q[3];
-
-		/*if(vertex_0->get_x()==9.8){
-			cout << "steps = " << dt << " " << dx << endl;
-			cout << "delta_q = " << delta_q[0] << " " << delta_q[1] << " " << delta_q[2] << " " << delta_q[3] << " " << delta_q[4]<< endl;
-			cout << "eigen values = " << e_val[0] << " " << e_val[1] << " " << e_val[2] << " " << e_val[3] << " " << e_val[4] << endl;
-			cout << "sound speed components = " << pressure_avg << " " << density_avg << endl;
-			cout << "components = " << gamma << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
-			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
-			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;
-		}*/
+		e_delta_q[0] = (gamma-1.0)/(2.0*c_sound*c_sound)*(e_kin_avg*delta_q[4]-zeta)-(delta_q[1]-u_avg*delta_q[4])/(2.0*c_sound);
+		e_delta_q[1] = (gamma-1.0)/(2.0*c_sound*c_sound)*(e_kin_avg*delta_q[4]-zeta)+(delta_q[1]-u_avg*delta_q[4])/(2.0*c_sound);
+		e_delta_q[2] = (gamma-1.0)/(2.0*c_sound*c_sound)*((h_tot_avg-2.0*e_kin_avg)*delta_q[4]+zeta);
+		e_delta_q[3] = delta_q[2]-v_avg*delta_q[4];
+		e_delta_q[4] = delta_q[3]-w_avg*delta_q[4];
 
 		f0[0] = density[0]*h_tot[0]*u[0];
 		f0[1] = density[0]*u[0]*u[0]+pressure[0];
@@ -167,11 +157,22 @@ public:
 			du1[0] = 0.0;
 		}
 
-		//cout << "at " << (vertex_0->get_x()+vertex_1->get_x())/2.0 << " du0 = " << du0[0] << " " << du0[1] << " " << du0[2] << endl;
+		if(vertex_0->get_x()>9.79 and vertex_0->get_x()<9.81){
+			/*cout << "*************************************" << endl;
+			cout << "starting values -> " << u[0] << " " << u[1] << endl;
+			cout << "steps = " << dt << " " << dx << endl;
+			cout << "delta_q = " << delta_q[0] << " " << delta_q[1] << " " << delta_q[2] << " " << delta_q[3] << " " << delta_q[4]<< endl;
+			cout << "eigen values = " << e_val[0] << " " << e_val[1] << " " << e_val[2] << " " << e_val[3] << " " << e_val[4] << endl;
+			cout << "sound speed components = " << pressure_avg << " " << density_avg << endl;
+			cout << "components = " << gamma << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
+			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
+			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;*/
+			//cout << "at " << (vertex_0->get_x()+vertex_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
+		}
 
 		vertex_0->update_du(du0);
 		vertex_1->update_du(du1);
-	//}
+		//}
 	}
 
 	// returns 1.0 for positive numbers and -1.0 for negative numbers

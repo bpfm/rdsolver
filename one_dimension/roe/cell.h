@@ -10,8 +10,8 @@ class cell{
 private:
 
 	int id;
-	vertex *vertex_0,*vertex_1;
-	double q[2][5];
+	vertex *vertex_0,*vertex_1,*vertex_00,*vertex_11;
+	double q[4][5];
 
 public:
 
@@ -19,12 +19,20 @@ public:
 		id = new_id;
 	}
 
-	void set_vertex_0(vertex* new_vertex_0){
-		vertex_0 = new_vertex_0;
+	void set_vertex_0(vertex* new_vertex){
+		vertex_0 = new_vertex;
 	}
 
-	void set_vertex_1(vertex* new_vertex_1){
-		vertex_1 = new_vertex_1;
+	void set_vertex_1(vertex* new_vertex){
+		vertex_1 = new_vertex;
+	}
+
+	void set_vertex_00(vertex* new_vertex){
+		vertex_00 = new_vertex;
+	}
+
+	void set_vertex_11(vertex* new_vertex){
+		vertex_11 = new_vertex;
 	}
 
 	vertex* get_vertex_0(){
@@ -35,28 +43,39 @@ public:
 		return vertex_1;
 	}
 
-	void construct_state(double dx, double &dt, double cfl){
-		double density[2],u[2],v[2],w[2],e_tot[2],pressure[2],h_tot[2];
+	void construct_state(double dx, double &dt, double cfl, double t){
+		double density[4],u[4],v[4],w[4],e_tot[4],pressure[4],h_tot[4];
 		double density_avg,u_avg,v_avg,w_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
 		double e_vec[5][5],e_val[5],theta[5],phi[5],epsilon[5];
 		double c_sound,gamma = 1.4,zeta,sum;
 		double e_delta_q[5],delta_q[5],f0[5],f1[5],f_int[5],du0[5],du1[5];
+		double r_int[5];
 
 		//if(vertex_0->get_x()>9.79 and vertex_0->get_x()<9.81){
 		density[0] = vertex_0->get_mass_density();	// contruct state on either side of the face
 		density[1] = vertex_1->get_mass_density();
+		density[2] = vertex_00->get_mass_density();
+		density[3] = vertex_11->get_mass_density();
 
 		u[0] = vertex_0->get_velocity();
 		u[1] = vertex_1->get_velocity();
+		u[2] = vertex_00->get_velocity();
+		u[3] = vertex_11->get_velocity();
 
 		e_tot[0] = vertex_0->get_energy_density();
 		e_tot[1] = vertex_1->get_energy_density();
+		e_tot[2] = vertex_00->get_energy_density();
+		e_tot[3] = vertex_11->get_energy_density();
 
 		pressure[0] = vertex_0->get_pressure();
 		pressure[1] = vertex_1->get_pressure();
+		pressure[2] = vertex_00->get_pressure();
+		pressure[3] = vertex_11->get_pressure();
 
 		h_tot[0] = e_tot[0]+pressure[0]/density[0];
 		h_tot[1] = e_tot[1]+pressure[1]/density[1];
+		h_tot[2] = e_tot[2]+pressure[2]/density[2];
+		h_tot[1] = e_tot[3]+pressure[3]/density[3];
 
 		/****** Construct Roe averages ******/
 
@@ -73,7 +92,7 @@ public:
 
 		/****** Constuct q vector on either side of boundary ******/
 
-		for(int j=0;j<2;j++){
+		for(int j=0;j<4;j++){
 			v[j] = 0.0;
 			w[j] = 0.0;
 			q[j][0] = density[j]*e_tot[j];
@@ -85,8 +104,6 @@ public:
 
 		c_sound = sqrt(gamma*pressure_avg/density_avg);	// calculate averge adiabatic sound speed
 
-		dt = cfl*(dx/c_sound);							// determine time step from sound speed and cfl condition
-
 		e_val[0] = u_avg - c_sound;						// calculate eigen values (for x direction)
 		e_val[1] = u_avg + c_sound;
 		e_val[2] = u_avg;
@@ -95,13 +112,23 @@ public:
 
 		for(int k=0;k<5;k++){
 			if(e_val[k]<0){
+				if(q[1][k]==q[0][k]){
+					r_int[k]=0.0;
+				}else{
+					r_int[k] = (q[3][k]-q[1][k])/(q[1][k]-q[0][k]); // using equation 4.37 from lecture notes
+				}
 				theta[k] = -1.0;
-				//phi[k] = flux_limiter();
+				phi[k] = flux_limiter(r_int[k]);
 			}else{
+				if(q[1][k]==q[0][k]){
+					r_int[k]=0.0;
+				}else{
+					r_int[k] = (q[0][k]-q[2][k])/(q[1][k]-q[0][k]); // using equation 4.37 from lecture notes
+				}
 				theta[k] = 1.0;
-				//phi[k] = flux_limiter();
+				phi[k] = flux_limiter(r_int[k]);
 			}
-			phi[k] = 1.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
+			//phi[k] = 1.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
 			epsilon[k] = e_val[k]*dt/dx;	// (above equation 6.51 in lecture notes)
 		}
 
@@ -147,7 +174,8 @@ public:
 		du1[1] = f_int[1]*dt/dx;
 		du1[2] = f_int[0]*dt/dx;
 
-		if(vertex_0->get_x()>vertex_1->get_x()){
+		
+		if(vertex_0->get_x()>vertex_1->get_x()){	// create boundary at x=0.0 and x=20.0
 			du0[2] = 0.0;
 			du0[1] = 0.0;
 			du0[0] = 0.0;
@@ -156,9 +184,11 @@ public:
 			du1[1] = 0.0;
 			du1[0] = 0.0;
 		}
+		
 
-		if(vertex_0->get_x()>9.79 and vertex_0->get_x()<9.81){
-			/*cout << "*************************************" << endl;
+		if(vertex_0->get_x()>9.7999 and vertex_0->get_x()<9.81000){
+			/*
+			cout << "*************************************" << endl;
 			cout << "starting values -> " << u[0] << " " << u[1] << endl;
 			cout << "steps = " << dt << " " << dx << endl;
 			cout << "delta_q = " << delta_q[0] << " " << delta_q[1] << " " << delta_q[2] << " " << delta_q[3] << " " << delta_q[4]<< endl;
@@ -166,8 +196,9 @@ public:
 			cout << "sound speed components = " << pressure_avg << " " << density_avg << endl;
 			cout << "components = " << gamma << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
 			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
-			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;*/
-			//cout << "at " << (vertex_0->get_x()+vertex_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
+			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;
+			cout << "at " << (vertex_0->get_x()+vertex_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
+			*/
 		}
 
 		vertex_0->update_du(du0);
@@ -191,6 +222,59 @@ public:
 		double avg;
 		avg = (sqrt(l1)*l2+sqrt(r1)*r2)/(sqrt(l1)+sqrt(r1));
 		return avg;
+	}
+
+	double flux_limiter(double r){
+		double phi,twor;
+
+		//phi = mymin(1.0,r)								// minmod
+		//if(phi < 0.0){
+		//	phi=0.0;
+		//}
+
+		twor = 2.0*r;
+		phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));		// superbee
+
+		//phi = r; 											// Beam-Warming
+
+		//phi = (r+abs(r))/(1.0+abs(r)); 					// van Leer flux limiter
+
+		return phi;
+	}
+
+	double mymax(double val0, double val1, double val2){
+		double max_val;
+		double val[3];
+
+		val[0]=val0;
+		val[1]=val1;
+		val[2]=val2;
+
+		max_val = val[0];
+
+		for (int i = 0; i < 3; ++i){
+			if(val[i]>max_val){
+				max_val = val[i];
+			}
+		}
+		return max_val;
+	}
+
+	double mymin(double val0, double val1){
+		double min_val;
+		double val[2];
+
+		val[0]=val0;
+		val[1]=val1;
+
+		min_val = val[0];
+
+		for (int i = 0; i < 2; ++i){
+			if(val[i]<min_val){
+				min_val = val[i];
+			}
+		}
+		return min_val;
 	}
 
 };

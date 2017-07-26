@@ -124,12 +124,22 @@ public:
 		du[0] = du[0] + new_du[0];
 		du[1] = du[1] + new_du[1];
 		du[2] = du[2] + new_du[2];
+
 	}
 
 	void update_u_variables(){
 		u_variables[0] = u_variables[0] + du[0];
 		u_variables[1] = u_variables[1] + du[1];
 		u_variables[2] = u_variables[2] + du[2];
+	}
+
+	void calc_next_dt(double dx, double cfl, double &next_dt){
+		double c_sound,gamma=1.4;
+
+		c_sound = sqrt(gamma*pressure/mass_density);
+
+		next_dt = cfl*(dx/c_sound);
+
 	}
 
 };

@@ -3,7 +3,7 @@ import numpy as np
 
 #x,density = np.loadtxt("density.txt", usecols = (0,1))
 
-n_points = 50
+n_points = 200
 dx = 20.0/float(n_points)
 
 data = np.loadtxt("density.txt")                       # myfile.txt contains 4 columns of numbers
@@ -11,6 +11,8 @@ x0,rho0 = data[0:n_points-1,0]+0.5*dx, data[0:n_points-1,1]
 x1,rho1 = data[n_points:2*n_points-1,0]+0.5*dx, data[n_points:2*n_points-1,1]
 x2,rho2 = data[2*n_points:3*n_points-1,0]+0.5*dx, data[2*n_points:3*n_points-1,1]
 x3,rho3 = data[3*n_points:4*n_points-1,0]+0.5*dx, data[3*n_points:4*n_points-1,1]
+
+diff1 = rho1 - rho0
 
 #print density
 
@@ -21,11 +23,20 @@ x3,rho3 = data[3*n_points:4*n_points-1,0]+0.5*dx, data[3*n_points:4*n_points-1,1
 #	x[i] = density[0][i]
 #	y[i] = density[1][i]
 
-plt.semilogy(x0,rho0)
-plt.semilogy(x1,rho1)
-plt.semilogy(x2,rho2)
-plt.semilogy(x3,rho3)
+#plt.semilogy(x0,rho0)
+#plt.semilogy(x1,rho1)
+#plt.semilogy(x2,rho2)
+#plt.semilogy(x3,rho3)
+
+plt.plot(x0,rho0)
+plt.plot(x1,rho1)
+plt.plot(x2,rho2)
+plt.plot(x3,rho3)
+
+#plt.plot(x0,diff1)
+
 plt.xlabel("x [m]")
 plt.ylabel("density [kg/m^3]")
-plt.xlim([8,12])
+plt.xlim([9.7,10.3])
+#plt.ylim([0.001,1.5])
 plt.show()

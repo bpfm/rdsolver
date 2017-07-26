@@ -1,6 +1,6 @@
 using namespace std;
 
-vertex setup(int n_points, int i, float dx, vertex new_vertex, int ic){
+vertex setup_vertex(int n_points, int i, float dx, vertex new_vertex, int ic){
 
 	if(ic==0){
 		if(i==0){cout << "Using Sod Shock Tube 1" << endl;}
@@ -24,9 +24,9 @@ vertex setup(int n_points, int i, float dx, vertex new_vertex, int ic){
 		if(i==0){cout << "Using Sine Wave" << endl;}
 		new_vertex.set_x(float(i)*dx);
 
-		new_vertex.set_mass_density(sin(float(i)/float(n_points)*(2.0*3.1415)));		// units kg/m^3
-		new_vertex.set_velocity(0.1);													// units m/s
-		new_vertex.set_pressure(100000.0);												// units N/m^2
+		new_vertex.set_mass_density(2.0+sin(float(i)/float(n_points)*(2.0*3.1415)));		// units kg/m^3
+		new_vertex.set_velocity(100.0);													// units m/s
+		new_vertex.set_pressure(100000.0*new_vertex.get_mass_density());												// units N/m^2
 
 		new_vertex.setup_energy_density();
 		new_vertex.con_to_prim();

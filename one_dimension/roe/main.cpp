@@ -15,10 +15,10 @@ extern vertex setup(int n_points, int i, float dx, vertex new_vertex, int ic);
 int main(){
 
 	int i,j;											// ******* decalare varaibles and vectors ******
-	int n_points=200;									// n_points = number of vertices
+	int n_points=50;									// n_points = number of vertices
 	int vertex_id_0,vertex_id_1;						// vertex_id_0 and vertex_id_1 = number of
 	double dx,dt,t=0.0,cfl,c_initial;					// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
-	double t_tot=0.001,next_time=0.0;						// t_tot = total time,next_time = time of next snapshot
+	double t_tot=0.01,next_time=0.0;						// t_tot = total time,next_time = time of next snapshot
 	vertex new_vertex;									// new_vertex = temporary vertex to be added to vector of vertices
 	cell new_cell;										// new_cell = temporary cell to be added to vector of cells
 	vertex *vertex_0,*vertex_1,*vertex_00,*vertex_11;	// *vertex_0 and *vertex_1 = pointers to vertices
@@ -29,18 +29,19 @@ int main(){
 	double total_density,next_dt,possible_dt;			// total_density = total density in box
 
 	dx = 20.0/double(n_points);							// calculate cell width
-
 	cfl = 0.1;											// set CFL condition
-    c_initial = 374.17;									// units m/s
-    dt = cfl*(dx/c_initial);							// set time step
 
-    next_dt = dt;
+    next_dt = 1.0;
+
+    cout << "Initial Timestep chosen as " << next_dt << " s" << endl;
 
 	/****** Setup initial conditions of one dimensional tube ******/
 
 	for (i=0;i<n_points;i++){
 		new_vertex = setup_vertex(n_points,i,dx,new_vertex,0);	// call vertex setup routine (0 = shock tube, 1 = sine wave)
 		points.push_back(new_vertex);							// add new vertex to vector of all vertices
+		points[i].calc_next_dt(dx,cfl,possible_dt);				// check dt is min required by cfl
+		if(possible_dt<next_dt){next_dt=possible_dt;}
 	}
 
 	/****** Setup system of cells ******/
@@ -91,7 +92,7 @@ int main(){
 		}
 
 		for(it_cell=centers.begin(),i=0;it_cell<centers.end();it_cell++,i++){	// loop over all cells
-			centers[i].construct_state(dx,dt,cfl,t);							// calculate flux through boundary
+			centers[i].construct_state(dx,dt,t);							// calculate flux through boundary
 		}
 
 		for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){		// loop over all vertices
@@ -100,7 +101,7 @@ int main(){
 			points[i].con_to_prim();											// convert back to guarentee correct value are used
 			points[i].setup_f_variables();										// set flux variables with new values
 			points[i].reset_du();												// reset du value to zero for next timestep
-			points[i].calc_next_dt(dx,cfl,possible_dt);
+			points[i].calc_next_dt(dx,cfl,possible_dt);							// calculate next timestep
 			if(possible_dt<next_dt){next_dt=possible_dt;}
 		}
 		t+=dt;																	// increment time

@@ -139,7 +139,6 @@ public:
 		c_sound = sqrt(gamma*pressure/mass_density);
 
 		next_dt = cfl*(dx/c_sound);
-
 	}
 
 };

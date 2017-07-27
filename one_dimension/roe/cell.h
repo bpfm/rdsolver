@@ -43,7 +43,7 @@ public:
 		return vertex_1;
 	}
 
-	void construct_state(double dx, double &dt, double cfl, double t){
+	void construct_state(double dx, double &dt, double t){
 		double density[4],u[4],v[4],w[4],e_tot[4],pressure[4],h_tot[4];
 		double density_avg,u_avg,v_avg,w_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
 		double e_vec[5][5],e_val[5],theta[5],phi[5],epsilon[5];

@@ -48,7 +48,7 @@ public:
 		double density_avg,u_avg,v_avg,w_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
 		double e_vec[5][5],e_val[5],theta[5],phi[5],epsilon[5];
 		double c_sound,gamma = 1.4,zeta,sum;
-		double e_delta_q[5],delta_q[5],f0[5],f1[5],f_int[5],du0[5],du1[5];
+		double e_delta_q[5],delta_q[5],f0[5],f1[5],f_int[5],du0[3],du1[3];
 		double r_int[5];
 
 		//if(vertex_0->get_x()>9.79 and vertex_0->get_x()<9.81){
@@ -128,7 +128,7 @@ public:
 				theta[k] = 1.0;
 				phi[k] = flux_limiter(r_int[k]);
 			}
-			//phi[k] = 1.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
+			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
 			epsilon[k] = e_val[k]*dt/dx;	// (above equation 6.51 in lecture notes)
 		}
 
@@ -163,7 +163,7 @@ public:
 		for(int k=0;k<5;k++){
 			sum = 0.0;
 			for(int m=0;m<5;m++){sum  = sum + e_val[m]*e_delta_q[k]*(theta[m]+phi[m]*(epsilon[m]-theta[m]));}
-			f_int[k] = 0.5*(f1[k]-f0[k])-0.5*(sum);
+			f_int[k] = 0.5*(f1[k]+f0[k])-0.5*(sum);
 		}
 
 		du0[0] = -f_int[4]*dt/dx;
@@ -185,7 +185,6 @@ public:
 			du1[0] = 0.0;
 		}
 		
-
 		if(vertex_0->get_x()>9.7999 and vertex_0->get_x()<9.81000){
 			/*
 			cout << "*************************************" << endl;
@@ -200,7 +199,6 @@ public:
 			cout << "at " << (vertex_0->get_x()+vertex_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
 			*/
 		}
-
 		vertex_0->update_du(du0);
 		vertex_1->update_du(du1);
 		//}

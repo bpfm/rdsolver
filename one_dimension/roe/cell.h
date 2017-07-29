@@ -52,7 +52,7 @@ public:
 		double r_int[5];
 
 		//if(vertex_0->get_x()>9.79 and vertex_0->get_x()<9.81){
-		density[0] = vertex_0->get_mass_density();	// contruct state on either side of the face
+		density[0] = vertex_0->get_mass_density();		// contruct state on either side of the face
 		density[1] = vertex_1->get_mass_density();
 		density[2] = vertex_00->get_mass_density();
 		density[3] = vertex_11->get_mass_density();
@@ -79,7 +79,7 @@ public:
 
 		/****** Construct Roe averages ******/
 
-		density_avg = (density[0]+density[1])/2.0;					// find average values at boundary
+		density_avg = (density[0]+density[1])/2.0;			// find average values at boundary
 		e_tot_avg = (e_tot[0]+e_tot[1])/2.0;
 		pressure_avg = (pressure[0]+pressure[1])/2.0;
 
@@ -102,9 +102,9 @@ public:
 			q[j][4] = density[j];
 		}
 
-		c_sound = sqrt(gamma*pressure_avg/density_avg);	// calculate averge adiabatic sound speed
+		c_sound = sqrt(gamma*pressure_avg/density_avg);			// calculate averge adiabatic sound speed
 
-		e_val[0] = u_avg - c_sound;						// calculate eigen values (for x direction)
+		e_val[0] = u_avg - c_sound;					// calculate eigen values (for x direction)
 		e_val[1] = u_avg + c_sound;
 		e_val[2] = u_avg;
 		e_val[3] = u_avg;
@@ -129,7 +129,7 @@ public:
 				phi[k] = flux_limiter(r_int[k]);
 			}
 			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
-			epsilon[k] = e_val[k]*dt/dx;	// (above equation 6.51 in lecture notes)
+			epsilon[k] = e_val[k]*dt/dx;			// (above equation 6.51 in lecture notes)
 		}
 
 		e_kin_avg = (u_avg*u_avg + v_avg*v_avg + w_avg*w_avg)/2.0;
@@ -228,17 +228,17 @@ public:
 	double flux_limiter(double r){
 		double phi,twor;
 
-		//phi = mymin(1.0,r)								// minmod
+		//phi = mymin(1.0,r)					// minmod
 		//if(phi < 0.0){
 		//	phi=0.0;
 		//}
 
 		//twor = 2.0*r;
-		//phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));		// superbee
+		//phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));	// superbee
 
-		phi = r; 											// Beam-Warming
+		phi = r; 						// Beam-Warming
 
-		//phi = (r+abs(r))/(1.0+abs(r)); 					// van Leer flux limiter
+		//phi = (r+abs(r))/(1.0+abs(r)); 			// van Leer flux limiter
 
 		return phi;
 	}

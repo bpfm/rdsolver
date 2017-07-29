@@ -25,8 +25,8 @@ vertex setup_vertex(int n_points, int i, float dx, vertex new_vertex, int ic){
 		new_vertex.set_x(float(i)*dx);
 
 		new_vertex.set_mass_density(2.0+sin(float(i)/float(n_points)*(2.0*3.1415)));		// units kg/m^3
-		new_vertex.set_velocity(100.0);													// units m/s
-		new_vertex.set_pressure(100000.0*new_vertex.get_mass_density());												// units N/m^2
+		new_vertex.set_velocity(100.0);														// units m/s
+		new_vertex.set_pressure(100000.0*new_vertex.get_mass_density());					// units N/m^2
 
 		new_vertex.setup_energy_density();
 		new_vertex.con_to_prim();

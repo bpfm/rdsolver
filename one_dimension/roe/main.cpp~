@@ -30,6 +30,7 @@ int main(){
 
 	dx = 20.0/double(n_points);							// calculate cell width
 	cfl = 0.1;											// set CFL condition
+
     next_dt = 1.0;
 
     cout << "Initial Timestep chosen as " << next_dt << " s" << endl;

@@ -50,6 +50,8 @@ int main(){
 		vertex_id_0 = i % n_points;								// setup preiodic boundary
 		vertex_id_1 = (i+1) % n_points;
 
+		//cout << i << " " << vertex_id_0-1 << " " << vertex_id_0 << " " << vertex_id_1 << " " << vertex_id_1+1 << endl;
+
 		vertex_0 = &points[vertex_id_0];						// setup pointers to lower and upper vertex
 		vertex_1 = &points[vertex_id_1];
 		vertex_00 = &points[vertex_id_0-1];						// add neighbouring vertices for flux limiter

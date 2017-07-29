@@ -75,7 +75,7 @@ public:
 		h_tot[0] = e_tot[0]+pressure[0]/density[0];
 		h_tot[1] = e_tot[1]+pressure[1]/density[1];
 		h_tot[2] = e_tot[2]+pressure[2]/density[2];
-		h_tot[1] = e_tot[3]+pressure[3]/density[3];
+		h_tot[3] = e_tot[3]+pressure[3]/density[3];
 
 		/****** Construct Roe averages ******/
 
@@ -199,8 +199,11 @@ public:
 			cout << "at " << (vertex_0->get_x()+vertex_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
 			*/
 		}
-		vertex_0->update_du(du0);
-		vertex_1->update_du(du1);
+		vertex_0->update_du(du1);
+		vertex_1->update_du(du0);
+
+		//cout << "vertex positions " << vertex_0->get_x() << " " << vertex_1->get_x() << endl;
+
 		//}
 	}
 
@@ -230,10 +233,10 @@ public:
 		//	phi=0.0;
 		//}
 
-		twor = 2.0*r;
-		phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));		// superbee
+		//twor = 2.0*r;
+		//phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));		// superbee
 
-		//phi = r; 											// Beam-Warming
+		phi = r; 											// Beam-Warming
 
 		//phi = (r+abs(r))/(1.0+abs(r)); 					// van Leer flux limiter
 

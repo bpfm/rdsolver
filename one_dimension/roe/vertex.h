@@ -124,11 +124,11 @@ public:
 		du[0] = du[0] + new_du[0];
 		du[1] = du[1] + new_du[1];
 		du[2] = du[2] + new_du[2];
-		if(x==0.0 or x==19.9){
+		/*if(x==0.0 or x==19.8){
 			du[0] = 0.0;
 			du[1] = 0.0;
 			du[2] = 0.0;
-		}
+		}*/
 	}
 
 	void update_u_variables(){

@@ -4,31 +4,31 @@
 #include <vector>
 #include <cstdlib>
 
-#include "vertex.h"
-#include "cell.h"
+#include "centre.h"
+#include "face.h"
 #include "setup.cpp"
 
 using namespace std;
 
-extern vertex setup(int n_points, int i, float dx, vertex new_vertex, int ic);
+extern centre setup(int n_points, int i, float dx, centre new_centre, int ic);
 
 int main(){
 
 	int i,j;						// ******* decalare varaibles and vectors ******
-	int n_points=200;					// n_points = number of vertices
-	int vertex_id_0,vertex_id_1;				// vertex_id_0 and vertex_id_1 = number of
+	int n_points=40;					// n_points = number of vertices
+	int centre_id_0,centre_id_1;				// centre_id_0 and centre_id_1 = number of
 	double dx,dt,t=0.0,cfl,c_initial;			// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
-	double t_tot=0.001,next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
-	vertex new_vertex;					// new_vertex = temporary vertex to be added to vector of vertices
-	cell new_cell;						// new_cell = temporary cell to be added to vector of cells
-	vertex *vertex_0,*vertex_1,*vertex_00,*vertex_11;	// *vertex_0 and *vertex_1 = pointers to vertices
-	vector<vertex> points;					// points = vector of vertices
-	vector<cell> centers;					// centers = vector of cells
-	vector<vertex>::iterator it_vert;			// it_vert = iterator for vertex vector
-	vector<cell>::iterator it_cell;				// it_cell = iterator for cell vector
+	double t_tot=0.01,next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
+	centre new_centre;					// new_centre = temporary centre to be added to vector of vertices
+	face new_face;						// new_face = temporary face to be added to vector of faces
+	centre *centre_0,*centre_1,*centre_00,*centre_11;	// *centre_0 and *centre_1 = pointers to vertices
+	vector<centre> points;					// points = vector of vertices
+	vector<face> centers;					// centers = vector of faces
+	vector<centre>::iterator it_vert;			// it_vert = iterator for centre vector
+	vector<face>::iterator it_face;				// it_face = iterator for face vector
 	double total_density,next_dt,possible_dt;		// total_density = total density in box
 
-	dx = 20.0/double(n_points);				// calculate cell width
+	dx = 40.0/double(n_points);				// calculate face width
 	cfl = 0.1;						// set CFL condition
 	next_dt = 1.0;
 
@@ -37,34 +37,34 @@ int main(){
 	/****** Setup initial conditions of one dimensional tube ******/
 
 	for (i=0;i<n_points;i++){
-		new_vertex = setup_vertex(n_points,i,dx,new_vertex,0);	// call vertex setup routine (0 = shock tube, 1 = sine wave)
-		points.push_back(new_vertex);				// add new vertex to vector of all vertices
+		new_centre = setup_centre(n_points,i,dx,new_centre,0);	// call centre setup routine (0 = shock tube, 1 = sine wave)
+		points.push_back(new_centre);				// add new centre to vector of all vertices
 		points[i].calc_next_dt(dx,cfl,possible_dt);		// check dt is min required by cfl
 		if(possible_dt<next_dt){next_dt=possible_dt;}
 	}
 
-	/****** Setup system of cells ******/
+	/****** Setup system of faces ******/
 
 	for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
-		vertex_id_0 = i % n_points;					// setup preiodic boundary
-		vertex_id_1 = (i+1) % n_points;
+		centre_id_0 = i % n_points;					// setup preiodic boundary
+		centre_id_1 = (i+1) % n_points;
 
-		//cout << i << " " << vertex_id_0-1 << " " << vertex_id_0 << " " << vertex_id_1 << " " << vertex_id_1+1 << endl;
+		//cout << i << " " << centre_id_0-1 << " " << centre_id_0 << " " << centre_id_1 << " " << centre_id_1+1 << endl;
 
-		vertex_0 = &points[vertex_id_0];				// setup pointers to lower and upper vertex
-		vertex_1 = &points[vertex_id_1];
-		vertex_00 = &points[vertex_id_0-1];				// add neighbouring vertices for flux limiter
-		vertex_11 = &points[vertex_id_1+1];
+		centre_0 = &points[centre_id_0];				// setup pointers to lower and upper centre
+		centre_1 = &points[centre_id_1];
+		centre_00 = &points[centre_id_0-1];				// add neighbouring vertices for flux limiter
+		centre_11 = &points[centre_id_1+1];
 
-		if(vertex_id_0 == 0){vertex_00 = &points[n_points-1];}
-		if(vertex_id_1 == n_points-1){vertex_11 = &points[0];}
+		if(centre_id_0 == 0){centre_00 = &points[n_points-1];}
+		if(centre_id_1 == n_points-1){centre_11 = &points[0];}
 
-		new_cell.set_vertex_0(vertex_0);				// pass these pointers to the cell
-		new_cell.set_vertex_1(vertex_1);
-		new_cell.set_vertex_00(vertex_00);
-		new_cell.set_vertex_11(vertex_11);
+		new_face.set_centre_0(centre_0);				// pass these pointers to the face
+		new_face.set_centre_1(centre_1);
+		new_face.set_centre_00(centre_00);
+		new_face.set_centre_11(centre_11);
 
-		centers.push_back(new_cell);					// add new cell to vector of all cells
+		centers.push_back(new_face);					// add new face to vector of all faces
 	}
 
 	/****** Loop over time until total time t_tot is reached ******/
@@ -75,6 +75,7 @@ int main(){
 	while(t<t_tot){
 
 		dt = next_dt;
+		dt = 0.000001;
 		total_density = 0.0;						// reset total density counter
 
 		if(t>=next_time){						// write out densities at given interval
@@ -88,7 +89,7 @@ int main(){
 			density_map << " " << endl;
 		}
 
-		for(it_cell=centers.begin(),i=0;it_cell<centers.end();it_cell++,i++){		// loop over all cells
+		for(it_face=centers.begin(),i=0;it_face<centers.end();it_face++,i++){		// loop over all faces
 			centers[i].construct_state(dx,dt,t);					// calculate flux through boundary
 		}
 

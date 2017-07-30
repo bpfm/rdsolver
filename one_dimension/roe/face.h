@@ -1,16 +1,16 @@
-/* class containing values associated with the cell
-	*vertex_0 = pointer to vertex ID of lower vertex
-	*vertex_1 = pointer to vertex ID of upper vertex
+/* class containing values associated with the face
+	*centre_0 = pointer to centre ID of lower centre
+	*centre_1 = pointer to centre ID of upper centre
 */
 
 using namespace std;
 
-class cell{
+class face{
 
 private:
 
 	int id;
-	vertex *vertex_0,*vertex_1,*vertex_00,*vertex_11;
+	centre *centre_0,*centre_1,*centre_00,*centre_11;
 	double q[4][5];
 
 public:
@@ -19,28 +19,28 @@ public:
 		id = new_id;
 	}
 
-	void set_vertex_0(vertex* new_vertex){
-		vertex_0 = new_vertex;
+	void set_centre_0(centre* new_centre){
+		centre_0 = new_centre;
 	}
 
-	void set_vertex_1(vertex* new_vertex){
-		vertex_1 = new_vertex;
+	void set_centre_1(centre* new_centre){
+		centre_1 = new_centre;
 	}
 
-	void set_vertex_00(vertex* new_vertex){
-		vertex_00 = new_vertex;
+	void set_centre_00(centre* new_centre){
+		centre_00 = new_centre;
 	}
 
-	void set_vertex_11(vertex* new_vertex){
-		vertex_11 = new_vertex;
+	void set_centre_11(centre* new_centre){
+		centre_11 = new_centre;
 	}
 
-	vertex* get_vertex_0(){
-		return vertex_0;
+	centre* get_centre_0(){
+		return centre_0;
 	}
 
-	vertex* get_vertex_1(){
-		return vertex_1;
+	centre* get_centre_1(){
+		return centre_1;
 	}
 
 	void construct_state(double dx, double &dt, double t){
@@ -51,26 +51,26 @@ public:
 		double e_delta_q[5],delta_q[5],f0[5],f1[5],f_int[5],du0[3],du1[3];
 		double r_int[5];
 
-		//if(vertex_0->get_x()>9.79 and vertex_0->get_x()<9.81){
-		density[0] = vertex_0->get_mass_density();		// contruct state on either side of the face
-		density[1] = vertex_1->get_mass_density();
-		density[2] = vertex_00->get_mass_density();
-		density[3] = vertex_11->get_mass_density();
+		//if(centre_0->get_x()>9.79 and centre_0->get_x()<9.81){
+		density[0] = centre_0->get_mass_density();		// contruct state on either side of the face
+		density[1] = centre_1->get_mass_density();
+		density[2] = centre_00->get_mass_density();
+		density[3] = centre_11->get_mass_density();
 
-		u[0] = vertex_0->get_velocity();
-		u[1] = vertex_1->get_velocity();
-		u[2] = vertex_00->get_velocity();
-		u[3] = vertex_11->get_velocity();
+		u[0] = centre_0->get_velocity();
+		u[1] = centre_1->get_velocity();
+		u[2] = centre_00->get_velocity();
+		u[3] = centre_11->get_velocity();
 
-		e_tot[0] = vertex_0->get_energy_density();
-		e_tot[1] = vertex_1->get_energy_density();
-		e_tot[2] = vertex_00->get_energy_density();
-		e_tot[3] = vertex_11->get_energy_density();
+		e_tot[0] = centre_0->get_energy_density();
+		e_tot[1] = centre_1->get_energy_density();
+		e_tot[2] = centre_00->get_energy_density();
+		e_tot[3] = centre_11->get_energy_density();
 
-		pressure[0] = vertex_0->get_pressure();
-		pressure[1] = vertex_1->get_pressure();
-		pressure[2] = vertex_00->get_pressure();
-		pressure[3] = vertex_11->get_pressure();
+		pressure[0] = centre_0->get_pressure();
+		pressure[1] = centre_1->get_pressure();
+		pressure[2] = centre_00->get_pressure();
+		pressure[3] = centre_11->get_pressure();
 
 		h_tot[0] = e_tot[0]+pressure[0]/density[0];
 		h_tot[1] = e_tot[1]+pressure[1]/density[1];
@@ -128,7 +128,7 @@ public:
 				theta[k] = 1.0;
 				phi[k] = flux_limiter(r_int[k]);
 			}
-			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
+			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor face (0.0)
 			epsilon[k] = e_val[k]*dt/dx;			// (above equation 6.51 in lecture notes)
 		}
 
@@ -175,7 +175,7 @@ public:
 		du1[2] = f_int[0]*dt/dx;
 
 		
-		/*if(vertex_0->get_x()>vertex_1->get_x()){	// create boundary at x=0.0 and x=20.0
+		/*if(centre_0->get_x()>centre_1->get_x()){	// create boundary at x=0.0 and x=20.0
 			du0[2] = 0.0;
 			du0[1] = 0.0;
 			du0[0] = 0.0;
@@ -185,7 +185,7 @@ public:
 			du1[0] = 0.0;
 		}*/
 		
-		if(vertex_0->get_x()>9.7999 and vertex_0->get_x()<9.81000){
+		if(centre_0->get_x()>9.7999 and centre_0->get_x()<9.81000){
 			/*
 			cout << "*************************************" << endl;
 			cout << "starting values -> " << u[0] << " " << u[1] << endl;
@@ -196,13 +196,13 @@ public:
 			cout << "components = " << gamma << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
 			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
 			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;
-			cout << "at " << (vertex_0->get_x()+vertex_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
+			cout << "at " << (centre_0->get_x()+centre_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
 			*/
 		}
-		vertex_0->update_du(du0);
-		vertex_1->update_du(du1);
+		centre_0->update_du(du0);
+		centre_1->update_du(du1);
 
-		//cout << "vertex positions " << vertex_0->get_x() << " " << vertex_1->get_x() << endl;
+		//cout << "centre positions " << centre_0->get_x() << " " << centre_1->get_x() << endl;
 
 		//}
 	}

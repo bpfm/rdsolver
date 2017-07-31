@@ -1,6 +1,8 @@
 /* class containing values associated with the face
-	*centre_0 = pointer to centre ID of lower centre
-	*centre_1 = pointer to centre ID of upper centre
+	*centre_0 = pointer to left centre
+	*centre_1 = pointer to right centre
+	*centre_00 = pointer to left centre
+	*centre_11 = pointer to right centre
 */
 
 using namespace std;
@@ -102,16 +104,16 @@ public:
 			q[j][4] = density[j];
 		}
 
-		c_sound = sqrt(gamma*pressure_avg/density_avg);			// calculate averge adiabatic sound speed
+		c_sound = sqrt(gamma*pressure_avg/density_avg);		// calculate averge adiabatic sound speed
 
-		e_val[0] = u_avg - c_sound;					// calculate eigen values (for x direction)
+		e_val[0] = u_avg - c_sound;				// calculate eigen values (for x direction)
 		e_val[1] = u_avg + c_sound;
 		e_val[2] = u_avg;
 		e_val[3] = u_avg;
 		e_val[4] = u_avg;
 
 		for(int k=0;k<5;k++){
-			if(e_val[k]<0){
+			/*if(e_val[k]<0){
 				if(q[1][k]==q[0][k]){
 					r_int[k]=0.0;
 				}else{
@@ -127,7 +129,7 @@ public:
 				}
 				theta[k] = 1.0;
 				phi[k] = flux_limiter(r_int[k]);
-			}
+			}*/
 			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor face (0.0)
 			epsilon[k] = e_val[k]*dt/dx;			// (above equation 6.51 in lecture notes)
 		}
@@ -185,8 +187,8 @@ public:
 			du1[0] = 0.0;
 		}*/
 		
+		/*
 		if(centre_0->get_x()>9.7999 and centre_0->get_x()<9.81000){
-			/*
 			cout << "*************************************" << endl;
 			cout << "starting values -> " << u[0] << " " << u[1] << endl;
 			cout << "steps = " << dt << " " << dx << endl;
@@ -197,8 +199,8 @@ public:
 			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
 			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;
 			cout << "at " << (centre_0->get_x()+centre_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
-			*/
 		}
+		*/
 		centre_0->update_du(du0);
 		centre_1->update_du(du1);
 

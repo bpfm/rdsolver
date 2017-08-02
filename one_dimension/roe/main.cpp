@@ -69,8 +69,11 @@ int main(){
 
 	/****** Loop over time until total time t_tot is reached ******/
 
-	ofstream density_map;							// open output file
-	density_map.open("density.txt");					
+	ofstream density_map;						        // open output file
+        ofstream pressure_map;
+
+	density_map.open("density.txt");
+        pressure_map.open("pressure.txt");
 
 	while(t<t_tot){
 
@@ -82,11 +85,13 @@ int main(){
 			next_time=next_time+(t_tot/10.0);
 			for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
 				density_map << points[i].get_x() << "\t" << points[i].get_mass_density() << endl;
+                                pressure_map << points[i].get_x() << "\t" << points[i].get_pressure() << endl;
 				total_density += points[i].get_mass_density()*dx;
 			}
 			cout << "*************************************" << endl;		// right out time and total density to terminal
 			cout << "time " << t << " -> total mass = " << total_density  << " time step =  " << dt << endl;
 			density_map << " " << endl;
+                        pressure_map << " " << endl;
 		}
 
 		for(it_face=centers.begin(),i=0;it_face<centers.end();it_face++,i++){		// loop over all faces
@@ -96,7 +101,8 @@ int main(){
 		for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){		// loop over all vertices
 			points[i].update_u_variables();						// update the u variables with the collected du
 			points[i].prim_to_con();						// convert these to their corresponding conserved
-			points[i].con_to_prim();						// convert back to guarentee correct value are used
+                        points[i].recalculate_pressure();                                       // caclulate pressure from new conserved values
+			points[i].con_to_prim();						// convert back to guarentee correct values are used
 			points[i].setup_f_variables();						// set flux variables with new values
 			points[i].reset_du();							// reset du value to zero for next timestep
 			points[i].calc_next_dt(dx,cfl,possible_dt);				// calculate next timestep
@@ -105,5 +111,6 @@ int main(){
 		t+=dt;																	// increment time
 	}
 	density_map.close();
+        pressure_map.close();
 	return 0;
 }

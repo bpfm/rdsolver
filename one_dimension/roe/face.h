@@ -113,11 +113,11 @@ public:
 		e_val[4] = u_avg;
 
 		for(int k=0;k<5;k++){
-			/*if(e_val[k]<0){
+			if(u_avg<0){
 				if(q[1][k]==q[0][k]){
 					r_int[k]=0.0;
 				}else{
-					r_int[k] = (q[3][k]-q[1][k])/(q[1][k]-q[0][k]); // using equation 4.37 from lecture notes
+					r_int[k] = (q[3][k]-q[0][k])/(q[0][k]-q[1][k]); // using equation 4.37 from lecture notes
 				}
 				theta[k] = -1.0;
 				phi[k] = flux_limiter(r_int[k]);
@@ -125,12 +125,12 @@ public:
 				if(q[1][k]==q[0][k]){
 					r_int[k]=0.0;
 				}else{
-					r_int[k] = (q[0][k]-q[2][k])/(q[1][k]-q[0][k]); // using equation 4.37 from lecture notes
+					r_int[k] = (q[1][k]-q[2][k])/(q[0][k]-q[1][k]); // using equation 4.37 from lecture notes
 				}
 				theta[k] = 1.0;
 				phi[k] = flux_limiter(r_int[k]);
-			}*/
-			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor face (0.0)
+			}
+			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
 			epsilon[k] = e_val[k]*dt/dx;			// (above equation 6.51 in lecture notes)
 		}
 
@@ -165,7 +165,7 @@ public:
 		for(int k=0;k<5;k++){
 			sum = 0.0;
 			for(int m=0;m<5;m++){sum  = sum + e_val[m]*e_delta_q[k]*(theta[m]+phi[m]*(epsilon[m]-theta[m]));}
-			f_int[k] = 0.5*(f1[k]+f0[k])-0.5*(sum);
+			f_int[k] = 0.5*(f1[k]+f0[k]);//-0.5*(sum);
 		}
 
 		du0[0] = -f_int[4]*dt/dx;
@@ -187,9 +187,11 @@ public:
 			du1[0] = 0.0;
 		}*/
 		
-		/*
-		if(centre_0->get_x()>9.7999 and centre_0->get_x()<9.81000){
+		
+		/*if(centre_1->get_x()>13 and centre_1
+			->get_x()<14){
 			cout << "*************************************" << endl;
+			cout << "positions of centres = " << centre_0->get_x() << " " << centre_1->get_x() << endl;
 			cout << "starting values -> " << u[0] << " " << u[1] << endl;
 			cout << "steps = " << dt << " " << dx << endl;
 			cout << "delta_q = " << delta_q[0] << " " << delta_q[1] << " " << delta_q[2] << " " << delta_q[3] << " " << delta_q[4]<< endl;
@@ -198,9 +200,10 @@ public:
 			cout << "components = " << gamma << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
 			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
 			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;
-			cout << "at " << (centre_0->get_x()+centre_1->get_x())/2.0 << " du0 = " << du1[0] << " " << du1[1] << " " << du1[2] << endl;
+			cout << "at " << (centre_0->get_x()+centre_1->get_x())/2.0 << " du0 = " << du0[0] << " " << du0[1] << " " << du0[2] << endl;
 		}
 		*/
+		
 		centre_0->update_du(du0);
 		centre_1->update_du(du1);
 
@@ -230,15 +233,15 @@ public:
 	double flux_limiter(double r){
 		double phi,twor;
 
-		//phi = mymin(1.0,r)					// minmod
-		//if(phi < 0.0){
-		//	phi=0.0;
-		//}
+		phi = mymin(1.0,r);					// minmod
+		if(phi < 0.0){
+			phi=0.0;
+		}
 
 		//twor = 2.0*r;
 		//phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));	// superbee
 
-		phi = r; 						// Beam-Warming
+		//phi = r; 						// Beam-Warming
 
 		//phi = (r+abs(r))/(1.0+abs(r)); 			// van Leer flux limiter
 

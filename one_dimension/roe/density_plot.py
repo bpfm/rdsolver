@@ -4,7 +4,7 @@ import numpy as np
 #x,density = np.loadtxt("density.txt", usecols = (0,1))
 
 n_points = 40
-dx = 20.0/float(n_points)
+dx = 40.0/float(n_points)
 
 data = np.loadtxt("density.txt")                       # myfile.txt contains 4 columns of numbers
 x0,rho0 = data[0:n_points-1,0]+0.5*dx, data[0:n_points-1,1]
@@ -33,11 +33,11 @@ plt.subplot(211)
 #plt.semilogy(x3,rho3)
 
 plt.plot(x0,rho0)
-plt.plot(x1,rho1)
-plt.plot(x2,rho2)
-plt.plot(x3,rho3)
+#plt.plot(x1,rho1)
+#plt.plot(x2,rho2)
+#plt.plot(x3,rho3)
 #plt.plot(x4,rho4)
-#plt.plot(x5,rho5)
+plt.plot(x5,rho5)
 
 #plt.plot(x0,diff1)
 
@@ -77,11 +77,11 @@ plt.subplot(212)
 #plt.semilogy(x3,rho3)
 
 plt.plot(x0,rho0)
-plt.plot(x1,rho1)
-plt.plot(x2,rho2)
-plt.plot(x3,rho3)
+#plt.plot(x1,rho1)
+#plt.plot(x2,rho2)
+#plt.plot(x3,rho3)
 #plt.plot(x4,rho4)
-#plt.plot(x5,rho5)
+plt.plot(x5,rho5)
 
 #plt.plot(x0,diff1)
 

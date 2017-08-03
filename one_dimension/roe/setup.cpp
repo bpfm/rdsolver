@@ -13,7 +13,7 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre, int ic){
 		}else{
 			new_centre.set_mass_density(0.125);					// units kg/m^3
 			new_centre.set_velocity(0.0);						// units m/s
-			new_centre.set_pressure(1000.0);					// units N/m^2
+			new_centre.set_pressure(10000.0);					// units N/m^2
 		}
 		new_centre.setup_energy_density();
 		new_centre.con_to_prim();

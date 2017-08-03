@@ -164,8 +164,8 @@ public:
 
 		for(int k=0;k<5;k++){
 			sum = 0.0;
-			for(int m=0;m<5;m++){sum  = sum + e_val[m]*e_delta_q[k]*(theta[m]+phi[m]*(epsilon[m]-theta[m]));}
-			f_int[k] = 0.5*(f1[k]+f0[k]);//-0.5*(sum);
+			for(int m=0;m<5;m++){sum  = sum + e_val[k]*e_delta_q[m]*(theta[m]+phi[m]*(epsilon[m]-theta[m]));}
+			f_int[k] = 0.5*(f1[k]+f0[k])-0.5*(sum);
 		}
 
 		du0[0] = -f_int[4]*dt/dx;
@@ -233,17 +233,22 @@ public:
 	double flux_limiter(double r){
 		double phi,twor;
 
+		/*
 		phi = mymin(1.0,r);					// minmod
 		if(phi < 0.0){
 			phi=0.0;
 		}
+		*/
 
-		//twor = 2.0*r;
-		//phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));	// superbee
+		twor = 2.0*r;
+		phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));	// superbee
 
 		//phi = r; 						// Beam-Warming
 
 		//phi = (r+abs(r))/(1.0+abs(r)); 			// van Leer flux limiter
+
+		//cout << phi << " " << twor << " " << r << endl;
+		//if(phi==2){exit(0);}
 
 		return phi;
 	}

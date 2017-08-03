@@ -71,9 +71,11 @@ int main(){
 
 	ofstream density_map;						        // open output file
         ofstream pressure_map;
+        ofstream velocity_map;
 
 	density_map.open("density.txt");
         pressure_map.open("pressure.txt");
+        velocity_map.open("velocity.txt");
 
 	while(t<t_tot){
 
@@ -86,12 +88,14 @@ int main(){
 			for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
 				density_map << points[i].get_x() << "\t" << points[i].get_mass_density() << endl;
                                 pressure_map << points[i].get_x() << "\t" << points[i].get_pressure() << endl;
+                                velocity_map << points[i].get_x() << "\t" << points[i].get_velocity() << endl;
 				total_density += points[i].get_mass_density()*dx;
 			}
 			cout << "*************************************" << endl;		// right out time and total density to terminal
 			cout << "time " << t << " -> total mass = " << total_density  << " time step =  " << dt << endl;
 			density_map << " " << endl;
                         pressure_map << " " << endl;
+                        velocity_map << " " << endl;
 		}
 
 		for(it_face=centers.begin(),i=0;it_face<centers.end();it_face++,i++){		// loop over all faces
@@ -112,5 +116,6 @@ int main(){
 	}
 	density_map.close();
         pressure_map.close();
+        velocity_map.close();
 	return 0;
 }

@@ -81,7 +81,7 @@ public:
 
 		/****** Construct Roe averages ******/
 
-		density_avg = (density[0]+density[1])/2.0;			// find average values at boundary
+		density_avg = sqrt(density[0])*sqrt(density[1]);			// find average values at boundary
 		e_tot_avg = (e_tot[0]+e_tot[1])/2.0;
 		pressure_avg = (pressure[0]+pressure[1])/2.0;
 
@@ -164,13 +164,15 @@ public:
 
 		for(int k=0;k<5;k++){
 			sum = 0.0;
-			for(int m=0;m<5;m++){sum  = sum + e_val[k]*e_delta_q[m]*(theta[m]+phi[m]*(epsilon[m]-theta[m]));}
+			for(int m=0;m<5;m++){sum  = sum + e_val[k]*e_delta_q[m];}//*(theta[m]+phi[m]*(epsilon[m]-theta[m]));}
 			f_int[k] = 0.5*(f1[k]+f0[k])-0.5*(sum);
 		}
 
 		du0[0] = -f_int[4]*dt/dx;
 		du0[1] = -f_int[1]*dt/dx;
 		du0[2] = -f_int[0]*dt/dx;
+
+		//cout << "du0 = " << du0[0] << " " << du0[1] << " " << du0[2] << endl;
 
 		du1[0] = f_int[4]*dt/dx;
 		du1[1] = f_int[1]*dt/dx;
@@ -207,8 +209,6 @@ public:
 		centre_0->update_du(du0);
 		centre_1->update_du(du1);
 
-		//cout << "centre positions " << centre_0->get_x() << " " << centre_1->get_x() << endl;
-
 		//}
 	}
 
@@ -241,7 +241,7 @@ public:
 		*/
 
 		twor = 2.0*r;
-		phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));	// superbee
+		phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));		// superbee
 
 		//phi = r; 						// Beam-Warming
 

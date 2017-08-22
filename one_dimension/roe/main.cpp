@@ -15,10 +15,10 @@ extern centre setup(int n_points, int i, float dx, centre new_centre, int ic);
 int main(){
 
 	int i,j;						// ******* decalare varaibles and vectors ******
-	int n_points=40;					// n_points = number of vertices
+	int n_points=200;					// n_points = number of vertices
 	int centre_id_0,centre_id_1;				// centre_id_0 and centre_id_1 = number of
 	double dx,dt,t=0.0,cfl,c_initial;			// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
-	double t_tot=0.01,next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
+	double t_tot=0.00001,next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
 	centre new_centre;					// new_centre = temporary centre to be added to vector of vertices
 	face new_face;						// new_face = temporary face to be added to vector of faces
 	centre *centre_0,*centre_1,*centre_00,*centre_11;	// *centre_0 and *centre_1 = pointers to vertices
@@ -28,8 +28,8 @@ int main(){
 	vector<face>::iterator it_face;				// it_face = iterator for face vector
 	double total_density,next_dt,possible_dt;		// total_density = total density in box
 
-	dx = 40.0/double(n_points);				// calculate face width
-	cfl = 0.1;						// set CFL condition
+	dx = 50.0/double(n_points);				// calculate face width
+	cfl = 0.5;						// set CFL condition
 	next_dt = 1.0;
 
 	cout << "Initial Timestep chosen as " << next_dt << " s" << endl;
@@ -80,7 +80,8 @@ int main(){
 	while(t<t_tot){
 
 		dt = next_dt;
-		dt = 0.000001;
+                dt=0.00001;
+
 		total_density = 0.0;						// reset total density counter
 
 		if(t>=next_time){						// write out densities at given interval

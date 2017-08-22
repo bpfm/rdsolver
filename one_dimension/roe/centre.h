@@ -111,7 +111,7 @@ public:
 	void recalculate_pressure(){
 		double gamma=1.4;
 //		cout << x << " " << pressure << endl;
-		pressure = (gamma-1.0)*mass_density * (energy_density - (velocity*velocity)/2.0);
+		pressure = (gamma-1.0) * mass_density * (energy_density - (velocity*velocity)/2.0);
 //		if(x==13.5){cout << x << " " << pressure << " " << energy_density << " " << velocity << " " << mass_density << endl;}
 	}
 

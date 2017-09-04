@@ -43,7 +43,7 @@ plt.plot(x5,rho5)
 
 plt.xlabel("x [m]")
 plt.ylabel("density [kg/m^3]")
-plt.xlim([10,20])
+#plt.xlim([10,20])
 #plt.ylim([0.001,1.5])
 
 

@@ -46,12 +46,15 @@ public:
 	}
 
 	void construct_state(double dx, double &dt, double t){
-		double density[4],u[4],v[4],w[4],e_tot[4],pressure[4],h_tot[4];
-		double density_avg,u_avg,v_avg,w_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
-		double e_vec[5][5],e_val[5],theta[5],phi[5],epsilon[5];
+		double density[4],u[4],e_tot[4],pressure[4],h_tot[4];
+		double density_avg,u_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
+		double e_vec[3][3],e_val[3],theta[3],phi[3],epsilon[3];
 		double c_sound,gamma = 1.4,zeta,sum;
-		double e_delta_q[5],delta_q[5],f0[5],f1[5],f_int[5],du0[3],du1[3];
-		double r_int[5];
+		double e_delta_q[3],delta_q[3],f0[3],f1[3],f_int[3],du0[3],du1[3];
+		double r_int[3];
+
+		double r_lower[3][3],r_upper[3][3],alpha[3];
+		double delta_p,delta_u,delta_d;
 
 		//if(centre_0->get_x()>9.79 and centre_0->get_x()<9.81){
 		density[0] = centre_0->get_mass_density();		// contruct state on either side of the face
@@ -86,110 +89,83 @@ public:
 		pressure_avg = (pressure[0]+pressure[1])/2.0;
 
 		u_avg = roe_avg(density[0], u[0], density[1], u[1]);		// find Roe averages for state values
-		v_avg = 0.0;
-		w_avg = 0.0;
 		h_tot_avg = roe_avg(density[0], h_tot[0], density[1], h_tot[1]);
-
-		//cout << "avgs " << u_avg << " " << h_tot_avg << endl;
 
 		/****** Constuct q vector on either side of boundary ******/
 
 		for(int j=0;j<4;j++){
-			v[j] = 0.0;
-			w[j] = 0.0;
-			q[j][0] = density[j]*e_tot[j];
+			q[j][0] = density[j];
 			q[j][1] = density[j]*u[j];
-			q[j][2] = density[j]*v[j];
-			q[j][3] = density[j]*w[j];
-			q[j][4] = density[j];
+			q[j][2] = density[j]*e_tot[j];
 		}
 
-		c_sound = sqrt(gamma*pressure_avg/density_avg);		// calculate averge adiabatic sound speed
+		//c_sound = sqrt(gamma*pressure_avg/density_avg);		// calculate averge adiabatic sound speed
+		c_sound = sqrt((gamma-1.0)*(h_tot_avg - e_kin_avg));
 
-		e_val[0] = u_avg - c_sound;				// calculate eigen values (for x direction)
-		e_val[1] = u_avg + c_sound;
-		e_val[2] = u_avg;
-		e_val[3] = u_avg;
-		e_val[4] = u_avg;
+		e_val[0] = u_avg - c_sound;				// calculate eigenvalues
+		e_val[1] = u_avg;
+		e_val[2] = u_avg + c_sound;
 
-		for(int k=0;k<5;k++){
-			if(u_avg<0){
-				if(q[1][k]==q[0][k]){
-					r_int[k]=0.0;
-				}else{
-					r_int[k] = (q[3][k]-q[0][k])/(q[0][k]-q[1][k]); // using equation 4.37 from lecture notes
-				}
-				theta[k] = -1.0;
-				phi[k] = flux_limiter(r_int[k]);
-			}else{
-				if(q[1][k]==q[0][k]){
-					r_int[k]=0.0;
-				}else{
-					r_int[k] = (q[1][k]-q[2][k])/(q[0][k]-q[1][k]); // using equation 4.37 from lecture notes
-				}
-				theta[k] = 1.0;
-				phi[k] = flux_limiter(r_int[k]);
-			}
-			phi[k] = 0.0;					// simple Lax-Wendroff flux limiter (1.0) or donor cell (0.0)
-			epsilon[k] = e_val[k]*dt/dx;			// (above equation 6.51 in lecture notes)
-		}
+		e_kin_avg = (u_avg*u_avg)/2.0;
 
-		e_kin_avg = (u_avg*u_avg + v_avg*v_avg + w_avg*w_avg)/2.0;
-
-		delta_q[0] = (density[1]*e_tot[1])-(density[0]*e_tot[0]);
+		delta_q[0] = density[1]-density[0];
 		delta_q[1] = (density[1]*u[1])-(density[0]*u[0]);
-		delta_q[2] = (density[1]*v[1])-(density[0]*v[0]);
-		delta_q[3] = (density[1]*w[1])-(density[0]*w[0]);
-		delta_q[4] = density[1]-density[0];
+		delta_q[2] = (density[1]*e_tot[1])-(density[0]*e_tot[0]);
 
-		zeta = u_avg*delta_q[1] + v_avg*delta_q[2] + w_avg*delta_q[3] - delta_q[0];
+		r_lower[0][0] = 1.0;
+		r_lower[0][1] = 1.0;
+		r_lower[0][2] = 1.0;
+		r_lower[1][0] = u_avg - c_sound;
+		r_lower[1][1] = u_avg;
+		r_lower[1][2] = u_avg + c_sound;
+		r_lower[2][0] = h_tot_avg - u_avg*c_sound;
+		r_lower[2][1] = 0.5*u_avg*u_avg;
+		r_lower[2][2] = h_tot_avg + u_avg*c_sound;
 
-		e_delta_q[0] = (gamma-1.0)/(2.0*c_sound*c_sound)*(e_kin_avg*delta_q[4]-zeta)-(delta_q[1]-u_avg*delta_q[4])/(2.0*c_sound);
-		e_delta_q[1] = (gamma-1.0)/(2.0*c_sound*c_sound)*(e_kin_avg*delta_q[4]-zeta)+(delta_q[1]-u_avg*delta_q[4])/(2.0*c_sound);
-		e_delta_q[2] = (gamma-1.0)/(2.0*c_sound*c_sound)*((h_tot_avg-2.0*e_kin_avg)*delta_q[4]+zeta);
-		e_delta_q[3] = delta_q[2]-v_avg*delta_q[4];
-		e_delta_q[4] = delta_q[3]-w_avg*delta_q[4];
+		r_upper[0][0] = u_avg/(4.0*c_sound)*(2.0+(gamma-1.0)*u_avg/c_sound);
+		r_upper[0][1] = -1.0/(2.0*c_sound)*(1.0+(gamma-1.0)*u_avg/c_sound);
+		r_upper[0][2] = (gamma-1.0)/2.0*1.0/(c_sound*c_sound);
+		r_upper[1][0] = 1.0-(gamma-1.0)/2.0*(u_avg*u_avg)/(c_sound*c_sound);
+		r_upper[1][1] = (gamma-1.0)*u_avg/(c_sound*c_sound);
+		r_upper[1][2] = -1.0*(gamma-1.0)/(c_sound*c_sound);
+		r_upper[2][0] = -1.0*u_avg/(4.0*c_sound)*(2.0-(gamma-1.0)*u_avg/c_sound);
+		r_upper[2][1] = 1.0/(2.0*c_sound)*(1.0-(gamma-1.0)*u_avg/c_sound);
+		r_upper[2][2] = (gamma-1.0)/(2.0*c_sound*c_sound);
 
-		f0[0] = density[0]*h_tot[0]*u[0];
+		delta_p = pressure[1]-pressure[0];
+		delta_u = u[1]-u[0];
+		delta_d = density[1]-density[0];
+
+		alpha[0] = (delta_p - c_sound*density_avg*delta_u)/(2.0*c_sound*c_sound);
+		alpha[1] = (delta_d - delta_p/(c_sound*c_sound));
+		alpha[2] = (delta_p + c_sound*density_avg*delta_u)/(2.0*c_sound*c_sound);
+
+		f0[0] = density[0]*u[0];
 		f0[1] = density[0]*u[0]*u[0]+pressure[0];
-		f0[2] = density[0]*u[0]*v[0];
-		f0[3] = density[0]*u[0]*w[0];
-		f0[4] = density[0]*u[0];
+		f0[2] = density[0]*h_tot[0]*u[0];
 
-		f1[0] = density[1]*h_tot[1]*u[1];
+		f1[0] = density[1]*u[1];
 		f1[1] = density[1]*u[1]*u[1]+pressure[1];
-		f1[2] = density[1]*u[1]*v[1];
-		f1[3] = density[1]*u[1]*w[1];
-		f1[4] = density[1]*u[1];
+		f1[2] = density[1]*h_tot[1]*u[1];
 
-		for(int k=0;k<5;k++){
+		for(int k=0;k<3;k++){
 			sum = 0.0;
-			for(int m=0;m<5;m++){sum  = sum + e_val[k]*e_delta_q[m];}//*(theta[m]+phi[m]*(epsilon[m]-theta[m]));}
-			f_int[k] = 0.5*(f1[k]+f0[k])-0.5*(sum);
+			for(int m=0;m<5;m++){sum  = sum + alpha[m]*abs(e_val[m])*r_lower[k][m];}
+			f_int[k] = 0.5*(f1[k]+f0[k]-sum);
 		}
 
-		du0[0] = -f_int[4]*dt/dx;
+		//cout << sum << " " << alpha[0] << " " << delta_p << " " << delta_u << " " << delta_d << " " << c_sound << endl;
+
+		du0[0] = -f_int[0]*dt/dx;
 		du0[1] = -f_int[1]*dt/dx;
-		du0[2] = -f_int[0]*dt/dx;
+		du0[2] = -f_int[2]*dt/dx;
 
 		//cout << "du0 = " << du0[0] << " " << du0[1] << " " << du0[2] << endl;
 
-		du1[0] = f_int[4]*dt/dx;
+		du1[0] = f_int[0]*dt/dx;
 		du1[1] = f_int[1]*dt/dx;
-		du1[2] = f_int[0]*dt/dx;
+		du1[2] = f_int[2]*dt/dx;
 
-		
-		/*if(centre_0->get_x()>centre_1->get_x()){	// create boundary at x=0.0 and x=20.0
-			du0[2] = 0.0;
-			du0[1] = 0.0;
-			du0[0] = 0.0;
-
-			du1[2] = 0.0;
-			du1[1] = 0.0;
-			du1[0] = 0.0;
-		}*/
-		
-		
 		/*if(centre_1->get_x()>13 and centre_1
 			->get_x()<14){
 			cout << "*************************************" << endl;

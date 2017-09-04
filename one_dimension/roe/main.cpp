@@ -18,7 +18,7 @@ int main(){
 	int n_points=200;					// n_points = number of vertices
 	int centre_id_0,centre_id_1;				// centre_id_0 and centre_id_1 = number of
 	double dx,dt,t=0.0,cfl,c_initial;			// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
-	double t_tot=0.00001,next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
+	double t_tot=0.1,next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
 	centre new_centre;					// new_centre = temporary centre to be added to vector of vertices
 	face new_face;						// new_face = temporary face to be added to vector of faces
 	centre *centre_0,*centre_1,*centre_00,*centre_11;	// *centre_0 and *centre_1 = pointers to vertices
@@ -80,7 +80,6 @@ int main(){
 	while(t<t_tot){
 
 		dt = next_dt;
-                dt=0.00001;
 
 		total_density = 0.0;						// reset total density counter
 

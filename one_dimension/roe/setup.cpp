@@ -20,7 +20,9 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre, int ic){
 		new_centre.setup_f_variables();
 		new_centre.reset_du();
 		return new_centre;
+
 	}else{
+		
 		if(i==0){cout << "Using Sine Wave" << endl;}
 		new_centre.set_x(float(i)*dx);
 

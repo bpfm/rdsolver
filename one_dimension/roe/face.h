@@ -13,7 +13,7 @@ private:
 
 	int id;
 	centre *centre_0,*centre_1,*centre_00,*centre_11;
-	double q[4][5];
+	double q[4][3];
 
 public:
 
@@ -49,7 +49,7 @@ public:
 		double density[4],u[4],e_tot[4],pressure[4],h_tot[4];
 		double density_avg,u_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
 		double e_vec[3][3],e_val[3],theta[3],phi[3],epsilon[3];
-		double c_sound,gamma = 1.4,zeta,sum;
+		double c_sound,zeta,sum;
 		double e_delta_q[3],delta_q[3],f0[3],f1[3],f_int[3],du0[3],du1[3];
 		double r_int[3];
 
@@ -99,12 +99,65 @@ public:
 			q[j][2] = density[j]*e_tot[j];
 		}
 
-		//c_sound = sqrt(gamma*pressure_avg/density_avg);		// calculate averge adiabatic sound speed
-		c_sound = sqrt((gamma-1.0)*(h_tot_avg - e_kin_avg));
+		c_sound = sqrt((GAMMA-1.0)*(h_tot_avg - e_kin_avg));
 
 		e_val[0] = u_avg - c_sound;				// calculate eigenvalues
 		e_val[1] = u_avg;
 		e_val[2] = u_avg + c_sound;
+
+/*
+		if(e_val[0] > 0){
+
+			f_int[0] = density[0]*u[0];
+			f_int[1] = density[0]*u[0]*u[0]+pressure[0];
+			f_int[2] = density[0]*h_tot[0]*u[0];
+
+			du0[0] = -f_int[0]*dt/dx;
+			du0[1] = -f_int[1]*dt/dx;
+			du0[2] = -f_int[2]*dt/dx;
+
+			du1[0] = f_int[0]*dt/dx;
+			du1[1] = f_int[1]*dt/dx;
+			du1[2] = f_int[2]*dt/dx;
+
+			centre_0->update_du(du0);
+			centre_1->update_du(du1);
+  
+			return;
+		}
+
+		if(e_val[2] < 0){
+		  
+			f_int[0] = density[1]*u[1];
+			f_int[1] = density[1]*u[1]*u[1]+pressure[1];
+			f_int[2] = density[1]*h_tot[1]*u[1];
+
+			du0[0] = -f_int[0]*dt/dx;
+			du0[1] = -f_int[1]*dt/dx;
+			du0[2] = -f_int[2]*dt/dx;
+
+			du1[0] = f_int[0]*dt/dx;
+			du1[1] = f_int[1]*dt/dx;
+			du1[2] = f_int[2]*dt/dx;
+
+			centre_0->update_du(du0);
+			centre_1->update_du(du1);
+
+			return;
+		}
+*/
+
+		// in case of transonic fluxes, there may be numerical problems
+		// a possible fix follows
+
+		double dlambda, eps;
+		dlambda = fabs(fabs(u_avg) - c_sound) / c_sound;
+
+		if(dlambda < 1e-6){
+			eps = 1e-6 * c_sound;
+			e_val[0] = 0.5 * (e_val[0] * e_val[0] / eps + eps);
+			e_val[2] = 0.5 * (e_val[2] * e_val[2] / eps + eps);
+		}
 
 		e_kin_avg = (u_avg*u_avg)/2.0;
 
@@ -122,15 +175,17 @@ public:
 		r_lower[2][1] = 0.5*u_avg*u_avg;
 		r_lower[2][2] = h_tot_avg + u_avg*c_sound;
 
-		r_upper[0][0] = u_avg/(4.0*c_sound)*(2.0+(gamma-1.0)*u_avg/c_sound);
-		r_upper[0][1] = -1.0/(2.0*c_sound)*(1.0+(gamma-1.0)*u_avg/c_sound);
-		r_upper[0][2] = (gamma-1.0)/2.0*1.0/(c_sound*c_sound);
-		r_upper[1][0] = 1.0-(gamma-1.0)/2.0*(u_avg*u_avg)/(c_sound*c_sound);
-		r_upper[1][1] = (gamma-1.0)*u_avg/(c_sound*c_sound);
-		r_upper[1][2] = -1.0*(gamma-1.0)/(c_sound*c_sound);
-		r_upper[2][0] = -1.0*u_avg/(4.0*c_sound)*(2.0-(gamma-1.0)*u_avg/c_sound);
-		r_upper[2][1] = 1.0/(2.0*c_sound)*(1.0-(gamma-1.0)*u_avg/c_sound);
-		r_upper[2][2] = (gamma-1.0)/(2.0*c_sound*c_sound);
+		/*
+		r_upper[0][0] = u_avg/(4.0*c_sound)*(2.0+(GAMMA-1.0)*u_avg/c_sound);
+		r_upper[0][1] = -1.0/(2.0*c_sound)*(1.0+(GAMMA-1.0)*u_avg/c_sound);
+		r_upper[0][2] = (GAMMA-1.0)/2.0*1.0/(c_sound*c_sound);
+		r_upper[1][0] = 1.0-(GAMMA-1.0)/2.0*(u_avg*u_avg)/(c_sound*c_sound);
+		r_upper[1][1] = (GAMMA-1.0)*u_avg/(c_sound*c_sound);
+		r_upper[1][2] = -1.0*(GAMMA-1.0)/(c_sound*c_sound);
+		r_upper[2][0] = -1.0*u_avg/(4.0*c_sound)*(2.0-(GAMMA-1.0)*u_avg/c_sound);
+		r_upper[2][1] = 1.0/(2.0*c_sound)*(1.0-(GAMMA-1.0)*u_avg/c_sound);
+		r_upper[2][2] = (GAMMA-1.0)/(2.0*c_sound*c_sound);
+		*/
 
 		delta_p = pressure[1]-pressure[0];
 		delta_u = u[1]-u[0];
@@ -166,8 +221,8 @@ public:
 		du1[1] = f_int[1]*dt/dx;
 		du1[2] = f_int[2]*dt/dx;
 
-		/*if(centre_1->get_x()>13 and centre_1
-			->get_x()<14){
+		/*
+		if(centre_1->get_x()>13 and centre_1->get_x()<14){
 			cout << "*************************************" << endl;
 			cout << "positions of centres = " << centre_0->get_x() << " " << centre_1->get_x() << endl;
 			cout << "starting values -> " << u[0] << " " << u[1] << endl;
@@ -175,17 +230,17 @@ public:
 			cout << "delta_q = " << delta_q[0] << " " << delta_q[1] << " " << delta_q[2] << " " << delta_q[3] << " " << delta_q[4]<< endl;
 			cout << "eigen values = " << e_val[0] << " " << e_val[1] << " " << e_val[2] << " " << e_val[3] << " " << e_val[4] << endl;
 			cout << "sound speed components = " << pressure_avg << " " << density_avg << endl;
-			cout << "components = " << gamma << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
+			cout << "components = " << GAMMA << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
 			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
 			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;
 			cout << "at " << (centre_0->get_x()+centre_1->get_x())/2.0 << " du0 = " << du0[0] << " " << du0[1] << " " << du0[2] << endl;
 		}
 		*/
-		
+
 		centre_0->update_du(du0);
 		centre_1->update_du(du1);
 
-		//}
+	//}
 	}
 
 	// returns 1.0 for positive numbers and -1.0 for negative numbers

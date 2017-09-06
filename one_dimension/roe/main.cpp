@@ -4,13 +4,14 @@
 #include <vector>
 #include <cstdlib>
 
+#include "constants.h"
 #include "centre.h"
 #include "face.h"
 #include "setup.cpp"
 
 using namespace std;
 
-extern centre setup(int n_points, int i, float dx, centre new_centre, int ic);
+extern centre setup(int n_points, int i, float dx, centre new_centre);
 
 int main(){
 
@@ -32,12 +33,10 @@ int main(){
 	cfl = 0.5;						// set CFL condition
 	next_dt = 1.0;
 
-	cout << "Initial Timestep chosen as " << next_dt << " s" << endl;
-
 	/****** Setup initial conditions of one dimensional tube ******/
 
 	for (i=0;i<n_points;i++){
-		new_centre = setup_centre(n_points,i,dx,new_centre,0);	// call centre setup routine (0 = shock tube, 1 = sine wave)
+		new_centre = setup_centre(n_points,i,dx,new_centre);	// call centre setup routine (0 = shock tube, 1 = sine wave)
 		points.push_back(new_centre);				// add new centre to vector of all vertices
 		points[i].calc_next_dt(dx,cfl,possible_dt);		// check dt is min required by cfl
 		if(possible_dt<next_dt){next_dt=possible_dt;}
@@ -80,6 +79,7 @@ int main(){
 	while(t<t_tot){
 
 		dt = next_dt;
+		dt = 0.0000001;
 
 		total_density = 0.0;						// reset total density counter
 
@@ -115,7 +115,7 @@ int main(){
 		t+=dt;																	// increment time
 	}
 	density_map.close();
-        pressure_map.close();
-        velocity_map.close();
+  	pressure_map.close();
+  	velocity_map.close();
 	return 0;
 }

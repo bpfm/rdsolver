@@ -92,8 +92,7 @@ public:
 
 	//functions to set up energy density varaible, and u and f arrays
 	void setup_energy_density(){
-		double gamma=1.4;
-		energy_density = pressure/((gamma-1.0)*mass_density)+velocity*velocity/2.0;
+		energy_density = pressure/((GAMMA-1.0)*mass_density)+velocity*velocity/2.0;
 	}
 
 	void con_to_prim(){
@@ -109,9 +108,8 @@ public:
 	}
 
 	void recalculate_pressure(){
-		double gamma=1.4;
 //		cout << x << " " << pressure << endl;
-		pressure = (gamma-1.0) * mass_density * (energy_density - (velocity*velocity)/2.0);
+		pressure = (GAMMA-1.0) * mass_density * (energy_density - (velocity*velocity)/2.0);
 //		if(x==13.5){cout << x << " " << pressure << " " << energy_density << " " << velocity << " " << mass_density << endl;}
 	}
 
@@ -140,8 +138,8 @@ public:
 	}
 
 	void calc_next_dt(double dx, double cfl, double &next_dt){
-		double c_sound,gamma=1.4;
-		c_sound = sqrt(gamma*pressure/mass_density);
+		double c_sound;
+		c_sound = sqrt(GAMMA*pressure/mass_density);
 		next_dt = cfl*(dx/(c_sound+abs(velocity)));
 	}
 

@@ -105,7 +105,7 @@ public:
 		e_val[1] = u_avg;
 		e_val[2] = u_avg + c_sound;
 
-/*
+
 		if(e_val[0] > 0){
 
 			f_int[0] = density[0]*u[0];
@@ -145,7 +145,7 @@ public:
 
 			return;
 		}
-*/
+
 
 		// in case of transonic fluxes, there may be numerical problems
 		// a possible fix follows
@@ -195,6 +195,8 @@ public:
 		alpha[1] = (delta_d - delta_p/(c_sound*c_sound));
 		alpha[2] = (delta_p + c_sound*density_avg*delta_u)/(2.0*c_sound*c_sound);
 
+		//cout << "alpha: " << alpha[0] << "  " << alpha[1] << "  " << alpha[2] << endl;
+
 		f0[0] = density[0]*u[0];
 		f0[1] = density[0]*u[0]*u[0]+pressure[0];
 		f0[2] = density[0]*h_tot[0]*u[0];
@@ -205,7 +207,7 @@ public:
 
 		for(int k=0;k<3;k++){
 			sum = 0.0;
-			for(int m=0;m<5;m++){sum  = sum + alpha[m]*abs(e_val[m])*r_lower[k][m];}
+			for(int m=0;m<3;m++){sum  = sum + alpha[m]*abs(e_val[m])*r_lower[k][m];}
 			f_int[k] = 0.5*(f1[k]+f0[k]-sum);
 		}
 
@@ -221,24 +223,10 @@ public:
 		du1[1] = f_int[1]*dt/dx;
 		du1[2] = f_int[2]*dt/dx;
 
-		/*
-		if(centre_1->get_x()>13 and centre_1->get_x()<14){
-			cout << "*************************************" << endl;
-			cout << "positions of centres = " << centre_0->get_x() << " " << centre_1->get_x() << endl;
-			cout << "starting values -> " << u[0] << " " << u[1] << endl;
-			cout << "steps = " << dt << " " << dx << endl;
-			cout << "delta_q = " << delta_q[0] << " " << delta_q[1] << " " << delta_q[2] << " " << delta_q[3] << " " << delta_q[4]<< endl;
-			cout << "eigen values = " << e_val[0] << " " << e_val[1] << " " << e_val[2] << " " << e_val[3] << " " << e_val[4] << endl;
-			cout << "sound speed components = " << pressure_avg << " " << density_avg << endl;
-			cout << "components = " << GAMMA << " " << c_sound << " " << e_kin_avg << " " << u_avg << endl;
-			cout << "e_delta_q components = " << e_kin_avg << " " << zeta << endl;
-			cout << "e_delta_q = " << e_delta_q[0] << " " << e_delta_q[1] << " " << e_delta_q[2] << " " << e_delta_q[3] << " " << e_delta_q[4]<< endl;
-			cout << "at " << (centre_0->get_x()+centre_1->get_x())/2.0 << " du0 = " << du0[0] << " " << du0[1] << " " << du0[2] << endl;
-		}
-		*/
-
 		centre_0->update_du(du0);
 		centre_1->update_du(du1);
+
+		//cout << "du1 = " << du1[0] << "\t" << du1[1] << "\t" << du1[2] << endl;
 
 	//}
 	}

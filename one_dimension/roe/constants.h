@@ -1,5 +1,7 @@
 #define IC 2
 
+double t_tot = 0.001;
+
 #if IC == 0
 double GAMMA = 1.4;
 #endif

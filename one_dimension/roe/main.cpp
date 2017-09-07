@@ -19,7 +19,7 @@ int main(){
 	int n_points=200;					// n_points = number of vertices
 	int centre_id_0,centre_id_1;				// centre_id_0 and centre_id_1 = number of
 	double dx,dt,t=0.0,cfl,c_initial;			// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
-	double t_tot=0.1,next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
+	double next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
 	centre new_centre;					// new_centre = temporary centre to be added to vector of vertices
 	face new_face;						// new_face = temporary face to be added to vector of faces
 	centre *centre_0,*centre_1,*centre_00,*centre_11;	// *centre_0 and *centre_1 = pointers to vertices
@@ -76,10 +76,14 @@ int main(){
         pressure_map.open("pressure.txt");
         velocity_map.open("velocity.txt");
 
+        j=1;
+
 	while(t<t_tot){
 
 		dt = next_dt;
 		dt = 0.0000001;
+
+		cout << j << "\ttime =\t" << t << "\ttime step =\t" << dt << "\tcentral density =" << points[25].get_mass_density() << endl;
 
 		total_density = 0.0;						// reset total density counter
 
@@ -91,8 +95,8 @@ int main(){
                                 velocity_map << points[i].get_x() << "\t" << points[i].get_velocity() << endl;
 				total_density += points[i].get_mass_density()*dx;
 			}
-			cout << "*************************************" << endl;		// right out time and total density to terminal
-			cout << "time " << t << " -> total mass = " << total_density  << " time step =  " << dt << endl;
+			cout << "*********************************************************" << endl;		// right out time and total density to terminal
+			cout << "time\t" << t << " \t-> total mass =\t" << total_density  << "\ttime step = \t" << dt << endl;
 			density_map << " " << endl;
                         pressure_map << " " << endl;
                         velocity_map << " " << endl;
@@ -101,6 +105,8 @@ int main(){
 		for(it_face=centers.begin(),i=0;it_face<centers.end();it_face++,i++){		// loop over all faces
 			centers[i].construct_state(dx,dt,t);					// calculate flux through boundary
 		}
+
+		next_dt = t_tot - (t + dt);	// set next timestep to max possible value (time remaining to end)
 
 		for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){		// loop over all vertices
 			points[i].update_u_variables();						// update the u variables with the collected du
@@ -112,7 +118,8 @@ int main(){
 			points[i].calc_next_dt(dx,cfl,possible_dt);				// calculate next timestep
 			if(possible_dt<next_dt){next_dt=possible_dt;}
 		}
-		t+=dt;																	// increment time
+		t+=dt;										// increment time
+		j+=1;
 	}
 	density_map.close();
   	pressure_map.close();

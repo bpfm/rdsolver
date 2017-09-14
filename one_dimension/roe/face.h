@@ -48,8 +48,8 @@ public:
 	void construct_state(double dx, double &dt, double t){
 		double density[4],u[4],e_tot[4],pressure[4],h_tot[4];
 		double density_avg,u_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
-		double e_vec[3][3],e_val[3],theta[3],phi[3],epsilon[3];
-		double c_sound,zeta,sum;
+		double e_vec[3][3],e_val[3];
+		double c_sound,sum;
 		double e_delta_q[3],delta_q[3],f0[3],f1[3],f_int[3],du0[3],du1[3];
 		double r_int[3];
 
@@ -99,6 +99,8 @@ public:
 			q[j][2] = density[j]*e_tot[j];
 		}
 
+		e_kin_avg = (u_avg*u_avg)/2.0;
+
 		c_sound = sqrt((GAMMA-1.0)*(h_tot_avg - e_kin_avg));
 
 		e_val[0] = u_avg - c_sound;				// calculate eigenvalues
@@ -122,6 +124,8 @@ public:
 
 			centre_0->update_du(du0);
 			centre_1->update_du(du1);
+
+			//cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
   
 			return;
 		}
@@ -143,6 +147,8 @@ public:
 			centre_0->update_du(du0);
 			centre_1->update_du(du1);
 
+			//cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
+
 			return;
 		}
 
@@ -158,8 +164,6 @@ public:
 			e_val[0] = 0.5 * (e_val[0] * e_val[0] / eps + eps);
 			e_val[2] = 0.5 * (e_val[2] * e_val[2] / eps + eps);
 		}
-
-		e_kin_avg = (u_avg*u_avg)/2.0;
 
 		delta_q[0] = density[1]-density[0];
 		delta_q[1] = (density[1]*u[1])-(density[0]*u[0]);
@@ -217,7 +221,7 @@ public:
 		du0[1] = -f_int[1]*dt/dx;
 		du0[2] = -f_int[2]*dt/dx;
 
-		//cout << "du0 = " << du0[0] << " " << du0[1] << " " << du0[2] << endl;
+		//cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
 
 		du1[0] = f_int[0]*dt/dx;
 		du1[1] = f_int[1]*dt/dx;
@@ -226,7 +230,28 @@ public:
 		centre_0->update_du(du0);
 		centre_1->update_du(du1);
 
-		//cout << "du1 = " << du1[0] << "\t" << du1[1] << "\t" << du1[2] << endl;
+		//cout << "du1 =\t" << du1[0] << "\t" << du1[1] << "\t" << du1[2] << endl;
+
+		if(isnan(du1[0]) or isnan(du0[0])){
+			cout << "f0 =\t" << f0[0] << "\t" << f0[1] << "\t" << f0[2] << endl;
+			cout << "f1 =\t" << f1[0] << "\t" << f1[1] << "\t" << f1[2] << endl;
+			cout << "sum =\t" << sum << endl;
+			cout << "alpha =\t" << alpha[0] << "\t" << alpha[0] << "\t" << alpha[0] << endl;
+			cout << "delta_p =\t" << delta_p << endl;
+			cout << "delta_u =\t" << delta_u << endl;
+			cout << "delta_d =\t" << delta_d << endl;
+			cout << "c_sound =\t" << c_sound << endl;
+			cout << "h_tot_avg =\t" << h_tot_avg << endl;
+			cout << "e_kin_avg =\t" << e_kin_avg << endl;
+			cout << "GAMMA =\t" << GAMMA << endl; 
+
+			cout << "c_sound =\t" << c_sound << "\t" << GAMMA << "\th_tot_avg =\t" << h_tot_avg << endl;
+			
+			cout << "density =\t" << density[0] << "\t" << density[1] << endl;
+
+			cout << "EXITING" << endl;
+			exit(0);
+		}
 
 	//}
 	}

@@ -6,7 +6,7 @@ import numpy as np
 n_points = 200
 dx = 40.0/float(n_points)
 
-data = np.loadtxt("density.txt")                       # myfile.txt contains 4 columns of numbers
+data = np.loadtxt("density.txt")
 x0,rho0 = data[0:n_points-1,0]+0.5*dx, data[0:n_points-1,1]
 x1,rho1 = data[n_points:2*n_points-1,0]+0.5*dx, data[n_points:2*n_points-1,1]
 x2,rho2 = data[2*n_points:3*n_points-1,0]+0.5*dx, data[2*n_points:3*n_points-1,1]
@@ -24,24 +24,24 @@ diff1 = rho1 - rho0
 #  x[i] = density[0][i]
 #  y[i] = density[1][i]
 
-plt.subplot(311)
+plt.subplot(211)
 
 plt.plot(x0,rho0)
-#plt.plot(x1,rho1)
-#plt.plot(x2,rho2)
-#plt.plot(x3,rho3)
+plt.plot(x1,rho1)
+plt.plot(x2,rho2)
+plt.plot(x3,rho3)
 plt.plot(x4,rho4)
 
 plt.xlabel("x [m]")
 plt.ylabel("density [kg/m^3]")
-plt.xlim([20,30])
+#plt.xlim([20,30])
 #plt.ylim([0.001,1.5])
 
 
 ############################## pressure plot ##############################
 
 
-data = np.loadtxt("pressure.txt")                       # myfile.txt contains 4 columns of numbers
+data = np.loadtxt("pressure.txt")
 x0,rho0 = data[0:n_points-1,0]+0.5*dx, data[0:n_points-1,1]
 x1,rho1 = data[n_points:2*n_points-1,0]+0.5*dx, data[n_points:2*n_points-1,1]
 x2,rho2 = data[2*n_points:3*n_points-1,0]+0.5*dx, data[2*n_points:3*n_points-1,1]
@@ -60,24 +60,25 @@ diff1 = rho1 - rho0
 #  x[i] = density[0][i]
 #  y[i] = density[1][i]
 
-plt.subplot(312)
+plt.subplot(212)
 
 plt.plot(x0,rho0)
-#plt.plot(x1,rho1)
-#plt.plot(x2,rho2)
-#plt.plot(x3,rho3)
+plt.plot(x1,rho1)
+plt.plot(x2,rho2)
+plt.plot(x3,rho3)
 plt.plot(x4,rho4)
 
 plt.xlabel("x [m]")
 plt.ylabel("pressure [N/m^2]")
-plt.xlim([20,30])
+#plt.xlim([20,30])
 #plt.ylim([0.001,1.5])
 
+plt.show()
 
 ############################## velocity plot ##############################
 
 
-data = np.loadtxt("velocity.txt")                       # myfile.txt contains 4 columns of numbers
+data = np.loadtxt("velocity.txt")
 x0,rho0 = data[0:n_points-1,0]+0.5*dx, data[0:n_points-1,1]
 x1,rho1 = data[n_points:2*n_points-1,0]+0.5*dx, data[n_points:2*n_points-1,1]
 x2,rho2 = data[2*n_points:3*n_points-1,0]+0.5*dx, data[2*n_points:3*n_points-1,1]
@@ -99,13 +100,14 @@ diff1 = rho1 - rho0
 plt.subplot(313)
 
 plt.plot(x0,rho0)
-#plt.plot(x1,rho1)
-#plt.plot(x2,rho2)
-#plt.plot(x3,rho3)
+plt.plot(x1,rho1)
+plt.plot(x2,rho2)
+plt.plot(x3,rho3)
 plt.plot(x4,rho4)
 
 plt.xlabel("x [m]")
 plt.ylabel("velocity [m/s]")
-plt.xlim([20,30])
+#plt.xlim([20,30])
 #plt.ylim([0.001,1.5])
-plt.show()
+
+#plt.show()

@@ -81,9 +81,9 @@ int main(){
 	while(t<t_tot){
 
 		dt = next_dt;
-		dt = 0.0000001;
+		//dt = 0.00001;
 
-		cout << j << "\ttime =\t" << t << "\ttime step =\t" << dt << "\tcentral density =" << points[25].get_mass_density() << endl;
+		//cout << j << "\ttime =\t" << t << "\ttime step =\t" << dt << "\tcentral density =" << points[100].get_mass_density() << endl;
 
 		total_density = 0.0;						// reset total density counter
 
@@ -111,7 +111,7 @@ int main(){
 		for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){		// loop over all vertices
 			points[i].update_u_variables();						// update the u variables with the collected du
 			points[i].prim_to_con();						// convert these to their corresponding conserved
-                        points[i].recalculate_pressure();                                       // caclulate pressure from new conserved values
+                        points[i].recalculate_pressure();					// caclulate pressure from new conserved values
 			points[i].con_to_prim();						// convert back to guarentee correct values are used
 			points[i].setup_f_variables();						// set flux variables with new values
 			points[i].reset_du();							// reset du value to zero for next timestep

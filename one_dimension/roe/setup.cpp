@@ -23,21 +23,23 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre){
 
 	}else if(IC == 1){
 
-                double vel_phase = 2.0;
-                double wavelength = 50.0;
-                double freq,period;
-		
-		if(i==0){
-                        cout << "Using Sine Wave" << endl;
-                        freq = vel_phase/wavelength;
-                        period = 1.0/freq;
-                        //cout << "Wave properties:\t frequency =\t" << freq << " per s\tperiod =\t" << period << " s\twavelength =\t" << wavelength << " m\tphase velocity =\t" << vel_phase << " m/s" << endl;
-                }
-		new_centre.set_x(float(i)*dx);
+                double rho,rho_0 = 3.0;
+                double p,p_0 = 50.0;
+                double c_s = sqrt(GAMMA*p_0/rho_0);
+                double k = 2.0*3.1415/50.0;
+                double epsilon = 0.1;
+                double x = double(i)*dx;
+                double v;
 
-		new_centre.set_mass_density(1.0);	// units kg/m^3
-		new_centre.set_velocity(sin(float(i)/float(n_points)*(2.0*3.1415)));	                                        // units m/s
-		new_centre.set_pressure(100.0);		        // units N/m^2
+		new_centre.set_x(x);
+
+                rho = rho_0*(1.0 + epsilon * cos(k * x));
+                p = p_0 + c_s * c_s * (rho - rho_0);
+                v = c_s * (rho - rho_0)/rho_0;
+
+		new_centre.set_mass_density(rho);	                // units kg/m^3
+		new_centre.set_velocity(v);	                // units m/s
+		new_centre.set_pressure(p);		        // units N/m^2
 
 		new_centre.setup_energy_density();
 		new_centre.con_to_prim();
@@ -45,7 +47,6 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre){
 		new_centre.reset_du();
 
                 return new_centre;
-
 
         }else{
 
@@ -63,6 +64,7 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre){
                 new_centre.con_to_prim();
                 new_centre.setup_f_variables();
                 new_centre.reset_du();
+
                 return new_centre;
         }
 }

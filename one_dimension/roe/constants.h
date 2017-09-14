@@ -1,6 +1,6 @@
 #define IC 2
 
-double t_tot = 0.001;
+double t_tot = 0.5;
 
 #if IC == 0
 double GAMMA = 1.4;

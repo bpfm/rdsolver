@@ -244,11 +244,8 @@ public:
 			cout << "h_tot_avg =\t" << h_tot_avg << endl;
 			cout << "e_kin_avg =\t" << e_kin_avg << endl;
 			cout << "GAMMA =\t" << GAMMA << endl; 
-
 			cout << "c_sound =\t" << c_sound << "\t" << GAMMA << "\th_tot_avg =\t" << h_tot_avg << endl;
-			
 			cout << "density =\t" << density[0] << "\t" << density[1] << endl;
-
 			cout << "EXITING" << endl;
 			exit(0);
 		}

@@ -18,7 +18,7 @@ int main(){
 	int i,j;						// ******* decalare varaibles and vectors ******
 	int n_points=200;					// n_points = number of vertices
 	int centre_id_0,centre_id_1;				// centre_id_0 and centre_id_1 = number of
-	double dx,dt,t=0.0,cfl,c_initial;			// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
+	double dx,dt,t=0.0,c_initial;			// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
 	double next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
 	centre new_centre;					// new_centre = temporary centre to be added to vector of vertices
 	face new_face;						// new_face = temporary face to be added to vector of faces
@@ -28,9 +28,11 @@ int main(){
 	vector<centre>::iterator it_vert;			// it_vert = iterator for centre vector
 	vector<face>::iterator it_face;				// it_face = iterator for face vector
 	double total_density,next_dt,possible_dt;		// total_density = total density in box
+	double max_density,max_start,max_position,max_neighbour;
+	int max_passes,passed
+	;
 
 	dx = 50.0/double(n_points);				// calculate face width
-	cfl = 0.5;						// set CFL condition
 	next_dt = 1.0;
 
 	/****** Setup initial conditions of one dimensional tube ******/
@@ -47,8 +49,6 @@ int main(){
 	for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
 		centre_id_0 = i % n_points;					// setup preiodic boundary
 		centre_id_1 = (i+1) % n_points;
-
-		//cout << i << " " << centre_id_0-1 << " " << centre_id_0 << " " << centre_id_1 << " " << centre_id_1+1 << endl;
 
 		centre_0 = &points[centre_id_0];				// setup pointers to lower and upper centre
 		centre_1 = &points[centre_id_1];
@@ -72,16 +72,21 @@ int main(){
         ofstream pressure_map;
         ofstream velocity_map;
 
+        ofstream sine_max;
+
 	density_map.open("density.txt");
         pressure_map.open("pressure.txt");
         velocity_map.open("velocity.txt");
 
+        sine_max.open("sine_max.txt");
+
         j=1;
+        max_passes = 0;
+        passed = 0;
 
 	while(t<t_tot){
 
 		dt = next_dt;
-		//dt = 0.00001;
 
 		//cout << j << "\ttime =\t" << t << "\ttime step =\t" << dt << "\tcentral density =" << points[100].get_mass_density() << endl;
 
@@ -108,19 +113,48 @@ int main(){
 
 		next_dt = t_tot - (t + dt);	// set next timestep to max possible value (time remaining to end)
 
+		max_density = 0.0;
+		max_position = 0.0;
+
 		for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){		// loop over all vertices
+
+			if(points[i].get_mass_density()>max_density and IC == 1){
+				max_density = points[i].get_mass_density();
+				max_position = points[i].get_x();
+				if(t==0.0){
+					max_start = points[i].get_x();
+					max_neighbour = points[i+1].get_x();
+				}
+			}
+
 			points[i].update_u_variables();						// update the u variables with the collected du
 			points[i].prim_to_con();						// convert these to their corresponding conserved
-                        points[i].recalculate_pressure();					// caclulate pressure from new conserved values
+			points[i].recalculate_pressure();					// caclulate pressure from new conserved values
 			points[i].con_to_prim();						// convert back to guarentee correct values are used
 			points[i].setup_f_variables();						// set flux variables with new values
 			points[i].reset_du();							// reset du value to zero for next timestep
 			points[i].calc_next_dt(dx,cfl,possible_dt);				// calculate next timestep
-			if(possible_dt<next_dt){next_dt=possible_dt;}
+			if(possible_dt<next_dt){next_dt = possible_dt;}
 		}
+
+		if(max_position == max_neighbour and passed ==0 and IC == 1){passed = 1;}
+		if(max_position == max_start and t > 0.0 and passed == 1 and IC ==1){
+			max_passes += 1;
+			passed = 0;
+			if(i!=n_points){
+				max_neighbour = points[i+1].get_x();
+			}else{
+				max_neighbour = points[0].get_x();
+			}
+			sine_max << t << "\t" << max_density << endl;
+		}
+
 		t+=dt;										// increment time
 		j+=1;
 	}
+
+	if(IC==1){cout << "Completed " << max_passes/4 << " periods" << endl;}
+
 	density_map.close();
   	pressure_map.close();
   	velocity_map.close();

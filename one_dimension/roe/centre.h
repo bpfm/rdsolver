@@ -3,7 +3,7 @@
 		mass_density = mass_density of material in cell
 		velocity = velocity of material in cell
 		pressure = pressure in cell
-		energy_density = energy_density of cell (?) 
+		specific_energy = specific_energy of cell (?) 
 		u_variables = array conatining values of vector U (see README)
 		f_variables = array of values for vector F(U) (see README)
 */
@@ -15,7 +15,7 @@ class centre{
 private:
 
 	double x;
-	double mass_density,velocity,pressure,energy_density;
+	double mass_density,velocity,pressure,specific_energy;
 	double u_variables[3],f_variables[3],du[3];
 	vector<int> assoc_cells;
 
@@ -49,8 +49,8 @@ public:
 		return x;
 	}
 
-	double get_energy_density(){
-		return energy_density;
+	double get_specific_energy(){
+		return specific_energy;
 	}
 
 	double get_mass_density(){
@@ -91,32 +91,32 @@ public:
 	
 
 	//functions to set up energy density varaible, and u and f arrays
-	void setup_energy_density(){
-		energy_density = pressure/((GAMMA-1.0)*mass_density)+velocity*velocity/2.0;
+	void setup_specific_energy(){
+		specific_energy = pressure/((GAMMA-1.0)*mass_density)+velocity*velocity/2.0;
 	}
 
 	void con_to_prim(){
 		u_variables[0] = mass_density;
 		u_variables[1] = mass_density*velocity;
-		u_variables[2] = mass_density*energy_density;
+		u_variables[2] = mass_density*specific_energy;
 	}
 
 	void prim_to_con(){
 		mass_density = u_variables[0];
 		velocity = u_variables[1]/mass_density;
-		energy_density = u_variables[2]/mass_density;
+		specific_energy = u_variables[2]/mass_density;
 	}
 
 	void recalculate_pressure(){
-//		cout << x << " " << pressure << endl;
-		pressure = (GAMMA-1.0) * mass_density * (energy_density - (velocity*velocity)/2.0);
-//		if(x==13.5){cout << x << " " << pressure << " " << energy_density << " " << velocity << " " << mass_density << endl;}
+		//cout << x << " " << pressure << endl;
+		pressure = (GAMMA-1.0) * mass_density * (specific_energy - (velocity*velocity)/2.0);
+		//cout << x << " " << pressure << " " << specific_energy << " " << velocity << " " << mass_density << endl;
 	}
 
 	void setup_f_variables(){
 		f_variables[0] = mass_density * velocity;
 		f_variables[1] = mass_density * velocity * velocity + pressure;
-		f_variables[2] = (mass_density * energy_density + pressure) * velocity;
+		f_variables[2] = (mass_density * specific_energy + pressure) * velocity;
 	}
 
 	void reset_du(){

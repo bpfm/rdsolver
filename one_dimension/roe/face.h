@@ -67,10 +67,10 @@ public:
 		u[2] = centre_00->get_velocity();
 		u[3] = centre_11->get_velocity();
 
-		e_tot[0] = centre_0->get_energy_density();
-		e_tot[1] = centre_1->get_energy_density();
-		e_tot[2] = centre_00->get_energy_density();
-		e_tot[3] = centre_11->get_energy_density();
+		e_tot[0] = centre_0->get_specific_energy();
+		e_tot[1] = centre_1->get_specific_energy();
+		e_tot[2] = centre_00->get_specific_energy();
+		e_tot[3] = centre_11->get_specific_energy();
 
 		pressure[0] = centre_0->get_pressure();
 		pressure[1] = centre_1->get_pressure();

@@ -19,6 +19,6 @@ double GAMMA = 5.0/3.0;
 #endif
 
 #if IC == 3
-double t_tot = 5.0;
+double t_tot = 1.0;
 double GAMMA = 1.4;
 #endif

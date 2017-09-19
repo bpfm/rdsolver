@@ -24,7 +24,7 @@ int main(){
 	face new_face;						// new_face = temporary face to be added to vector of faces
 	centre *centre_0,*centre_1,*centre_00,*centre_11;	// *centre_0 and *centre_1 = pointers to vertices
 	vector<centre> points;					// points = vector of vertices
-	vector<face> centers;					// centers = vector of faces
+	vector<face> faces;					// faces = vector of faces
 	vector<centre>::iterator it_vert;			// it_vert = iterator for centre vector
 	vector<face>::iterator it_face;				// it_face = iterator for face vector
 	double total_density,next_dt,possible_dt;		// total_density = total density in box
@@ -63,7 +63,7 @@ int main(){
 		new_face.set_centre_00(centre_00);
 		new_face.set_centre_11(centre_11);
 
-		centers.push_back(new_face);					// add new face to vector of all faces
+		faces.push_back(new_face);					// add new face to vector of all faces
 	}
 
 	/****** Loop over time until total time t_tot is reached ******/
@@ -107,8 +107,8 @@ int main(){
                         velocity_map << " " << endl;
 		}
 
-		for(it_face=centers.begin(),i=0;it_face<centers.end();it_face++,i++){		// loop over all faces
-			centers[i].construct_state(dx,dt,t);					// calculate flux through boundary
+		for(it_face=faces.begin(),i=0;it_face<faces.end();it_face++,i++){		// loop over all faces
+			faces[i].construct_state(dx,dt,t);					// calculate flux through boundary
 		}
 
 		next_dt = t_tot - (t + dt);	// set next timestep to max possible value (time remaining to end)

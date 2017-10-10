@@ -4,27 +4,27 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre){
 
         double x = (double(i) + 0.5) * dx;
 
-	if(IC == 0){
-		if(i==0){cout << "Using Sod Shock Tube" << endl;}
-		new_centre.set_x(x);
+        if(IC == 0){
+                if(i==0){cout << "Using Sod Shock Tube" << endl;}
+                new_centre.set_x(x);
 
-		if(i>0.3*n_points and i<0.7*n_points){
-			new_centre.set_mass_density(1.0);				// units kg/m^3
-			new_centre.set_velocity(0.0);					// units m/s
-			new_centre.set_pressure(500.0);					// units N/m^2
-		}else{
-			new_centre.set_mass_density(0.125);				// units kg/m^3
-			new_centre.set_velocity(0.0);					// units m/s
-			new_centre.set_pressure(100.0);					// units N/m^2
-		}
-		new_centre.setup_specific_energy();
-		new_centre.con_to_prim();
-		new_centre.setup_f_variables();
-		new_centre.reset_du();
+                if(i>0.3*n_points and i<0.7*n_points){
+                        new_centre.set_mass_density(1.0);                               // units kg/m^3
+                        new_centre.set_velocity(0.0);                                   // units m/s
+                        new_centre.set_pressure(500.0);                                 // units N/m^2
+                }else{
+                        new_centre.set_mass_density(0.125);                             // units kg/m^3
+                        new_centre.set_velocity(0.0);                                   // units m/s
+                        new_centre.set_pressure(100.0);                                 // units N/m^2
+                }
+                new_centre.setup_specific_energy();
+                new_centre.con_to_prim();
+                new_centre.setup_f_variables();
+                new_centre.reset_du();
 
-		return new_centre;
+                return new_centre;
 
-	}else if(IC == 1){
+        }else if(IC == 1){
                 if(i==0){cout << "Using Sine Wave" << endl;}
 
                 double rho,rho_0 = 50.0;
@@ -40,16 +40,14 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre){
                 p = p_0 + c_s * c_s * (rho - rho_0);
                 v = c_s * (rho - rho_0)/rho_0;
 
-                //cout << v << endl;
+                new_centre.set_mass_density(rho);                       // units kg/m^3
+                new_centre.set_velocity(v);                     // units m/s
+                new_centre.set_pressure(p);                     // units N/m^2
 
-		new_centre.set_mass_density(rho);	                // units kg/m^3
-		new_centre.set_velocity(v);	                // units m/s
-		new_centre.set_pressure(p);		        // units N/m^2
-
-		new_centre.setup_specific_energy();
-		new_centre.con_to_prim();
-		new_centre.setup_f_variables();
-		new_centre.reset_du();
+                new_centre.setup_specific_energy();
+                new_centre.con_to_prim();
+                new_centre.setup_f_variables();
+                new_centre.reset_du();
 
                 return new_centre;
 
@@ -72,12 +70,12 @@ centre setup_centre(int n_points, int i, float dx, centre new_centre){
                 return new_centre;
         }else{
                 if(i==0){cout << "Using Gaussian Pulse" << endl;}
-                double centre = 2.5;
+                double centre = 10.0;
                 double s,w,rho,rho_0 = 10.0,rho_pulse = 50.0;
-                double velocity = 5.0,pressure = 3.0;
+                double velocity = 1.0,pressure = 1000.0;
 
                 s = abs(centre-x);       // distance from centre of pulse
-                w = 1.0;                 // characteristic width
+                w = 2.0;                 // characteristic width
 
                 rho = rho_pulse*exp(-s*s/(w*w)) + rho_0*(1-exp(-s*s/(w*w)));
 

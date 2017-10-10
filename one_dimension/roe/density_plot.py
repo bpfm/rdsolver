@@ -4,7 +4,7 @@ import numpy as np
 #x,density = np.loadtxt("density.txt", usecols = (0,1))
 
 n_points = 200
-dx = 40.0/float(n_points)
+dx = 50.0/float(n_points)
 
 data = np.loadtxt("density.txt")
 x0,rho0 = data[0:n_points-1,0]+0.5*dx, data[0:n_points-1,1]
@@ -24,7 +24,7 @@ diff1 = rho1 - rho0
 #  x[i] = density[0][i]
 #  y[i] = density[1][i]
 
-plt.subplot(211)
+plt.subplot(311)
 
 plt.plot(x0,rho0)
 plt.plot(x1,rho1)
@@ -60,7 +60,7 @@ diff1 = rho1 - rho0
 #  x[i] = density[0][i]
 #  y[i] = density[1][i]
 
-plt.subplot(212)
+plt.subplot(312)
 
 plt.plot(x0,rho0)
 plt.plot(x1,rho1)
@@ -73,7 +73,7 @@ plt.ylabel("pressure [N/m^2]")
 #plt.xlim([20,30])
 #plt.ylim([0.001,1.5])
 
-plt.show()
+#plt.show()
 
 ############################## velocity plot ##############################
 
@@ -110,4 +110,4 @@ plt.ylabel("velocity [m/s]")
 #plt.xlim([20,30])
 #plt.ylim([0.001,1.5])
 
-#plt.show()
+plt.show()

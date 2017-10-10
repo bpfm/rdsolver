@@ -15,148 +15,119 @@ extern centre setup(int n_points, int i, float dx, centre new_centre);
 
 int main(){
 
-	int i,j;						// ******* decalare varaibles and vectors ******
-	int n_points=200;					// n_points = number of vertices
-	int centre_id_0,centre_id_1;				// centre_id_0 and centre_id_1 = number of
-	double dx,dt,t=0.0,c_initial;			// dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
-	double next_time=0.0;			// t_tot = total time,next_time = time of next snapshot
-	centre new_centre;					// new_centre = temporary centre to be added to vector of vertices
-	face new_face;						// new_face = temporary face to be added to vector of faces
-	centre *centre_0,*centre_1,*centre_00,*centre_11;	// *centre_0 and *centre_1 = pointers to vertices
-	vector<centre> points;					// points = vector of vertices
-	vector<face> faces;					// faces = vector of faces
-	vector<centre>::iterator it_vert;			// it_vert = iterator for centre vector
-	vector<face>::iterator it_face;				// it_face = iterator for face vector
-	double total_density,next_dt,possible_dt;		// total_density = total density in box
-	double max_density,max_start,max_position,max_neighbour;
-	int max_passes,passed
-	;
+        int i,j;                                                // ******* decalare varaibles and vectors ******
+        int n_points=200;                                       // n_points = number of vertices
+        int centre_id_0,centre_id_1;                            // centre_id_0 and centre_id_1 = number of
+        double dx,dt,t=0.0,c_initial;                           // dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
+        double next_time=0.0;                                   // t_tot = total time,next_time = time of next snapshot
+        centre new_centre;                                      // new_centre = temporary centre to be added to vector of vertices
+        face new_face;                                          // new_face = temporary face to be added to vector of faces
+        centre *centre_0,*centre_1,*centre_00,*centre_11;       // *centre_0 and *centre_1 = pointers to vertices
+        vector<centre> points;                                  // points = vector of vertices
+        vector<face> faces;                                     // faces = vector of faces
+        vector<centre>::iterator it_vert;                       // it_vert = iterator for centre vector
+        vector<face>::iterator it_face;                         // it_face = iterator for face vector
+        double total_density,next_dt,possible_dt;               // total_density = total density in box
 
-	dx = 50.0/double(n_points);				// calculate face width
-	next_dt = 1.0;
+        dx = 50.0/double(n_points);                             // calculate face width
+        next_dt = 1.0;
 
-	/****** Setup initial conditions of one dimensional tube ******/
+        /****** Setup initial conditions of one dimensional tube ******/
 
-	for (i=0;i<n_points;i++){
-		new_centre = setup_centre(n_points,i,dx,new_centre);	// call centre setup routine (0 = shock tube, 1 = sine wave)
-		points.push_back(new_centre);				// add new centre to vector of all vertices
-		points[i].calc_next_dt(dx,cfl,possible_dt);		// check dt is min required by cfl
-		if(possible_dt<next_dt){next_dt=possible_dt;}
-	}
+        for (i=0;i<n_points;i++){
+                new_centre = setup_centre(n_points,i,dx,new_centre);    // call centre setup routine (0 = shock tube, 1 = sine wave)
+                points.push_back(new_centre);                           // add new centre to vector of all vertices
+                points[i].calc_next_dt(dx,cfl,possible_dt);             // check dt is min required by cfl
+                if(possible_dt<next_dt){next_dt=possible_dt;}
+        }
 
-	/****** Setup system of faces ******/
+        /****** Setup system of faces ******/
 
-	for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
-		centre_id_0 = i % n_points;					// setup preiodic boundary
-		centre_id_1 = (i+1) % n_points;
+        for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
+                centre_id_0 = i % n_points;                                     // setup preiodic boundary
+                centre_id_1 = (i+1) % n_points;
 
-		centre_0 = &points[centre_id_0];				// setup pointers to lower and upper centre
-		centre_1 = &points[centre_id_1];
-		centre_00 = &points[centre_id_0-1];				// add neighbouring vertices for flux limiter
-		centre_11 = &points[centre_id_1+1];
+                centre_0 = &points[centre_id_0];                                // setup pointers to lower and upper centre
+                centre_1 = &points[centre_id_1];
+                centre_00 = &points[centre_id_0-1];                             // add neighbouring vertices for flux limiter
+                centre_11 = &points[centre_id_1+1];
 
-		if(centre_id_0 == 0){centre_00 = &points[n_points-1];}
-		if(centre_id_1 == n_points-1){centre_11 = &points[0];}
+                if(centre_id_0 == 0){centre_00 = &points[n_points-1];}
+                if(centre_id_1 == n_points-1){centre_11 = &points[0];}
 
-		new_face.set_centre_0(centre_0);				// pass these pointers to the face
-		new_face.set_centre_1(centre_1);
-		new_face.set_centre_00(centre_00);
-		new_face.set_centre_11(centre_11);
+                new_face.set_centre_0(centre_0);                                // pass these pointers to the face
+                new_face.set_centre_1(centre_1);
+                new_face.set_centre_00(centre_00);
+                new_face.set_centre_11(centre_11);
 
-		faces.push_back(new_face);					// add new face to vector of all faces
-	}
+                faces.push_back(new_face);                                      // add new face to vector of all faces
+        }
 
-	/****** Loop over time until total time t_tot is reached ******/
+        /****** Loop over time until total time t_tot is reached ******/
 
-	ofstream density_map;						        // open output file
+        ofstream density_map;                                                   // open output file
         ofstream pressure_map;
         ofstream velocity_map;
+        ofstream du_file;
 
-        ofstream sine_max;
-
-	density_map.open("density.txt");
+        density_map.open("density.txt");
         pressure_map.open("pressure.txt");
         velocity_map.open("velocity.txt");
-
-        sine_max.open("sine_max.txt");
+        du_file.open("mass_flux.txt");
 
         j=1;
-        max_passes = 0;
-        passed = 0;
 
-	while(t<t_tot){
+        while(t<t_tot){
 
-		dt = next_dt;
+                dt = next_dt;
 
-		//cout << j << "\ttime =\t" << t << "\ttime step =\t" << dt << "\tcentral density =" << points[100].get_mass_density() << endl;
+                //cout << j << "\ttime =\t" << t << "\ttime step =\t" << dt << "\tcentral density =" << points[100].get_mass_density() << endl;
 
-		total_density = 0.0;						// reset total density counter
+                total_density = 0.0;                                            // reset total density counter
 
-		if(t>=next_time){						// write out densities at given interval
-			next_time=next_time+(t_tot/10.0);
-			for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
-				density_map << points[i].get_x() << "\t" << points[i].get_mass_density() << endl;
+                if(t>=next_time){                                               // write out densities at given interval
+                        next_time=next_time+0.9999*dt;
+                        for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
+                                density_map << points[i].get_x() << "\t" << points[i].get_mass_density() << endl;
                                 pressure_map << points[i].get_x() << "\t" << points[i].get_pressure() << endl;
                                 velocity_map << points[i].get_x() << "\t" << points[i].get_velocity() << endl;
-				total_density += points[i].get_mass_density()*dx;
-			}
-			cout << "*********************************************************" << endl;		// right out time and total density to terminal
-			cout << "time\t" << t << " \t-> total mass =\t" << total_density  << "\ttime step = \t" << dt << endl;
-			density_map << " " << endl;
+                                total_density += points[i].get_mass_density()*dx;
+                        }
+                        cout << "*********************************************************" << endl;            // right out time and total density to terminal
+                        cout << "time\t" << t << " \t-> total mass =\t" << total_density  << "\ttime step = \t" << dt << endl;
+                        density_map << " " << endl;
                         pressure_map << " " << endl;
                         velocity_map << " " << endl;
-		}
+                }
 
-		for(it_face=faces.begin(),i=0;it_face<faces.end();it_face++,i++){		// loop over all faces
-			faces[i].construct_state(dx,dt,t);					// calculate flux through boundary
-		}
+                du_file << endl;
 
-		next_dt = t_tot - (t + dt);	// set next timestep to max possible value (time remaining to end)
+                for(it_face=faces.begin(),i=0;it_face<faces.end();it_face++,i++){               // loop over all faces
+                        faces[i].construct_state(dx,dt,t,du_file);                                      // calculate flux through boundary
+                }
 
-		max_density = 0.0;
-		max_position = 0.0;
+                next_dt = t_tot - (t + dt);     // set next timestep to max possible value (time remaining to end)
 
-		for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){		// loop over all vertices
+                for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){             // loop over all vertices
 
-			if(points[i].get_mass_density()>max_density and IC == 1){
-				max_density = points[i].get_mass_density();
-				max_position = points[i].get_x();
-				if(t==0.0){
-					max_start = points[i].get_x();
-					max_neighbour = points[i+1].get_x();
-				}
-			}
+                        points[i].update_u_variables();                                         // update the u variables with the collected du
+                        points[i].prim_to_con();                                                // convert these to their corresponding conserved
+                        points[i].recalculate_pressure();                                       // caclulate pressure from new conserved values
+                        points[i].con_to_prim();                                                // convert back to guarentee correct values are used
+                        points[i].setup_f_variables();                                          // set flux variables with new values
+                        points[i].reset_du();                                                   // reset du value to zero for next timestep
+                        points[i].calc_next_dt(dx,cfl,possible_dt);                             // calculate next timestep
+                        if(possible_dt<next_dt){next_dt = possible_dt;}
+                }
 
-			points[i].update_u_variables();						// update the u variables with the collected du
-			points[i].prim_to_con();						// convert these to their corresponding conserved
-			points[i].recalculate_pressure();					// caclulate pressure from new conserved values
-			points[i].con_to_prim();						// convert back to guarentee correct values are used
-			points[i].setup_f_variables();						// set flux variables with new values
-			points[i].reset_du();							// reset du value to zero for next timestep
-			points[i].calc_next_dt(dx,cfl,possible_dt);				// calculate next timestep
-			if(possible_dt<next_dt){next_dt = possible_dt;}
-		}
+                t+=dt;                                                                          // increment time
+                j+=1;
+        }
 
-		if(max_position == max_neighbour and passed ==0 and IC == 1){passed = 1;}
-		if(max_position == max_start and t > 0.0 and passed == 1 and IC ==1){
-			max_passes += 1;
-			passed = 0;
-			if(i!=n_points){
-				max_neighbour = points[i+1].get_x();
-			}else{
-				max_neighbour = points[0].get_x();
-			}
-			sine_max << t << "\t" << max_density << endl;
-		}
+        density_map.close();
+        pressure_map.close();
+        velocity_map.close();
+        du_file.close();
 
-		t+=dt;										// increment time
-		j+=1;
-	}
-
-	if(IC==1){cout << "Completed " << max_passes/4 << " periods" << endl;}
-
-	density_map.close();
-  	pressure_map.close();
-  	velocity_map.close();
-	return 0;
+        return 0;
 }

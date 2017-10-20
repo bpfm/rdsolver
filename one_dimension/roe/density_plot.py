@@ -13,8 +13,6 @@ x2,rho2 = data[2*n_points:3*n_points-1,0]+0.5*dx, data[2*n_points:3*n_points-1,1
 x3,rho3 = data[3*n_points:4*n_points-1,0]+0.5*dx, data[3*n_points:4*n_points-1,1]
 x4,rho4 = data[4*n_points:5*n_points-1,0]+0.5*dx, data[4*n_points:5*n_points-1,1]
 
-diff1 = rho1 - rho0
-
 #print density
 
 #x = np.zeros(shape = 50)
@@ -48,8 +46,6 @@ x2,rho2 = data[2*n_points:3*n_points-1,0]+0.5*dx, data[2*n_points:3*n_points-1,1
 x3,rho3 = data[3*n_points:4*n_points-1,0]+0.5*dx, data[3*n_points:4*n_points-1,1]
 x4,rho4 = data[4*n_points:5*n_points-1,0]+0.5*dx, data[4*n_points:5*n_points-1,1]
 x5,rho5 = data[5*n_points:6*n_points-1,0]+0.5*dx, data[5*n_points:6*n_points-1,1]
-
-diff1 = rho1 - rho0
 
 #print density
 
@@ -85,8 +81,6 @@ x2,rho2 = data[2*n_points:3*n_points-1,0]+0.5*dx, data[2*n_points:3*n_points-1,1
 x3,rho3 = data[3*n_points:4*n_points-1,0]+0.5*dx, data[3*n_points:4*n_points-1,1]
 x4,rho4 = data[4*n_points:5*n_points-1,0]+0.5*dx, data[4*n_points:5*n_points-1,1]
 x5,rho5 = data[5*n_points:6*n_points-1,0]+0.5*dx, data[5*n_points:6*n_points-1,1]
-
-diff1 = rho1 - rho0
 
 #print density
 

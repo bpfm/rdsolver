@@ -45,26 +45,31 @@ public:
                 return centre_1;
         }
 
-        void construct_state(double dx, double &dt, double , ofstream &du_file){
-                double density[4],u[4],e_tot[4],pressure[4],h_tot[4];
+        void calculate_flux(double dx, double dt, double t, ofstream &du_file){
+                double x_face,x0,x1,density[4],u[4],e_tot[4],pressure[4],h_tot[4];
                 double density_avg,u_avg,e_tot_avg,pressure_avg,h_tot_avg,e_kin_avg;
                 double e_vec[3][3],e_val[3];
                 double c_sound,correction;
                 double e_delta_q[3],delta_q[3],f0[3],f1[3],f_int[3],du0[3],du1[3];
-                double r_int[3];
 
                 double r_lower[3][3],r_upper[3][3],alpha[3];
                 double delta_p,delta_u,delta_d;
+
+                double r_int[3],phi[3];
+
+                x_face = (centre_0->get_x()+centre_1->get_x())/2.0;
+                x0 = centre_0->get_x();
+                x1 = centre_1->get_x();
 
                 density[0] = centre_0->get_mass_density();              // contruct state on either side of the face
                 density[1] = centre_1->get_mass_density();
                 density[2] = centre_00->get_mass_density();
                 density[3] = centre_11->get_mass_density();
 
-                u[0] = centre_0->get_velocity();
-                u[1] = centre_1->get_velocity();
-                u[2] = centre_00->get_velocity();
-                u[3] = centre_11->get_velocity();
+                u[0] = centre_0->get_velocity();                        // q_i
+                u[1] = centre_1->get_velocity();                        // q_i+1
+                u[2] = centre_00->get_velocity();                       // q_i-1
+                u[3] = centre_11->get_velocity();                       // q_i+2
 
                 e_tot[0] = centre_0->get_specific_energy();
                 e_tot[1] = centre_1->get_specific_energy();
@@ -106,7 +111,7 @@ public:
                 e_val[1] = u_avg;
                 e_val[2] = u_avg + c_sound;
 
-                if(e_val[0] > 0){
+                if(e_val[0] > 0.0){
 
                         cout << "supersonic " << c_sound << endl;
 
@@ -127,10 +132,10 @@ public:
 
                         //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
   
-                        return;
+                        return ;
                 }
 
-                if(e_val[2] < 0){
+                if(e_val[2] < 0.0){
                   
                         f_int[0] = density[1]*u[1];
                         f_int[1] = density[1]*u[1]*u[1]+pressure[1];
@@ -149,7 +154,7 @@ public:
 
                         //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
 
-                        return;
+                        return ;
                 }
 
 
@@ -191,8 +196,6 @@ public:
                 alpha[1] = (delta_d - delta_p/(c_sound*c_sound));
                 alpha[2] = (delta_p + c_sound*density_avg*delta_u)/(2.0*c_sound*c_sound);
 
-                //cout << "alpha: " << alpha[0] << "  " << alpha[1] << "  " << alpha[2] << endl;
-
                 /****** Constuct fluxes either side of face ******/
 
                 f0[0] = density[0]*u[0];
@@ -203,10 +206,34 @@ public:
                 f1[1] = density[1]*u[1]*u[1]+pressure[1];
                 f1[2] = density[1]*h_tot[1]*u[1];
 
+                /****** Calculate flux limiter ******/
+
+                for(int i=0;i<3;i++){
+                        if(u_avg > 0.0){
+                                r_int[i] = (q[1][i]-q[0][i])/(q[0][i]-q[2][i]);
+                        }else if(u_avg < 0.0){
+                                r_int[i] = (q[0][i]-q[1][i])/(q[1][i]-q[3][i]);
+                        }
+                }
+
+
+
+                if(FLUX_LIMITER_OI == 0){
+                        phi[0] = 1.0;
+                        phi[1] = 1.0;
+                        phi[2] = 1.0;
+                }else{
+                        for(int i=0;i<3;i++){
+                                phi[i] = construct_flux_limiter(r_int[i]);
+                        }
+                }
+
+                /****** Calculate interface flux ******/
+
                 for(int k=0;k<3;k++){
                         correction = 0.0;
                         for(int m=0;m<3;m++){correction  = correction + alpha[m]*abs(e_val[m])*r_lower[k][m];}
-                        f_int[k] = 0.5*(f1[k]+f0[k]-correction);
+                        f_int[k] = 0.5*phi[k]*(f1[k]+f0[k]-correction);
                 }
 
                 /****** Convert flux at face to change in variable ******/
@@ -219,12 +246,20 @@ public:
                 du1[1] = f_int[1]*dt/dx;
                 du1[2] = f_int[2]*dt/dx;
 
+                if(FORCE_ANALYTIC_PULSE == 1){
+                        //cout << "before du1[0] = " << du1[0] << endl;
+
+                        du1[0] = analytic_solution(dx,x_face,dt,t);
+                        du0[0] = -1.0*du1[0];
+                        du_file << x_face << "\t" << du1[0] << endl;
+
+                        //cout << "after du1[0] = " << du1[0] << endl;
+                }
+
                 /****** Distribute changes to appropriate cell centres ******/
 
                 centre_0->update_du(du0);
                 centre_1->update_du(du1);
-
-                du_file << (centre_0->get_x()+centre_1->get_x())/2.0 << "\t" << du1[0] << endl;
 
                 //cout << "du1 =\t" << du1[0] << "\t" << du1[1] << "\t" << du1[2] << endl;
 
@@ -267,25 +302,25 @@ public:
                 return avg;
         }
 
-        double flux_limiter(double r){
+        double construct_flux_limiter(double r){
                 double phi,twor;
 
-                /*
-                phi = mymin(1.0,r);                                     // minmod
+                if(FLUX_LIMITER == "MINMOD"){
+                        phi = mymin(1.0,r);                                     // minmod
+                }else if(FLUX_LIMITER == "SUERBEE"){
+                        twor = 2.0*r;
+                        phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));          // superbee
+                }else if(FLUX_LIMITER == "BEAM-WARMING"){
+                        phi = r;                                              // Beam-Warming
+                }else if(FLUX_LIMITER == "VAN-LEER"){
+                        phi = (r+abs(r))/(1.0+abs(r));                        // van Leer
+                }
+
                 if(phi < 0.0){
                         phi=0.0;
                 }
-                */
 
-                twor = 2.0*r;
-                phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));          // superbee
-
-                //phi = r;                                              // Beam-Warming
-
-                //phi = (r+abs(r))/(1.0+abs(r));                        // van Leer flux limiter
-
-                //cout << phi << " " << twor << " " << r << endl;
-                //if(phi==2){exit(0);}
+                cout << "phi = " << phi << "\tr = " << r << endl;
 
                 return phi;
         }
@@ -323,6 +358,21 @@ public:
                         }
                 }
                 return min_val;
+        }
+
+        double analytic_solution(double dx, double x, double dt, double t){
+                double rho,rho_0,rho_1,x_0,sig,v,du,x_0t;
+                rho_0 = 10.0;
+                rho_1 = 50.0;
+                x_0 = 10.0;
+                sig = 2.0;
+                v = 1.0;
+                x_0t = x_0 + v*t;
+                //du = v*(rho_1 - rho_0)*(((-2.0)*(x-x_0t)/(sig*sig))*exp(-((x-x_0t)*(x-x_0t))/(sig*sig)))*dt/dx;
+                rho = rho_1 * exp(-(x-x_0t)*(x-x_0t)/(sig*sig)) + rho_0*(1.0-exp(-(x-x_0t)*(x-x_0t)/(sig*sig)));
+                du = rho * v * dt/dx;
+                //cout << "du = " << du << "\t" << x_0t << endl;
+                return du;
         }
 
 };

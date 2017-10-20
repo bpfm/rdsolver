@@ -90,7 +90,7 @@ public:
         }
         
 
-        //functions to set up energy density varaible, and u and f arrays
+        // functions to set up the specific energy varaible, as well as u and f arrays
         void setup_specific_energy(){
                 specific_energy = pressure/((GAMMA-1.0)*mass_density)+velocity*velocity/2.0;
         }
@@ -101,42 +101,46 @@ public:
                 u_variables[2] = mass_density*specific_energy;
         }
 
-        void prim_to_con(){
-                mass_density = u_variables[0];
-                velocity = u_variables[1]/mass_density;
-                specific_energy = u_variables[2]/mass_density;
-        }
-
-        void recalculate_pressure(){
-                //cout << x << " " << pressure << endl;
-                pressure = (GAMMA-1.0) * mass_density * (specific_energy - (velocity*velocity)/2.0);
-                //cout << x << " " << pressure << " " << specific_energy << " " << velocity << " " << mass_density << endl;
-        }
-
         void setup_f_variables(){
                 f_variables[0] = mass_density * velocity;
                 f_variables[1] = mass_density * velocity * velocity + pressure;
                 f_variables[2] = (mass_density * specific_energy + pressure) * velocity;
         }
 
+        // convert conserved variables to primitive variables
+        void prim_to_con(){
+                mass_density = u_variables[0];
+                velocity = u_variables[1]/mass_density;
+                specific_energy = u_variables[2]/mass_density;
+        }
+
+        // recacluate pressure based on updated primitive varaibles
+        void recalculate_pressure(){
+                pressure = (GAMMA-1.0) * mass_density * (specific_energy - (velocity*velocity)/2.0);
+        }
+
+        // reset the changes in primative variables
         void reset_du(){
                 du[0] = 0.0;
                 du[1] = 0.0;
                 du[2] = 0.0;
         }
 
+        // update du with value from face
         void update_du(double new_du[3]){
                 du[0] = du[0] + new_du[0];
                 du[1] = du[1] + new_du[1];
                 du[2] = du[2] + new_du[2];
         }
 
+        // change primaitive vriables based on accumulated du from all faces of cell
         void update_u_variables(){
                 u_variables[0] = u_variables[0] + du[0];
                 u_variables[1] = u_variables[1] + du[1];
                 u_variables[2] = u_variables[2] + du[2];
         }
 
+        // calculate min timestep this cell requires
         void calc_next_dt(double dx, double cfl, double &next_dt){
                 double c_sound;
                 c_sound = sqrt(GAMMA*pressure/mass_density);

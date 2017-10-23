@@ -72,9 +72,9 @@ int main(){
                 for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){             // loop over all vertices
 
                         points[i].update_u_variables();                                         // update the u variables with the collected du
-                        points[i].prim_to_con();                                                // convert these to their corresponding conserved
+                        points[i].con_to_prim();                                                // convert these to their corresponding conserved
                         points[i].recalculate_pressure();                                       // caclulate pressure from new conserved values
-                        points[i].con_to_prim();                                                // convert back to guarentee correct values are used
+                        points[i].prim_to_con();                                                // convert back to guarentee correct values are used
                         points[i].setup_f_variables();                                          // set flux variables with new values
                         points[i].reset_du();                                                   // reset du value to zero for next timestep
                         points[i].calc_next_dt(dx,cfl,possible_dt);                             // calculate next timestep

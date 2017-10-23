@@ -19,7 +19,7 @@ centre setup_centre(int n_points, int i, float dx){
                         new_centre.set_pressure(100.0);                                 // units N/m^2
                 }
                 new_centre.setup_specific_energy();
-                new_centre.con_to_prim();
+                new_centre.prim_to_con();
                 new_centre.setup_f_variables();
                 new_centre.reset_du();
 
@@ -46,7 +46,7 @@ centre setup_centre(int n_points, int i, float dx){
                 new_centre.set_pressure(p);                             // units N/m^2
 
                 new_centre.setup_specific_energy();
-                new_centre.con_to_prim();
+                new_centre.prim_to_con();
                 new_centre.setup_f_variables();
                 new_centre.reset_du();
 
@@ -64,7 +64,7 @@ centre setup_centre(int n_points, int i, float dx){
                 if(x > (50/2 - dx) and x < (50/2 + dx)){ new_centre.set_pressure(100000/dx); }
 
                 new_centre.setup_specific_energy();
-                new_centre.con_to_prim();
+                new_centre.prim_to_con();
                 new_centre.setup_f_variables();
                 new_centre.reset_du();
 
@@ -87,7 +87,7 @@ centre setup_centre(int n_points, int i, float dx){
                 new_centre.set_pressure(pressure);
 
                 new_centre.setup_specific_energy();
-                new_centre.con_to_prim();
+                new_centre.prim_to_con();
                 new_centre.setup_f_variables();
                 new_centre.reset_du();
 

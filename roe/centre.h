@@ -14,7 +14,7 @@ class centre{
 
 private:
 
-        double x;
+        double x,y,z;
         double mass_density,velocity,pressure,specific_energy;
         double u_variables[3],f_variables[3],du[3];
         vector<int> assoc_cells;
@@ -25,6 +25,14 @@ public:
         // (no setter functions for U and F(U) as these are set by the other variables)
         void set_x(double new_x){
                 x = new_x;
+        }
+
+        void set_y(double new_y){
+                y = new_y;
+        }
+
+        void set_z(double new_z){
+                z = new_z;
         }
 
         void set_mass_density(double new_mass_density){
@@ -47,6 +55,14 @@ public:
         //getter functions for extracting values of variables
         double get_x(){
                 return x;
+        }
+
+        double get_y(){
+                return y;
+        }
+
+        double get_z(){
+                return z;
         }
 
         double get_specific_energy(){
@@ -95,7 +111,7 @@ public:
                 specific_energy = pressure/((GAMMA-1.0)*mass_density)+velocity*velocity/2.0;
         }
 
-        void con_to_prim(){
+        void prim_to_con(){
                 u_variables[0] = mass_density;
                 u_variables[1] = mass_density*velocity;
                 u_variables[2] = mass_density*specific_energy;
@@ -108,7 +124,7 @@ public:
         }
 
         // convert conserved variables to primitive variables
-        void prim_to_con(){
+        void con_to_prim(){
                 mass_density = u_variables[0];
                 velocity = u_variables[1]/mass_density;
                 specific_energy = u_variables[2]/mass_density;

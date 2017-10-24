@@ -1,20 +1,19 @@
-#define IC 0
+#define IC 3
 
-#define ONE_D
-//#define THREE_D
+#define DIM 1
 
 #define FLUX_LIMITER_OI 0
 #define FLUX_LIMITER "MINMOD"
 
-#define FORCE_ANALYTIC_PULSE 0
+#define FORCE_ANALYTIC_PULSE 1
 
-double cfl = 0.1;
+double cfl = 0.5;
 
-int N_POINTS=10;
+int n_points=200;
 
 // 1D Sod Shcok Tube
 #if IC == 0
-double t_tot = 0.001;
+double t_tot = 0.5;
 double GAMMA = 1.4;
 #endif
 

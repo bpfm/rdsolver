@@ -13,7 +13,6 @@ private:
 
         int id;
         centre *centre_0,*centre_1,*centre_00,*centre_11;
-        double q[4][3];
 
 public:
 
@@ -57,9 +56,27 @@ public:
 
                 double r_int[3],phi[3];
 
+                double q[4][3];
+
                 x_face = (centre_0->get_x()+centre_1->get_x())/2.0;
                 x0 = centre_0->get_x();
                 x1 = centre_1->get_x();
+
+                if(BOUNDARY == "CLOSED" and x0 > x1){
+
+                        du0[0] = 0.0;
+                        du0[1] = 0.0;
+                        du0[2] = 0.0;
+
+                        du1[0] = 0.0;
+                        du1[1] = 0.0;
+                        du1[2] = 0.0;
+
+                        centre_0->update_du(du0);
+                        centre_1->update_du(du1);
+
+                        return ;
+                }
 
                 density[0] = centre_0->get_mass_density();              // contruct state on either side of the face
                 density[1] = centre_1->get_mass_density();
@@ -112,8 +129,6 @@ public:
                 e_val[2] = u_avg + c_sound;
 
                 if(e_val[0] > 0.0){
-
-                        cout << "supersonic " << c_sound << endl;
 
                         f_int[0] = density[0]*u[0];
                         f_int[1] = density[0]*u[0]*u[0]+pressure[0];
@@ -216,8 +231,6 @@ public:
                         }
                 }
 
-
-
                 if(FLUX_LIMITER_OI == 0){
                         phi[0] = 1.0;
                         phi[1] = 1.0;
@@ -261,6 +274,8 @@ public:
                 centre_0->update_du(du0);
                 centre_1->update_du(du1);
 
+                //du_file << x_face << "\t" << analytic_solution(dx,x,dt,t) << endl;
+
                 //cout << "du1 =\t" << du1[0] << "\t" << du1[1] << "\t" << du1[2] << endl;
 
                 if(isnan(du1[0]) or isnan(du0[0])){
@@ -275,7 +290,7 @@ public:
                         cout << "h_tot_avg =\t" << h_tot_avg << endl;
                         cout << "e_kin_avg =\t" << e_kin_avg << endl;
                         cout << "GAMMA =\t" << GAMMA << endl; 
-                        cout << "c_sound =\t" << c_sound << "\t" << GAMMA << "\th_tot_avg =\t" << h_tot_avg << endl;
+                        cout << "c_sound =\t" << c_sound << endl;
                         cout << "density =\t" << density[0] << "\t" << density[1] << endl;
                         cout << "EXITING" << endl;
                         exit(0);

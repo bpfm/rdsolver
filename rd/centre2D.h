@@ -14,7 +14,7 @@ class centre{
 
 private:
 
-        double x,y,z;
+        double x;
         double mass_density,velocity,pressure,specific_energy;
         double u_variables[3],f_variables[3],du[3];
         vector<int> assoc_cells;
@@ -25,14 +25,6 @@ public:
         // (no setter functions for U and F(U) as these are set by the other variables)
         void set_x(double new_x){
                 x = new_x;
-        }
-
-        void set_y(double new_y){
-                y = new_y;
-        }
-
-        void set_z(double new_z){
-                z = new_z;
         }
 
         void set_mass_density(double new_mass_density){
@@ -55,14 +47,6 @@ public:
         //getter functions for extracting values of variables
         double get_x(){
                 return x;
-        }
-
-        double get_y(){
-                return y;
-        }
-
-        double get_z(){
-                return z;
         }
 
         double get_specific_energy(){

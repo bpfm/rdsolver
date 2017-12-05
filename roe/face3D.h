@@ -65,7 +65,7 @@ public:
 
                 double r_int[5],phi[5];
 
-                if(centre_0->get_x() >= (N_POINTS-1.01)*dx or centre_0->get_y() >= (N_POINTS-1.01)*dx or centre_0->get_z() >= (N_POINTS-1.01)*dx){return;}
+                //if(centre_0->get_x() >= (N_POINTS-1.01)*dx or centre_0->get_y() >= (N_POINTS-1.01)*dx or centre_0->get_z() >= (N_POINTS-1.01)*dx){return;}
 
                 density[0] = centre_0->get_mass_density();              // contruct state on either side of the face
                 density[1] = centre_1->get_mass_density();
@@ -92,36 +92,36 @@ public:
                         z_vel[3] = centre_11->get_z_velocity();                       // q_i+2
                 }else if(direction == "y"){
                         // y-face case
-                        x_vel[0] = -1.0*centre_0->get_y_velocity();                        // q_i
-                        x_vel[1] = -1.0*centre_1->get_y_velocity();                        // q_i+1
-                        x_vel[2] = -1.0*centre_00->get_y_velocity();                       // q_i-1
-                        x_vel[3] = -1.0*centre_11->get_y_velocity();                       // q_i+2
+                        x_vel[0] = centre_0->get_z_velocity();                        // q_i
+                        x_vel[1] = centre_1->get_z_velocity();                        // q_i+1
+                        x_vel[2] = centre_00->get_z_velocity();                       // q_i-1
+                        x_vel[3] = centre_11->get_z_velocity();                       // q_i+2
 
                         y_vel[0] = centre_0->get_x_velocity();                        // q_i
                         y_vel[1] = centre_1->get_x_velocity();                        // q_i+1
                         y_vel[2] = centre_00->get_x_velocity();                       // q_i-1
                         y_vel[3] = centre_11->get_x_velocity();                       // q_i+2
 
-                        z_vel[0] = centre_0->get_z_velocity();                        // q_i
-                        z_vel[1] = centre_1->get_z_velocity();                        // q_i+1
-                        z_vel[2] = centre_00->get_z_velocity();                       // q_i-1
-                        z_vel[3] = centre_11->get_z_velocity();                       // q_i+2
+                        z_vel[0] = centre_0->get_y_velocity();                        // q_i
+                        z_vel[1] = centre_1->get_y_velocity();                        // q_i+1
+                        z_vel[2] = centre_00->get_y_velocity();                       // q_i-1
+                        z_vel[3] = centre_11->get_y_velocity();                       // q_i+2
                 }else if(direction == "z"){
                         // z-face case
-                        x_vel[0] = centre_0->get_z_velocity();                        // q_i
-                        x_vel[1] = centre_1->get_z_velocity();                        // q_i+1
-                        x_vel[2] = centre_00->get_z_velocity();                       // q_i-1
-                        x_vel[3] = centre_11->get_z_velocity();                       // q_i+2
+                        x_vel[0] = centre_0->get_y_velocity();                        // q_i
+                        x_vel[1] = centre_1->get_y_velocity();                        // q_i+1
+                        x_vel[2] = centre_00->get_y_velocity();                       // q_i-1
+                        x_vel[3] = centre_11->get_y_velocity();                       // q_i+2
 
-                        y_vel[0] = centre_0->get_y_velocity();                        // q_i
-                        y_vel[1] = centre_1->get_y_velocity();                        // q_i+1
-                        y_vel[2] = centre_00->get_y_velocity();                       // q_i-1
-                        y_vel[3] = centre_11->get_y_velocity();                       // q_i+2
+                        y_vel[0] = centre_0->get_z_velocity();                        // q_i
+                        y_vel[1] = centre_1->get_z_velocity();                        // q_i+1
+                        y_vel[2] = centre_00->get_z_velocity();                       // q_i-1
+                        y_vel[3] = centre_11->get_z_velocity();                       // q_i+2
 
-                        z_vel[0] = -1.0*centre_0->get_x_velocity();                        // q_i
-                        z_vel[1] = -1.0*centre_1->get_x_velocity();                        // q_i+1
-                        z_vel[2] = -1.0*centre_00->get_x_velocity();                       // q_i-1
-                        z_vel[3] = -1.0*centre_11->get_x_velocity();                       // q_i+2
+                        z_vel[0] = centre_0->get_x_velocity();                        // q_i
+                        z_vel[1] = centre_1->get_x_velocity();                        // q_i+1
+                        z_vel[2] = centre_00->get_x_velocity();                       // q_i-1
+                        z_vel[3] = centre_11->get_x_velocity();                       // q_i+2
                 }
 
                 spec_energy[0] = centre_0->get_specific_energy();
@@ -193,7 +193,7 @@ public:
                         centre_0->update_du(du0);
                         centre_1->update_du(du1);
 
-                        //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
+                        cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
   
                         return ;
                 }
@@ -221,7 +221,7 @@ public:
                         centre_0->update_du(du0);
                         centre_1->update_du(du1);
 
-                        //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
+                        cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
 
                         return ;
                 }
@@ -399,10 +399,10 @@ public:
                 for(int k=0;k<5;k++){
                         correction = 0.0;
                         for(int m=0;m<5;m++){correction += alpha[m]*abs(e_val[m])*r_lower[k][m];}
-                        f_int[k] = 0.5*phi[k]*(f1[k]+f0[k]-correction);
+                        f_int[k] = 0.5*phi[k]*(f1[k]+f0[k]);//-correction);
                 }
 
-                /****** Convert flux at face to change in variable ******/
+                /****** Convert flux at face to change in variable in cells ******/
 
                 du0[0] = -f_int[0]*dt/dx;
                 du0[1] = -f_int[1]*dt/dx;
@@ -416,17 +416,22 @@ public:
                 du1[3] = f_int[3]*dt/dx;
                 du1[4] = f_int[4]*dt/dx;
 
-                /****** Distribute changes to appropriate cell centres ******/
+                /****** Distribute changes to appropriate centres ******/
 
                 centre_0->update_du(du0);
                 centre_1->update_du(du1);
 
+                /*
                 if(centre_0->get_y()==22.5 and centre_0->get_z()==22.5){
                         cout << "x =\t" << centre_0->get_x() << "\ty =\t" << centre_0->get_y() << "\tz =\t" << centre_0->get_z() << "\tface =\t" << direction;
-                        cout << "\tdensity =\t" << density[0] << "\t" << density[1] << "\tdu1 =\t" << du1[0] << "\t" << du1[1] << "\t" << du1[2] << endl;
+                        cout << "\tdensity =\t" << density[0] << "\t" << density[1] << "\tdu1 =\t" << du1[0] << "\t" << du1[1] << "\t" << du1[2] << "\t" << du1[3] << "\t" << du1[4] << endl;
+                        //cout << "\tLHS fluxes =\t" << f0[0] << "\t" << f0[1] << "\t" << f0[2] << "\t" << f0[3] << "\t" <<f0[4];
+                        //cout << "\tRHS fluxes =\t" << f1[0] << "\t" << f1[1] << "\t" << f1[2] << "\t" << f1[3] << "\t" <<f1[4]<< endl;
                 }
+                */
 
                 if(isnan(du1[0]) or isnan(du0[0])){
+                        cout << "time =\t" << t << endl;
                         cout << "direction =\t" << direction << endl;
                         cout << "x =\t" << centre_0->get_x() << "\ty =\t" << centre_0->get_y() << "\tz =\t" << centre_0->get_z() << endl;
                         cout << "vel_avg =\t" << x_vel_avg << "\t" << y_vel_avg << "\t" << z_vel_avg << endl;

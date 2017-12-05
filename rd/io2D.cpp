@@ -22,9 +22,9 @@ void output_state(ofstream &density_map, ofstream &pressure_map, ofstream &veloc
         vector<centre>::iterator it_vert;
 
         for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
-                        density_map << points[i].get_x() << "\t" << points[i].get_y() << "\t" << points[i].get_z() << "\t" << points[i].get_mass_density() << endl;
+                        density_map << points[i].get_x() << "\t" << points[i].get_mass_density() << endl;
                         pressure_map << points[i].get_x() << "\t" << points[i].get_pressure() << endl;
-                        //velocity_map << points[i].get_x() << "\t" << points[i].get_velocity() << endl;
+                        velocity_map << points[i].get_x() << "\t" << points[i].get_velocity() << endl;
                         total_density += points[i].get_mass_density()*dx;
         }
         cout << "*********************************************************" << endl;            // right out time and total density to terminal

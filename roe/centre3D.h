@@ -203,11 +203,19 @@ public:
                 u_variables[4] = u_variables[4] + du[4];
         }
 
-        // calculate min timestep this cell requires
+        // calculate min timestep this cell requires (pick smallest value for all faces)
         void calc_next_dt(double dx, double cfl, double &next_dt){
+                int i;
                 double c_sound;
+                double next_dt_pick[3];
                 c_sound = sqrt(GAMMA*pressure/mass_density);
-                next_dt = cfl*(dx/(c_sound+abs(x_velocity)));
+                next_dt_pick[0] = cfl*(dx/(c_sound+abs(x_velocity)));
+                next_dt_pick[1] = cfl*(dx/(c_sound+abs(y_velocity)));
+                next_dt_pick[2] = cfl*(dx/(c_sound+abs(z_velocity)));
+                
+                next_dt=next_dt_pick[0];
+
+                for(i=1;i<3;i++){if(next_dt_pick[i] < next_dt){next_dt = next_dt_pick[i];}}
         }
 
 };

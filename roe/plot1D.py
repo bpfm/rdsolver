@@ -3,7 +3,7 @@ import numpy as np
 
 #x,density = np.loadtxt("density.txt", usecols = (0,1))
 
-n_points = 1000
+n_points = 20
 dx = 50.0/float(n_points)
 
 data = np.loadtxt("density.txt")
@@ -39,7 +39,7 @@ lines = x_0t
 #for l in lines:
         #plt.axvline(x=l,color='black')
 
-plt.xlabel("x [m]")
+#plt.xlabel("x [m]")
 plt.ylabel("density [kg/m^3]")
 #plt.xlim([20,30])
 #plt.ylim([-1.0,1001])
@@ -63,10 +63,10 @@ plt.plot(x2,rho2)
 plt.plot(x3,rho3)
 plt.plot(x4,rho4)
 
-plt.xlabel("x [m]")
+#plt.xlabel("x [m]")
 plt.ylabel("pressure [N/m^2]")
 #plt.xlim([20,30])
-plt.ylim([-1.0,1001])
+#plt.ylim([-1.0,1001])
 
 ############################## velocity plot ##############################
 
@@ -89,6 +89,6 @@ plt.plot(x4,rho4)
 plt.xlabel("x [m]")
 plt.ylabel("velocity [m/s]")
 #plt.xlim([20,30])
-plt.ylim([-20,40])
+#plt.ylim([-20,40])
 
 plt.show()

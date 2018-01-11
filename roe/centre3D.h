@@ -1,9 +1,9 @@
 /*      class containing conserved and primative variables of fluid at the position of the centre
-                x = position
-                mass_density = mass_density of material in cell
+                x,y,z = position
+                mass_density = mass density of cell
                 velocity = velocity of material in cell
                 pressure = pressure in cell
-                specific_energy = specific_energy of cell (?) 
+                specific_energy = specific energy of cell
                 u_variables = array conatining values of vector U (see README)
                 f_variables = array of values for vector F(U) (see README)
 */
@@ -212,7 +212,7 @@ public:
                 next_dt_pick[0] = cfl*(dx/(c_sound+abs(x_velocity)));
                 next_dt_pick[1] = cfl*(dx/(c_sound+abs(y_velocity)));
                 next_dt_pick[2] = cfl*(dx/(c_sound+abs(z_velocity)));
-                
+
                 next_dt=next_dt_pick[0];
 
                 for(i=1;i<3;i++){if(next_dt_pick[i] < next_dt){next_dt = next_dt_pick[i];}}

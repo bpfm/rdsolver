@@ -66,6 +66,7 @@ centre setup_centre(int N_POINTS, int i, int j, int k, float dx){
                 return new_centre;
         }else if(IC == 2){
                 if(i==0 and j==0 and k==0){cout << "Using 3D Sedov Blast Wave" << endl;}
+
                 new_centre.set_x(x);
                 new_centre.set_y(y);
                 new_centre.set_z(z);
@@ -85,10 +86,10 @@ centre setup_centre(int N_POINTS, int i, int j, int k, float dx){
 
                 return new_centre;
         }else if(IC == 3){
-                if(i==0 and j==0 and k==0){cout << "Using Gaussian Pulse" << endl;}
-                double centre = 10.0;
+                if(i==0 and j==0 and k==0){cout << "Using 3D Gaussian Pulse" << endl;}
+                double centre = 20.0;
                 double s,w,rho,rho_0 = 10.0,rho_pulse = 50.0;
-                double velocity = 1.0,pressure = 1000.0;
+                double velocity = 5.0,pressure = 1000.0;
 
                 s = abs(centre-x);                                       // distance from centre of pulse
                 w = 2.0;                                                 // characteristic width
@@ -96,6 +97,8 @@ centre setup_centre(int N_POINTS, int i, int j, int k, float dx){
                 rho = rho_pulse*exp(-s*s/(w*w)) + rho_0*(1-exp(-s*s/(w*w)));
 
                 new_centre.set_x(x);
+                new_centre.set_y(y);
+                new_centre.set_z(z);
 
                 new_centre.set_mass_density(rho);
                 new_centre.set_x_velocity(velocity);
@@ -176,30 +179,6 @@ face setup_face(int i, double dx, vector<centre> &points, string direction){
                 }
                 //cout << "x_face position =\t" << points[centre_id_0].get_x() << "\t" << points[centre_id_1].get_x();
         }
-
-        /*
-        for(it_cent=points.begin(),j=0;it_cent<points.end();it_cent++,j++){
-                if(direction == "z"){
-                        if(points[j].get_z()==z+dx){
-                                centre_id_0 = i;
-                                centre_id_1 = j;
-                        }
-                        new_face.set_direction(direction);
-                }else if(direction == "y"){
-                        if(points[j].get_z()==z+dx){
-                                centre_id_0 = i;
-                                centre_id_1 = j;
-                        }
-                        new_face.set_direction(direction);
-                }else if(direction == "x"){
-                        if(points[j].get_z()==z+dx){
-                                centre_id_0 = i;
-                                centre_id_1 = j;
-                        }
-                        new_face.set_direction(direction);
-                }
-        }
-        */
 
         centre_0 = &points[centre_id_0];                                // setup pointers to lower and upper centre
         centre_1 = &points[centre_id_1];

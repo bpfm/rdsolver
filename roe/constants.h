@@ -1,19 +1,19 @@
-#define IC 7
+#define IC 3
 
-#define ONE_D
-//#define THREE_D
+//#define ONE_D
+#define THREE_D
 
-#define BOUNDARY "PERIODIC"
-//#define BOUNDARY "CLOSED"
+//#define BOUNDARY "PERIODIC"
+#define BOUNDARY "CLOSED"
 
-#define FLUX_LIMITER_OI 0
-#define FLUX_LIMITER "MINMOD"
+#define FLUX_LIMITER 0
+#define FLUX_LIMITER_TYPE "MINMOD"
 
-#define FORCE_ANALYTIC_PULSE 0
+#define FORCE_ANALYTIC_PULSE 1
 
-#define N_SNAP 100
+#define N_SNAP 5
 
-int N_POINTS=1000;
+int N_POINTS=50;
 
 // Sod Shcok Tube
 #if IC == 0
@@ -42,7 +42,7 @@ double SIDE_LENGTH = 50.0;
 // Gaussian Pulse
 #if IC == 3
 double cfl = 0.1;
-double t_tot = 10.0;
+double t_tot = 1.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif

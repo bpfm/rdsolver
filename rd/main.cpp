@@ -6,18 +6,11 @@
 
 #include "constants.h"
 
-#ifdef ONE_D
-#include "centre1D.h"
-#include "face1D.h"
-#include "setup1D.cpp"
-#include "io1D.cpp"
-#endif
-
-#ifdef THREE_D
-#include "centre3D.h"
-#include "face3D.h"
-#include "setup3D.cpp"
-#include "io3D.cpp"
+#ifdef TWO_D
+#include "vertex2D.h"
+#include "triangle2D.h"
+#include "setup2D.cpp"
+//#include "io2D.cpp"
 #endif
 
 
@@ -26,114 +19,118 @@ using namespace std;
 int main(){
 
         int i,j,k,l=0;                                          // ******* decalare varaibles and vectors ******
-        double dx,dt,t=0.0,c_initial;                           // dx = space step,dt = timestep,t = time,cfl = cfl condition,c_initial = initial max
-        double next_time=0.0;                                   // t_tot = total time,next_time = time of next snapshot
-        centre new_centre;                                      // new_centre = temporary centre to be added to vector of vertices
-        face new_x_face,new_y_face,new_z_face;                  // new_face = temporary face to be added to vector of faces
-        vector<centre> points;                                  // points = vector of vertices
-        vector<face> faces;                                     // faces = vector of faces
-        vector<centre>::iterator it_vert;                       // it_vert = iterator for centre vector
-        vector<face>::iterator it_face;                         // it_face = iterator for face vector
-        double total_density,next_dt,possible_dt;               // total_density = total density in box
-        int current_point=0;
+        double DX,DT,T=0.0;                                     // DX = space step,DT = timestep,t = time,CFL = CFL condition
+        double NEXT_TIME=0.0;                                   // T_TOT = total time,NEXT_TIME = time of next snapshot
+        VERTEX NEW_VERTEX;
+        TRIANGLE NEW_TRIANGLE;
+        vector<VERTEX> X_POINTS;
+        vector<vector<VERTEX> > POINTS;
+        vector<TRIANGLE> X_MESH;
+        vector<vector<TRIANGLE> > MESH;
+        vector<VERTEX>::iterator IT_VERT;
+        vector<TRIANGLE>::iterator IT_TRIANGLE;
+        double TOTAL_DENSITY,NEXT_DT,POSSIBLE_DT;               // TOTAL_DENSITY = total density in box
 
-        dx = SIDE_LENGTH/double(N_POINTS);                             // calculate cell width
-        next_dt = t_tot;
+        NEXT_DT = T_TOT;
 
         /****** Setup initial conditions of one dimensional tube ******/
 
-        cout << "Building grid of cells ..." << endl;
+        ofstream positions;
 
-#ifdef ONE_D
-        for(i=0;i<N_POINTS;i++){
-                new_centre = setup_centre(N_POINTS,i,dx);               // call centre setup routine
-                points.push_back(new_centre);                           // add new centre to vector of all centres
-                points[i].calc_next_dt(dx,cfl,possible_dt);             // check dt is min required by cfl
-                if(possible_dt<next_dt){next_dt=possible_dt;}
-        }
-#endif
+        positions.open("positions.txt");
 
-#ifdef THREE_D
-        for(i=0;i<N_POINTS;i++){
-                for(j=0;j<N_POINTS;j++){
-                        for(k=0;k<N_POINTS;k++){
-                                new_centre = setup_centre(N_POINTS,i,j,k,dx);                   // call centre setup routine
-                                points.push_back(new_centre);                                   // add new centre to vector of all centres
-                                points[current_point].calc_next_dt(dx,cfl,possible_dt);         // check dt is min required by cfl
-                                if(possible_dt<next_dt){next_dt=possible_dt;}
-                                current_point += 1;
-                        }
+        cout << "Building grid of vertices ..." << endl;
+
+#ifdef TWO_D
+        for(j=0;j<N_POINTS;j++){
+                for(i=0;i<N_POINTS;i++){
+                        NEW_VERTEX = setup_vertex(N_POINTS,i,j);               // call VERTEX setup routine
+                        NEW_VERTEX.prim_to_con();
+                        X_POINTS.push_back(NEW_VERTEX);                           // add new VERTEX to vector of vertices in this row
+                        //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                      // check dt is min required by CFL
+                        //if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
+                POINTS.push_back(X_POINTS);
+                X_POINTS.clear();
         }
 #endif
 
-        /****** Setup system of faces ******/
+        /****** Setup system of MESH ******/
 
-        cout << "Assigning cells to faces ..." << endl;
+         cout << "Assigning vertices to triangles ..." << endl;
 
-#ifdef ONE_D
-        for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
-                new_x_face = setup_face(i, points);
-                faces.push_back(new_x_face);                                      // add new face to vector of all faces
+        for(j=0;j<2*N_POINTS;j++){
+                for(i=0;i<N_POINTS;i++){
+                        NEW_TRIANGLE = setup_triangle(i,j,POINTS,positions);
+                        X_MESH.push_back(NEW_TRIANGLE);
+                }
+                MESH.push_back(X_MESH);
+                X_MESH.clear();
         }
-#endif
 
-#ifdef THREE_D
-        for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
-                new_x_face = setup_face(i,dx,points,"x");
-                new_y_face = setup_face(i,dx,points,"y");
-                new_z_face = setup_face(i,dx,points,"z");
-                faces.push_back(new_x_face);                                      // add new faces to vector of all faces
-                faces.push_back(new_y_face);
-                faces.push_back(new_z_face);
-        }
-#endif
-        /****** Loop over time until total time t_tot is reached ******/
+        /****** Loop over time until total time T_TOT is reached ******/
 
-        ofstream density_map, pressure_map, velocity_map, du_file;
+        //ofstream density_map, pressure_map, velocity_map, du_file;
 
-        open_files(density_map, pressure_map, velocity_map, du_file);           // open output files
+        //open_files(density_map, pressure_map, velocity_map, du_file);           // open output files
 
         cout << "Evolving fluid ..." << endl;
 
-        while(t<t_tot){
+        cout << "MESH Size =\t" << MESH.size() << '\t' << MESH[0].size() << endl;
 
-                dt = next_dt;                                                   // set timestep based oncaclulation from previous timestep
+        while(T<T_TOT){
 
-                //dt = 0.00001;
+                cout << "STEP =\t" << l << endl;
 
-                total_density = 0.0;                                            // reset total density counter
+                DT = NEXT_DT;                                                   // set timestep based oncaclulation from previous timestep
 
-                if(t>=next_time){                                               // write out densities at given interval
-                        next_time=next_time+t_tot/float(N_SNAP);
-                        if(next_time>t_tot){next_time=t_tot;}
-                        output_state(density_map, pressure_map, velocity_map, du_file, points, t, dt, dx);
+                DT = 0.01;
+
+                TOTAL_DENSITY = 0.0;                                            // reset total density counter
+
+                if(T >= NEXT_TIME){                                             // write out densities at given interval
+                        NEXT_TIME = NEXT_TIME+T_TOT/float(N_SNAP);
+                        if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
+                        //output_state(density_map, pressure_map, velocity_map, du_file, POINTS, t, DT, DX);
+                        for(j=0;j<N_POINTS;j++){
+                                for(i=0;i<N_POINTS;i++){
+                                        //positions << POINTS[i][j].get_x() << "\t" << POINTS[i][j].get_y() << "\t" << POINTS[i][j].get_mass_density() << endl;
+                                }
+                        }
                 }
 
-                for(it_face=faces.begin(),i=0;it_face<faces.end();it_face++,i++){               // loop over all faces
-                        faces[i].calculate_flux(dx,dt,t,du_file);                               // calculate flux through face
+                positions << " " << endl;
+
+                for(j=0;j<N_POINTS;j++){
+                        for(i=0;i<N_POINTS;i++){                               // loop over all MESH
+                                //cout << j << "\t" << i << endl;
+                                MESH[i][j].calculate_change(DX,DT,T);          // calculate flux through TRIANGLE
+                        }
                 }
 
-                next_dt = t_tot - (t + dt);     // set next timestep to max possible value (time remaining to end)
+                NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
 
-                for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){             // loop over all vertices
-                        points[i].update_u_variables();                                         // update the u variables with the collected du
-                        points[i].con_to_prim();                                                // convert these to their corresponding conserved
-                        points[i].recalculate_pressure();                                       // caclulate pressure from new conserved values
-                        points[i].prim_to_con();                                                // convert back to guarentee correct values are used
-                        points[i].setup_f_variables();                                          // set flux variables with new values
-                        points[i].reset_du();                                                   // reset du value to zero for next timestep
-                        points[i].calc_next_dt(dx,cfl,possible_dt);                             // calculate next timestep
-                        if(possible_dt<next_dt){next_dt = possible_dt;}
+                for(j=0;j<N_POINTS;j++){
+                        for(i=0;i<N_POINTS;i++){             // loop over all vertices
+                                POINTS[i][j].update_u_variables();                                         // update the u variables with the collected du
+                                POINTS[i][j].con_to_prim();                                                // convert these to their corresponding conserved
+                                POINTS[i][j].recalculate_pressure();                                       // caclulate pressure from new conserved values
+                                POINTS[i][j].prim_to_con();                                                // convert back to guarentee correct values are used
+                                POINTS[i][j].reset_du();                                                   // reset du value to zero for next timestep
+                                //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                                // calculate next timestep
+                                //if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
+                        }
                 }
-
-                t+=dt;                                                                          // increment time
+                T+=DT;                                                                          // increment time
                 l+=1;                                                                           // increment step number
+
         }
 
-        output_state(density_map, pressure_map, velocity_map, du_file, points, t, dt, dx);      // write out final state
+        positions.close();
 
-        close_files(density_map, pressure_map, velocity_map, du_file);
+         //output_state(density_map, pressure_map, velocity_map, du_file, POINTS, t, dt, DX);      // write out final state
+
+         //close_files(density_map, pressure_map, velocity_map, du_file);
 
         return 0;
 }

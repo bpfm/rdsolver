@@ -1,205 +1,119 @@
 using namespace std;
 
-centre setup_centre(int N_POINTS, int i, float dx){
-        centre new_centre;
+VERTEX setup_vertex(int N_POINTS, int i, int j){
+        VERTEX NEW_VERTEX;
+        double X,Y,DX,DY;
 
-        double x = (double(i) + 0.5) * dx;
+        DX = SIDE_LENGTH/double(N_POINTS);
+        DY = sqrt(3.0)*DX/2.0;
+
+        if((j % 2)== 0){
+                X=double(i)*DX;
+                Y=double(j)*DY;
+        }else{
+                X=(double(i)+0.5)*DX;
+                Y=double(j)*DY;
+        }
+
+        NEW_VERTEX.set_x(X);
+        NEW_VERTEX.set_y(Y);
+
+        NEW_VERTEX.set_dx(DX);
+        NEW_VERTEX.set_dy(DY);
+
+        NEW_VERTEX.calculate_dual();
 
         if(IC == 0){
-                if(i==0){cout << "Using 1D Sod Shock Tube" << endl;}
-                new_centre.set_x(x);
+                if(i==0 and j==0){cout << "Using 2D Sod Shock Tube" << endl;}
+
+                //cout << "x =\t" << X << "\ty =\t" << Y << endl;
 
                 if(i>0.3*N_POINTS and i<0.7*N_POINTS){
-                        new_centre.set_mass_density(1.0);                               // units kg/m^3
-                        new_centre.set_velocity(0.0);                                   // units m/s
-                        new_centre.set_pressure(500.0);                                 // units N/m^2
+                        NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
+                        NEW_VERTEX.set_x_velocity(0.0);                                 // units m/s
+                        NEW_VERTEX.set_y_velocity(0.0);                                 // units m/s
+                        NEW_VERTEX.set_pressure(500.0);                                 // units N/m^2
                 }else{
-                        new_centre.set_mass_density(0.125);                             // units kg/m^3
-                        new_centre.set_velocity(0.0);                                   // units m/s
-                        new_centre.set_pressure(100.0);                                 // units N/m^2
+                        NEW_VERTEX.set_mass_density(0.125);                             // units kg/m^3
+                        NEW_VERTEX.set_x_velocity(0.0);                                 // units m/s
+                        NEW_VERTEX.set_y_velocity(0.0);                                 // units m/s
+                        NEW_VERTEX.set_pressure(100.0);                                 // units N/m^2
                 }
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
+                NEW_VERTEX.setup_specific_energy();
+                NEW_VERTEX.prim_to_con();
+                NEW_VERTEX.reset_du();
 
-                return new_centre;
+                return NEW_VERTEX;
 
         }else if(IC == 1){
-                if(i==0){cout << "Using 1D Sine Wave" << endl;}
+                if(i==0 and j==0){cout << "Using 2D Sine Wave" << endl;}
 
-                double rho,rho_0 = 50.0;
-                double p,p_0 = 3.0;
-                double c_s = sqrt(GAMMA*p_0/rho_0);
-                double k = 2.0*3.1415/50.0;
-                double epsilon = 0.0001;
-                double v;
+                //cout << "x =\t" << X << "\ty =\t" << Y << endl;
 
-                new_centre.set_x(x);
+                double RHO,RHO_0 = 50.0;
+                double P,P_0 = 3.0;
+                double C_S = sqrt(GAMMA*P_0/RHO_0);
+                double KB = 2.0*3.1415/SIDE_LENGTH;
+                double EPSILON = 0.1;
+                double V;
 
-                rho = rho_0*(1.0 + epsilon * cos(k * x));
-                p = p_0 + c_s * c_s * (rho - rho_0);
-                v = c_s * (rho - rho_0)/rho_0;
+                NEW_VERTEX.set_x(X);
+                NEW_VERTEX.set_y(Y);
 
-                new_centre.set_mass_density(rho);                       // units kg/m^3
-                new_centre.set_velocity(v);                             // units m/s
-                new_centre.set_pressure(p);                             // units N/m^2
+                RHO = RHO_0*(1.0 + EPSILON * sin(KB * X));
+                P = P_0 + C_S * C_S * (RHO - RHO_0);
+                V = C_S * (RHO - RHO_0)/RHO_0;
 
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
+                NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
+                NEW_VERTEX.set_x_velocity(V);                             // units m/s
+                NEW_VERTEX.set_y_velocity(0.0);
+                NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
-                return new_centre;
+                NEW_VERTEX.setup_specific_energy();
+                NEW_VERTEX.prim_to_con();
+                NEW_VERTEX.reset_du();
 
-        }else if(IC == 2){
+                return NEW_VERTEX;
 
-                if(i==0){cout << "Using 1D Sedov Blast Wave" << endl;}
-                new_centre.set_x(x);
-    
-                new_centre.set_mass_density(1);                        // units kg/m^3
-                new_centre.set_velocity(0);                            // units m/s
-                new_centre.set_pressure(1);                            // units N/m^2
-    
-                if(x > (50/2 - dx) and x < (50/2 + dx)){new_centre.set_pressure(100000/dx);}
-
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
-
-                return new_centre;
-        }else if(IC==3){
-                if(i==0){cout << "Using 1D Gaussian Pulse" << endl;}
-                double centre = 10.0;
-                double s,w,rho,rho_0 = 10.0,rho_pulse = 50.0;
-                double velocity = 1.0,pressure = 1000.0;
-
-                s = abs(centre-x);                                       // distance from centre of pulse
-                w = 2.0;                                                 // characteristic width
-
-                rho = rho_pulse*exp(-s*s/(w*w)) + rho_0*(1-exp(-s*s/(w*w)));
-
-                new_centre.set_x(x);
-
-                new_centre.set_mass_density(rho);
-                new_centre.set_velocity(velocity);
-                new_centre.set_pressure(pressure);
-
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
-
-                return new_centre;
-
-        }else if(IC==4){
-                if(i==0){cout << "Using 1D Square Wave" << endl;}
-
-                new_centre.set_x(x);
-
-                if(i>0.25*N_POINTS and i<0.75*N_POINTS){
-                        new_centre.set_mass_density(0.032);                             // units kg/m^3
-                        new_centre.set_velocity(1.0);                                   // units m/s
-                        new_centre.set_pressure(10.0);                                 // units N/m^2
-                }else{
-                        new_centre.set_mass_density(0.0075);                            // units kg/m^3
-                        new_centre.set_velocity(1.0);                                   // units m/s
-                        new_centre.set_pressure(10.0);                                 // units N/m^2
-                }
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
-
-                return new_centre;
-
-        }else if(IC==5){
-                if(i==0){cout << "Using 1D Steady Flow" << endl;}
-
-                new_centre.set_x(x);
-
-                new_centre.set_mass_density(1.0);                               // units kg/m^3
-                new_centre.set_velocity(1.0);                                   // units m/s
-                new_centre.set_pressure(1.0);                                   // units N/m^2
-
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
-
-                return new_centre;
-
-        }else if(IC==6){
-                if(i==0){cout << "Using 1D Linear Wave Test (ATHENA)" << endl;}
-
-                double A,R[3],PI;
-
-                PI = 3.141529;
-
-                A = 1.0e-3;
-
-                R[0] = 1.0;
-                R[1] = 1.0;
-                R[2] = 1.5;
-
-                new_centre.set_x(x);
-
-                new_centre.set_mass_density(1.0 + (A*R[0]*sin(2.0*PI*x)));                  // units kg/m^3
-                new_centre.set_velocity(1.0 + (A*R[1]*sin(2.0*PI*x)));                      // units m/s
-                //new_centre.set_pressure(1.0/GAMMA);                                         // units N/m^2
-
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
-
-                return new_centre;
-        }else{
-                if(i==0){cout << "Using 1D Interacting Blastwaves Test (ATHENA)" << endl;}
-
-                new_centre.set_x(x);
-
-                new_centre.set_mass_density(1.0);                             // units kg/m^3
-                new_centre.set_velocity(0.0);                                 // units m/s
-
-                if(x > 0.1*SIDE_LENGTH and x < 0.2*SIDE_LENGTH){
-                        new_centre.set_pressure(1000);                                 // units N/m^2
-                }else if(x > 0.8*SIDE_LENGTH and x < 0.9*SIDE_LENGTH){
-                        new_centre.set_pressure(100);                                 // units N/m^2
-                }else{
-                        new_centre.set_pressure(0.1);                                 // units N/m^2
-                }
-
-                new_centre.setup_specific_energy();
-                new_centre.prim_to_con();
-                new_centre.setup_f_variables();
-                new_centre.reset_du();
-
-                return new_centre;
         }
 }
 
-face setup_face(int i, vector<centre> &points){
-        int centre_id_0,centre_id_1;                                    // centre_id_0 and centre_id_1 = index number of cells on either side of face
-        centre *centre_0,*centre_1,*centre_00,*centre_11;               // *centre_0 and *centre_1 = pointers to vertices
-        face new_face;
+TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS, ofstream &positions){
+        int j;
+        int VERTEX_I_ID_0,VERTEX_J_ID_0,VERTEX_I_ID_1,VERTEX_J_ID_1,VERTEX_I_ID_2,VERTEX_J_ID_2;            // VERTEX_id_0 and VERTEX_id_1 = index number of cells on either side of TRIANGLE
+        VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2;                                                               // *VERTEX_0, *VERTEX_1 and *VERTEX_2 = pointers to vertices (labelled anticlockwise)
+        TRIANGLE NEW_TRIANGLE;
 
-        centre_id_0 = i % N_POINTS;                                     // setup preiodic boundary
-        centre_id_1 = (i+1) % N_POINTS;
+        if((j0 % 2) == 0){
+                j = j0/2;
+                VERTEX_I_ID_0 = j;
+                VERTEX_J_ID_0 = i;
+                VERTEX_I_ID_1 = j+1;
+                VERTEX_J_ID_1 = i;
+                VERTEX_I_ID_2 = j;
+                VERTEX_J_ID_2 = i+1;
+        }else{
+                j = (j0-1)/2;
+                VERTEX_I_ID_0 = j+1;
+                VERTEX_J_ID_0 = i;
+                VERTEX_I_ID_1 = j+1;
+                VERTEX_J_ID_1 = i+1;
+                VERTEX_I_ID_2 = j;
+                VERTEX_J_ID_2 = i+1;
+        }
 
-        centre_0 = &points[centre_id_0];                                // setup pointers to lower and upper centre
-        centre_1 = &points[centre_id_1];
-        centre_00 = &points[centre_id_0-1];                             // add neighbouring vertices for flux limiter
-        centre_11 = &points[centre_id_1+1];
+        VERTEX_0 = &POINTS[VERTEX_I_ID_0][VERTEX_J_ID_0];
+        VERTEX_1 = &POINTS[VERTEX_I_ID_1][VERTEX_J_ID_1];
+        VERTEX_2 = &POINTS[VERTEX_I_ID_2][VERTEX_J_ID_2];
 
-        if(centre_id_0 == 0){centre_00 = &points[N_POINTS-1];}
-        if(centre_id_1 == N_POINTS-1){centre_11 = &points[0];}
+        NEW_TRIANGLE.set_vertex_0(VERTEX_0);                                // pass these pointers to the TRIANGLE
+        NEW_TRIANGLE.set_vertex_1(VERTEX_1);
+        NEW_TRIANGLE.set_vertex_2(VERTEX_2);
 
-        new_face.set_centre_0(centre_0);                                // pass these pointers to the face
-        new_face.set_centre_1(centre_1);
-        new_face.set_centre_00(centre_00);
-        new_face.set_centre_11(centre_11);
+        positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_0()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_0()->get_y() << endl;
+        positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_1()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_1()->get_y() << endl;
+        positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_2()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_2()->get_y() << endl;
+        positions << j << "\t" << i << "\t" << "\t" << endl;
 
-        return new_face;
+        return NEW_TRIANGLE;
 }

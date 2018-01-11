@@ -1,80 +1,23 @@
-#define IC 7
+#define IC 0
 
-#define ONE_D
-//#define THREE_D
+#define TWO_D
 
-#define BOUNDARY "PERIODIC"
-//#define BOUNDARY "CLOSED"
+#define N_SNAP 10
 
-#define FLUX_LIMITER_OI 0
-#define FLUX_LIMITER "MINMOD"
-
-#define FORCE_ANALYTIC_PULSE 0
-
-#define N_SNAP 100
-
-int N_POINTS=1000;
+int N_POINTS = 10;
 
 // Sod Shcok Tube
 #if IC == 0
-double cfl = 0.1;
-double t_tot = 0.5;
+double CFL = 0.1;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif
 
-// Sine Wave
+// Sine Wave Tube
 #if IC == 1
-double cfl = 0.1;
-double t_tot = 100.0;
+double CFL = 0.1;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
-#endif
-
-// Sedov Blast Wave
-#if IC == 2
-double cfl = 0.1;
-double t_tot = 0.2;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH = 50.0;
-#endif
-
-// Gaussian Pulse
-#if IC == 3
-double cfl = 0.1;
-double t_tot = 10.0;
-double GAMMA = 1.4;
-double SIDE_LENGTH = 50.0;
-#endif
-
-// Square wave
-#if IC == 4
-double cfl = 0.1;
-double t_tot = 5.0;
-double GAMMA = 1.4;
-double SIDE_LENGTH = 50.0;
-#endif
-
-// Steady flow
-#if IC == 5
-double cfl = 0.1;
-double t_tot = 0.1;
-double GAMMA = 1.4;
-double SIDE_LENGTH = 50.0;
-#endif
-
-// Linear Waves Test (ATHENA)
-#if IC == 6
-double cfl = 0.1;
-double t_tot = 0.1;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH = 1.0;
-#endif
-
-// Linear Waves Test (ATHENA)
-#if IC == 7
-double cfl = 0.1;
-double t_tot = 0.038;
-double GAMMA = 1.4;
-double SIDE_LENGTH = 1.0;
 #endif

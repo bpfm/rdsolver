@@ -55,6 +55,7 @@ int main(){
 
 #ifdef THREE_D
         for(i=0;i<N_POINTS;i++){
+                cout << "setting up x =\t" << (i+0.5)*dx << endl;
                 for(j=0;j<N_POINTS;j++){
                         for(k=0;k<N_POINTS;k++){
                                 new_centre = setup_centre(N_POINTS,i,j,k,dx);                   // call centre setup routine
@@ -80,6 +81,7 @@ int main(){
 
 #ifdef THREE_D
         for(it_vert=points.begin(),i=0;it_vert<points.end();it_vert++,i++){
+                cout << "setting up faces at\t" << points[i].get_x() << "\t" << points[i].get_y() << "\t" << points[i].get_z() << endl;
                 new_x_face = setup_face(i,dx,points,"x");
                 new_y_face = setup_face(i,dx,points,"y");
                 new_z_face = setup_face(i,dx,points,"z");
@@ -90,9 +92,9 @@ int main(){
 #endif
         /****** Loop over time until total time t_tot is reached ******/
 
-        ofstream density_map, pressure_map, velocity_map, du_file;
+        ofstream density_map, pressure_map, velocity_map, density_slice, du_file;
 
-        open_files(density_map, pressure_map, velocity_map, du_file);           // open output files
+        open_files(density_map, pressure_map, velocity_map, density_slice, du_file);           // open output files
 
         cout << "Evolving fluid ..." << endl;
 
@@ -100,14 +102,14 @@ int main(){
 
                 dt = next_dt;                                                   // set timestep based oncaclulation from previous timestep
 
-                //dt = 0.00001;
+                dt = 0.001;
 
                 total_density = 0.0;                                            // reset total density counter
 
                 if(t>=next_time){                                               // write out densities at given interval
                         next_time=next_time+t_tot/float(N_SNAP);
                         if(next_time>t_tot){next_time=t_tot;}
-                        output_state(density_map, pressure_map, velocity_map, du_file, points, t, dt, dx);
+                        output_state(density_map, pressure_map, velocity_map, density_slice, du_file, points, t, dt, dx);
                 }
 
                 for(it_face=faces.begin(),i=0;it_face<faces.end();it_face++,i++){               // loop over all faces
@@ -129,11 +131,12 @@ int main(){
 
                 t+=dt;                                                                          // increment time
                 l+=1;                                                                           // increment step number
+                cout << l << "\t" << t << endl;
         }
 
-        output_state(density_map, pressure_map, velocity_map, du_file, points, t, dt, dx);      // write out final state
+        output_state(density_map, pressure_map, velocity_map, density_slice, du_file, points, t, dt, dx);      // write out final state
 
-        close_files(density_map, pressure_map, velocity_map, du_file);
+        close_files(density_map, pressure_map, velocity_map, density_slice, du_file);
 
         return 0;
 }

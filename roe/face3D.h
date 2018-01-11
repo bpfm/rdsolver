@@ -65,7 +65,29 @@ public:
 
                 double r_int[5],phi[5];
 
-                //if(centre_0->get_x() >= (N_POINTS-1.01)*dx or centre_0->get_y() >= (N_POINTS-1.01)*dx or centre_0->get_z() >= (N_POINTS-1.01)*dx){return;}
+                double x_face,x0,x1;
+
+                if(FORCE_ANALYTIC_PULSE == 1){
+                        if(direction == "x"){
+                                x_face = (centre_0->get_x()+centre_1->get_x())/2.0;
+                                x0 = centre_0->get_x();
+                                x1 = centre_1->get_x();
+
+                                du1[0] = analytic_solution(dx,x_face,dt,t);
+                                du0[0] = -1.0*du1[0];
+
+                                //du_file << x_face << "\t" << du1[0] << endl;
+
+                        }else{
+                                du1[0] = 0.0;
+                                du0[0] = 0.0;
+                        }
+
+                        centre_0->update_du(du0);
+                        centre_1->update_du(du1);
+
+                        return ;
+                }
 
                 density[0] = centre_0->get_mass_density();              // contruct state on either side of the face
                 density[1] = centre_1->get_mass_density();
@@ -193,7 +215,7 @@ public:
                         centre_0->update_du(du0);
                         centre_1->update_du(du1);
 
-                        cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
+                        //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
   
                         return ;
                 }
@@ -221,11 +243,10 @@ public:
                         centre_0->update_du(du0);
                         centre_1->update_du(du1);
 
-                        cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
+                        //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
 
                         return ;
                 }
-
 
                 // in case of transonic fluxes, there may be numerical problems
                 // this is a possible fix follows:
@@ -384,7 +405,7 @@ public:
                         }
                 }
 
-                if(FLUX_LIMITER_OI == 0){
+                if(FLUX_LIMITER == 0){
                         phi[0] = 1.0;
                         phi[1] = 1.0;
                         phi[2] = 1.0;
@@ -483,14 +504,14 @@ public:
         double construct_flux_limiter(double r){
                 double phi,twor;
 
-                if(FLUX_LIMITER == "MINMOD"){
+                if(FLUX_LIMITER_TYPE == "MINMOD"){
                         phi = mymin(1.0,r);                                     // minmod
-                }else if(FLUX_LIMITER == "SUERBEE"){
+                }else if(FLUX_LIMITER_TYPE == "SUERBEE"){
                         twor = 2.0*r;
                         phi = mymax(0.0,mymin(1.0,twor),mymin(2.0,r));          // superbee
-                }else if(FLUX_LIMITER == "BEAM-WARMING"){
+                }else if(FLUX_LIMITER_TYPE == "BEAM-WARMING"){
                         phi = r;                                              // Beam-Warming
-                }else if(FLUX_LIMITER == "VAN-LEER"){
+                }else if(FLUX_LIMITER_TYPE == "VAN-LEER"){
                         phi = (r+abs(r))/(1.0+abs(r));                        // van Leer
                 }
 
@@ -543,9 +564,9 @@ public:
                 double rho,rho_0,rho_1,x_0,sig,v,du,x_0t;
                 rho_0 = 10.0;
                 rho_1 = 50.0;
-                x_0 = 10.0;
+                x_0 = 20.0;
                 sig = 2.0;
-                v = 1.0;
+                v = 5.0;
                 x_0t = x_0 + v*t;
                 rho = rho_1 * exp(-(x-x_0t)*(x-x_0t)/(sig*sig)) + rho_0*(1.0-exp(-(x-x_0t)*(x-x_0t)/(sig*sig)));
                 du = rho * v * dt/dx;

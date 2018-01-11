@@ -50,12 +50,9 @@ public:
                 double e_vec[3][3],e_val[3];
                 double c_sound,correction;
                 double e_delta_q[3],delta_q[3],f0[3],f1[3],f_int[3],du0[3],du1[3];
-
                 double r_lower[3][3],r_upper[3][3],alpha[3];
                 double delta_p,delta_u,delta_d;
-
                 double r_int[3],phi[3];
-
                 double q[4][3];
 
                 x_face = (centre_0->get_x()+centre_1->get_x())/2.0;
@@ -144,8 +141,6 @@ public:
 
                         centre_0->update_du(du0);
                         centre_1->update_du(du1);
-
-                        //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
   
                         return ;
                 }
@@ -166,8 +161,6 @@ public:
 
                         centre_0->update_du(du0);
                         centre_1->update_du(du1);
-
-                        //cout << "du0 =\t" << du0[0] << "\t" << du0[1] << "\t" << du0[2] << endl;
 
                         return ;
                 }
@@ -231,7 +224,7 @@ public:
                         }
                 }
 
-                if(FLUX_LIMITER_OI == 0){
+                if(FLUX_LIMITER == 0){
                         phi[0] = 1.0;
                         phi[1] = 1.0;
                         phi[2] = 1.0;
@@ -261,11 +254,9 @@ public:
 
                 if(FORCE_ANALYTIC_PULSE == 1){
                         //cout << "before du1[0] = " << du1[0] << endl;
-
                         du1[0] = analytic_solution(dx,x_face,dt,t);
                         du0[0] = -1.0*du1[0];
                         du_file << x_face << "\t" << du1[0] << endl;
-
                         //cout << "after du1[0] = " << du1[0] << endl;
                 }
 
@@ -275,8 +266,6 @@ public:
                 centre_1->update_du(du1);
 
                 //du_file << x_face << "\t" << analytic_solution(dx,x,dt,t) << endl;
-
-                //cout << "du1 =\t" << du1[0] << "\t" << du1[1] << "\t" << du1[2] << endl;
 
                 if(isnan(du1[0]) or isnan(du0[0])){
                         cout << "f0 =\t" << f0[0] << "\t" << f0[1] << "\t" << f0[2] << endl;

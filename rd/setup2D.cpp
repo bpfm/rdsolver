@@ -86,21 +86,23 @@ TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS, ofstream
 
         if((j0 % 2) == 0){
                 j = j0/2;
-                VERTEX_I_ID_0 = j;
-                VERTEX_J_ID_0 = i;
-                VERTEX_I_ID_1 = j+1;
-                VERTEX_J_ID_1 = i;
-                VERTEX_I_ID_2 = j;
-                VERTEX_J_ID_2 = i+1;
+                VERTEX_I_ID_0 = j % N_POINTS;
+                VERTEX_J_ID_0 = i % N_POINTS;
+                VERTEX_I_ID_1 = (j+1) % N_POINTS;
+                VERTEX_J_ID_1 = i % N_POINTS;
+                VERTEX_I_ID_2 = j % N_POINTS;
+                VERTEX_J_ID_2 = (i+1) % N_POINTS;
         }else{
                 j = (j0-1)/2;
-                VERTEX_I_ID_0 = j+1;
-                VERTEX_J_ID_0 = i;
-                VERTEX_I_ID_1 = j+1;
-                VERTEX_J_ID_1 = i+1;
-                VERTEX_I_ID_2 = j;
-                VERTEX_J_ID_2 = i+1;
+                VERTEX_I_ID_0 = (j+1) % N_POINTS;
+                VERTEX_J_ID_0 = i % N_POINTS;
+                VERTEX_I_ID_1 = (j+1) % N_POINTS;
+                VERTEX_J_ID_1 = (i+1) % N_POINTS;
+                VERTEX_I_ID_2 = j % N_POINTS;
+                VERTEX_J_ID_2 = (i+1) % N_POINTS;
         }
+
+        //cout << "IDs =\t" << VERTEX_I_ID_1 << "\t" << VERTEX_J_ID_2 << endl;
 
         VERTEX_0 = &POINTS[VERTEX_I_ID_0][VERTEX_J_ID_0];
         VERTEX_1 = &POINTS[VERTEX_I_ID_1][VERTEX_J_ID_1];
@@ -110,10 +112,12 @@ TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS, ofstream
         NEW_TRIANGLE.set_vertex_1(VERTEX_1);
         NEW_TRIANGLE.set_vertex_2(VERTEX_2);
 
+        /*
         positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_0()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_0()->get_y() << endl;
         positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_1()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_1()->get_y() << endl;
         positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_2()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_2()->get_y() << endl;
         positions << j << "\t" << i << "\t" << "\t" << endl;
+        */
 
         return NEW_TRIANGLE;
 }

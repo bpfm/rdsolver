@@ -10,7 +10,7 @@
 #include "vertex2D.h"
 #include "triangle2D.h"
 #include "setup2D.cpp"
-//#include "io2D.cpp"
+#include "io2D.cpp"
 #endif
 
 
@@ -59,7 +59,7 @@ int main(){
 
          cout << "Assigning vertices to triangles ..." << endl;
 
-        for(j=0;j<2*N_POINTS;j++){
+        for(j=0;j<2*(N_POINTS);j++){
                 for(i=0;i<N_POINTS;i++){
                         NEW_TRIANGLE = setup_triangle(i,j,POINTS,positions);
                         X_MESH.push_back(NEW_TRIANGLE);
@@ -68,11 +68,13 @@ int main(){
                 X_MESH.clear();
         }
 
+        cout << "Finished triangle setup" << endl;
+
         /****** Loop over time until total time T_TOT is reached ******/
 
-        //ofstream density_map, pressure_map, velocity_map, du_file;
+        ofstream DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE;
 
-        //open_files(density_map, pressure_map, velocity_map, du_file);           // open output files
+        open_files(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE);           // open output files
 
         cout << "Evolving fluid ..." << endl;
 
@@ -91,20 +93,12 @@ int main(){
                 if(T >= NEXT_TIME){                                             // write out densities at given interval
                         NEXT_TIME = NEXT_TIME+T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
-                        //output_state(density_map, pressure_map, velocity_map, du_file, POINTS, t, DT, DX);
-                        for(j=0;j<N_POINTS;j++){
-                                for(i=0;i<N_POINTS;i++){
-                                        //positions << POINTS[i][j].get_x() << "\t" << POINTS[i][j].get_y() << "\t" << POINTS[i][j].get_mass_density() << endl;
-                                }
-                        }
+                        output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DX);
                 }
 
-                positions << " " << endl;
-
-                for(j=0;j<N_POINTS;j++){
+                for(j=0;j<2*(N_POINTS);j++){
                         for(i=0;i<N_POINTS;i++){                               // loop over all MESH
-                                //cout << j << "\t" << i << endl;
-                                MESH[i][j].calculate_change(DX,DT,T);          // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_change(DX,DT,T);          // calculate flux through TRIANGLE
                         }
                 }
 
@@ -112,11 +106,11 @@ int main(){
 
                 for(j=0;j<N_POINTS;j++){
                         for(i=0;i<N_POINTS;i++){             // loop over all vertices
-                                POINTS[i][j].update_u_variables();                                         // update the u variables with the collected du
-                                POINTS[i][j].con_to_prim();                                                // convert these to their corresponding conserved
-                                POINTS[i][j].recalculate_pressure();                                       // caclulate pressure from new conserved values
-                                POINTS[i][j].prim_to_con();                                                // convert back to guarentee correct values are used
-                                POINTS[i][j].reset_du();                                                   // reset du value to zero for next timestep
+                                POINTS[j][i].update_u_variables();                                         // update the u variables with the collected du
+                                POINTS[j][i].con_to_prim();                                                // convert these to their corresponding conserved
+                                POINTS[j][i].recalculate_pressure();                                       // caclulate pressure from new conserved values
+                                POINTS[j][i].prim_to_con();                                                // convert back to guarentee correct values are used
+                                POINTS[j][i].reset_du();                                                   // reset du value to zero for next timestep
                                 //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                                // calculate next timestep
                                 //if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                         }
@@ -126,11 +120,9 @@ int main(){
 
         }
 
-        positions.close();
+         output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DX);      // write out final state
 
-         //output_state(density_map, pressure_map, velocity_map, du_file, POINTS, t, dt, DX);      // write out final state
-
-         //close_files(density_map, pressure_map, velocity_map, du_file);
+         close_files(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE);
 
         return 0;
 }

@@ -4,22 +4,25 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-n_points = 50
+N_SIDE = 20
+N_POINTS = N_SIDE*N_SIDE
+
+SLIDE = 0
 
 # read in density values
-points = np.zeros(shape=[n_points*n_points, 2])
+points = np.zeros(shape=[N_POINTS, 2])
 
-data = np.loadtxt("positions.txt")
+data = np.loadtxt("density.txt")
 
-points[:,0] = data[:,0]
-points[:,1] = data[:,1]
-rho = data[:,2]
+points[:,0] = data[SLIDE*N_POINTS:(SLIDE+1)*N_POINTS,0]
+points[:,1] = data[SLIDE*N_POINTS:(SLIDE+1)*N_POINTS,1]
+rho = data[SLIDE*N_POINTS:(SLIDE+1)*N_POINTS,2]
 
 # generate Voronoi tessellation
 vor = Voronoi(points)
 
 # normalize chosen colormap
-norm = mpl.colors.Normalize(vmin=45.0, vmax=55.0, clip=True)
+norm = mpl.colors.Normalize(vmin=0.0, vmax=5.0, clip=True)
 mapper = cm.ScalarMappable(norm=norm, cmap=cm.Oranges)
 
 # plot Voronoi diagram, and fill finite regions with color mapped from speed value

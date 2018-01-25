@@ -16,16 +16,17 @@ void close_files(ofstream &DENSITY_MAP, ofstream &PRESSURE_MAP, ofstream &VELOCI
         return;
 }
 
-void output_state(ofstream &DENSITY_MAP, ofstream &PRESSURE_MAP, ofstream &VELOCITY_MAP, ofstream &DU_FILE, vector<centre> POINTS, double T, double DT, double DX){
-        int i;
+void output_state(ofstream &DENSITY_MAP, ofstream &PRESSURE_MAP, ofstream &VELOCITY_MAP, ofstream &DU_FILE, vector<vector<VERTEX> > POINTS, double T, double DT, double DX, double DY){
+        int i,j;
         double TOTAL_DENSITY;
-        vector<centre>::iterator IT_VERT;
 
-        for(IT_VERT=POINTS.begin(),i=0;IT_VERT<POINTS.end();IT_VERT++,i++){
-                        DENSITY_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_mass_density() << endl;
-                        PRESSURE_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_pressure() << endl;
-                        VELOCITY_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_velocity() << endl;
-                        TOTAL_DENSITY += POINTS[i].get_mass_density()*DX;
+        for(j=0;j<N_POINTS;j++){
+                for(i=0;i<N_POINTS;i++){
+                        DENSITY_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density() << endl;
+                        PRESSURE_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" <<POINTS[j][i].get_pressure() << endl;
+                        VELOCITY_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" <<POINTS[j][i].get_x_velocity() << "\t" <<POINTS[j][i].get_x_velocity() << endl;
+                        TOTAL_DENSITY += POINTS[j][i].get_mass_density()*0.5*DX*DY;
+                }
         }
         cout << "*********************************************************" << endl;            // right out time and total density to terminal
         cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY  << "\ttime step = \t" << DT << endl;

@@ -2,9 +2,9 @@
 
 #define TWO_D
 
-#define N_SNAP 10
+#define N_SNAP 5
 
-int N_POINTS = 10;
+int N_POINTS = 20;
 
 // Sod Shcok Tube
 #if IC == 0

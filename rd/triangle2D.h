@@ -43,12 +43,14 @@ public:
         }
 
         void calculate_change(double DX, double DT, double T){
-                int i,j;
+                int i,j,k;
                 double X[3],Y[3],U_N[4][3],U_HALF[4][3];
                 double DU0[4],DU1[4],DU2[4];
                 double NORMAL[3][2];
                 double LAMBDA[4][3][2];
                 double INFLOW[4][3],INLFOW_PLUS[4][3],INFLOW_MINUS[4][3];
+                double U_IN[4],U_OUT[4];
+                int INOUT[4][3];
 
                 // Import conditions and positions of vertices
 
@@ -102,17 +104,37 @@ public:
 
                 for(i=0;i<4;i++){
                         for(j=0;j<3;j++){
+                                INOUT[i][j] = 0;
                                 INFLOW[i][j] = 0.0;
-                                for(k=0;k<2){
-                                        INFLOW[i][j] = INFLOW[i][j] + 0.5*LAMBDA[i][j][k]*NORMAL[j][k];
-                                }
+                                for(k=0;k<2){INFLOW[i][j] = INFLOW[i][j] + 0.5*LAMBDA[i][j][k]*NORMAL[j][k];}
                                 INLFOW_PLUS[i][j] = max_val(0,INFLOW[i][j]);
                                 INFLOW_MINUS[i][j] = min_Val(0,INFLOW[i][j]);
-
+                                if(INFLOW[i][j]>0){INOUT[i][j]=1}                                        // Work out which are inflow vertices and which are outflow vertices
                         }
                 }
 
-                // Work out which are inflow vertices and which are outflow vertices
+                // Calculate inflow and outflow state of the element
+
+                for(i=0;i<4;i++){
+                        IN_TOP = 0.0;
+                        IN_BOTTOM = 0.0;
+                        OUT_TOP = 0.0;
+                        OUT_BOTTOM = 0.0;
+                        for(j=0;j<3;j++){
+                                IN_TOP = IN_TOP + INFLOW_MINUS[i][j]*U_N[i][j];
+                                IN_BOTTOM = IN_BOTTOM + INFLOW_MINUS[i][j];
+                                OUT_TOP = OUT_TOP + INFLOW_PLUS[i][j]*U_N[i][j];
+                                OUT_BOTTOM = OUT_BOTTOM + INFLOW_PLUS[i][j];
+                        }
+                        U_IN[i] = IN_TOP/IN_BOTTOM;
+                        U_OUT[i] = OUT_TOP/OUT_BOTTOM;
+                }
+
+                for(i=0;i<4;i++){
+                        for(j=0;j=3;j++){
+                                FLUC[i][j] = INFLOW_PLUS[i][j]*(U_OUT[i]-U_IN[i]);
+                        }
+                }
 
                 // for (int i = 0; i < 3; ++i){
                 //         DU0[i] = 0.02*X[i];

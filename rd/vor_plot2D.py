@@ -7,7 +7,7 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 N_SIDE = 20
 N_POINTS = N_SIDE*N_SIDE
 
-SLIDE = 0
+SLIDE = 1
 
 # read in density values
 points = np.zeros(shape=[N_POINTS, 2])

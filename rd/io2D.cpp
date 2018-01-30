@@ -26,12 +26,15 @@ void output_state(ofstream &DENSITY_MAP, ofstream &PRESSURE_MAP, ofstream &VELOC
                         PRESSURE_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" <<POINTS[j][i].get_pressure() << endl;
                         VELOCITY_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" <<POINTS[j][i].get_x_velocity() << "\t" <<POINTS[j][i].get_x_velocity() << endl;
                         TOTAL_DENSITY += POINTS[j][i].get_mass_density()*0.5*DX*DY;
+                        //cout << "density =\t" << POINTS[j][i].get_mass_density() << "\tDX =\t" << DX << endl;
                 }
         }
+
         cout << "*********************************************************" << endl;            // right out time and total density to terminal
         cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY  << "\ttime step = \t" << DT << endl;
         DENSITY_MAP << " " << endl;
         PRESSURE_MAP << " " << endl;
         VELOCITY_MAP << " " << endl;
+
         return;
 }

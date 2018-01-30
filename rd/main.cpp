@@ -19,7 +19,7 @@ using namespace std;
 int main(){
 
         int i,j,k,l=0;                                          // ******* decalare varaibles and vectors ******
-        double DX,DT,T=0.0;                                     // DX = space step,DT = timestep,t = time,CFL = CFL condition
+        double DX,DY,DT,T=0.0;                                     // DX = space step,DT = timestep,t = time,CFL = CFL condition
         double NEXT_TIME=0.0;                                   // T_TOT = total time,NEXT_TIME = time of next snapshot
         VERTEX NEW_VERTEX;
         TRIANGLE NEW_TRIANGLE;
@@ -35,16 +35,12 @@ int main(){
 
         /****** Setup initial conditions of one dimensional tube ******/
 
-        ofstream positions;
-
-        positions.open("positions.txt");
-
         cout << "Building grid of vertices ..." << endl;
 
 #ifdef TWO_D
         for(j=0;j<N_POINTS;j++){
                 for(i=0;i<N_POINTS;i++){
-                        NEW_VERTEX = setup_vertex(N_POINTS,i,j);               // call VERTEX setup routine
+                        NEW_VERTEX = setup_vertex(N_POINTS,i,j,DX,DY);               // call VERTEX setup routine
                         NEW_VERTEX.prim_to_con();
                         X_POINTS.push_back(NEW_VERTEX);                           // add new VERTEX to vector of vertices in this row
                         //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                      // check dt is min required by CFL
@@ -61,7 +57,7 @@ int main(){
 
         for(j=0;j<2*(N_POINTS);j++){
                 for(i=0;i<N_POINTS;i++){
-                        NEW_TRIANGLE = setup_triangle(i,j,POINTS,positions);
+                        NEW_TRIANGLE = setup_triangle(i,j,POINTS);
                         X_MESH.push_back(NEW_TRIANGLE);
                 }
                 MESH.push_back(X_MESH);
@@ -82,23 +78,23 @@ int main(){
 
         while(T<T_TOT){
 
-                cout << "STEP =\t" << l << endl;
+                //cout << "STEP =\t" << l << endl;
 
                 DT = NEXT_DT;                                                   // set timestep based oncaclulation from previous timestep
 
-                DT = 0.01;
+                DT = 0.00001;
 
                 TOTAL_DENSITY = 0.0;                                            // reset total density counter
 
                 if(T >= NEXT_TIME){                                             // write out densities at given interval
-                        NEXT_TIME = NEXT_TIME+T_TOT/float(N_SNAP);
+                        NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
-                        output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DX);
+                        output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DY);
                 }
 
                 for(j=0;j<2*(N_POINTS);j++){
                         for(i=0;i<N_POINTS;i++){                               // loop over all MESH
-                                MESH[j][i].calculate_change(DX,DT,T);          // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_change(T);          // calculate flux through TRIANGLE
                         }
                 }
 

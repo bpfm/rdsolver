@@ -42,14 +42,16 @@ public:
                 return VERTEX_2;
         }
 
-        void calculate_change(double DX, double DT, double T){
+        void calculate_change(double T){
                 int i,j,k;
-                double X[3],Y[3],U_N[4][3],U_HALF[4][3];
+                double X[3],Y[3],X_VEL[3],Y_VEL[3],U_N[4][3],U_HALF[4][3];
                 double DU0[4],DU1[4],DU2[4];
                 double NORMAL[3][2];
                 double LAMBDA[4][3][2];
-                double INFLOW[4][3],INLFOW_PLUS[4][3],INFLOW_MINUS[4][3];
+                double INFLOW[4][3],INFLOW_PLUS[4][3],INFLOW_MINUS[4][3];
                 double U_IN[4],U_OUT[4];
+                double IN_TOP,IN_BOTTOM,OUT_TOP,OUT_BOTTOM,PRESSURE,C_SOUND;
+                double FLUC[4][3],BETA[4][3];
                 int INOUT[4][3];
 
                 // Import conditions and positions of vertices
@@ -86,6 +88,11 @@ public:
                 U_N[3][1] = VERTEX_1->get_u3();
                 U_N[3][2] = VERTEX_2->get_u3();
 
+                // Placeholder pressure calculation
+
+                PRESSURE = VERTEX_0->get_pressure();
+                C_SOUND = sqrt(GAMMA*PRESSURE/U_N[0][0]);
+
                 if(T==0.0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
 
                 for(i=0;i<3;i++){
@@ -106,10 +113,10 @@ public:
                         for(j=0;j<3;j++){
                                 INOUT[i][j] = 0;
                                 INFLOW[i][j] = 0.0;
-                                for(k=0;k<2){INFLOW[i][j] = INFLOW[i][j] + 0.5*LAMBDA[i][j][k]*NORMAL[j][k];}
-                                INLFOW_PLUS[i][j] = max_val(0,INFLOW[i][j]);
-                                INFLOW_MINUS[i][j] = min_Val(0,INFLOW[i][j]);
-                                if(INFLOW[i][j]>0){INOUT[i][j]=1}                                        // Work out which are inflow vertices and which are outflow vertices
+                                for(k=0;k<2;k++){INFLOW[i][j] = INFLOW[i][j] + 0.5*LAMBDA[i][j][k]*NORMAL[j][k];}
+                                INFLOW_PLUS[i][j] = max_val(0,INFLOW[i][j]);
+                                INFLOW_MINUS[i][j] = min_val(0,INFLOW[i][j]);
+                                if(INFLOW[i][j]>0){INOUT[i][j]=1;}                                        // Work out which are inflow vertices and which are outflow vertices
                         }
                 }
 
@@ -128,23 +135,32 @@ public:
                         }
                         U_IN[i] = IN_TOP/IN_BOTTOM;
                         U_OUT[i] = OUT_TOP/OUT_BOTTOM;
+                        for(j=0;j<3;j++){
+                                BETA[i][j] = INFLOW_PLUS[i][j]/OUT_BOTTOM;
+                        }
                 }
 
                 for(i=0;i<4;i++){
-                        for(j=0;j=3;j++){
+                        for(j=0;j<3;j++){
                                 FLUC[i][j] = INFLOW_PLUS[i][j]*(U_OUT[i]-U_IN[i]);
                         }
                 }
 
-                // for (int i = 0; i < 3; ++i){
-                //         DU0[i] = 0.02*X[i];
-                //         DU1[i] = 0.01*Y[i]*sin(Y[i]);
-                //         DU2[i] = 0.0;
-                // }
+                for(i=0;i<4;i++){
+                        DU0[i] = -1.0*BETA[i][0]*FLUC[i][0];
+                        DU1[i] = -1.0*BETA[i][1]*FLUC[i][1];
+                        DU2[i] = -1.0*BETA[i][2]*FLUC[i][2];
+                }
 
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
+
+                if(DEBUG==1){
+                        cout << "Element fluctuation =\t" << FLUC[0][0] << "\t" << FLUC[0][1] << "\t" << FLUC[0][2] << endl;
+                        cout << "Beta =\t" << BETA[0][0] << "\t" << BETA[0][1] << "\t" << BETA[0][2] << endl;
+                        cout << "Change =\t" << DU0[0] << endl;
+                }
 
                 return ;
         }

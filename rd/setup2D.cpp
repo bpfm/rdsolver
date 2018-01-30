@@ -1,8 +1,8 @@
 using namespace std;
 
-VERTEX setup_vertex(int N_POINTS, int i, int j){
+VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
         VERTEX NEW_VERTEX;
-        double X,Y,DX,DY;
+        double X,Y;
 
         DX = SIDE_LENGTH/double(N_POINTS);
         DY = sqrt(3.0)*DX/2.0;
@@ -78,7 +78,7 @@ VERTEX setup_vertex(int N_POINTS, int i, int j){
         }
 }
 
-TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS, ofstream &positions){
+TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS){
         int j;
         int VERTEX_I_ID_0,VERTEX_J_ID_0,VERTEX_I_ID_1,VERTEX_J_ID_1,VERTEX_I_ID_2,VERTEX_J_ID_2;            // VERTEX_id_0 and VERTEX_id_1 = index number of cells on either side of TRIANGLE
         VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2;                                                               // *VERTEX_0, *VERTEX_1 and *VERTEX_2 = pointers to vertices (labelled anticlockwise)
@@ -111,13 +111,6 @@ TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS, ofstream
         NEW_TRIANGLE.set_vertex_0(VERTEX_0);                                // pass these pointers to the TRIANGLE
         NEW_TRIANGLE.set_vertex_1(VERTEX_1);
         NEW_TRIANGLE.set_vertex_2(VERTEX_2);
-
-        /*
-        positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_0()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_0()->get_y() << endl;
-        positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_1()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_1()->get_y() << endl;
-        positions << j << "\t" << i << "\t" << NEW_TRIANGLE.get_vertex_2()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_2()->get_y() << endl;
-        positions << j << "\t" << i << "\t" << "\t" << endl;
-        */
 
         return NEW_TRIANGLE;
 }

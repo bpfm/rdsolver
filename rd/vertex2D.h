@@ -118,7 +118,6 @@ public:
         }
 
 
-
         // functions to set up the specific energy varaible, as well as u and f arrays
         void setup_specific_energy(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;

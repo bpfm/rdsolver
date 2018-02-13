@@ -7,7 +7,7 @@ from scipy.spatial import Voronoi, voronoi_plot_2d
 N_SIDE = 20
 N_POINTS = N_SIDE*N_SIDE
 
-SLIDE = 1
+SLIDE = 0
 
 # read in density values
 points = np.zeros(shape=[N_POINTS, 2])
@@ -22,7 +22,7 @@ rho = data[SLIDE*N_POINTS:(SLIDE+1)*N_POINTS,2]
 vor = Voronoi(points)
 
 # normalize chosen colormap
-norm = mpl.colors.Normalize(vmin=0.0, vmax=5.0, clip=True)
+norm = mpl.colors.Normalize(vmin=np.amin(rho), vmax=np.amax(rho), clip=True)
 mapper = cm.ScalarMappable(norm=norm, cmap=cm.Oranges)
 
 # plot Voronoi diagram, and fill finite regions with color mapped from speed value

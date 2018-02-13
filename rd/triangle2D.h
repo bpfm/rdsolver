@@ -64,6 +64,11 @@ public:
                 Y[1] = VERTEX_1->get_y();
                 Y[2] = VERTEX_2->get_y();
 
+                if(DEBUG==1){
+                        cout << "---------------------------------------------------------" << endl;
+                        cout << X[0] << "\t" << Y[0] << endl;
+                }
+
                 X_VEL[0] = VERTEX_0->get_x_velocity();
                 X_VEL[1] = VERTEX_1->get_x_velocity();
                 X_VEL[2] = VERTEX_2->get_x_velocity();
@@ -133,11 +138,18 @@ public:
                                 OUT_TOP = OUT_TOP + INFLOW_PLUS[i][j]*U_N[i][j];
                                 OUT_BOTTOM = OUT_BOTTOM + INFLOW_PLUS[i][j];
                         }
-                        U_IN[i] = IN_TOP/IN_BOTTOM;
-                        U_OUT[i] = OUT_TOP/OUT_BOTTOM;
-                        for(j=0;j<3;j++){
-                                BETA[i][j] = INFLOW_PLUS[i][j]/OUT_BOTTOM;
+                        if(DEBUG==1){cout << "Sums (" << i << ") =\t" << IN_TOP << "\t" << IN_BOTTOM << "\t" << OUT_TOP << "\t" << OUT_BOTTOM << endl;}
+                        
+                        if(OUT_BOTTOM != 0.0){
+                                U_IN[i] = IN_TOP/IN_BOTTOM;
+                                U_OUT[i] = OUT_TOP/OUT_BOTTOM;
+                                for(j=0;j<3;j++){BETA[i][j] = INFLOW_PLUS[i][j]/OUT_BOTTOM;}
+                        }else{
+                                U_IN[i] = 0.0;
+                                U_OUT[i] = 0.0;
+                                for(j=0;j<3;j++){BETA[i][j] = 0.0;}
                         }
+                        if(DEBUG==1){cout << "k+ =\t" << INFLOW_PLUS[i][0] << "\t" << INFLOW_PLUS[i][1] << "\t" << INFLOW_PLUS[i][2] << endl;}
                 }
 
                 for(i=0;i<4;i++){
@@ -147,9 +159,9 @@ public:
                 }
 
                 for(i=0;i<4;i++){
-                        DU0[i] = -1.0*BETA[i][0]*FLUC[i][0];
-                        DU1[i] = -1.0*BETA[i][1]*FLUC[i][1];
-                        DU2[i] = -1.0*BETA[i][2]*FLUC[i][2];
+                        DU0[i] = -1.0*FLUC[i][0];//-1.0*BETA[i][0]*FLUC[i][0];
+                        DU1[i] = -1.0*FLUC[i][1];//-1.0*BETA[i][1]*FLUC[i][1];
+                        DU2[i] = -1.0*FLUC[i][2];//-1.0*BETA[i][2]*FLUC[i][2];
                 }
 
                 VERTEX_0->update_du(DU0);
@@ -157,11 +169,18 @@ public:
                 VERTEX_2->update_du(DU2);
 
                 if(DEBUG==1){
-                        cout << "Element fluctuation =\t" << FLUC[0][0] << "\t" << FLUC[0][1] << "\t" << FLUC[0][2] << endl;
-                        cout << "Beta =\t" << BETA[0][0] << "\t" << BETA[0][1] << "\t" << BETA[0][2] << endl;
-                        cout << "Change =\t" << DU0[0] << endl;
+                        if(U_IN[0] != U_OUT[0]){
+                                for(i=0;i<4;i++){cout << "u_in =\t" << U_IN[i] << "\tu_out =\t" << U_OUT[i] << endl;}
+                                for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
+                                for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
+                                cout << "Change (rho) =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
+                                cout << "Change (x mom) =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
+                                cout << "Change (y mom) =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
+                                cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
+                                cout << "---------------------------------------------------------" << endl;
+                                exit(0);
+                        }
                 }
-
                 return ;
         }
 
@@ -187,8 +206,8 @@ public:
 
                 for(i=0;i<3;i++){
                         MAG = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
-                        NORMAL[i][0] = PERP[i][0]/MAG;
-                        NORMAL[i][1] = PERP[i][1]/MAG;
+                        NORMAL[i][0] = -1.0*PERP[i][0]/MAG;
+                        NORMAL[i][1] = -1.0*PERP[i][1]/MAG;
                 }
 
                 NORMAL00 = NORMAL[0][0];
@@ -197,6 +216,14 @@ public:
                 NORMAL11 = NORMAL[1][1];
                 NORMAL20 = NORMAL[2][0];
                 NORMAL21 = NORMAL[2][1];
+
+                if(DEBUG==1){
+                        cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << endl;
+                        cout << "Y =\t" << Y[0] << "\t" << Y[1] << "\t" << Y[2] << endl;
+                        cout << "Normal i =\t" << NORMAL00 << "\t" << NORMAL01 << endl;
+                        cout << "Normal j =\t" << NORMAL10 << "\t" << NORMAL11 << endl;
+                        cout << "Normal k =\t" << NORMAL20 << "\t" << NORMAL21 << endl;
+                }
 
                 return ;
         }

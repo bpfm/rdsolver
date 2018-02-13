@@ -64,11 +64,6 @@ public:
                 Y[1] = VERTEX_1->get_y();
                 Y[2] = VERTEX_2->get_y();
 
-                if(DEBUG==1){
-                        cout << "---------------------------------------------------------" << endl;
-                        cout << X[0] << "\t" << Y[0] << endl;
-                }
-
                 X_VEL[0] = VERTEX_0->get_x_velocity();
                 X_VEL[1] = VERTEX_1->get_x_velocity();
                 X_VEL[2] = VERTEX_2->get_x_velocity();
@@ -92,6 +87,15 @@ public:
                 U_N[3][0] = VERTEX_0->get_u3();
                 U_N[3][1] = VERTEX_1->get_u3();
                 U_N[3][2] = VERTEX_2->get_u3();
+
+                if(DEBUG==1){
+                        cout << "---------------------------------------------------------" << endl;
+                        cout << "i =\t" << X[0] << "\t" << Y[0] << "\tj =\t" << X[1] << "\t" << Y[1] << "\tk =\t" << X[2] << "\t" << Y[2] << endl;
+                        cout << "State =" << "\t\t rho" << "\t\t x_mom" << "\t\t y_mom" << "\t\t energy" << endl;
+                        for(i=0;i<3;i++){
+                                cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;
+                        }
+                }
 
                 // Placeholder pressure calculation
 

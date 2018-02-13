@@ -86,12 +86,12 @@ TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS){
 
         if((j0 % 2) == 0){
                 j = j0/2;
-                VERTEX_I_ID_0 = j % N_POINTS;
-                VERTEX_J_ID_0 = i % N_POINTS;
+                VERTEX_I_ID_2 = j % N_POINTS;
+                VERTEX_J_ID_2 = i % N_POINTS;
                 VERTEX_I_ID_1 = (j+1) % N_POINTS;
                 VERTEX_J_ID_1 = i % N_POINTS;
-                VERTEX_I_ID_2 = j % N_POINTS;
-                VERTEX_J_ID_2 = (i+1) % N_POINTS;
+                VERTEX_I_ID_0 = j % N_POINTS;
+                VERTEX_J_ID_0 = (i+1) % N_POINTS;
         }else{
                 j = (j0-1)/2;
                 VERTEX_I_ID_0 = (j+1) % N_POINTS;

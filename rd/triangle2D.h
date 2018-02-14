@@ -42,7 +42,7 @@ public:
                 return VERTEX_2;
         }
 
-        void calculate_change(double T){
+        void calculate_change(double T, double DT){
                 int i,j,k;
                 double X[3],Y[3],X_VEL[3],Y_VEL[3],U_N[4][3],U_HALF[4][3];
                 double DU0[4],DU1[4],DU2[4];
@@ -163,9 +163,9 @@ public:
                 }
 
                 for(i=0;i<4;i++){
-                        DU0[i] = -1.0*FLUC[i][0];//-1.0*BETA[i][0]*FLUC[i][0];
-                        DU1[i] = -1.0*FLUC[i][1];//-1.0*BETA[i][1]*FLUC[i][1];
-                        DU2[i] = -1.0*FLUC[i][2];//-1.0*BETA[i][2]*FLUC[i][2];
+                        DU0[i] = -1.0*DT*FLUC[i][0];//-1.0*BETA[i][0]*FLUC[i][0];
+                        DU1[i] = -1.0*DT*FLUC[i][1];//-1.0*BETA[i][1]*FLUC[i][1];
+                        DU2[i] = -1.0*DT*FLUC[i][2];//-1.0*BETA[i][2]*FLUC[i][2];
                 }
 
                 VERTEX_0->update_du(DU0);

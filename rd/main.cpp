@@ -93,7 +93,7 @@ int main(){
 
                 for(j=0;j<2*(N_POINTS);j++){
                         for(i=0;i<N_POINTS;i++){                               // loop over all MESH
-                                MESH[j][i].calculate_change(T);          // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_change(T, DT);          // calculate flux through TRIANGLE
                         }
                 }
 

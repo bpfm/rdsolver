@@ -4,7 +4,7 @@
 
 #define N_SNAP 10
 
-#define DEBUG 1
+#define DEBUG 0
 
 int N_POINTS = 20;
 

@@ -50,8 +50,8 @@ public:
                 double LAMBDA[4][3][2];
                 double INFLOW[4][3],INFLOW_PLUS[4][3],INFLOW_MINUS[4][3];
                 double U_IN[4],U_OUT[4];
-                double IN_TOP,IN_BOTTOM,OUT_TOP,OUT_BOTTOM,PRESSURE,C_SOUND;
-                double FLUC[4][3],BETA[4][3];
+                double IN_TOP,IN_BOTTOM,OUT_TOP,OUT_BOTTOM,PRESSURE[3],C_SOUND[3];
+                double FLUC[4][3],BETA[4][3],DUAL[3];
                 int INOUT[4][3];
 
                 // Import conditions and positions of vertices
@@ -88,32 +88,46 @@ public:
                 U_N[3][1] = VERTEX_1->get_u3();
                 U_N[3][2] = VERTEX_2->get_u3();
 
+                PRESSURE[0] = VERTEX_0->get_pressure();
+                PRESSURE[1] = VERTEX_1->get_pressure();
+                PRESSURE[2] = VERTEX_2->get_pressure();
+
                 if(DEBUG==1){
                         cout << "---------------------------------------------------------" << endl;
-                        cout << "i =\t" << X[0] << "\t" << Y[0] << "\tj =\t" << X[1] << "\t" << Y[1] << "\tk =\t" << X[2] << "\t" << Y[2] << endl;
-                        cout << "State =" << "\t\t rho" << "\t\t x_mom" << "\t\t y_mom" << "\t\t energy" << endl;
+                        cout << "Time =\t" << T << endl;
+                        cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
+                        cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
+                        cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
+                        cout << "State =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
                         for(i=0;i<3;i++){
                                 cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;
                         }
+                        cout << "Pressure =\t" << VERTEX_0->get_pressure() << "\t" << VERTEX_1->get_pressure() << "\t" << VERTEX_2->get_pressure() << endl;
                 }
 
                 // Placeholder pressure calculation
 
-                PRESSURE = VERTEX_0->get_pressure();
-                C_SOUND = sqrt(GAMMA*PRESSURE/U_N[0][0]);
+                                
+                for(i=0;i<3;i++){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_N[0][i]);}
 
                 if(T==0.0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
 
                 for(i=0;i<3;i++){
-                        LAMBDA[0][i][0] = X_VEL[i] - C_SOUND;
+                        LAMBDA[0][i][0] = X_VEL[i] - C_SOUND[i];
                         LAMBDA[1][i][0] = X_VEL[i];
                         LAMBDA[2][i][0] = X_VEL[i];
-                        LAMBDA[3][i][0] = X_VEL[i] + C_SOUND;
+                        LAMBDA[3][i][0] = X_VEL[i] + C_SOUND[i];
 
-                        LAMBDA[0][i][1] = Y_VEL[i] - C_SOUND;
+                        LAMBDA[0][i][1] = Y_VEL[i] - C_SOUND[i];
                         LAMBDA[1][i][1] = Y_VEL[i];
                         LAMBDA[2][i][1] = Y_VEL[i];
-                        LAMBDA[3][i][1] = Y_VEL[i] + C_SOUND;
+                        LAMBDA[3][i][1] = Y_VEL[i] + C_SOUND[i];
+                        if(DEBUG==1){
+                                cout << "lambda " << i << " =\t" << LAMBDA[0][i][0] << "\t" << LAMBDA[0][i][1] << endl;
+                                cout << "lambda " << i << " =\t" << LAMBDA[1][i][0] << "\t" << LAMBDA[1][i][1] << endl;
+                                cout << "lambda " << i << " =\t" << LAMBDA[2][i][0] << "\t" << LAMBDA[2][i][1] << endl;
+                                cout << "lambda " << i << " =\t" << LAMBDA[3][i][0] << "\t" << LAMBDA[3][i][1] << endl;
+                        }
                 }
 
                 // Take dot product of advection velocity and the normal of the opposite face to get the inflow parameters
@@ -142,9 +156,9 @@ public:
                                 OUT_TOP = OUT_TOP + INFLOW_PLUS[i][j]*U_N[i][j];
                                 OUT_BOTTOM = OUT_BOTTOM + INFLOW_PLUS[i][j];
                         }
-                        if(DEBUG==1){cout << "Sums (" << i << ") =\t" << IN_TOP << "\t" << IN_BOTTOM << "\t" << OUT_TOP << "\t" << OUT_BOTTOM << endl;}
+                        //if(DEBUG==1){cout << "Sums (" << i << ") =\t" << IN_TOP << "\t" << IN_BOTTOM << "\t" << OUT_TOP << "\t" << OUT_BOTTOM << endl;}
                         
-                        if(OUT_BOTTOM != 0.0){
+                        if(OUT_BOTTOM != 0.0 and IN_BOTTOM != 0.0){
                                 U_IN[i] = IN_TOP/IN_BOTTOM;
                                 U_OUT[i] = OUT_TOP/OUT_BOTTOM;
                                 for(j=0;j<3;j++){BETA[i][j] = INFLOW_PLUS[i][j]/OUT_BOTTOM;}
@@ -153,7 +167,8 @@ public:
                                 U_OUT[i] = 0.0;
                                 for(j=0;j<3;j++){BETA[i][j] = 0.0;}
                         }
-                        if(DEBUG==1){cout << "k+ =\t" << INFLOW_PLUS[i][0] << "\t" << INFLOW_PLUS[i][1] << "\t" << INFLOW_PLUS[i][2] << endl;}
+                        if(DEBUG==1){cout << "k+ " << i << " =\t" << INFLOW_PLUS[i][0] << "\t" << INFLOW_PLUS[i][1] << "\t" << INFLOW_PLUS[i][2] << endl;}
+                        if(DEBUG==1){cout << "k- " << i << " =\t" << INFLOW_MINUS[i][0] << "\t" << INFLOW_MINUS[i][1] << "\t" << INFLOW_MINUS[i][2] << endl;}
                 }
 
                 for(i=0;i<4;i++){
@@ -163,9 +178,9 @@ public:
                 }
 
                 for(i=0;i<4;i++){
-                        DU0[i] = -1.0*DT*FLUC[i][0];//-1.0*BETA[i][0]*FLUC[i][0];
-                        DU1[i] = -1.0*DT*FLUC[i][1];//-1.0*BETA[i][1]*FLUC[i][1];
-                        DU2[i] = -1.0*DT*FLUC[i][2];//-1.0*BETA[i][2]*FLUC[i][2];
+                        DU0[i] = -1.0*DT*FLUC[i][0]/VERTEX_0->get_dual();//-1.0*BETA[i][0]*FLUC[i][0];
+                        DU1[i] = -1.0*DT*FLUC[i][1]/VERTEX_1->get_dual();//-1.0*BETA[i][1]*FLUC[i][1];
+                        DU2[i] = -1.0*DT*FLUC[i][2]/VERTEX_2->get_dual();//-1.0*BETA[i][2]*FLUC[i][2];
                 }
 
                 VERTEX_0->update_du(DU0);
@@ -177,11 +192,13 @@ public:
                                 for(i=0;i<4;i++){cout << "u_in =\t" << U_IN[i] << "\tu_out =\t" << U_OUT[i] << endl;}
                                 for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
                                 for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
+                                cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
                                 cout << "Change (rho) =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
                                 cout << "Change (x mom) =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
                                 cout << "Change (y mom) =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
                                 cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
                                 cout << "---------------------------------------------------------" << endl;
+                                //if(isnan(DU0[3])){exit(0);}
                                 exit(0);
                         }
                 }
@@ -210,8 +227,8 @@ public:
 
                 for(i=0;i<3;i++){
                         MAG = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
-                        NORMAL[i][0] = -1.0*PERP[i][0]/MAG;
-                        NORMAL[i][1] = -1.0*PERP[i][1]/MAG;
+                        NORMAL[i][0] = PERP[i][0]/MAG;
+                        NORMAL[i][1] = PERP[i][1]/MAG;
                 }
 
                 NORMAL00 = NORMAL[0][0];

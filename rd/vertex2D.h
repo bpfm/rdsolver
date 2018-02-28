@@ -80,6 +80,10 @@ public:
                 return DY;
         }
 
+        double get_dual(){
+                return DUAL;
+        }
+
         double get_specific_energy(){
                 return SPECIFIC_ENERGY;
         }

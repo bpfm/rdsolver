@@ -39,11 +39,6 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
                         NEW_VERTEX.set_y_velocity(0.0);                                 // units m/s
                         NEW_VERTEX.set_pressure(100.0);                                 // units N/m^2
                 }
-                NEW_VERTEX.setup_specific_energy();
-                NEW_VERTEX.prim_to_con();
-                NEW_VERTEX.reset_du();
-
-                return NEW_VERTEX;
 
         }else if(IC == 1){
                 if(i==0 and j==0){cout << "Using 2D Sine Wave" << endl;}
@@ -68,14 +63,13 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_x_velocity(V);                             // units m/s
                 NEW_VERTEX.set_y_velocity(0.0);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
-
-                NEW_VERTEX.setup_specific_energy();
-                NEW_VERTEX.prim_to_con();
-                NEW_VERTEX.reset_du();
-
-                return NEW_VERTEX;
-
         }
+
+        NEW_VERTEX.setup_specific_energy();
+        NEW_VERTEX.prim_to_con();
+        NEW_VERTEX.reset_du();
+
+        return NEW_VERTEX;
 }
 
 TRIANGLE setup_triangle(int i, int j0, vector<vector<VERTEX> > &POINTS){

@@ -40,7 +40,6 @@ int main(){
         for(j=0;j<N_POINTS;j++){
                 for(i=0;i<N_POINTS;i++){
                         NEW_VERTEX = setup_vertex(N_POINTS,i,j,DX,DY);               // call VERTEX setup routine
-                        NEW_VERTEX.prim_to_con();
                         X_POINTS.push_back(NEW_VERTEX);                           // add new VERTEX to vector of vertices in this row
                         //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                      // check dt is min required by CFL
                         //if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
@@ -73,7 +72,7 @@ int main(){
 
         cout << "Evolving fluid ..." << endl;
 
-        cout << "MESH Size =\t" << MESH.size() << '\t' << MESH[0].size() << endl;
+        cout << "Mesh Size =\t" << MESH[0].size() << '\t' << MESH.size() << endl;
 
         while(T<T_TOT){
 
@@ -81,11 +80,13 @@ int main(){
 
                 DT = NEXT_DT;                                                   // set timestep based oncaclulation from previous timestep
 
-                DT = 0.00001;
+                DT = 0.000001;
 
                 TOTAL_DENSITY = 0.0;                                            // reset total density counter
 
-                if(T >= NEXT_TIME){                                             // write out densities at given interval
+                cout << "time =\t" << T << endl;
+
+                if(T >= 0.9999999*NEXT_TIME){                                             // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DY);

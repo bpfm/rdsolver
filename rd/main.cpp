@@ -77,14 +77,11 @@ int main(){
         while(T<T_TOT){
 
                 //cout << "STEP =\t" << l << endl;
+                //cout << "time =\t" << T << endl;
 
-                DT = NEXT_DT;                                                   // set timestep based oncaclulation from previous timestep
+                //DT = NEXT_DT;                                                   // set timestep based oncaclulation from previous timestep
 
                 DT = 0.000001;
-
-                TOTAL_DENSITY = 0.0;                                            // reset total density counter
-
-                cout << "time =\t" << T << endl;
 
                 if(T >= 0.9999999*NEXT_TIME){                                             // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);

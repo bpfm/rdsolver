@@ -100,7 +100,6 @@ public:
                 return Y_VELOCITY;
         }
 
-
         double get_pressure(){
                 return PRESSURE;
         }

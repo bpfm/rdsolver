@@ -92,7 +92,7 @@ public:
                 PRESSURE[1] = VERTEX_1->get_pressure();
                 PRESSURE[2] = VERTEX_2->get_pressure();
 
-                if(DEBUG==1){
+                if(DEBUG==1 and (U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2])){
                         cout << "---------------------------------------------------------" << endl;
                         cout << "Time =\t" << T << endl;
                         cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
@@ -102,7 +102,7 @@ public:
                         for(i=0;i<3;i++){
                                 cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;
                         }
-                        cout << "Pressure =\t" << VERTEX_0->get_pressure() << "\t" << VERTEX_1->get_pressure() << "\t" << VERTEX_2->get_pressure() << endl;
+                        cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << endl;
                 }
 
                 // Placeholder pressure calculation
@@ -122,7 +122,7 @@ public:
                         LAMBDA[1][i][1] = Y_VEL[i];
                         LAMBDA[2][i][1] = Y_VEL[i];
                         LAMBDA[3][i][1] = Y_VEL[i] + C_SOUND[i];
-                        if(DEBUG==1){
+                        if(DEBUG==1 and (U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2])){
                                 cout << "lambda " << i << " =\t" << LAMBDA[0][i][0] << "\t" << LAMBDA[0][i][1] << endl;
                                 cout << "lambda " << i << " =\t" << LAMBDA[1][i][0] << "\t" << LAMBDA[1][i][1] << endl;
                                 cout << "lambda " << i << " =\t" << LAMBDA[2][i][0] << "\t" << LAMBDA[2][i][1] << endl;
@@ -167,8 +167,8 @@ public:
                                 U_OUT[i] = 0.0;
                                 for(j=0;j<3;j++){BETA[i][j] = 0.0;}
                         }
-                        if(DEBUG==1){cout << "k+ " << i << " =\t" << INFLOW_PLUS[i][0] << "\t" << INFLOW_PLUS[i][1] << "\t" << INFLOW_PLUS[i][2] << endl;}
-                        if(DEBUG==1){cout << "k- " << i << " =\t" << INFLOW_MINUS[i][0] << "\t" << INFLOW_MINUS[i][1] << "\t" << INFLOW_MINUS[i][2] << endl;}
+                        if(DEBUG==1 and (U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2])){cout << "k+ " << i << " =\t" << INFLOW_PLUS[i][0] << "\t" << INFLOW_PLUS[i][1] << "\t" << INFLOW_PLUS[i][2] << endl;}
+                        if(DEBUG==1 and (U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2])){cout << "k- " << i << " =\t" << INFLOW_MINUS[i][0] << "\t" << INFLOW_MINUS[i][1] << "\t" << INFLOW_MINUS[i][2] << endl;}
                 }
 
                 for(i=0;i<4;i++){
@@ -187,8 +187,8 @@ public:
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
 
-                if(DEBUG==1){
-                        if(U_IN[0] != U_OUT[0]){
+                if(DEBUG==1 and (U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2])){
+                        //if(U_IN[0] != U_OUT[0]){
                                 for(i=0;i<4;i++){cout << "u_in =\t" << U_IN[i] << "\tu_out =\t" << U_OUT[i] << endl;}
                                 for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
                                 for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
@@ -199,8 +199,9 @@ public:
                                 cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
                                 cout << "---------------------------------------------------------" << endl;
                                 //if(isnan(DU0[3])){exit(0);}
-                                exit(0);
-                        }
+                                //if(T>0.0){exit(0);}
+                                //exit(0);
+                        //}
                 }
                 return ;
         }

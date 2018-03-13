@@ -17,31 +17,31 @@ using namespace std;
 
 int main(){
 
-        int i,j,k,l=0;                                          // ******* decalare varaibles and vectors ******
-        double DX,DY,DT,T=0.0;                                     // DX = space step,DT = timestep,t = time,CFL = CFL condition
-        double NEXT_TIME=0.0;                                   // T_TOT = total time,NEXT_TIME = time of next snapshot
-        VERTEX NEW_VERTEX;
-        TRIANGLE NEW_TRIANGLE;
-        vector<VERTEX> X_POINTS;
-        vector<vector<VERTEX> > POINTS;
-        vector<TRIANGLE> X_MESH;
-        vector<vector<TRIANGLE> > MESH;
-        vector<VERTEX>::iterator IT_VERT;
+        int i, j, k, l=0;                                          // ******* decalare varaibles and vectors ******
+        double DX, DY, DT, T = 0.0;                                // DX = space step,DT = timestep,t = time,CFL = CFL condition
+        double NEXT_TIME  = 0.0;                                   // T_TOT = total time,NEXT_TIME = time of next snapshot
+        VERTEX                     NEW_VERTEX;
+        TRIANGLE                   NEW_TRIANGLE;
+        vector<VERTEX>             X_POINTS;
+        vector<vector<VERTEX> >    POINTS;
+        vector<TRIANGLE>           X_MESH;
+        vector<vector<TRIANGLE> >  MESH;
+        vector<VERTEX>::iterator   IT_VERT;
         vector<TRIANGLE>::iterator IT_TRIANGLE;
-        double TOTAL_DENSITY,NEXT_DT,POSSIBLE_DT;               // TOTAL_DENSITY = total density in box
+        double TOTAL_DENSITY, NEXT_DT, POSSIBLE_DT;               // TOTAL_DENSITY = total density in box
 
         NEXT_DT = T_TOT;
 
         /****** Setup initial conditions of one dimensional tube ******/
 
-        cout << "Building grid of vertices ..." << endl;
+        cout << "Building grid of vertices" << endl;
 
 #ifdef TWO_D
         for(j=0;j<N_POINTS;j++){
                 for(i=0;i<N_POINTS;i++){
                         NEW_VERTEX = setup_vertex(N_POINTS,i,j,DX,DY);               // call VERTEX setup routine
-                        X_POINTS.push_back(NEW_VERTEX);                           // add new VERTEX to vector of vertices in this row
-                        //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                      // check dt is min required by CFL
+                        X_POINTS.push_back(NEW_VERTEX);                              // add new VERTEX to vector of vertices in this row
+                        //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                // check dt is min required by CFL
                         //if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
                 POINTS.push_back(X_POINTS);
@@ -51,7 +51,7 @@ int main(){
 
         /****** Setup system of MESH ******/
 
-         cout << "Assigning vertices to triangles ..." << endl;
+         cout << "Assigning vertices to triangles" << endl;
 
         for(j=0;j<2*(N_POINTS);j++){
                 for(i=0;i<N_POINTS;i++){
@@ -68,48 +68,61 @@ int main(){
 
         ofstream DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE;
 
-        open_files(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE);           // open output files
+        open_files(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE);               // open output files
 
         cout << "Evolving fluid ..." << endl;
-
         cout << "Mesh Size =\t" << MESH[0].size() << '\t' << MESH.size() << endl;
 
         while(T<T_TOT){
 
-                //cout << "STEP =\t" << l << endl;
-                //cout << "time =\t" << T << endl;
+                cout << "STEP =\t" << l << "\tTIME =\t" << T << endl;
 
-                //DT = NEXT_DT;                                                   // set timestep based oncaclulation from previous timestep
-
+                //DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
                 DT = 0.000001;
 
-                if(T >= 0.9999999*NEXT_TIME){                                             // write out densities at given interval
+                if(T >= 0.9999999*NEXT_TIME){                                       // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DY);
                 }
 
-                for(j=0;j<2*(N_POINTS);j++){
-                        for(i=0;i<N_POINTS;i++){                               // loop over all MESH
-                                MESH[j][i].calculate_change(T, DT);          // calculate flux through TRIANGLE
+                for(j=0;j<2*(N_POINTS);j++){                                        // loop over all triangles in MESH
+                        for(i=0;i<N_POINTS;i++){ 
+                                MESH[j][i].calculate_first_half(T, DT);             // calculate flux through TRIANGLE
                         }
                 }
 
                 NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
 
                 for(j=0;j<N_POINTS;j++){
-                        for(i=0;i<N_POINTS;i++){             // loop over all vertices
-                                POINTS[j][i].update_u_variables();                                         // update the u variables with the collected du
-                                POINTS[j][i].con_to_prim();                                                // convert these to their corresponding conserved
-                                POINTS[j][i].recalculate_pressure();                                       // caclulate pressure from new conserved values
-                                POINTS[j][i].prim_to_con();                                                // convert back to guarentee correct values are used
-                                POINTS[j][i].reset_du();                                                   // reset du value to zero for next timestep
-                                //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                                // calculate next timestep
+                        for(i=0;i<N_POINTS;i++){                                     // loop over all vertices
+                                POINTS[j][i].update_half_u();                        // update the half time state
+                                POINTS[j][i].half_con_to_prim();
+                                POINTS[j][i].recalculate_half_pressure();            // caclulate pressure from new conserved values
+                                POINTS[j][i].reset_half_du();                             // reset du value to zero for next timestep
+                        }
+                }
+
+                for(j=0;j<2*(N_POINTS);j++){                                         // loop over all triangles in MESH
+                        for(i=0;i<N_POINTS;i++){
+                                MESH[j][i].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                        }
+                }
+
+                for(j=0;j<N_POINTS;j++){
+                        for(i=0;i<N_POINTS;i++){                                     // loop over all vertices
+                                POINTS[j][i].update_u_variables();                   // update the fluid state at vertex
+                                POINTS[j][i].con_to_prim();                          // convert these to their corresponding conserved
+                                POINTS[j][i].recalculate_pressure();                 // caclulate pressure from new conserved values
+                                //POINTS[j][i].prim_to_con();
+                                POINTS[j][i].reset_du();                             // reset du value to zero for next timestep
+                                //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);        // calculate next timestep based on new state
                                 //if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                         }
                 }
-                T+=DT;                                                                          // increment time
-                l+=1;                                                                           // increment step number
+
+                T+=DT;                                                            // increment time
+                l+=1;                                                             // increment step number
 
         }
 

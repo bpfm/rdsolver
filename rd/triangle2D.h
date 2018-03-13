@@ -11,48 +11,35 @@ private:
 
         int ID;
         VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2;
+        double NORMAL[3][2];
 
 public:
 
-        void set_id(int NEW_ID){
-                ID = NEW_ID;
-        }
+        void set_id(int NEW_ID){ID = NEW_ID;}
 
-        void set_vertex_0(VERTEX* NEW_VERTEX){
-                VERTEX_0 = NEW_VERTEX;
-        }
+        void set_vertex_0(VERTEX* NEW_VERTEX){VERTEX_0 = NEW_VERTEX;}
+        void set_vertex_1(VERTEX* NEW_VERTEX){VERTEX_1 = NEW_VERTEX;}
+        void set_vertex_2(VERTEX* NEW_VERTEX){VERTEX_2 = NEW_VERTEX;}
 
-        void set_vertex_1(VERTEX* NEW_VERTEX){
-                VERTEX_1 = NEW_VERTEX;
-        }
+        int get_id(){return ID;}
 
-        void set_vertex_2(VERTEX* NEW_VERTEX){
-                VERTEX_2 = NEW_VERTEX;
-        }
+        VERTEX* get_vertex_0(){return VERTEX_0;}
+        VERTEX* get_vertex_1(){return VERTEX_1;}
+        VERTEX* get_vertex_2(){return VERTEX_2;}
 
-        VERTEX* get_vertex_0(){
-                return VERTEX_0;
-        }
 
-        VERTEX* get_vertex_1(){
-                return VERTEX_1;
-        }
-
-        VERTEX* get_vertex_2(){
-                return VERTEX_2;
-        }
-
-        void calculate_change(double T, double DT){
+        // Calculate first half timestep change, passing change to vertice
+        void calculate_first_half(double T, double DT){
                 int i,j,k;
                 double X[3],Y[3],X_VEL[3],Y_VEL[3],U_N[4][3],U_HALF[4][3];
                 double DU0[4],DU1[4],DU2[4];
-                double NORMAL[3][2];
                 double LAMBDA[4][3][2];
                 double INFLOW[4][3],INFLOW_PLUS[4][3],INFLOW_MINUS[4][3];
                 double U_IN[4],U_OUT[4];
                 double IN_TOP,IN_BOTTOM,OUT_TOP,OUT_BOTTOM,PRESSURE[3],C_SOUND[3];
                 double FLUC[4][3],BETA[4][3],DUAL[3];
                 int INOUT[4][3];
+
 
                 // Import conditions and positions of vertices
 
@@ -94,22 +81,19 @@ public:
 
                 if(DEBUG==1 and (U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2])){
                         cout << "---------------------------------------------------------" << endl;
-                        cout << "Time =\t" << T << endl;
+                        cout << "Time     =\t" << T << endl;
                         cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
                         cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
                         cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
-                        cout << "State =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
-                        for(i=0;i<3;i++){
-                                cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;
-                        }
+                        cout << "State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
                         cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << endl;
+                        for(i=0;i<3;i++){cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;}
+                        
                 }
 
-                // Placeholder pressure calculation
-
-                                
                 for(i=0;i<3;i++){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_N[0][i]);}
 
+                // Calculate normals (just in first timestep for static grid)
                 if(T==0.0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
 
                 for(i=0;i<3;i++){
@@ -122,6 +106,7 @@ public:
                         LAMBDA[1][i][1] = Y_VEL[i];
                         LAMBDA[2][i][1] = Y_VEL[i];
                         LAMBDA[3][i][1] = Y_VEL[i] + C_SOUND[i];
+
                         if(DEBUG==1 and (U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2])){
                                 cout << "lambda " << i << " =\t" << LAMBDA[0][i][0] << "\t" << LAMBDA[0][i][1] << endl;
                                 cout << "lambda " << i << " =\t" << LAMBDA[1][i][0] << "\t" << LAMBDA[1][i][1] << endl;
@@ -146,24 +131,24 @@ public:
                 // Calculate inflow and outflow state of the element
 
                 for(i=0;i<4;i++){
-                        IN_TOP = 0.0;
-                        IN_BOTTOM = 0.0;
-                        OUT_TOP = 0.0;
+                        IN_TOP     = 0.0;
+                        IN_BOTTOM  = 0.0;
+                        OUT_TOP    = 0.0;
                         OUT_BOTTOM = 0.0;
                         for(j=0;j<3;j++){
-                                IN_TOP = IN_TOP + INFLOW_MINUS[i][j]*U_N[i][j];
-                                IN_BOTTOM = IN_BOTTOM + INFLOW_MINUS[i][j];
-                                OUT_TOP = OUT_TOP + INFLOW_PLUS[i][j]*U_N[i][j];
+                                IN_TOP     = IN_TOP     + INFLOW_MINUS[i][j]*U_N[i][j];
+                                IN_BOTTOM  = IN_BOTTOM  + INFLOW_MINUS[i][j];
+                                OUT_TOP    = OUT_TOP    + INFLOW_PLUS[i][j]*U_N[i][j];
                                 OUT_BOTTOM = OUT_BOTTOM + INFLOW_PLUS[i][j];
                         }
                         //if(DEBUG==1){cout << "Sums (" << i << ") =\t" << IN_TOP << "\t" << IN_BOTTOM << "\t" << OUT_TOP << "\t" << OUT_BOTTOM << endl;}
                         
                         if(OUT_BOTTOM != 0.0 and IN_BOTTOM != 0.0){
-                                U_IN[i] = IN_TOP/IN_BOTTOM;
-                                U_OUT[i] = OUT_TOP/OUT_BOTTOM;
-                                for(j=0;j<3;j++){BETA[i][j] = INFLOW_PLUS[i][j]/OUT_BOTTOM;}
+                                U_IN[i]  = IN_TOP  / IN_BOTTOM;
+                                U_OUT[i] = OUT_TOP / OUT_BOTTOM;
+                                for(j=0;j<3;j++){BETA[i][j] = INFLOW_PLUS[i][j] / OUT_BOTTOM;}
                         }else{
-                                U_IN[i] = 0.0;
+                                U_IN[i]  = 0.0;
                                 U_OUT[i] = 0.0;
                                 for(j=0;j<3;j++){BETA[i][j] = 0.0;}
                         }
@@ -193,9 +178,9 @@ public:
                                 for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
                                 for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
                                 cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
-                                cout << "Change (rho) =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
-                                cout << "Change (x mom) =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
-                                cout << "Change (y mom) =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
+                                cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
+                                cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
+                                cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
                                 cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
                                 cout << "---------------------------------------------------------" << endl;
                                 //if(isnan(DU0[3])){exit(0);}
@@ -203,6 +188,12 @@ public:
                                 //exit(0);
                         //}
                 }
+
+                return ;
+        }
+
+        void calculate_second_half(double T, double DT){
+
                 return ;
         }
 

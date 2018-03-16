@@ -102,11 +102,8 @@ int main(){
 
                 dt = next_dt;                                                   // set timestep based oncaclulation from previous timestep
 
-                dt = 0.001;
-
-                total_density = 0.0;                                            // reset total density counter
-
                 if(t>=next_time){                                               // write out densities at given interval
+                        total_density = 0.0;                                    // reset total density counter
                         next_time=next_time+t_tot/float(N_SNAP);
                         if(next_time>t_tot){next_time=t_tot;}
                         output_state(density_map, pressure_map, velocity_map, density_slice, du_file, points, t, dt, dx);

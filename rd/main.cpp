@@ -5,6 +5,7 @@
 #include <cstdlib>
 
 #include "constants.h"
+#include "nmarray.h"
 
 #ifdef TWO_D
 #include "vertex2D.h"
@@ -17,7 +18,7 @@ using namespace std;
 
 int main(){
 
-        int i, j, k, l=0;                                          // ******* decalare varaibles and vectors ******
+        int i, j, k, l = 0;                                          // ******* decalare varaibles and vectors ******
         double DX, DY, DT, T = 0.0;                                // DX = space step,DT = timestep,t = time,CFL = CFL condition
         double NEXT_TIME  = 0.0;                                   // T_TOT = total time,NEXT_TIME = time of next snapshot
         VERTEX                     NEW_VERTEX;
@@ -96,10 +97,10 @@ int main(){
 
                 for(j=0;j<N_POINTS;j++){
                         for(i=0;i<N_POINTS;i++){                                     // loop over all vertices
-                                POINTS[j][i].update_half_u();                        // update the half time state
-                                POINTS[j][i].half_con_to_prim();
-                                POINTS[j][i].recalculate_half_pressure();            // caclulate pressure from new conserved values
-                                POINTS[j][i].reset_half_du();                             // reset du value to zero for next timestep
+                                POINTS[j][i].update_u_half();                        // update the half time state
+                                POINTS[j][i].con_to_prim_half();
+                                POINTS[j][i].recalculate_pressure_half();            // caclulate pressure from new conserved values
+                                POINTS[j][i].reset_du_half();                             // reset du value to zero for next timestep
                         }
                 }
 
@@ -126,9 +127,8 @@ int main(){
 
         }
 
-         output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DX);      // write out final state
-
-         close_files(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE);
+        output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DX);      // write out final state
+        close_files(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE);
 
         return 0;
 }

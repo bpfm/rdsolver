@@ -22,9 +22,9 @@ private:
         double U_VARIABLES[4], DU[4];
         double MASS_DENSITY, X_VELOCITY, Y_VELOCITY;
         double PRESSURE, SPECIFIC_ENERGY;
-        double U_HALF[4], HALF_DU[4];
-        double HALF_MASS_DENSITY, HALF_X_VELOCITY, HALF_Y_VELOCITY;
-        double HALF_PRESSURE, HALF_SPECIFIC_ENERGY;
+        double U_HALF[4], DU_HALF[4];
+        double MASS_DENSITY_HALF, X_VELOCITY_HALF, Y_VELOCITY_HALF;
+        double PRESSURE_HALF, SPECIFIC_ENERGY_HALF;
         vector<int> ASSOC_TRIANG;
 
 public:
@@ -51,6 +51,7 @@ public:
         double get_dx(){  return DX;}
         double get_dy(){  return DY;}
         double get_dual(){return DUAL;}
+
         double get_specific_energy(){return SPECIFIC_ENERGY;}
         double get_mass_density(){   return MASS_DENSITY;}
         double get_x_velocity(){     return X_VELOCITY;}
@@ -60,6 +61,16 @@ public:
         double get_u1(){return U_VARIABLES[1];}
         double get_u2(){return U_VARIABLES[2];}
         double get_u3(){return U_VARIABLES[3];}
+
+        double get_specific_energy_half(){return SPECIFIC_ENERGY_HALF;}
+        double get_mass_density_half(){   return MASS_DENSITY_HALF;}
+        double get_x_velocity_half(){     return X_VELOCITY_HALF;}
+        double get_y_velocity_half(){     return Y_VELOCITY_HALF;}
+        double get_pressure_half(){       return PRESSURE_HALF;}
+        double get_u0_half(){return U_HALF[0];}
+        double get_u1_half(){return U_HALF[1];}
+        double get_u2_half(){return U_HALF[2];}
+        double get_u3_half(){return U_HALF[3];}
 
 
         // functions to set up the specific energy varaible, as well as u and f arrays
@@ -79,7 +90,7 @@ public:
                 U_VARIABLES[3] = MASS_DENSITY * SPECIFIC_ENERGY;
         }
 
-        void reset_half_u(){
+        void reset_u_half(){
                 U_HALF[0] = U_VARIABLES[0];
                 U_HALF[1] = U_VARIABLES[1];
                 U_HALF[2] = U_VARIABLES[2];
@@ -94,11 +105,11 @@ public:
                 SPECIFIC_ENERGY = U_VARIABLES[3]/MASS_DENSITY;
         }
 
-        void half_con_to_prim(){
-                HALF_MASS_DENSITY    = U_HALF[0];
-                HALF_X_VELOCITY      = U_HALF[1]/MASS_DENSITY;
-                HALF_Y_VELOCITY      = U_HALF[2]/MASS_DENSITY;
-                HALF_SPECIFIC_ENERGY = U_HALF[3]/MASS_DENSITY;
+        void con_to_prim_half(){
+                MASS_DENSITY_HALF    = U_HALF[0];
+                X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY;
+                Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY;
+                SPECIFIC_ENERGY_HALF = U_HALF[3]/MASS_DENSITY;
         }
 
         // recacluate PRESSURE based on updated primitive varaibles
@@ -107,14 +118,14 @@ public:
                 PRESSURE = (GAMMA-1.0) * MASS_DENSITY * (SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
         }
 
-        void recalculate_half_pressure(){
-                double VEL_SQ_SUM = HALF_X_VELOCITY*HALF_X_VELOCITY + HALF_Y_VELOCITY*HALF_Y_VELOCITY;
-                HALF_PRESSURE = (GAMMA-1.0) * HALF_MASS_DENSITY * (HALF_SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
+        void recalculate_pressure_half(){
+                double VEL_SQ_SUM = X_VELOCITY_HALF*X_VELOCITY_HALF + Y_VELOCITY_HALF*Y_VELOCITY_HALF;
+                PRESSURE_HALF = (GAMMA-1.0) * MASS_DENSITY_HALF * (SPECIFIC_ENERGY_HALF - VEL_SQ_SUM/2.0);
         }
 
         // reset the changes in primative variables
-        void reset_du(){DU[0] = DU[1] = DU[2] = DU[3] = 0.0;}
-        void reset_half_du(){HALF_DU[0] = HALF_DU[1] = HALF_DU[2] = HALF_DU[3] = 0.0;}
+        void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}
+        void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}
 
         // update DU with value from face
         void update_du(double NEW_DU[4]){
@@ -124,11 +135,11 @@ public:
                 DU[3] = DU[3] + NEW_DU[3];
         }
 
-        void update_half_du(double NEW_DU[4]){
-                HALF_DU[0] = HALF_DU[0] + NEW_DU[0];
-                HALF_DU[1] = HALF_DU[1] + NEW_DU[1];
-                HALF_DU[2] = HALF_DU[2] + NEW_DU[2];
-                HALF_DU[3] = HALF_DU[3] + NEW_DU[3];
+        void update_du_half(double NEW_DU[4]){
+                DU_HALF[0] = DU_HALF[0] + NEW_DU[0];
+                DU_HALF[1] = DU_HALF[1] + NEW_DU[1];
+                DU_HALF[2] = DU_HALF[2] + NEW_DU[2];
+                DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
         }
 
         // change primaitive vriables based on accumulated DU from all faces of cell
@@ -139,17 +150,16 @@ public:
                 U_VARIABLES[3] = U_VARIABLES[3] + DU[3];
         }
 
-        void update_half_u(){
-                U_HALF[0] = U_HALF[0] + HALF_DU[0];
-                U_HALF[1] = U_HALF[1] + HALF_DU[1];
-                U_HALF[2] = U_HALF[2] + HALF_DU[2];
-                U_HALF[3] = U_HALF[3] + HALF_DU[3];
+        void update_u_half(){
+                U_HALF[0] = U_HALF[0] + DU_HALF[0];
+                U_HALF[1] = U_HALF[1] + DU_HALF[1];
+                U_HALF[2] = U_HALF[2] + DU_HALF[2];
+                U_HALF[3] = U_HALF[3] + DU_HALF[3];
         }
 
         // calculate min timestep this cell requires
         void calc_next_dt(double DX, double CFL, double &NEXT_DT){
-                double C_SOUND;
-                C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
+                double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
                 NEXT_DT = CFL*(DX/(C_SOUND+abs(X_VELOCITY)+abs(Y_VELOCITY)));
         }
 

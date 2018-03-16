@@ -57,60 +57,17 @@ public:
                 U_N[3][2] = VERTEX_2->get_u3();
         }
 
-        void calculate_inflow(NMARRAY &INFLOW,NMARRAY &INFLOW_PLUS, NMARRAY &INFLOW_MINUS,double LAMBDA[4][3][2]){
-                int i,j,k;
-                for(i=0;i<4;i++){
-                        for(j=0;j<3;j++){
-                                INFLOW.set_element(i,j,0.0);
-                                for(k=0;k<2;k++){INFLOW.set_element(i,j, (INFLOW.get_element(i,j) + 0.5*LAMBDA[i][j][k]*NORMAL[j][k]));}
-                                INFLOW_PLUS.set_element(i,j,max_val(0,INFLOW.get_element(i,j)));
-                                INFLOW_MINUS.set_element(i,j,min_val(0,INFLOW.get_element(i,j)));
-                        }
-                }
-        }
-
-        void calculate_in_out(NMARRAY &U_IN, NMARRAY &U_OUT, NMARRAY &BETA,NMARRAY &INFLOW_PLUS, NMARRAY &INFLOW_MINUS){
-                int i,j;
-                double IN_TOP,IN_BOTTOM,OUT_TOP,OUT_BOTTOM;
-                for(i=0;i<4;i++){
-                        IN_TOP     = 0.0;
-                        IN_BOTTOM  = 0.0;
-                        OUT_TOP    = 0.0;
-                        OUT_BOTTOM = 0.0;
-                        for(j=0;j<3;j++){
-                                IN_TOP     = IN_TOP     + INFLOW_MINUS.get_element(i,j) * U_N[i][j];
-                                IN_BOTTOM  = IN_BOTTOM  + INFLOW_MINUS.get_element(i,j);
-                                OUT_TOP    = OUT_TOP    + INFLOW_PLUS.get_element(i,j)  * U_N[i][j];
-                                OUT_BOTTOM = OUT_BOTTOM + INFLOW_PLUS.get_element(i,j);
-                        }
-                        if(DEBUG==1){cout << "Sums (" << i << ") =\t" << IN_TOP << "\t" << IN_BOTTOM << "\t" << OUT_TOP << "\t" << OUT_BOTTOM << endl;}
-                        if(OUT_BOTTOM != 0.0 and IN_BOTTOM != 0.0){
-                                U_IN.set_element(i,0,IN_TOP  / IN_BOTTOM);
-                                U_OUT.set_element(i,0,OUT_TOP / OUT_BOTTOM);
-                                for(j=0;j<3;j++){BETA.set_element(i,j,INFLOW_PLUS.get_element(i,j) / OUT_BOTTOM);}
-                        }else{
-                                U_IN.set_element(i,j,0.0);
-                                U_OUT.set_element(i,j,0.0);
-                                for(j=0;j<3;j++){BETA.set_element(i,j,0.0);}
-                        }
-                }
-        }
-
         // Calculate first half timestep change, passing change to vertice
         void calculate_first_half(double T, double DT){
                 int i,j,k;
                 double X_VEL[3],Y_VEL[3],U_HALF[4][3];
                 double DU0[4],DU1[4],DU2[4];
                 double LAMBDA[4][3][2];
+                double INFLOW[4][3],INFLOW_PLUS[4][3],INFLOW_MINUS[4][3],BETA[4][3];
+                double U_IN[4],U_OUT[4];
                 double PRESSURE[3],C_SOUND[3];
                 double FLUC[4][3],DUAL[3];
-
-                NMARRAY INFLOW = *(new NMARRAY(4,3));
-                NMARRAY INFLOW_PLUS = *(new NMARRAY(4,3));
-                NMARRAY INFLOW_MINUS = *(new NMARRAY(4,3));
-                NMARRAY BETA = *(new NMARRAY(4,3));
-                NMARRAY U_IN = *(new NMARRAY(4,1));
-                NMARRAY U_OUT = *(new NMARRAY(4,1));
+                double IN_TOP,IN_BOTTOM,OUT_TOP,OUT_BOTTOM;
 
 
                 // Import conditions and positions of vertices
@@ -167,11 +124,39 @@ public:
 
                 // Calculate inflow parameters
 
-                calculate_inflow(INFLOW,INFLOW_PLUS,INFLOW_MINUS,LAMBDA);
+                for(i=0;i<4;i++){
+                        for(j=0;j<3;j++){
+                                INFLOW[i][j] = 0.0 ;
+                                for(k=0;k<2;k++){INFLOW[i][j] = INFLOW[i][j] + 0.5*LAMBDA[i][j][k]*NORMAL[j][k];}
+                                INFLOW_PLUS[i][j]  = max_val(0,INFLOW[i][j]);
+                                INFLOW_MINUS[i][j] = min_val(0,INFLOW[i][j]);
+                        }
+                }
 
                 // cout << "Finished inflow calculations" << endl;
 
-                calculate_in_out(U_IN,U_OUT,BETA,INFLOW_PLUS,INFLOW_MINUS);
+                for(i=0;i<4;i++){
+                        IN_TOP     = 0.0;
+                        IN_BOTTOM  = 0.0;
+                        OUT_TOP    = 0.0;
+                        OUT_BOTTOM = 0.0;
+                        for(j=0;j<3;j++){
+                                IN_TOP     = IN_TOP     + INFLOW_MINUS[i][j] * U_N[i][j];
+                                IN_BOTTOM  = IN_BOTTOM  + INFLOW_MINUS[i][j];
+                                OUT_TOP    = OUT_TOP    + INFLOW_PLUS[i][j]  * U_N[i][j];
+                                OUT_BOTTOM = OUT_BOTTOM + INFLOW_PLUS[i][j];
+                        }
+                        if(DEBUG==1){cout << "Sums (" << i << ") =\t" << IN_TOP << "\t" << IN_BOTTOM << "\t" << OUT_TOP << "\t" << OUT_BOTTOM << endl;}
+                        if(OUT_BOTTOM != 0.0 and IN_BOTTOM != 0.0){
+                                U_IN[i]  = IN_TOP  / IN_BOTTOM;
+                                U_OUT[i] = OUT_TOP / OUT_BOTTOM;
+                                for(j=0;j<3;j++){BETA[i][j] = INFLOW_PLUS[i][j] / OUT_BOTTOM;}
+                        }else{
+                                U_IN[i]  = 0.0;
+                                U_OUT[i] = 0.0;
+                                for(j=0;j<3;j++){BETA[i][j] = 0.0;}
+                        }
+                }
 
                 // cout << "Finished in out calculation" << endl;
 
@@ -179,7 +164,7 @@ public:
 
                 for(i=0;i<4;i++){
                         for(j=0;j<3;j++){
-                                FLUC[i][j] = INFLOW_PLUS.get_element(i,j)*(U_OUT.get_element(i,0)-U_IN.get_element(i,0));
+                                FLUC[i][j] = INFLOW_PLUS[i][j]*(U_OUT[i]-U_IN[i]);
                         }
                 }
 
@@ -199,28 +184,21 @@ public:
 
                 if(DEBUG==1){
                         //if(U_IN[0] != U_OUT[0]){
-                                for(i=0;i<4;i++){cout << "u_in =\t" << U_IN.get_element(i,0) << "\tu_out =\t" << U_OUT.get_element(i,0) << endl;}
-                                for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
-                                for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA.get_element(i,0) << "\t" << BETA.get_element(i,1) << "\t" << BETA.get_element(i,2) << "\tTotal =\t" << BETA.get_element(i,0)+BETA.get_element(i,1)+BETA.get_element(i,2) << endl;}
-                                cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
-                                cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
-                                cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
-                                cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
-                                cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
+                                // for(i=0;i<4;i++){cout << "u_in =\t" << U_IN.get_element(i,0) << "\tu_out =\t" << U_OUT.get_element(i,0) << endl;}
+                                // for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
+                                // for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA.get_element(i,0) << "\t" << BETA.get_element(i,1) << "\t" << BETA.get_element(i,2) << "\tTotal =\t" << BETA.get_element(i,0)+BETA.get_element(i,1)+BETA.get_element(i,2) << endl;}
+                                // cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
+                                // cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
+                                // cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
+                                // cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
+                                // cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
                                 cout << "---------------------------------------------------------" << endl;
                                 //if(isnan(DU0[3])){exit(0);}
                                 //if(T>0.0){exit(0);}
                                 //exit(0);
                         //}
                 }
-
-                delete &INFLOW;
-                delete &INFLOW_PLUS;
-                delete &INFLOW_MINUS;
-                delete &BETA;
-                delete &U_IN;
-                delete &U_OUT;
-
+                
                 return ;
         }
 

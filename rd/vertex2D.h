@@ -103,6 +103,7 @@ public:
                 X_VELOCITY      = U_VARIABLES[1]/MASS_DENSITY;
                 Y_VELOCITY      = U_VARIABLES[2]/MASS_DENSITY;
                 SPECIFIC_ENERGY = U_VARIABLES[3]/MASS_DENSITY;
+                check_values();
         }
 
         void con_to_prim_half(){
@@ -110,6 +111,7 @@ public:
                 X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY;
                 Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY;
                 SPECIFIC_ENERGY_HALF = U_HALF[3]/MASS_DENSITY;
+                check_values();
         }
 
         // recacluate PRESSURE based on updated primitive varaibles
@@ -144,17 +146,37 @@ public:
 
         // change primaitive vriables based on accumulated DU from all faces of cell
         void update_u_variables(){
-                U_VARIABLES[0] = U_VARIABLES[0] + DU[0];
-                U_VARIABLES[1] = U_VARIABLES[1] + DU[1];
-                U_VARIABLES[2] = U_VARIABLES[2] + DU[2];
-                U_VARIABLES[3] = U_VARIABLES[3] + DU[3];
+                U_VARIABLES[0] = U_HALF[0] - DU[0];
+                U_VARIABLES[1] = U_HALF[1] - DU[1];
+                U_VARIABLES[2] = U_HALF[2] - DU[2];
+                U_VARIABLES[3] = U_HALF[3] - DU[3];
         }
 
         void update_u_half(){
-                U_HALF[0] = U_HALF[0] + DU_HALF[0];
-                U_HALF[1] = U_HALF[1] + DU_HALF[1];
-                U_HALF[2] = U_HALF[2] + DU_HALF[2];
-                U_HALF[3] = U_HALF[3] + DU_HALF[3];
+                U_HALF[0] = U_VARIABLES[0] - DU_HALF[0];
+                U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
+                U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
+                U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
+        }
+
+        void check_values(){
+                if (MASS_DENSITY < 0.0){
+                        cout << "B WARNING: Exiting on negative density" << endl;
+                        MASS_DENSITY = 0.000001;
+                        //exit(0);
+                }
+                if (PRESSURE < 0.0){
+                        cout << "B WARNING: Exiting on negative pressure" << endl;
+                        exit(0);
+                }
+                if (MASS_DENSITY_HALF < 0.0){
+                        cout << "B WARNING: Exiting on negative half state density" << endl;
+                        exit(0);
+                }
+                if (PRESSURE_HALF < 0.0){
+                        cout << "B WARNING: Exiting on negative half state pressure" << endl;
+                        exit(0);
+                }
         }
 
         // calculate min timestep this cell requires

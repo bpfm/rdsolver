@@ -7,8 +7,7 @@ int main()
 vector <int> v;
 
  for (int i=0; i<50; i++) {
-     cout << "size=" << v.size() 
-     << " and capacity=" << v.capacity() << endl;
+     cout << "size=" << v.size() << " and capacity=" << v.capacity() << endl;
      v.push_back(i);
  }
 }

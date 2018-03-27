@@ -3,10 +3,11 @@ import matplotlib as mpl
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi, voronoi_plot_2d
-N_SIDE = 50
+
+N_SIDE = 200
 N_POINTS = N_SIDE*N_SIDE
 
-SLIDE = 0
+SLIDE = 4
 
 # read in density values
 points0 = np.zeros(shape=[N_POINTS, 2])

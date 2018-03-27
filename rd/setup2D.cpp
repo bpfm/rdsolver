@@ -67,6 +67,7 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
 
         NEW_VERTEX.setup_specific_energy();
         NEW_VERTEX.prim_to_con();
+        NEW_VERTEX.reset_du_half();
         NEW_VERTEX.reset_du();
 
         return NEW_VERTEX;

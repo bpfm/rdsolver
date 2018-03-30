@@ -167,15 +167,18 @@ public:
                 }
                 if (PRESSURE < 0.0){
                         cout << "B WARNING: Exiting on negative pressure" << endl;
-                        exit(0);
+                        PRESSURE = 0.000001;
+                        //exit(0);
                 }
                 if (MASS_DENSITY_HALF < 0.0){
                         cout << "B WARNING: Exiting on negative half state density" << endl;
-                        exit(0);
+                        MASS_DENSITY_HALF = 0.000001;
+                        //exit(0);
                 }
                 if (PRESSURE_HALF < 0.0){
                         cout << "B WARNING: Exiting on negative half state pressure" << endl;
-                        exit(0);
+                        PRESSURE_HALF = 0.000001;
+                        //exit(0);
                 }
         }
 

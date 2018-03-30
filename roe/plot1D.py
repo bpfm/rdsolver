@@ -3,7 +3,7 @@ import numpy as np
 
 #x,density = np.loadtxt("density.txt", usecols = (0,1))
 
-n_points = 20
+n_points = 500
 dx = 50.0/float(n_points)
 
 data = np.loadtxt("density.txt")

@@ -7,17 +7,21 @@
 #include "constants.h"
 
 #ifdef ONE_D
+
 #include "centre1D.h"
 #include "face1D.h"
 #include "setup1D.cpp"
 #include "io1D.cpp"
+
 #endif
 
 #ifdef THREE_D
+
 #include "centre3D.h"
 #include "face3D.h"
 #include "setup3D.cpp"
 #include "io3D.cpp"
+
 #endif
 
 
@@ -92,9 +96,15 @@ int main(){
 #endif
         /****** Loop over time until total time t_tot is reached ******/
 
-        ofstream density_map, pressure_map, velocity_map, density_slice, du_file;
+#ifdef ONE_D
+        ofstream density_map, pressure_map, velocity_map, du_file;
+        open_files(density_map, pressure_map, velocity_map, du_file);           // open output files
+#endif
 
+#ifdef THREE_D
+        ofstream density_map, pressure_map, velocity_map, density_slice, du_file;
         open_files(density_map, pressure_map, velocity_map, density_slice, du_file);           // open output files
+#endif
 
         cout << "Evolving fluid ..." << endl;
 
@@ -104,9 +114,16 @@ int main(){
 
                 if(t>=next_time){                                               // write out densities at given interval
                         total_density = 0.0;                                    // reset total density counter
-                        next_time=next_time+t_tot/float(N_SNAP);
+                        next_time = next_time + t_tot/float(N_SNAP);
+                        cout << "NEXT TIME =\t" << next_time << endl;
                         if(next_time>t_tot){next_time=t_tot;}
+#ifdef ONE_D
+                        output_state(density_map, pressure_map, velocity_map, du_file, points, t, dt, dx);
+#endif
+
+#ifdef THREE_D
                         output_state(density_map, pressure_map, velocity_map, density_slice, du_file, points, t, dt, dx);
+#endif
                 }
 
                 for(it_face=faces.begin(),i=0;it_face<faces.end();it_face++,i++){               // loop over all faces
@@ -128,12 +145,18 @@ int main(){
 
                 t+=dt;                                                                          // increment time
                 l+=1;                                                                           // increment step number
-                cout << l << "\t" << t << endl;
+                cout << "STEP =\t" << l << "\t" << t << endl;
         }
+#ifdef ONE_D
+        output_state(density_map, pressure_map, velocity_map, du_file, points, t, dt, dx);      // write out final state
+        close_files(density_map, pressure_map, velocity_map, du_file);
+#endif
 
+#ifdef THREE_D
         output_state(density_map, pressure_map, velocity_map, density_slice, du_file, points, t, dt, dx);      // write out final state
-
         close_files(density_map, pressure_map, velocity_map, density_slice, du_file);
+#endif
+        
 
         return 0;
 }

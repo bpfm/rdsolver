@@ -79,9 +79,9 @@ int main(){
                 cout << "STEP =\t" << l << "\tTIME =\t" << T << endl;
 
                 //DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
-                DT = 0.00001;
+                DT = 0.01;
 
-                if(T >= 0.9999999*NEXT_TIME){                                       // write out densities at given interval
+                if(T >= NEXT_TIME){                                       // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DY);

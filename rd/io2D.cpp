@@ -22,9 +22,9 @@ void output_state(ofstream &DENSITY_MAP, ofstream &PRESSURE_MAP, ofstream &VELOC
 
         for(j=0;j<N_POINTS;j++){
                 for(i=0;i<N_POINTS;i++){
-                        //DENSITY_MAP  << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density() << endl;
-                        //PRESSURE_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_pressure()     << endl;
-                        //VELOCITY_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_x_velocity()   << "\t" <<POINTS[j][i].get_x_velocity() << endl;
+                        DENSITY_MAP  << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density() << endl;
+                        PRESSURE_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_pressure()     << endl;
+                        VELOCITY_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_x_velocity()   << "\t" <<POINTS[j][i].get_x_velocity() << endl;
                         TOTAL_DENSITY += POINTS[j][i].get_mass_density()*0.5*DX*DY;
                         if(j == N_POINTS/2){
                                 CENTRAL_COLUMN << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_mass_density() << "\t" <<POINTS[j][i].get_pressure() << "\t" << POINTS[j][i].get_x_velocity() << endl;

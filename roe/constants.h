@@ -1,7 +1,7 @@
-#define IC 3
+#define IC 0
 
-//#define ONE_D
-#define THREE_D
+#define ONE_D
+//#define THREE_D
 
 //#define BOUNDARY "PERIODIC"
 #define BOUNDARY "CLOSED"
@@ -9,11 +9,11 @@
 #define FLUX_LIMITER 0
 #define FLUX_LIMITER_TYPE "MINMOD"
 
-#define FORCE_ANALYTIC_PULSE 1
+#define FORCE_ANALYTIC_PULSE 0
 
-#define N_SNAP 5
+#define N_SNAP 10
 
-int N_POINTS=50;
+int N_POINTS=500;
 
 // Sod Shcok Tube
 #if IC == 0
@@ -26,7 +26,7 @@ double SIDE_LENGTH = 50.0;
 // Sine Wave
 #if IC == 1
 double cfl = 0.1;
-double t_tot = 100.0;
+double t_tot = 1000.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif

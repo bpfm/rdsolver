@@ -30,16 +30,15 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
 
                 if(i>0.3*N_POINTS and i<0.7*N_POINTS){
                         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.0);                                 // units m/s
-                        NEW_VERTEX.set_y_velocity(0.0);                                 // units m/s
+                        NEW_VERTEX.set_x_velocity(0.00);                                 // units m/s
+                        NEW_VERTEX.set_y_velocity(0.000);                                 // units m/s
                         NEW_VERTEX.set_pressure(500.0);                                 // units N/m^2
                 }else{
                         NEW_VERTEX.set_mass_density(0.125);                             // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.0);                                 // units m/s
-                        NEW_VERTEX.set_y_velocity(0.0);                                 // units m/s
+                        NEW_VERTEX.set_x_velocity(0.000);                                 // units m/s
+                        NEW_VERTEX.set_y_velocity(0.000);                                 // units m/s
                         NEW_VERTEX.set_pressure(100.0);                                 // units N/m^2
                 }
-
         }else if(IC == 1){
                 if(i==0 and j==0){cout << "Using 2D Sine Wave" << endl;}
 
@@ -52,9 +51,6 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
                 double EPSILON = 0.1;
                 double V;
 
-                NEW_VERTEX.set_x(X);
-                NEW_VERTEX.set_y(Y);
-
                 RHO = RHO_0*(1.0 + EPSILON * sin(KB * X));
                 P = P_0 + C_S * C_S * (RHO - RHO_0);
                 V = C_S * (RHO - RHO_0)/RHO_0;
@@ -62,6 +58,22 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
                 NEW_VERTEX.set_x_velocity(V);                             // units m/s
                 NEW_VERTEX.set_y_velocity(0.0);
+                NEW_VERTEX.set_pressure(P);                             // units N/m^2
+        }else if(IC == 2){
+                if(i==0 and j==0){cout << "Using 2D Sedov Blast" << endl;}
+
+                double RHO = 1.0;
+                double V = 0.0;
+                double P = 1.0;
+
+                if((X > (50/2 - DX) and X < (50/2 + DX)) and (Y > (50/2 - DY) and Y < (50/2 + DY))){
+                        P = 100000/DX;
+                        cout << "Setting blast pressure point" << endl;
+                }
+
+                NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
+                NEW_VERTEX.set_x_velocity(V);                             // units m/s
+                NEW_VERTEX.set_y_velocity(V);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
         }
 

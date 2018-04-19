@@ -5,7 +5,6 @@
 #include <cstdlib>
 
 #include "constants.h"
-#include "nmarray.h"
 
 #ifdef TWO_D
 #include "vertex2D.h"
@@ -79,7 +78,7 @@ int main(){
                 cout << "STEP =\t" << l << "\tTIME =\t" << T << endl;
 
                 //DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
-                DT = 0.01;
+                DT = 0.000001;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
@@ -89,34 +88,34 @@ int main(){
 
                 NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
 
-                for(j=0;j<2*(N_POINTS);j++){                                        // loop over all triangles in MESH
-                        for(i=0;i<N_POINTS;i++){ 
-                                MESH[j][i].calculate_first_half(T, DT);             // calculate flux through TRIANGLE
+                for(i=0;i<N_POINTS;i++){                                        // loop over all triangles in MESH
+                        for(j=0;j<N_POINTS;j++){ 
+                                MESH[i][j].calculate_first_half(T, DT);             // calculate flux through TRIANGLE
                         }
                 }
 
-                for(j=0;j<N_POINTS;j++){
-                        for(i=0;i<N_POINTS;i++){                                     // loop over all vertices
-                                POINTS[j][i].update_u_half();                        // update the half time state
-                                POINTS[j][i].con_to_prim_half();
-                                POINTS[j][i].recalculate_pressure_half();            // caclulate pressure from new conserved values
-                                POINTS[j][i].reset_du_half();                             // reset du value to zero for next timestep
+                for(i=0;i<N_POINTS;i++){
+                        for(j=0;j<N_POINTS;j++){                                     // loop over all vertices
+                                POINTS[i][j].update_u_half();                        // update the half time state
+                                POINTS[i][j].con_to_prim_half();
+                                POINTS[i][j].recalculate_pressure_half();            // caclulate pressure from new conserved values
+                                POINTS[i][j].reset_du_half();                             // reset du value to zero for next timestep
                         }
                 }
 
-                for(j=0;j<2*(N_POINTS);j++){                                         // loop over all triangles in MESH
-                        for(i=0;i<N_POINTS;i++){
-                                MESH[j][i].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                for(i=0;i<2*(N_POINTS);i++){                                         // loop over all triangles in MESH
+                        for(j=0;j<N_POINTS;j++){
+                                MESH[i][j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
                         }
                 }
 
-                for(j=0;j<N_POINTS;j++){
-                        for(i=0;i<N_POINTS;i++){                                     // loop over all vertices
-                                POINTS[j][i].update_u_variables();                   // update the fluid state at vertex
-                                POINTS[j][i].con_to_prim();                          // convert these to their corresponding conserved
-                                POINTS[j][i].recalculate_pressure();                 // caclulate pressure from new conserved values
-                                //POINTS[j][i].prim_to_con();
-                                POINTS[j][i].reset_du();                             // reset du value to zero for next timestep
+                for(i=0;i<N_POINTS;i++){
+                        for(j=0;j<N_POINTS;j++){                                     // loop over all vertices
+                                POINTS[i][j].update_u_variables();                   // update the fluid state at vertex
+                                POINTS[i][j].con_to_prim();                          // convert these to their corresponding conserved
+                                POINTS[i][j].recalculate_pressure();                 // caclulate pressure from new conserved values
+                                //POINTS[i][j].prim_to_con();
+                                POINTS[i][j].reset_du();                             // reset du value to zero for next timestep
                                 //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);        // calculate next timestep based on new state
                                 //if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                         }

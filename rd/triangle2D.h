@@ -154,15 +154,15 @@ public:
                 if(T==0.0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
 
 #ifdef DEBUG
-                        cout << "-- FIRST  -------------------------------------------------------" << endl;
-                        cout << "Time     =\t" << T << endl;
-                        cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
-                        cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
-                        cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
-                        cout << "State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
-                        for(i=0;i<3;i++){cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;}
-                        cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << endl;
-                        cout << "Sound Speed =\t" << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << endl;
+                cout << "-- FIRST  -------------------------------------------------------" << endl;
+                cout << "Time     =\t" << T << endl;
+                cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
+                cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
+                cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
+                cout << "State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
+                for(i=0;i<3;i++){cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;}
+                cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << endl;
+                cout << "Sound Speed =\t" << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << endl;
 #endif
 
                 for(i=0;i<3;i++){
@@ -174,10 +174,7 @@ public:
                         }
 
 #ifdef DEBUG
-                        cout << "lambda " << i << " =\t" << LAMBDA[0][i][0] << "\t" << LAMBDA[0][i][1] << endl;
-                        cout << "lambda " << i << " =\t" << LAMBDA[1][i][0] << "\t" << LAMBDA[1][i][1] << endl;
-                        cout << "lambda " << i << " =\t" << LAMBDA[2][i][0] << "\t" << LAMBDA[2][i][1] << endl;
-                        cout << "lambda " << i << " =\t" << LAMBDA[3][i][0] << "\t" << LAMBDA[3][i][1] << endl;
+                        for(k=0;k<4;++k){cout << "lambda " << i << " =\t" << LAMBDA[k][i][0] << "\t" << LAMBDA[k][i][1] << endl;}
 #endif
                 }
 
@@ -230,21 +227,17 @@ public:
                 // Calculate change to be distributed
 
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC[i][0]/DUAL[0];//-1.0*BETA[i][0]*FLUC[i][0];
-                        DU1[i] = DT*FLUC[i][1]/DUAL[1];//-1.0*BETA[i][1]*FLUC[i][1];
-                        DU2[i] = DT*FLUC[i][2]/DUAL[2];//-1.0*BETA[i][2]*FLUC[i][2];
+                        DU0[i] = DT*FLUC[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC[i][2]/DUAL[2];
                 }
 
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
 
-                //VERTEX_0->update_du(DU0);
-                //VERTEX_1->update_du(DU1);
-                //VERTEX_2->update_du(DU2);
 
 #ifdef DEBUG
-                //if(U_IN[0] != U_OUT[0]){
                         for(i=0;i<4;i++){cout << "u_in =\t" << U_IN[i] << "\tu_out =\t" << U_OUT[i] << endl;}
                         for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
                         for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
@@ -254,13 +247,7 @@ public:
                         cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
                         cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
                         cout << "-----------------------------------------------------------------" << endl;
-                        if(isnan(DU0[3])){
-                                cout << "Exiting on NaN (first half)" << endl;
-                                exit(0);
-                        }
-                        //if(T>0.0){exit(0);}
-                        //exit(0);
-                //}
+
 #endif
 
                 return ;
@@ -278,7 +265,6 @@ public:
                 double DT = DT_TOT;
 
                 setup_half_state();
-
 
                 if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] -X[2]) > 10.0){
 #ifdef DEBUG
@@ -316,10 +302,7 @@ public:
                         }
 
 #ifdef DEBUG
-                        cout << "lambda " << i << " =\t" << LAMBDA_HALF[0][i][0] << "\t" << LAMBDA_HALF[0][i][1] << endl;
-                        cout << "lambda " << i << " =\t" << LAMBDA_HALF[1][i][0] << "\t" << LAMBDA_HALF[1][i][1] << endl;
-                        cout << "lambda " << i << " =\t" << LAMBDA_HALF[2][i][0] << "\t" << LAMBDA_HALF[2][i][1] << endl;
-                        cout << "lambda " << i << " =\t" << LAMBDA_HALF[3][i][0] << "\t" << LAMBDA_HALF[3][i][1] << endl;
+                        for(k=0;k<4;++k){cout << "lambda " << i << " =\t" << LAMBDA_HALF[k][i][0] << "\t" << LAMBDA_HALF[k][i][1] << endl;}
 #endif
                 }
 
@@ -396,23 +379,15 @@ public:
                 VERTEX_2->update_du(DU2);
 
 #ifdef DEBUG
-                //if(U_IN[0] != U_OUT[0]){
-                        for(i=0;i<4;i++){cout << "u_in =\t" << U_IN_HALF[i] << "\tu_out =\t" << U_OUT_HALF[i] << endl;}
-                        for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << endl;}
-                        for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA_HALF[i][0] << "\t" << BETA_HALF[i][1] << "\t" << BETA_HALF[i][2] << "\tTotal =\t" << BETA_HALF[i][0]+BETA_HALF[i][1]+BETA_HALF[i][2] << endl;}
-                        cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
-                        cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
-                        cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
-                        cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
-                        cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
-                        cout << "-----------------------------------------------------------------" << endl;
-                        if(isnan(DU0[3])){
-                                cout << "Exiting on NaN (second half)" << endl;
-                                exit(0);
-                        }
-                        //if(T>0.0){exit(0);}
-                        //exit(0);
-                //}
+                for(i=0;i<4;i++){cout << "u_in =\t" << U_IN_HALF[i] << "\tu_out =\t" << U_OUT_HALF[i] << endl;}
+                for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << endl;}
+                for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA_HALF[i][0] << "\t" << BETA_HALF[i][1] << "\t" << BETA_HALF[i][2] << "\tTotal =\t" << BETA_HALF[i][0]+BETA_HALF[i][1]+BETA_HALF[i][2] << endl;}
+                cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
+                cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
+                cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
+                cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
+                cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
+                cout << "-----------------------------------------------------------------" << endl;
 #endif
 
                 return ;
@@ -428,8 +403,6 @@ public:
         void caclulate_normals(double X[3],double Y[3], double &NORMAL00, double &NORMAL01, double &NORMAL10, double &NORMAL11, double &NORMAL20, double &NORMAL21){
                 int i;
                 double PERP[3][2],MAG,NORMAL[3][2];
-
-
 
                 PERP[0][0] = (Y[1] - Y[2]);
                 PERP[0][1] = (X[2] - X[1]);

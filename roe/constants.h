@@ -3,8 +3,8 @@
 #define ONE_D
 //#define THREE_D
 
-//#define BOUNDARY "PERIODIC"
-#define BOUNDARY "CLOSED"
+#define BOUNDARY "PERIODIC"
+//#define BOUNDARY "CLOSED"
 
 #define FLUX_LIMITER 0
 #define FLUX_LIMITER_TYPE "MINMOD"
@@ -26,7 +26,7 @@ double SIDE_LENGTH = 50.0;
 // Sine Wave
 #if IC == 1
 double cfl = 0.1;
-double t_tot = 1000.0;
+double t_tot = 100.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif

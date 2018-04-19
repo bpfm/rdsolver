@@ -69,6 +69,7 @@ centre setup_centre(int N_POINTS, int i, float dx){
                 new_centre.reset_du();
 
                 return new_centre;
+
         }else if(IC==3){
                 if(i==0){cout << "Using 1D Gaussian Pulse" << endl;}
                 double centre = 10.0;
@@ -155,6 +156,7 @@ centre setup_centre(int N_POINTS, int i, float dx){
                 new_centre.reset_du();
 
                 return new_centre;
+
         }else{
                 if(i==0){cout << "Using 1D Interacting Blastwaves Test (ATHENA)" << endl;}
 
@@ -177,6 +179,7 @@ centre setup_centre(int N_POINTS, int i, float dx){
                 new_centre.reset_du();
 
                 return new_centre;
+                
         }
 }
 

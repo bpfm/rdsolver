@@ -162,23 +162,23 @@ public:
         void check_values(){
                 if (MASS_DENSITY < 0.0){
                         cout << "B WARNING: Exiting on negative density" << endl;
-                        MASS_DENSITY = 0.000001;
-                        //exit(0);
+                        //MASS_DENSITY = 0.000001;
+                        exit(0);
                 }
                 if (PRESSURE < 0.0){
                         cout << "B WARNING: Exiting on negative pressure" << endl;
-                        PRESSURE = 0.000001;
-                        //exit(0);
+                        //PRESSURE = 0.000001;
+                        exit(0);
                 }
                 if (MASS_DENSITY_HALF < 0.0){
                         cout << "B WARNING: Exiting on negative half state density" << endl;
-                        MASS_DENSITY_HALF = 0.000001;
-                        //exit(0);
+                        //MASS_DENSITY_HALF = 0.000001;
+                        exit(0);
                 }
                 if (PRESSURE_HALF < 0.0){
                         cout << "B WARNING: Exiting on negative half state pressure" << endl;
-                        PRESSURE_HALF = 0.000001;
-                        //exit(0);
+                        //PRESSURE_HALF = 0.000001;
+                        exit(0);
                 }
         }
 

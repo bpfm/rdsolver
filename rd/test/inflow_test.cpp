@@ -51,8 +51,8 @@ int main(){
         int i,j,m;
         double U[4],U_N[4][3];
         double LAMBDA[4][3];
-        double K[4][4][3],K_PLUS[4][4][3],K_MINUS[4][4][3];
-        double K_PLUS_INVERSE[4][4],K_MINUS_INVERSE[4][4];
+        double INFLOW[4][4][3],INFLOW_PLUS[4][4][3],INFLOW_MINUS[4][4][3];
+        double INFLOW_PLUS_INVERSE[4][4],INFLOW_MINUS_INVERSE[4][4];
         double A[4][4],B[4][4];
         double NORMAL[3][2];
         double PRESSURE;
@@ -60,7 +60,7 @@ int main(){
         double GAMMA = 1.4;
 
         U_N[0][0] = 0.125;
-        U_N[1][0] = 0.0;
+        U_N[1][0] = 0.1;
         U_N[2][0] = 0.0;
         U_N[3][0] = 250.0;
 
@@ -145,284 +145,283 @@ int main(){
         for(i=0;i<4;++i){cout << B[i][0] << "\t" << B[i][1] << "\t" << B[i][2] << "\t" << B[i][3] << endl;}
 
         cout << endl;
-        cout << "k" << endl;
+        cout << "INFLOW" << endl;
         cout << endl;
 
         for(i=0;i<4;++i){
                 for(j=0;j<4;++j){
                         for(m=0;m<3;++m){
-                                K[i][j][m] = 0.5*(A[i][j] * NORMAL[m][0] + B[i][j] * NORMAL[m][1]);
+                                INFLOW[i][j][m] = 0.5*(A[i][j] * NORMAL[m][0] + B[i][j] * NORMAL[m][1]);
                         }
                 }
         }
 
         for(m=0;m<3;++m){
                 for(i=0;i<4;++i){
-                        cout << K[i][0][m] << "\t" << K[i][1][m] << "\t" << K[i][2][m] << "\t" << K[i][3][m] << endl;
+                        cout << INFLOW[i][0][m] << "\t" << INFLOW[i][1][m] << "\t" << INFLOW[i][2][m] << "\t" << INFLOW[i][3][m] << endl;
                 }
                 cout << endl;
         }
 
-        double K_FLAT0[16],K_FLAT1[16],K_FLAT2[16];
+        double INFLOW_FLAT_0[16],INFLOW_FLAT_1[16],INFLOW_FLAT_2[16];
 
-        K_FLAT0[0]  = K[0][0][0];
-        K_FLAT0[1]  = K[0][1][0];
-        K_FLAT0[2]  = K[0][2][0];
-        K_FLAT0[3]  = K[0][3][0];
+        INFLOW_FLAT_0[0]  = INFLOW[0][0][0];
+        INFLOW_FLAT_0[1]  = INFLOW[0][1][0];
+        INFLOW_FLAT_0[2]  = INFLOW[0][2][0];
+        INFLOW_FLAT_0[3]  = INFLOW[0][3][0];
 
-        K_FLAT0[4]  = K[1][0][0];
-        K_FLAT0[5]  = K[1][1][0];
-        K_FLAT0[6]  = K[1][2][0];
-        K_FLAT0[7]  = K[1][3][0];
+        INFLOW_FLAT_0[4]  = INFLOW[1][0][0];
+        INFLOW_FLAT_0[5]  = INFLOW[1][1][0];
+        INFLOW_FLAT_0[6]  = INFLOW[1][2][0];
+        INFLOW_FLAT_0[7]  = INFLOW[1][3][0];
 
-        K_FLAT0[8]  = K[2][0][0];
-        K_FLAT0[9]  = K[2][1][0];
-        K_FLAT0[10] = K[2][2][0];
-        K_FLAT0[11] = K[2][3][0];
+        INFLOW_FLAT_0[8]  = INFLOW[2][0][0];
+        INFLOW_FLAT_0[9]  = INFLOW[2][1][0];
+        INFLOW_FLAT_0[10] = INFLOW[2][2][0];
+        INFLOW_FLAT_0[11] = INFLOW[2][3][0];
 
-        K_FLAT0[12] = K[3][0][0];
-        K_FLAT0[13] = K[3][1][0];
-        K_FLAT0[14] = K[3][2][0];
-        K_FLAT0[15] = K[3][3][0];
-
-
-        K_FLAT1[0]  = K[0][0][0];
-        K_FLAT1[1]  = K[0][1][0];
-        K_FLAT1[2]  = K[0][2][0];
-        K_FLAT1[3]  = K[0][3][0];
-
-        K_FLAT1[4]  = K[1][0][0];
-        K_FLAT1[5]  = K[1][1][0];
-        K_FLAT1[6]  = K[1][2][0];
-        K_FLAT1[7]  = K[1][3][0];
-
-        K_FLAT1[8]  = K[2][0][0];
-        K_FLAT1[9]  = K[2][1][0];
-        K_FLAT1[10] = K[2][2][0];
-        K_FLAT1[11] = K[2][3][0];
-
-        K_FLAT1[12] = K[3][0][0];
-        K_FLAT1[13] = K[3][1][0];
-        K_FLAT1[14] = K[3][2][0];
-        K_FLAT1[15] = K[3][3][0];
+        INFLOW_FLAT_0[12] = INFLOW[3][0][0];
+        INFLOW_FLAT_0[13] = INFLOW[3][1][0];
+        INFLOW_FLAT_0[14] = INFLOW[3][2][0];
+        INFLOW_FLAT_0[15] = INFLOW[3][3][0];
 
 
-        K_FLAT2[0]  = K[0][0][0];
-        K_FLAT2[1]  = K[0][1][0];
-        K_FLAT2[2]  = K[0][2][0];
-        K_FLAT2[3]  = K[0][3][0];
+        INFLOW_FLAT_1[0]  = INFLOW[0][0][0];
+        INFLOW_FLAT_1[1]  = INFLOW[0][1][0];
+        INFLOW_FLAT_1[2]  = INFLOW[0][2][0];
+        INFLOW_FLAT_1[3]  = INFLOW[0][3][0];
 
-        K_FLAT2[4]  = K[1][0][0];
-        K_FLAT2[5]  = K[1][1][0];
-        K_FLAT2[6]  = K[1][2][0];
-        K_FLAT2[7]  = K[1][3][0];
+        INFLOW_FLAT_1[4]  = INFLOW[1][0][0];
+        INFLOW_FLAT_1[5]  = INFLOW[1][1][0];
+        INFLOW_FLAT_1[6]  = INFLOW[1][2][0];
+        INFLOW_FLAT_1[7]  = INFLOW[1][3][0];
 
-        K_FLAT2[8]  = K[2][0][0];
-        K_FLAT2[9]  = K[2][1][0];
-        K_FLAT2[10] = K[2][2][0];
-        K_FLAT2[11] = K[2][3][0];
+        INFLOW_FLAT_1[8]  = INFLOW[2][0][0];
+        INFLOW_FLAT_1[9]  = INFLOW[2][1][0];
+        INFLOW_FLAT_1[10] = INFLOW[2][2][0];
+        INFLOW_FLAT_1[11] = INFLOW[2][3][0];
 
-        K_FLAT2[12] = K[3][0][0];
-        K_FLAT2[13] = K[3][1][0];
-        K_FLAT2[14] = K[3][2][0];
-        K_FLAT2[15] = K[3][3][0];
+        INFLOW_FLAT_1[12] = INFLOW[3][0][0];
+        INFLOW_FLAT_1[13] = INFLOW[3][1][0];
+        INFLOW_FLAT_1[14] = INFLOW[3][2][0];
+        INFLOW_FLAT_1[15] = INFLOW[3][3][0];
 
-        matFac(K_FLAT0,4);
-        matFac(K_FLAT1,4);
-        matFac(K_FLAT2,4);
+
+        INFLOW_FLAT_2[0]  = INFLOW[0][0][0];
+        INFLOW_FLAT_2[1]  = INFLOW[0][1][0];
+        INFLOW_FLAT_2[2]  = INFLOW[0][2][0];
+        INFLOW_FLAT_2[3]  = INFLOW[0][3][0];
+
+        INFLOW_FLAT_2[4]  = INFLOW[1][0][0];
+        INFLOW_FLAT_2[5]  = INFLOW[1][1][0];
+        INFLOW_FLAT_2[6]  = INFLOW[1][2][0];
+        INFLOW_FLAT_2[7]  = INFLOW[1][3][0];
+
+        INFLOW_FLAT_2[8]  = INFLOW[2][0][0];
+        INFLOW_FLAT_2[9]  = INFLOW[2][1][0];
+        INFLOW_FLAT_2[10] = INFLOW[2][2][0];
+        INFLOW_FLAT_2[11] = INFLOW[2][3][0];
+
+        INFLOW_FLAT_2[12] = INFLOW[3][0][0];
+        INFLOW_FLAT_2[13] = INFLOW[3][1][0];
+        INFLOW_FLAT_2[14] = INFLOW[3][2][0];
+        INFLOW_FLAT_2[15] = INFLOW[3][3][0];
+
+        matFac(INFLOW_FLAT_0,4);
+        matFac(INFLOW_FLAT_1,4);
+        matFac(INFLOW_FLAT_2,4);
 
         for(i=0;i<4;++i){
-                LAMBDA[i][0] = K_FLAT0[5*i];
-                LAMBDA[i][1] = K_FLAT0[5*i];
-                LAMBDA[i][2] = K_FLAT0[5*i];
+                LAMBDA[i][0] = INFLOW_FLAT_0[5*i];
+                LAMBDA[i][1] = INFLOW_FLAT_0[5*i];
+                LAMBDA[i][2] = INFLOW_FLAT_0[5*i];
         }
 
         for(i=0;i<4;++i){
                 for(j=0;j<4;++j){
                         for(m=0;m<3;++m){
                                 if(LAMBDA[i][m] >= 0.0){
-                                        K_PLUS[i][j][m] = K[i][j][m];
-                                        K_MINUS[i][j][m] = 0.0;
-                                        K_PLUS_INVERSE[i][j] = K[i][j][m];
-                                        K_MINUS_INVERSE[i][j] = 0.0;
+                                        INFLOW_PLUS[i][j][m] = INFLOW[i][j][m];
+                                        INFLOW_MINUS[i][j][m] = 0.0;
+                                        INFLOW_PLUS_INVERSE[i][j] = INFLOW[i][j][m];
+                                        INFLOW_MINUS_INVERSE[i][j] = 0.0;
                                 }else{
-                                        K_PLUS[i][j][m] = 0.0;
-                                        K_MINUS[i][j][m] = K[i][j][m];
-                                        K_PLUS_INVERSE[i][j] = 0.0;
-                                        K_MINUS_INVERSE[i][j] = K[i][j][m];
+                                        INFLOW_PLUS[i][j][m] = 0.0;
+                                        INFLOW_MINUS[i][j][m] = INFLOW[i][j][m];
+                                        INFLOW_PLUS_INVERSE[i][j] = 0.0;
+                                        INFLOW_MINUS_INVERSE[i][j] = INFLOW[i][j][m];
                                 }
                         }
                 }
         }
 
         cout << endl;
-        cout << "k plus" << endl;
+        cout << "INFLOW plus" << endl;
         cout << endl;
 
         for(m=0;m<3;++m){
                 for(i=0;i<4;++i){
-                        cout << K_PLUS[i][0][m] << "\t" << K_PLUS[i][1][m] << "\t" << K_PLUS[i][2][m] << "\t" << K_PLUS[i][3][m] << endl;
+                        cout << INFLOW_PLUS[i][0][m] << "\t" << INFLOW_PLUS[i][1][m] << "\t" << INFLOW_PLUS[i][2][m] << "\t" << INFLOW_PLUS[i][3][m] << endl;
                 }
                 cout << endl;
         }
 
-        cout << "k minus" << endl;
+        cout << "INFLOW minus" << endl;
         cout << endl;
 
         for(m=0;m<3;++m){
                 for(i=0;i<4;++i){
-                        cout << K_MINUS[i][0][m] << "\t" << K_MINUS[i][1][m] << "\t" << K_MINUS[i][2][m] << "\t" << K_MINUS[i][3][m] << endl;
+                        cout << INFLOW_MINUS[i][0][m] << "\t" << INFLOW_MINUS[i][1][m] << "\t" << INFLOW_MINUS[i][2][m] << "\t" << INFLOW_MINUS[i][3][m] << endl;
                 }
                 cout << endl;
         }
 
         double IN_TOP[4];
-        double K_PLUS_SUM[4][4];
+        double INFLOW_PLUS_SUM[4][4];
 
-        K_PLUS_SUM[0][0] = K_PLUS_SUM[0][1] = K_PLUS_SUM[0][2] = K_PLUS_SUM[0][3] = 0.0;
-        K_PLUS_SUM[1][0] = K_PLUS_SUM[1][1] = K_PLUS_SUM[1][2] = K_PLUS_SUM[1][3] = 0.0;
-        K_PLUS_SUM[2][0] = K_PLUS_SUM[2][1] = K_PLUS_SUM[2][2] = K_PLUS_SUM[2][3] = 0.0;
-        K_PLUS_SUM[3][0] = K_PLUS_SUM[3][1] = K_PLUS_SUM[3][2] = K_PLUS_SUM[3][3] = 0.0;
+        INFLOW_PLUS_SUM[0][0] = INFLOW_PLUS_SUM[0][1] = INFLOW_PLUS_SUM[0][2] = INFLOW_PLUS_SUM[0][3] = 0.0;
+        INFLOW_PLUS_SUM[1][0] = INFLOW_PLUS_SUM[1][1] = INFLOW_PLUS_SUM[1][2] = INFLOW_PLUS_SUM[1][3] = 0.0;
+        INFLOW_PLUS_SUM[2][0] = INFLOW_PLUS_SUM[2][1] = INFLOW_PLUS_SUM[2][2] = INFLOW_PLUS_SUM[2][3] = 0.0;
+        INFLOW_PLUS_SUM[3][0] = INFLOW_PLUS_SUM[3][1] = INFLOW_PLUS_SUM[3][2] = INFLOW_PLUS_SUM[3][3] = 0.0;
 
         for(i=0;i<4;++i){
                 IN_TOP[i] = 0.0;
                 for(m=0;m<3;++m){
-                        IN_TOP[i] += K_PLUS[i][0][m] * U_N[0][m] + K_PLUS[i][1][m] * U_N[1][m] + K_PLUS[i][2][m] * U_N[2][m] + K_PLUS[i][3][m] * U_N[3][m];
+                        IN_TOP[i] += INFLOW_PLUS[i][0][m] * U_N[0][m] + INFLOW_PLUS[i][1][m] * U_N[1][m] + INFLOW_PLUS[i][2][m] * U_N[2][m] + INFLOW_PLUS[i][3][m] * U_N[3][m];
                         for(j=0;j<4;++j){
-                                K_PLUS_SUM[i][j] += K_PLUS[i][j][m];
+                                INFLOW_PLUS_SUM[i][j] += INFLOW_PLUS[i][j][m];
                         }
                 }
         }
 
-        cout << "k+ Sum" << endl;
+        cout << "INFLOW+ Sum" << endl;
         cout << endl;
 
         for(i=0;i<4;++i){
-                cout << K_PLUS_SUM[i][0] << "\t" << K_PLUS_SUM[i][1] << "\t" << K_PLUS_SUM[i][2] << "\t" << K_PLUS_SUM[i][3] << endl;
+                cout << INFLOW_PLUS_SUM[i][0] << "\t" << INFLOW_PLUS_SUM[i][1] << "\t" << INFLOW_PLUS_SUM[i][2] << "\t" << INFLOW_PLUS_SUM[i][3] << endl;
         }
 
         double OUT_TOP[4];
-        double K_MINUS_SUM[4][4];
+        double INFLOW_MINUS_SUM[4][4];
 
-        K_MINUS_SUM[0][0] = K_MINUS_SUM[0][1] = K_MINUS_SUM[0][2] = K_MINUS_SUM[0][3] = 0.0;
-        K_MINUS_SUM[1][0] = K_MINUS_SUM[1][1] = K_MINUS_SUM[1][2] = K_MINUS_SUM[1][3] = 0.0;
-        K_MINUS_SUM[2][0] = K_MINUS_SUM[2][1] = K_MINUS_SUM[2][2] = K_MINUS_SUM[2][3] = 0.0;
-        K_MINUS_SUM[3][0] = K_MINUS_SUM[3][1] = K_MINUS_SUM[3][2] = K_MINUS_SUM[3][3] = 0.0;
+        INFLOW_MINUS_SUM[0][0] = INFLOW_MINUS_SUM[0][1] = INFLOW_MINUS_SUM[0][2] = INFLOW_MINUS_SUM[0][3] = 0.0;
+        INFLOW_MINUS_SUM[1][0] = INFLOW_MINUS_SUM[1][1] = INFLOW_MINUS_SUM[1][2] = INFLOW_MINUS_SUM[1][3] = 0.0;
+        INFLOW_MINUS_SUM[2][0] = INFLOW_MINUS_SUM[2][1] = INFLOW_MINUS_SUM[2][2] = INFLOW_MINUS_SUM[2][3] = 0.0;
+        INFLOW_MINUS_SUM[3][0] = INFLOW_MINUS_SUM[3][1] = INFLOW_MINUS_SUM[3][2] = INFLOW_MINUS_SUM[3][3] = 0.0;
 
         for(i=0;i<4;++i){
                 OUT_TOP[i] = 0.0;
                 for(m=0;m<3;++m){
-                        OUT_TOP[i] += K_MINUS[i][0][m] * U_N[0][m] + K_MINUS[i][1][m] * U_N[1][m] + K_MINUS[i][2][m] * U_N[2][m] + K_MINUS[i][3][m] * U_N[3][m];
+                        OUT_TOP[i] += INFLOW_MINUS[i][0][m] * U_N[0][m] + INFLOW_MINUS[i][1][m] * U_N[1][m] + INFLOW_MINUS[i][2][m] * U_N[2][m] + INFLOW_MINUS[i][3][m] * U_N[3][m];
                         for(j=0;j<4;++j){
-                                K_MINUS_SUM[i][j] += K_MINUS[i][j][m];
+                                INFLOW_MINUS_SUM[i][j] += INFLOW_MINUS[i][j][m];
                         }
                 }
         }
 
         cout << endl;
-        cout << "k- Sum" << endl;
+        cout << "INFLOW- Sum" << endl;
         cout << endl;
 
         for(i=0;i<4;++i){
-                cout << K_MINUS_SUM[i][0] << "\t" << K_MINUS_SUM[i][1] << "\t" << K_MINUS_SUM[i][2] << "\t" << K_MINUS_SUM[i][3] << endl;
+                cout << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << endl;
         }
 
-        double K_PLUS_SUM_FLAT[16],K_MINUS_SUM_FLAT[16];
+        double INFLOW_PLUS_SUM_FLAT_[16],INFLOW_MINUS_SUM_FLAT_[16];
 
-        K_PLUS_SUM_FLAT[0]  = K_PLUS_SUM[0][0];
-        K_PLUS_SUM_FLAT[1]  = K_PLUS_SUM[0][1];
-        K_PLUS_SUM_FLAT[2]  = K_PLUS_SUM[0][2];
-        K_PLUS_SUM_FLAT[3]  = K_PLUS_SUM[0][3];
+        INFLOW_PLUS_SUM_FLAT_[0]  = INFLOW_PLUS_SUM[0][0];
+        INFLOW_PLUS_SUM_FLAT_[1]  = INFLOW_PLUS_SUM[0][1];
+        INFLOW_PLUS_SUM_FLAT_[2]  = INFLOW_PLUS_SUM[0][2];
+        INFLOW_PLUS_SUM_FLAT_[3]  = INFLOW_PLUS_SUM[0][3];
 
-        K_PLUS_SUM_FLAT[4]  = K_PLUS_SUM[1][0];
-        K_PLUS_SUM_FLAT[5]  = K_PLUS_SUM[1][1];
-        K_PLUS_SUM_FLAT[6]  = K_PLUS_SUM[1][2];
-        K_PLUS_SUM_FLAT[7]  = K_PLUS_SUM[1][3];
+        INFLOW_PLUS_SUM_FLAT_[4]  = INFLOW_PLUS_SUM[1][0];
+        INFLOW_PLUS_SUM_FLAT_[5]  = INFLOW_PLUS_SUM[1][1];
+        INFLOW_PLUS_SUM_FLAT_[6]  = INFLOW_PLUS_SUM[1][2];
+        INFLOW_PLUS_SUM_FLAT_[7]  = INFLOW_PLUS_SUM[1][3];
 
-        K_PLUS_SUM_FLAT[8]  = K_PLUS_SUM[2][0];
-        K_PLUS_SUM_FLAT[9]  = K_PLUS_SUM[2][1];
-        K_PLUS_SUM_FLAT[10] = K_PLUS_SUM[2][2];
-        K_PLUS_SUM_FLAT[11] = K_PLUS_SUM[2][3];
+        INFLOW_PLUS_SUM_FLAT_[8]  = INFLOW_PLUS_SUM[2][0];
+        INFLOW_PLUS_SUM_FLAT_[9]  = INFLOW_PLUS_SUM[2][1];
+        INFLOW_PLUS_SUM_FLAT_[10] = INFLOW_PLUS_SUM[2][2];
+        INFLOW_PLUS_SUM_FLAT_[11] = INFLOW_PLUS_SUM[2][3];
 
-        K_PLUS_SUM_FLAT[12] = K_PLUS_SUM[3][0];
-        K_PLUS_SUM_FLAT[13] = K_PLUS_SUM[3][1];
-        K_PLUS_SUM_FLAT[14] = K_PLUS_SUM[3][2];
-        K_PLUS_SUM_FLAT[15] = K_PLUS_SUM[3][3];
+        INFLOW_PLUS_SUM_FLAT_[12] = INFLOW_PLUS_SUM[3][0];
+        INFLOW_PLUS_SUM_FLAT_[13] = INFLOW_PLUS_SUM[3][1];
+        INFLOW_PLUS_SUM_FLAT_[14] = INFLOW_PLUS_SUM[3][2];
+        INFLOW_PLUS_SUM_FLAT_[15] = INFLOW_PLUS_SUM[3][3];
 
-        K_MINUS_SUM_FLAT[0]  = K_MINUS_SUM[0][0];
-        K_MINUS_SUM_FLAT[1]  = K_MINUS_SUM[0][1];
-        K_MINUS_SUM_FLAT[2]  = K_MINUS_SUM[0][2];
-        K_MINUS_SUM_FLAT[3]  = K_MINUS_SUM[0][3];
+        INFLOW_MINUS_SUM_FLAT_[0]  = INFLOW_MINUS_SUM[0][0];
+        INFLOW_MINUS_SUM_FLAT_[1]  = INFLOW_MINUS_SUM[0][1];
+        INFLOW_MINUS_SUM_FLAT_[2]  = INFLOW_MINUS_SUM[0][2];
+        INFLOW_MINUS_SUM_FLAT_[3]  = INFLOW_MINUS_SUM[0][3];
 
-        K_MINUS_SUM_FLAT[4]  = K_MINUS_SUM[1][0];
-        K_MINUS_SUM_FLAT[5]  = K_MINUS_SUM[1][1];
-        K_MINUS_SUM_FLAT[6]  = K_MINUS_SUM[1][2];
-        K_MINUS_SUM_FLAT[7]  = K_MINUS_SUM[1][3];
+        INFLOW_MINUS_SUM_FLAT_[4]  = INFLOW_MINUS_SUM[1][0];
+        INFLOW_MINUS_SUM_FLAT_[5]  = INFLOW_MINUS_SUM[1][1];
+        INFLOW_MINUS_SUM_FLAT_[6]  = INFLOW_MINUS_SUM[1][2];
+        INFLOW_MINUS_SUM_FLAT_[7]  = INFLOW_MINUS_SUM[1][3];
 
-        K_MINUS_SUM_FLAT[8]  = K_MINUS_SUM[2][0];
-        K_MINUS_SUM_FLAT[9]  = K_MINUS_SUM[2][1];
-        K_MINUS_SUM_FLAT[10] = K_MINUS_SUM[2][2];
-        K_MINUS_SUM_FLAT[11] = K_MINUS_SUM[2][3];
+        INFLOW_MINUS_SUM_FLAT_[8]  = INFLOW_MINUS_SUM[2][0];
+        INFLOW_MINUS_SUM_FLAT_[9]  = INFLOW_MINUS_SUM[2][1];
+        INFLOW_MINUS_SUM_FLAT_[10] = INFLOW_MINUS_SUM[2][2];
+        INFLOW_MINUS_SUM_FLAT_[11] = INFLOW_MINUS_SUM[2][3];
 
-        K_MINUS_SUM_FLAT[12] = K_MINUS_SUM[3][0];
-        K_MINUS_SUM_FLAT[13] = K_MINUS_SUM[3][1];
-        K_MINUS_SUM_FLAT[14] = K_MINUS_SUM[3][2];
-        K_MINUS_SUM_FLAT[15] = K_MINUS_SUM[3][3];
+        INFLOW_MINUS_SUM_FLAT_[12] = INFLOW_MINUS_SUM[3][0];
+        INFLOW_MINUS_SUM_FLAT_[13] = INFLOW_MINUS_SUM[3][1];
+        INFLOW_MINUS_SUM_FLAT_[14] = INFLOW_MINUS_SUM[3][2];
+        INFLOW_MINUS_SUM_FLAT_[15] = INFLOW_MINUS_SUM[3][3];
 
-        matInv(K_PLUS_SUM_FLAT,4);
-        matInv(K_MINUS_SUM_FLAT,4);
+        matInv(INFLOW_PLUS_SUM_FLAT_,4);
+        matInv(INFLOW_MINUS_SUM_FLAT_,4);
 
-        exit(0);
 
-        K_PLUS_INVERSE[0][0] = 0.0;
-        K_PLUS_INVERSE[0][1] = 0.0;
-        K_PLUS_INVERSE[0][2] = 0.0;
-        K_PLUS_INVERSE[0][3] = 0.0;
+        INFLOW_PLUS_INVERSE[0][0] = 0.0;
+        INFLOW_PLUS_INVERSE[0][1] = 0.0;
+        INFLOW_PLUS_INVERSE[0][2] = 0.0;
+        INFLOW_PLUS_INVERSE[0][3] = 0.0;
 
-        K_PLUS_INVERSE[1][0] = -1.73208;
-        K_PLUS_INVERSE[1][1] = 0.0;
-        K_PLUS_INVERSE[1][2] = 0.0;
-        K_PLUS_INVERSE[1][3] = 0.0;
+        INFLOW_PLUS_INVERSE[1][0] = -1.73208;
+        INFLOW_PLUS_INVERSE[1][1] = 0.0;
+        INFLOW_PLUS_INVERSE[1][2] = 0.0;
+        INFLOW_PLUS_INVERSE[1][3] = 0.0;
 
-        K_PLUS_INVERSE[2][0] = -1.00004;
-        K_PLUS_INVERSE[2][1] = 0.0;
-        K_PLUS_INVERSE[2][2] = 0.0;
-        K_PLUS_INVERSE[2][3] = 0.0;
+        INFLOW_PLUS_INVERSE[2][0] = -1.00004;
+        INFLOW_PLUS_INVERSE[2][1] = 0.0;
+        INFLOW_PLUS_INVERSE[2][2] = 0.0;
+        INFLOW_PLUS_INVERSE[2][3] = 0.0;
 
-        K_PLUS_INVERSE[3][0] = 0.0;
-        K_PLUS_INVERSE[3][1] = 4.33019;
-        K_PLUS_INVERSE[3][2] = 2.50011;
-        K_PLUS_INVERSE[3][3] = 0.0;
+        INFLOW_PLUS_INVERSE[3][0] = 0.0;
+        INFLOW_PLUS_INVERSE[3][1] = 4.33019;
+        INFLOW_PLUS_INVERSE[3][2] = 2.50011;
+        INFLOW_PLUS_INVERSE[3][3] = 0.0;
 
-        K_MINUS_INVERSE[0][0] = 0.0;
-        K_MINUS_INVERSE[0][1] = 0.0;
-        K_MINUS_INVERSE[0][2] = 0.0;
-        K_MINUS_INVERSE[0][3] = 0.0;
+        INFLOW_MINUS_INVERSE[0][0] = 0.0;
+        INFLOW_MINUS_INVERSE[0][1] = 0.0;
+        INFLOW_MINUS_INVERSE[0][2] = 0.0;
+        INFLOW_MINUS_INVERSE[0][3] = 0.0;
 
-        K_MINUS_INVERSE[1][0] = 1.73208;
-        K_MINUS_INVERSE[1][1] = 0.0;
-        K_MINUS_INVERSE[1][2] = 0.0;
-        K_MINUS_INVERSE[1][3] = 0.0;
+        INFLOW_MINUS_INVERSE[1][0] = 1.73208;
+        INFLOW_MINUS_INVERSE[1][1] = 0.0;
+        INFLOW_MINUS_INVERSE[1][2] = 0.0;
+        INFLOW_MINUS_INVERSE[1][3] = 0.0;
 
-        K_MINUS_INVERSE[2][0] = 1.00004;
-        K_MINUS_INVERSE[2][1] = 0.0;
-        K_MINUS_INVERSE[2][2] = 0.0;
-        K_MINUS_INVERSE[2][3] = 0.0;
+        INFLOW_MINUS_INVERSE[2][0] = 1.00004;
+        INFLOW_MINUS_INVERSE[2][1] = 0.0;
+        INFLOW_MINUS_INVERSE[2][2] = 0.0;
+        INFLOW_MINUS_INVERSE[2][3] = 0.0;
 
-        K_MINUS_INVERSE[3][0] = 0.0;
-        K_MINUS_INVERSE[3][1] = -4.33019;
-        K_MINUS_INVERSE[3][2] = -2.50011;
-        K_MINUS_INVERSE[3][3] = 0.0;
+        INFLOW_MINUS_INVERSE[3][0] = 0.0;
+        INFLOW_MINUS_INVERSE[3][1] = -4.33019;
+        INFLOW_MINUS_INVERSE[3][2] = -2.50011;
+        INFLOW_MINUS_INVERSE[3][3] = 0.0;
 
         double U_OUT[4],U_IN[4],PHI[4][3];
 
-        for(i=0;i<4;++i){U_OUT[i] += K_PLUS_INVERSE[i][0] * OUT_TOP[0] + K_PLUS_INVERSE[i][1] * OUT_TOP[1] + K_PLUS_INVERSE[i][2] * OUT_TOP[2] + K_PLUS_INVERSE[i][3] * OUT_TOP[3];}
-        for(i=0;i<4;++i){U_IN[i] += K_MINUS_INVERSE[i][0] * IN_TOP[0] + K_MINUS_INVERSE[i][1] * IN_TOP[1] + K_MINUS_INVERSE[i][2] * IN_TOP[2] + K_MINUS_INVERSE[i][3] * IN_TOP[3];}
+        for(i=0;i<4;++i){U_OUT[i] += INFLOW_PLUS_INVERSE[i][0] * OUT_TOP[0] + INFLOW_PLUS_INVERSE[i][1] * OUT_TOP[1] + INFLOW_PLUS_INVERSE[i][2] * OUT_TOP[2] + INFLOW_PLUS_INVERSE[i][3] * OUT_TOP[3];}
+        for(i=0;i<4;++i){U_IN[i] += INFLOW_MINUS_INVERSE[i][0] * IN_TOP[0] + INFLOW_MINUS_INVERSE[i][1] * IN_TOP[1] + INFLOW_MINUS_INVERSE[i][2] * IN_TOP[2] + INFLOW_MINUS_INVERSE[i][3] * IN_TOP[3];}
 
         for(i=0;i<4;++i){
                 cout << endl;
                 for(m=0;m<3;++m){
-                        PHI[i][m] = K_PLUS[i][0][m] * (U_OUT[0] - U_IN[0]) + K_PLUS[i][1][m] * (U_OUT[1] - U_IN[1]) + K_PLUS[i][2][m] * (U_OUT[2] - U_IN[2]) + K_PLUS[i][3][m] * (U_OUT[3] - U_IN[3]);
+                        PHI[i][m] = INFLOW_PLUS[i][0][m] * (U_OUT[0] - U_IN[0]) + INFLOW_PLUS[i][1][m] * (U_OUT[1] - U_IN[1]) + INFLOW_PLUS[i][2][m] * (U_OUT[2] - U_IN[2]) + INFLOW_PLUS[i][3][m] * (U_OUT[3] - U_IN[3]);
                         cout << "PHI " << i << "\t" << PHI[i][m] << endl;;
                 }
         }

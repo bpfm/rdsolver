@@ -4,7 +4,7 @@ import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from scipy.spatial import Voronoi, voronoi_plot_2d
 
-N_SIDE = 50
+N_SIDE = 100
 N_POINTS = N_SIDE*N_SIDE
 
 SLIDE = 4

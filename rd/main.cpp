@@ -3,6 +3,11 @@
 #include <cmath>
 #include <vector>
 #include <cstdlib>
+#include <stdio.h>
+
+#include "cblas.h"
+#include "lapacke.h"
+#include "inverse.cpp"
 
 #include "constants.h"
 

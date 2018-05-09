@@ -10,7 +10,11 @@ lapack_int matInv(double *A, unsigned n){
         cout << "ret =\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular)" << endl;
 #endif
 
-        if(ret !=0){return ret;}
+        if(ret !=0){
+                cout << "B WARNING: MATRIX CANNOT BE INVERTED\t" << ret << endl;
+                exit(0);
+                return ret;
+        }
 
         ret = LAPACKE_dgetri(LAPACK_COL_MAJOR,n,A,n,ipiv);
 

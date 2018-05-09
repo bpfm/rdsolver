@@ -146,15 +146,15 @@ public:
 
         // change primaitive vriables based on accumulated DU from all faces of cell
         void update_u_variables(){
-                cout << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << endl;
-                U_VARIABLES[0] = U_HALF[0] + DU[0];
-                U_VARIABLES[1] = U_HALF[1] + DU[1];
-                U_VARIABLES[2] = U_HALF[2] + DU[2];
-                U_VARIABLES[3] = U_HALF[3] + DU[3];
+                //cout << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << endl;
+                U_VARIABLES[0] = U_HALF[0] - DU[0];
+                U_VARIABLES[1] = U_HALF[1] - DU[1];
+                U_VARIABLES[2] = U_HALF[2] - DU[2];
+                U_VARIABLES[3] = U_HALF[3] - DU[3];
         }
 
         void update_u_half(){
-                cout << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << endl;
+                //cout << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << endl;
                 U_HALF[0] = U_VARIABLES[0] - DU_HALF[0];
                 U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];

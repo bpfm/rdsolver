@@ -21,8 +21,7 @@ private:
         double U_IN[4],U_OUT[4],BETA[4][3];
         double U_IN_HALF[4],U_OUT_HALF[4],BETA_HALF[4][3];
 
-        double LAMBDA[4][3]
-        ;
+        double LAMBDA[4][3];
         double LAMBDA_HALF[4][3][2];
 
         double VEL[3][2];
@@ -126,11 +125,11 @@ public:
 
         // Calculate first half timestep change, passing change to vertice
         void calculate_first_half(double T, double DT_TOT){
-                int i,j,k,m;
+                int i,j,k,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
 
-                double INFLOW[4][4][3],INFLOW_PLUS[4][4][3],INFLOW_MINUS[4][4][3];
+                double INFLOW[4][4][3][3];
                 double INFLOW_PLUS_INVERSE[4][4],INFLOW_MINUS_INVERSE[4][4];
                 double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
@@ -176,123 +175,145 @@ public:
 
                 // Calculate inflow parameters
 
-                double A[4][4],B[4][4],U[4];
-                double INFLOW_INVERSE_0[4][4],INFLOW_INVERSE_1[4][4],INFLOW_INVERSE_2[4][4];
+                double U_AVG[4];
+                double C,U,U_C,V,V_C,H,H_C,GAMMA_1,GAMMA_2,ALPHA,ALPHA_C,W;
+                double Z[4][3];
+                double L_1,L_2,L_3,L_4,L_12,L_123;
+                double PRESSURE_AVG,C_SOUND_AVG;
+                double LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
+                double N_X[3],N_Y[3];
+                double PHI[4];
+                double BETA[4][4][3];
 
-                for(i=0;i<4;++i){U[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
+                for(i=0;i<4;++i){
+                        U_AVG[i]     = (U_N[i][0]   + U_N[i][1]   + U_N[i][2])/3.0;
+                        PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
+                        C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2])/3.0;
+                }
 
-                A[0][0] = 0.0;
-                A[0][1] = 1.0;
-                A[0][2] = 0.0;
-                A[0][3] = 0.0;
+                for(m=0;m<3;++m){
+                        Z[0][m] = sqrt(U_N[0][m]);
+                        Z[1][m] = U_N[1][m]/Z[0][m];
+                        Z[2][m] = U_N[2][m]/Z[0][m];
+                        Z[3][m] = (U_N[3][m] + PRESSURE[m])/Z[0][m];
 
-                A[1][0] = (GAMMA - 3.0) * (U[1] * U[1]) / (2.0 * U[0] * U[0]) + (GAMMA - 1.0) * (U[2] * U[2]) / (2.0 * U[0] * U[0]);
-                A[1][1] = (3.0 - GAMMA) * U[1] / U[0];
-                A[1][2] = (1.0 - GAMMA) * U[2] / U[0];
-                A[1][3] = GAMMA - 1.0;
+                        N_X[m]  = NORMAL[m][0];
+                        N_Y[m]  = NORMAL[m][1];
+                }
 
-                A[2][0] = -1.0 * (U[1] * U[2])/U[0];
-                A[2][1] = U[2] / U[0];
-                A[2][2] = U[1] / U[0];
-                A[2][3] = 0.0;
+                C = C_SOUND_AVG;
 
-                A[3][0] = -1.0 * (U[1] * U[3] * GAMMA) / (U[0] * U[0]) + (GAMMA - 1.0) * (U[1] * U[1] * U[1] + U[1] * U[2] * U[2]) / (U[0] * U[0] * U[0]);
-                A[3][1] = GAMMA * U[3] / U[0] + (1 - GAMMA) * (0.5) * ((3.0 * U[1] * U[1]) / (U[0] * U[0]) + (U[2] * U[2])/(U[0] * U[0]));
-                A[3][2] = U[1] * (1 - GAMMA) * U[2] * U[0];
-                A[3][3] = GAMMA * U[1] / U[0];
+                U   = U_AVG[1]/U_AVG[0];
+                U_C = U/C;
 
+                V   = U_AVG[2]/U_AVG[0];
+                V_C = V/C;
 
-                B[0][0] = 0.0;
-                B[0][1] = 0.0;
-                B[0][2] = 1.0;
-                B[0][3] = 0.0;
+                H   = (U_AVG[3] + PRESSURE_AVG)/U_AVG[0];
+                H_C = H/C;
 
-                B[1][0] = -1.0 * (U[1]*U[2]) / (U[0] * U[0]);
-                B[1][1] = U[2] / U[0];
-                B[1][2] = U[1] / U[0];
-                B[1][3] = 0.0;
+                GAMMA_1 = GAMMA - 1.0;
+                GAMMA_2 = GAMMA - 2.0;
 
-                B[2][0] = -1.0 * (U[2] * U[2]) / (U[0] * U[0]) + (GAMMA - 1.0)*((U[1] * U[1]) / (2.0 * U[0] * U[0]) + (U[2] * U[2]) / (2.0 * U[0] * U[0]));
-                B[2][1] = (1.0 - GAMMA) * (U[1] / U[0]);
-                B[2][2] = (3.0 - GAMMA) * (U[2] / U[0]);
-                B[2][3] = GAMMA - 1.0;
+                ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
+                ALPHA_C = ALPHA/C;
 
-                B[3][0] = -1.0 * (U[2] * U[3]) / (U[0] * U[0]) + U[2] * (GAMMA - 1.0) * ((-1.0 * (U[3] / (U[0] * U[0]))) + ((U[1] * U[1]) + (U[2] * U[2])) / (U[0] * U[0] * U[0]));
-                B[3][1] = U[2] * (1.0 - GAMMA) * (U[1] / (U[0] * U[0]));
-                B[3][2] = GAMMA * U[3] / U[0] - 0.5 * (GAMMA - 1.0) * (U[1] * U[1] + 3.0 * U[2] * U[2]) / (U[0] * U[0]);
-                B[3][3] = GAMMA * U[2] / U[0];
+                for(m=0;m<3;++m){
+
+                        W = U*N_X[m] + V*N_Y[m];
+
+                        LAMBDA[0][m] = W + C;
+                        LAMBDA[1][m] = W - C;
+                        LAMBDA[2][m] = W;
+                        LAMBDA[3][m] = W;
+
+                        for(i=0;i<4;++i){
+                                LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
+                                LAMBDA_MINUS[i][m] = min_val(0.0,LAMBDA[i][m]);
+                        }
+
+                        for(p=0;p<3;++p){
+                                if(p==0){
+                                        L_1 = LAMBDA_PLUS[0][m];
+                                        L_2 = LAMBDA_PLUS[1][m];
+                                        L_3 = LAMBDA_PLUS[2][m];
+                                        L_4 = LAMBDA_PLUS[3][m];
+                                }else if(p==1){
+                                        L_1 = LAMBDA_MINUS[0][m];
+                                        L_2 = LAMBDA_MINUS[1][m];
+                                        L_3 = LAMBDA_MINUS[2][m];
+                                        L_4 = LAMBDA_MINUS[3][m];
+                                }else{
+                                        L_1 = LAMBDA[0][m];
+                                        L_2 = LAMBDA[1][m];
+                                        L_3 = LAMBDA[2][m];
+                                        L_4 = LAMBDA[3][m];
+
+                                }
+
+                                L_12  = (L_1 - L_2)/2.0;
+                                L_123 = (L_1 + L_2 - 2.0*L_3)/2.0;
+
+                                INFLOW[0][0][m][p] = ALPHA_C*L_123/C - W*L_12/C + L_3;
+                                INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*L_123/C +  N_X[m]*L_12/C;
+                                INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*L_123/C +  N_Y[m]*L_12/C;
+                                INFLOW[0][3][m][p] = GAMMA_1*L_123/(C*C);
+
+                                INFLOW[1][0][m][p] = (ALPHA_C*U_C - W*N_X[m])*L_123 + (ALPHA_C*N_X[m] - U_C*W)*L_12;
+                                INFLOW[1][1][m][p] = (N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*L_123 - (GAMMA_2*U_C*N_X[m]*L_12) + L_3;
+                                INFLOW[1][2][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*L_123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*L_12;
+                                INFLOW[1][3][m][p] = GAMMA_1*U_C*L_123/C + GAMMA_1*N_X[m]*L_12/C;
+
+                                INFLOW[2][0][m][p] = (ALPHA_C*V_C - W*N_Y[m])*L_123 + (ALPHA_C*N_Y[m] - V_C*W)*L_12;
+                                INFLOW[2][1][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*L_123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*L_12;
+                                INFLOW[2][2][m][p] = (N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*L_123 - (GAMMA_2*V_C*N_Y[m]*L_12) + L_3;
+                                INFLOW[2][3][m][p] = GAMMA_1*V_C*L_123/C + GAMMA_1*N_Y[m]*L_12/C;
+
+                                INFLOW[3][0][m][p] = (ALPHA_C*H_C - W*W)*L_123 + W*(ALPHA_C - H_C)*L_12;
+                                INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*L_123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*L_12;
+                                INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*L_123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*L_12;
+                                INFLOW[3][3][m][p] = GAMMA_1*H_C*L_123/C + GAMMA_1*W*L_12/C + L_3;
+
+#ifdef DEBUG
+                                cout << "Lambda =\t" << L_1 << "\t" << L_2 << "\t" << L_3 << "\t" << L_4 << endl;
+#endif
+                        }
+                }
+
+                for(i=0;i<4;++i){
+                        PHI[i] = 0.0;
+                        for(m=0;m<3;++m){
+                                PHI[i] += INFLOW[i][0][m][2]*Z[0][m] + INFLOW[i][1][m][2]*Z[1][m] + INFLOW[i][2][m][2]*Z[2][m] + INFLOW[i][3][m][2]*Z[3][m];
+                        }
+                }
+
+#ifdef DEBUG
+                cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << endl;
+#endif
 
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
-                                INFLOW_PLUS_SUM[i][j]  = 0.0;
                                 INFLOW_MINUS_SUM[i][j] = 0.0;
                                 for(m=0;m<3;++m){
-                                        INFLOW[i][j][m] = 0.5*(A[i][j] * NORMAL[m][0] + B[i][j] * NORMAL[m][1]);
-                                        if(m == 0){
-                                                INFLOW_INVERSE_0[i][j] = INFLOW[i][j][m];
-                                        }else if(m == 1){
-                                                INFLOW_INVERSE_1[i][j] = INFLOW[i][j][m];
-                                        }else{
-                                                INFLOW_INVERSE_2[i][j] = INFLOW[i][j][m];
-                                        }
+                                        INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
                                 }
                         }
                 }
 
-                matFac(&INFLOW_INVERSE_0[0][0],4);
-                matFac(&INFLOW_INVERSE_1[0][0],4);
-                matFac(&INFLOW_INVERSE_2[0][0],4);
-
-                for(i=0;i<4;++i){
-                        LAMBDA[i][0] = INFLOW_INVERSE_0[i][i];
-                        LAMBDA[i][1] = INFLOW_INVERSE_1[i][i];
-                        LAMBDA[i][2] = INFLOW_INVERSE_2[i][i];
-#ifdef DEBUG
-                        cout << "Lambda =\t" << LAMBDA[i][0] << "\t" << LAMBDA[i][1] << "\t" << LAMBDA[i][2] << endl;
-#endif
-                }
-
-                for(i=0;i<4;++i){
-                        for(j=0;j<4;++j){
-                                for(m=0;m<4;++m){
-                                        if(LAMBDA[i][m] >= 0.0){
-                                                INFLOW_PLUS[i][j][m]  = INFLOW[i][j][m];
-                                                INFLOW_MINUS[i][j][m] = 0.0;
-                                        }else{
-                                                INFLOW_PLUS[i][j][m]  = 0.0;
-                                                INFLOW_MINUS[i][j][m] = INFLOW[i][j][m];
-                                        }
-                                        INFLOW_PLUS_INVERSE[i][j]  = INFLOW_PLUS_SUM[i][j] += INFLOW_PLUS[i][j][m];
-                                        INFLOW_MINUS_INVERSE[i][j] = INFLOW_MINUS_SUM[i][j] += INFLOW_MINUS[i][j][m];
-                                }
-                        }
-                }
-
-                for(i=0;i<4;++i){
-                        IN_TOP[i] = 0.0;
-                        OUT_TOP[i] = 0.0;
-                        for(m=0;m<3;++m){
-                                IN_TOP[i]  += INFLOW_PLUS[i][0][m]  * U_N[0][m] + INFLOW_PLUS[i][1][m]  * U_N[1][m] + INFLOW_PLUS[i][2][m]  * U_N[2][m] + INFLOW_PLUS[i][3][m]  * U_N[3][m];
-                                OUT_TOP[i] += INFLOW_MINUS[i][0][m] * U_N[0][m] + INFLOW_MINUS[i][1][m] * U_N[1][m] + INFLOW_MINUS[i][2][m] * U_N[2][m] + INFLOW_MINUS[i][3][m] * U_N[3][m];
-                        }
-                }
-
-                matInv(&INFLOW_PLUS_SUM[0][0],4);
                 matInv(&INFLOW_MINUS_SUM[0][0],4);
 
                 for(i=0;i<4;++i){
-                        U_OUT[i] = 0.0;
-                        U_OUT[i] += INFLOW_PLUS_INVERSE[i][0] * OUT_TOP[0] + INFLOW_PLUS_INVERSE[i][1] * OUT_TOP[1] + INFLOW_PLUS_INVERSE[i][2] * OUT_TOP[2] + INFLOW_PLUS_INVERSE[i][3] * OUT_TOP[3];
-                }
-
-                for(i=0;i<4;++i){
-                        U_IN[i] = 0.0;
-                        U_IN[i] += INFLOW_MINUS_INVERSE[i][0] * IN_TOP[0] + INFLOW_MINUS_INVERSE[i][1] * IN_TOP[1] + INFLOW_MINUS_INVERSE[i][2] * IN_TOP[2] + INFLOW_MINUS_INVERSE[i][3] * IN_TOP[3];
+                        for(m=0;m<3;++m){
+                                BETA[i][0][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][0] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][0] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][0] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][0];
+                                BETA[i][1][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][1] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][1] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][1] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][1];
+                                BETA[i][2][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][2] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][2] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][2] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][2];
+                                BETA[i][3][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][3] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][3] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][3] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][3];
+                        }
                 }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                FLUC[i][m] = INFLOW_PLUS[i][0][m] * (U_OUT[0] - U_IN[0]) + INFLOW_PLUS[i][1][m] * (U_OUT[1] - U_IN[1]) + INFLOW_PLUS[i][2][m] * (U_OUT[2] - U_IN[2]) + INFLOW_PLUS[i][3][m] * (U_OUT[3] - U_IN[3]);
+                                FLUC[i][m] = BETA[i][0][m] * (PHI[0]) + BETA[i][1][m] * (PHI[1]) + BETA[i][2][m] * (PHI[2]) + BETA[i][3][m] * (PHI[3]);
                                 //cout << "FLUCTUATION =\t" << i << "\t" << m << "\t" << FLUC[i][m] << endl;
                         }
                 }
@@ -322,7 +343,7 @@ public:
 #ifdef DEBUG
                         for(i=0;i<4;i++){cout << "u_in =\t" << U_IN[i] << "\tu_out =\t" << U_OUT[i] << endl;}
                         for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
-                        for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
+                        //for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
                         cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
                         cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
                         cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;

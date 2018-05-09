@@ -1,10 +1,10 @@
 using namespace std;
 
 void open_files(ofstream &DENSITY_MAP, ofstream &PRESSURE_MAP, ofstream &VELOCITY_MAP, ofstream &CENTRAL_COLUMN){
-        DENSITY_MAP.open("density.txt");
-        PRESSURE_MAP.open("pressure.txt");
-        VELOCITY_MAP.open("velocity.txt");
-        CENTRAL_COLUMN.open("column.txt");
+        DENSITY_MAP.open("output/density.txt");
+        PRESSURE_MAP.open("output/pressure.txt");
+        VELOCITY_MAP.open("output/velocity.txt");
+        CENTRAL_COLUMN.open("output/column.txt");
         return;
 }
 

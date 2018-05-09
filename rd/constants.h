@@ -1,17 +1,17 @@
-#define IC 1
+#define IC 0
 
 #define TWO_D
 
 #define N_SNAP 10
 
-//#define DEBUG
+#define DEBUG
 
 int N_POINTS = 100;
 
 // Sod Shcok Tube
 #if IC == 0
 double CFL = 0.1;
-double T_TOT = 0.01;
+double T_TOT = 0.00001;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif

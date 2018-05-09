@@ -21,7 +21,8 @@ private:
         double U_IN[4],U_OUT[4],BETA[4][3];
         double U_IN_HALF[4],U_OUT_HALF[4],BETA_HALF[4][3];
 
-        double LAMBDA[4][3][2];
+        double LAMBDA[4][3]
+        ;
         double LAMBDA_HALF[4][3][2];
 
         double VEL[3][2];
@@ -126,6 +127,7 @@ public:
         // Calculate first half timestep change, passing change to vertice
         void calculate_first_half(double T, double DT_TOT){
                 int i,j,k,m;
+
                 double DU0[4],DU1[4],DU2[4];
 
                 double INFLOW[4][4][3],INFLOW_PLUS[4][4][3],INFLOW_MINUS[4][4][3];
@@ -140,12 +142,12 @@ public:
                 setup_positions();
                 setup_initial_state();
 
-                if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] -X[2]) > 10.0){
+                if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
 #ifdef DEBUG
                         cout << "Skipping x boundary" << endl;
 #endif
                         return ;
-                }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] -Y[2]) > 10.0){
+                }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] - Y[2]) > 10.0){
 #ifdef DEBUG
                         cout << "Skipping y boundary" << endl;
 #endif
@@ -175,6 +177,7 @@ public:
                 // Calculate inflow parameters
 
                 double A[4][4],B[4][4],U[4];
+                double INFLOW_INVERSE_0[4][4],INFLOW_INVERSE_1[4][4],INFLOW_INVERSE_2[4][4];
 
                 for(i=0;i<4;++i){U[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
 
@@ -219,16 +222,47 @@ public:
                 B[3][2] = GAMMA * U[3] / U[0] - 0.5 * (GAMMA - 1.0) * (U[1] * U[1] + 3.0 * U[2] * U[2]) / (U[0] * U[0]);
                 B[3][3] = GAMMA * U[2] / U[0];
 
-
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
                                 INFLOW_PLUS_SUM[i][j]  = 0.0;
                                 INFLOW_MINUS_SUM[i][j] = 0.0;
                                 for(m=0;m<3;++m){
                                         INFLOW[i][j][m] = 0.5*(A[i][j] * NORMAL[m][0] + B[i][j] * NORMAL[m][1]);
-                                        INFLOW_PLUS[i][j][m]  = max_val(0,INFLOW[i][j][m]);
+                                        if(m == 0){
+                                                INFLOW_INVERSE_0[i][j] = INFLOW[i][j][m];
+                                        }else if(m == 1){
+                                                INFLOW_INVERSE_1[i][j] = INFLOW[i][j][m];
+                                        }else{
+                                                INFLOW_INVERSE_2[i][j] = INFLOW[i][j][m];
+                                        }
+                                }
+                        }
+                }
+
+                matFac(&INFLOW_INVERSE_0[0][0],4);
+                matFac(&INFLOW_INVERSE_1[0][0],4);
+                matFac(&INFLOW_INVERSE_2[0][0],4);
+
+                for(i=0;i<4;++i){
+                        LAMBDA[i][0] = INFLOW_INVERSE_0[i][i];
+                        LAMBDA[i][1] = INFLOW_INVERSE_1[i][i];
+                        LAMBDA[i][2] = INFLOW_INVERSE_2[i][i];
+#ifdef DEBUG
+                        cout << "Lambda =\t" << LAMBDA[i][0] << "\t" << LAMBDA[i][1] << "\t" << LAMBDA[i][2] << endl;
+#endif
+                }
+
+                for(i=0;i<4;++i){
+                        for(j=0;j<4;++j){
+                                for(m=0;m<4;++m){
+                                        if(LAMBDA[i][m] >= 0.0){
+                                                INFLOW_PLUS[i][j][m]  = INFLOW[i][j][m];
+                                                INFLOW_MINUS[i][j][m] = 0.0;
+                                        }else{
+                                                INFLOW_PLUS[i][j][m]  = 0.0;
+                                                INFLOW_MINUS[i][j][m] = INFLOW[i][j][m];
+                                        }
                                         INFLOW_PLUS_INVERSE[i][j]  = INFLOW_PLUS_SUM[i][j] += INFLOW_PLUS[i][j][m];
-                                        INFLOW_MINUS[i][j][m] = min_val(0,INFLOW[i][j][m]);
                                         INFLOW_MINUS_INVERSE[i][j] = INFLOW_MINUS_SUM[i][j] += INFLOW_MINUS[i][j][m];
                                 }
                         }
@@ -246,13 +280,20 @@ public:
                 matInv(&INFLOW_PLUS_SUM[0][0],4);
                 matInv(&INFLOW_MINUS_SUM[0][0],4);
 
-                for(i=0;i<4;++i){U_OUT[i] += INFLOW_PLUS_INVERSE[i][0] * OUT_TOP[0] + INFLOW_PLUS_INVERSE[i][1] * OUT_TOP[1] + INFLOW_PLUS_INVERSE[i][2] * OUT_TOP[2] + INFLOW_PLUS_INVERSE[i][3] * OUT_TOP[3];}
-                for(i=0;i<4;++i){U_IN[i] += INFLOW_MINUS_INVERSE[i][0] * IN_TOP[0] + INFLOW_MINUS_INVERSE[i][1] * IN_TOP[1] + INFLOW_MINUS_INVERSE[i][2] * IN_TOP[2] + INFLOW_MINUS_INVERSE[i][3] * IN_TOP[3];}
+                for(i=0;i<4;++i){
+                        U_OUT[i] = 0.0;
+                        U_OUT[i] += INFLOW_PLUS_INVERSE[i][0] * OUT_TOP[0] + INFLOW_PLUS_INVERSE[i][1] * OUT_TOP[1] + INFLOW_PLUS_INVERSE[i][2] * OUT_TOP[2] + INFLOW_PLUS_INVERSE[i][3] * OUT_TOP[3];
+                }
+
+                for(i=0;i<4;++i){
+                        U_IN[i] = 0.0;
+                        U_IN[i] += INFLOW_MINUS_INVERSE[i][0] * IN_TOP[0] + INFLOW_MINUS_INVERSE[i][1] * IN_TOP[1] + INFLOW_MINUS_INVERSE[i][2] * IN_TOP[2] + INFLOW_MINUS_INVERSE[i][3] * IN_TOP[3];
+                }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 FLUC[i][m] = INFLOW_PLUS[i][0][m] * (U_OUT[0] - U_IN[0]) + INFLOW_PLUS[i][1][m] * (U_OUT[1] - U_IN[1]) + INFLOW_PLUS[i][2][m] * (U_OUT[2] - U_IN[2]) + INFLOW_PLUS[i][3][m] * (U_OUT[3] - U_IN[3]);
-                                //cout << "PHI " << i << "\t" << FLUC[i][m] << endl;;
+                                //cout << "FLUCTUATION =\t" << i << "\t" << m << "\t" << FLUC[i][m] << endl;
                         }
                 }
 
@@ -278,7 +319,6 @@ public:
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
 
-
 #ifdef DEBUG
                         for(i=0;i<4;i++){cout << "u_in =\t" << U_IN[i] << "\tu_out =\t" << U_OUT[i] << endl;}
                         for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
@@ -289,9 +329,9 @@ public:
                         cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
                         cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
                         cout << "-----------------------------------------------------------------" << endl;
-
 #endif
 
+                //exit(0);
                 return ;
         }
 
@@ -308,12 +348,12 @@ public:
 
 //                 setup_half_state();
 
-//                 if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] -X[2]) > 10.0){
+//                 if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
 // #ifdef DEBUG
 //                         cout << "Skipping x boundary" << endl;
 // #endif
 //                         return ;
-//                 }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] -Y[2]) > 10.0){
+//                 }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] - Y[2]) > 10.0){
 // #ifdef DEBUG
 //                         cout << "Skipping y boundary" << endl;
 // #endif

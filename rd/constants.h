@@ -2,16 +2,16 @@
 
 #define TWO_D
 
-#define N_SNAP 100
+#define N_SNAP 10
 
 //#define DEBUG
 
-int N_POINTS = 100;
+int N_POINTS = 50;
 
 // Sod Shcok Tube
 #if IC == 0
 double CFL = 0.1;
-double T_TOT = 0.01;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif
@@ -27,7 +27,7 @@ double SIDE_LENGTH = 50.0;
 // Sedov Blast Wave
 #if IC == 2
 double CFL = 0.1;
-double T_TOT = 0.0001;
+double T_TOT = 0.1;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH = 50.0;
 #endif

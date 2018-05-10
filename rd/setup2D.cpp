@@ -5,7 +5,7 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
         double X,Y;
 
         DX = SIDE_LENGTH/double(N_POINTS);
-        DY = sqrt(3.0)*DX/2.0;
+        DY = SIDE_LENGTH/double(N_POINTS);//sqrt(3.0)*DX/2.0;
 
         if((j % 2)== 0){
                 X=double(i)*DX;
@@ -30,13 +30,13 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
 
                 if(i>0.3*N_POINTS and i<0.7*N_POINTS){
                         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.000001);                                 // units m/s
-                        NEW_VERTEX.set_y_velocity(0.000001);                                 // units m/s
+                        NEW_VERTEX.set_x_velocity(0.00000001);                                 // units m/s
+                        NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
                         NEW_VERTEX.set_pressure(500.0);                                 // units N/m^2
                 }else{
                         NEW_VERTEX.set_mass_density(0.125);                             // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.000001);                                 // units m/s
-                        NEW_VERTEX.set_y_velocity(0.000001);                                 // units m/s
+                        NEW_VERTEX.set_x_velocity(0.00000001);                                 // units m/s
+                        NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
                         NEW_VERTEX.set_pressure(100.0);                                 // units N/m^2
                 }
         }else if(IC == 1){
@@ -53,17 +53,17 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
 
                 RHO = RHO_0*(1.0 + EPSILON * sin(KB * X));
                 P = P_0 + C_S * C_S * (RHO - RHO_0);
-                V = C_S * (RHO - RHO_0)/RHO_0;
+                V = C_S * (RHO - RHO_0)/RHO_0 + 0.000000001;
 
                 NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
                 NEW_VERTEX.set_x_velocity(V);                             // units m/s
-                NEW_VERTEX.set_y_velocity(0.0);
+                NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
         }else if(IC == 2){
                 if(i==0 and j==0){cout << "Using 2D Sedov Blast" << endl;}
 
                 double RHO = 1.0;
-                double V = 0.0;
+                double V = 0.00000001;
                 double P = 1.0;
 
                 if((X > (50/2 - DX) and X < (50/2 + DX)) and (Y > (50/2 - DY) and Y < (50/2 + DY))){

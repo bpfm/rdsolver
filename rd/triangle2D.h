@@ -33,6 +33,8 @@ private:
         double FLUC[4][3];
         double FLUC_HALF[4][3];
 
+        double PHI[4];
+
 public:
 
         void set_id(int NEW_ID){ID = NEW_ID;}
@@ -124,7 +126,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT){
+        void calculate_first_half(double T, double DT_TOT, double DX, double DY){
                 int i,j,k,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
@@ -134,12 +136,32 @@ public:
                 double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
                 double IN_TOP[4],OUT_TOP[4];
-                double DT = 0.5*DT_TOT;
+                double DT = DT_TOT;
 
                 // Import conditions and positions of vertices
 
                 setup_positions();
                 setup_initial_state();
+
+                // Calculate normals (just in first timestep for static grid)
+
+                // double X_MOD[3],Y_MOD[3];
+
+                // if(T==0.0){
+                //         for(m=0;m<3;++m){
+                //                 X_MOD[m] = X[m];
+                //                 Y_MOD[m] = Y[m];
+                //                 if(X[m] + DX > 50.0){
+                //                         X_MOD[m] = X[m] - SIDE_LENGTH;
+                //                         return ;
+                //                 }
+                //                 if(Y[m] + DY > 50.0){
+                //                         Y_MOD[m] = Y[m] - SIDE_LENGTH;
+                //                         return ;
+                //                 }
+                //         }
+                //         caclulate_normals(X_MOD,Y_MOD,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);
+                // }
 
                 if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
 #ifdef DEBUG
@@ -153,11 +175,9 @@ public:
                         return ;
                 }
 
+                if(T==0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
+
                 for(i=0;i<3;i++){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_N[0][i]);}
-
-                // Calculate normals (just in first timestep for static grid)
-
-                if(T==0.0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
 
 #ifdef DEBUG
                 cout << "-- FIRST  -------------------------------------------------------" << endl;
@@ -182,14 +202,18 @@ public:
                 double PRESSURE_AVG,C_SOUND_AVG;
                 double LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
-                double PHI[4];
                 double BETA[4][4][3];
 
-                for(i=0;i<4;++i){
-                        U_AVG[i]     = (U_N[i][0]   + U_N[i][1]   + U_N[i][2])/3.0;
-                        PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                        C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2])/3.0;
-                }
+                for(i=0;i<4;++i){U_AVG[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
+
+                PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
+                C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2])/3.0;
+
+#ifdef DEBUG
+                cout << "U_AVG =\t" << U_AVG[0] << "\t" << U_AVG[1] << "\t" << U_AVG[2] << "\t" << U_AVG[3] << endl;
+                cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << endl;
+                cout << "C_SOUND_AVG =\t" << C_SOUND_AVG << endl;
+#endif
 
                 for(m=0;m<3;++m){
                         Z[0][m] = sqrt(U_N[0][m]);
@@ -201,7 +225,7 @@ public:
                         N_Y[m]  = NORMAL[m][1];
                 }
 
-                C = C_SOUND_AVG;
+                C   = C_SOUND_AVG;
 
                 U   = U_AVG[1]/U_AVG[0];
                 U_C = U/C;
@@ -218,6 +242,13 @@ public:
                 ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
                 ALPHA_C = ALPHA/C;
 
+#ifdef DEBUG
+                cout << "U =\t" << U << "\t" << U_C << endl;
+                cout << "V =\t" << V << "\t" << V_C << endl;
+                cout << "ALPHA =\t" << ALPHA << "\t" << ALPHA_C << endl;
+                cout << "W =\t";
+#endif
+
                 for(m=0;m<3;++m){
 
                         W = U*N_X[m] + V*N_Y[m];
@@ -226,6 +257,10 @@ public:
                         LAMBDA[1][m] = W - C;
                         LAMBDA[2][m] = W;
                         LAMBDA[3][m] = W;
+
+#ifdef DEBUG
+                        cout << W << "\t";
+#endif
 
                         for(i=0;i<4;++i){
                                 LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
@@ -273,12 +308,29 @@ public:
                                 INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*L_123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*L_12;
                                 INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*L_123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*L_12;
                                 INFLOW[3][3][m][p] = GAMMA_1*H_C*L_123/C + GAMMA_1*W*L_12/C + L_3;
-
-#ifdef DEBUG
-                                cout << "Lambda =\t" << L_1 << "\t" << L_2 << "\t" << L_3 << "\t" << L_4 << endl;
-#endif
                         }
                 }
+
+#ifdef DEBUG
+                cout << endl;;
+#endif
+
+#ifdef DEBUG
+                cout << "Lambda + =\t" << LAMBDA_PLUS[0][0] << "\t" << LAMBDA_PLUS[0][1] << "\t" << LAMBDA_PLUS[0][2] << endl;
+                cout << "Lambda + =\t" << LAMBDA_PLUS[1][0] << "\t" << LAMBDA_PLUS[1][1] << "\t" << LAMBDA_PLUS[1][2] << endl;
+                cout << "Lambda + =\t" << LAMBDA_PLUS[2][0] << "\t" << LAMBDA_PLUS[2][1] << "\t" << LAMBDA_PLUS[2][2] << endl;
+                cout << "Lambda + =\t" << LAMBDA_PLUS[3][0] << "\t" << LAMBDA_PLUS[3][1] << "\t" << LAMBDA_PLUS[3][2] << endl;
+
+                cout << "Lambda - =\t" << LAMBDA_MINUS[0][0] << "\t" << LAMBDA_MINUS[0][1] << "\t" << LAMBDA_MINUS[0][2] << endl;
+                cout << "Lambda - =\t" << LAMBDA_MINUS[1][0] << "\t" << LAMBDA_MINUS[1][1] << "\t" << LAMBDA_MINUS[1][2] << endl;
+                cout << "Lambda - =\t" << LAMBDA_MINUS[2][0] << "\t" << LAMBDA_MINUS[2][1] << "\t" << LAMBDA_MINUS[2][2] << endl;
+                cout << "Lambda - =\t" << LAMBDA_MINUS[3][0] << "\t" << LAMBDA_MINUS[3][1] << "\t" << LAMBDA_MINUS[3][2] << endl;
+
+                cout << "Lambda   =\t" << LAMBDA[0][0] << "\t" << LAMBDA[0][1] << "\t" << LAMBDA[0][2] << endl;
+                cout << "Lambda   =\t" << LAMBDA[1][0] << "\t" << LAMBDA[1][1] << "\t" << LAMBDA[1][2] << endl;
+                cout << "Lambda   =\t" << LAMBDA[2][0] << "\t" << LAMBDA[2][1] << "\t" << LAMBDA[2][2] << endl;
+                cout << "Lambda   =\t" << LAMBDA[3][0] << "\t" << LAMBDA[3][1] << "\t" << LAMBDA[3][2] << endl;
+#endif
 
                 for(i=0;i<4;++i){
                         PHI[i] = 0.0;
@@ -304,12 +356,14 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                BETA[i][0][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][0] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][0] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][0] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][0];
-                                BETA[i][1][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][1] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][1] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][1] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][1];
-                                BETA[i][2][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][2] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][2] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][2] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][2];
-                                BETA[i][3][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[i][3] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[i][3] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[i][3] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[i][3];
+                                BETA[i][0][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][0] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][0] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][0] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][0];
+                                BETA[i][1][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][1] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][1] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][1] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][1];
+                                BETA[i][2][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][2] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][2] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][2] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][2];
+                                BETA[i][3][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][3] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][3] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][3] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][3];
                         }
                 }
+
+                // Calculate spatial splitting for first half timestep
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
@@ -317,16 +371,6 @@ public:
                                 //cout << "FLUCTUATION =\t" << i << "\t" << m << "\t" << FLUC[i][m] << endl;
                         }
                 }
-
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-                // Calculate spatial splitting for first half timestep
-
-                // for(i=0;i<4;i++){
-                //         for(j=0;j<3;j++){
-                //                 FLUC[i][j] = INFLOW_PLUS[i][j]*(U_OUT[i]-U_IN[i]);
-                //         }
-                // }
 
                 // Calculate change to be distributed
 
@@ -341,24 +385,22 @@ public:
                 VERTEX_2->update_du_half(DU2);
 
 #ifdef DEBUG
-                        for(i=0;i<4;i++){cout << "u_in =\t" << U_IN[i] << "\tu_out =\t" << U_OUT[i] << endl;}
                         for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
-                        //for(i=0;i<4;i++){cout << "Beta (" << i << ") =\t" << BETA[i][0] << "\t" << BETA[i][1] << "\t" << BETA[i][2] << "\tTotal =\t" << BETA[i][0]+BETA[i][1]+BETA[i][2] << endl;}
                         cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
                         cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
                         cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
                         cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
                         cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
                         cout << "-----------------------------------------------------------------" << endl;
+                        //if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
-                //exit(0);
                 return ;
         }
 
         //**********************************************************************************************************************
 
-        void calculate_second_half(double T, double DT_TOT){
+        void calculate_second_half(double T, double DT_TOT, double DX, double DY){
                 int i,j,k;
                 double DU0[4],DU1[4],DU2[4];
 //                 double INFLOW_HALF[4][3],INFLOW_PLUS_HALF[4][3],INFLOW_MINUS_HALF[4][3];
@@ -520,8 +562,8 @@ public:
 
                 for(i=0;i<3;i++){
                         MAG = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
-                        NORMAL[i][0] = PERP[i][0]/MAG;
-                        NORMAL[i][1] = PERP[i][1]/MAG;
+                        NORMAL[i][0] = PERP[i][0];
+                        NORMAL[i][1] = PERP[i][1];
                 }
 
                 AREA = 0.5*(X[0]*Y[1]-Y[0]*X[1]);

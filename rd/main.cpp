@@ -83,7 +83,7 @@ int main(){
                 cout << "STEP =\t" << l << "\tTIME =\t" << T << endl;
 
                 //DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
-                DT = 0.000001;
+                DT = 0.00001;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
@@ -93,9 +93,9 @@ int main(){
 
                 NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
 
-                for(i=0;i<N_POINTS;i++){                                        // loop over all triangles in MESH
+                for(i=0;i<2*N_POINTS;i++){                                        // loop over all triangles in MESH
                         for(j=0;j<N_POINTS;j++){ 
-                                MESH[i][j].calculate_first_half(T, DT);             // calculate flux through TRIANGLE
+                                MESH[i][j].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
                         }
                 }
 
@@ -110,7 +110,7 @@ int main(){
 
                 for(i=0;i<2*(N_POINTS);i++){                                         // loop over all triangles in MESH
                         for(j=0;j<N_POINTS;j++){
-                                MESH[i][j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                                MESH[i][j].calculate_second_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
                         }
                 }
 

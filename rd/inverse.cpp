@@ -11,7 +11,11 @@ lapack_int matInv(double *A, unsigned n){
 #endif
 
         if(ret !=0){
-                cout << "B WARNING: MATRIX CANNOT BE INVERTED\t" << ret << endl;
+                cout << "B WARNING: MATRIX CANNOT BE INVERTED\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular)" << endl;
+                for(int i=0;i<16;++i){
+                        cout << A[i] << "\t";
+                        if((i+1)%4 == 0){cout << endl;}
+                }
                 exit(0);
                 return ret;
         }
@@ -31,10 +35,7 @@ lapack_int matFac(double *A, unsigned n){
         cout << "ret =\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular)" << endl;
 #endif
 
-        // for(int i=0;i<16;++i){
-        //         cout << A[i] << "\t";
-        //         if((i+1)%4 == 0){cout << endl;}
-        // }
+
 
         return ret;
 }

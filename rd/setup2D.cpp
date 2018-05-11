@@ -62,11 +62,11 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
         }else if(IC == 2){
                 if(i==0 and j==0){cout << "Using 2D Sedov Blast" << endl;}
 
-                double RHO = 1.0;
+                double RHO = 100.0;
                 double V = 0.00000001;
                 double P = 1.0;
 
-                if((X > (50/2 - DX) and X < (50/2 + DX)) and (Y > (50/2 - DY) and Y < (50/2 + DY))){
+                if((X > (50/2 - 2.0*DX) and X < (50/2 + 2.0*DX)) and (Y > (50/2 - 2.0*DY) and Y < (50/2 + 2.0*DY))){
                         P = 100000/DX;
                         cout << "Setting blast pressure point" << endl;
                 }

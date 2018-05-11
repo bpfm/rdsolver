@@ -6,7 +6,7 @@
 
 //#define DEBUG
 
-int N_POINTS = 50;
+int N_POINTS = 200;
 
 // Sod Shcok Tube
 #if IC == 0
@@ -19,7 +19,7 @@ double SIDE_LENGTH = 50.0;
 // Sine Wave Tube
 #if IC == 1
 double CFL = 0.1;
-double T_TOT = 0.01;
+double T_TOT = 10.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif

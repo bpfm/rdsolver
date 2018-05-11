@@ -34,6 +34,7 @@ private:
         double FLUC_HALF[4][3];
 
         double PHI[4];
+        double PHI_HALF[4];
 
 public:
 
@@ -132,10 +133,8 @@ public:
                 double DU0[4],DU1[4],DU2[4];
 
                 double INFLOW[4][4][3][3];
-                double INFLOW_PLUS_INVERSE[4][4],INFLOW_MINUS_INVERSE[4][4];
                 double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
-                double IN_TOP[4],OUT_TOP[4];
                 double DT = DT_TOT;
 
                 // Import conditions and positions of vertices
@@ -204,6 +203,8 @@ public:
                 double N_X[3],N_Y[3];
                 double BETA[4][4][3];
 
+                // Construct average state fro element
+
                 for(i=0;i<4;++i){U_AVG[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
@@ -215,6 +216,8 @@ public:
                 cout << "C_SOUND_AVG =\t" << C_SOUND_AVG << endl;
 #endif
 
+                // Construct Roe vector Z
+
                 for(m=0;m<3;++m){
                         Z[0][m] = sqrt(U_N[0][m]);
                         Z[1][m] = U_N[1][m]/Z[0][m];
@@ -225,9 +228,11 @@ public:
                         N_Y[m]  = NORMAL[m][1];
                 }
 
+                // Reassign variables to local equivalents
+
                 C   = C_SOUND_AVG;
 
-                U   = U_AVG[1]/U_AVG[0];
+                U   = U_AVG[1]/U_AVG[0];        // U now represents x velocity
                 U_C = U/C;
 
                 V   = U_AVG[2]/U_AVG[0];
@@ -249,6 +254,8 @@ public:
                 cout << "W =\t";
 #endif
 
+                // Calculate K+,K- and K matrices for each vertex i,j,k
+
                 for(m=0;m<3;++m){
 
                         W = U*N_X[m] + V*N_Y[m];
@@ -268,22 +275,21 @@ public:
                         }
 
                         for(p=0;p<3;++p){
-                                if(p==0){
+                                if(p==0){       // Identify and select positive eigenvalues
                                         L_1 = LAMBDA_PLUS[0][m];
                                         L_2 = LAMBDA_PLUS[1][m];
                                         L_3 = LAMBDA_PLUS[2][m];
                                         L_4 = LAMBDA_PLUS[3][m];
-                                }else if(p==1){
+                                }else if(p==1){ // Identify and select negative eigenvalues
                                         L_1 = LAMBDA_MINUS[0][m];
                                         L_2 = LAMBDA_MINUS[1][m];
                                         L_3 = LAMBDA_MINUS[2][m];
                                         L_4 = LAMBDA_MINUS[3][m];
-                                }else{
+                                }else{          // Select all eigenvalues
                                         L_1 = LAMBDA[0][m];
                                         L_2 = LAMBDA[1][m];
                                         L_3 = LAMBDA[2][m];
                                         L_4 = LAMBDA[3][m];
-
                                 }
 
                                 L_12  = (L_1 - L_2)/2.0;
@@ -331,6 +337,8 @@ public:
                 cout << "Lambda   =\t" << LAMBDA[2][0] << "\t" << LAMBDA[2][1] << "\t" << LAMBDA[2][2] << endl;
                 cout << "Lambda   =\t" << LAMBDA[3][0] << "\t" << LAMBDA[3][1] << "\t" << LAMBDA[3][2] << endl;
 #endif
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
                 for(i=0;i<4;++i){
                         PHI[i] = 0.0;
@@ -401,38 +409,40 @@ public:
         //**********************************************************************************************************************
 
         void calculate_second_half(double T, double DT_TOT, double DX, double DY){
-                int i,j,k;
+                int i,j,k,m,p;
                 double DU0[4],DU1[4],DU2[4];
-//                 double INFLOW_HALF[4][3],INFLOW_PLUS_HALF[4][3],INFLOW_MINUS_HALF[4][3];
-//                 double IN_TOP,IN_BOTTOM,OUT_TOP,OUT_BOTTOM;
-//                 double MASS[4][3][3],MASS_GAL[4][3][3];
-//                 double SUM_MASS[4][3];
-//                 double DT = DT_TOT;
+                double INFLOW_HALF[4][4][3][3]
 
-//                 setup_half_state();
+                double MASS[4][3][3],MASS_GAL[4][3][3];
 
-//                 if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
-// #ifdef DEBUG
-//                         cout << "Skipping x boundary" << endl;
-// #endif
-//                         return ;
-//                 }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] - Y[2]) > 10.0){
-// #ifdef DEBUG
-//                         cout << "Skipping y boundary" << endl;
-// #endif
-//                         return ;
-//                 }
+                double SUM_MASS[4][3];
 
-// #ifdef DEBUG
-//                 cout << "-- SECOND -------------------------------------------------------" << endl;
-//                 cout << "Time     =\t" << T << endl;
-//                 cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
-//                 cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
-//                 cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
-//                 cout << "Half State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
-//                 for(i=0;i<3;i++){cout << i << " =\t" << U_HALF[0][i] << "\t" << U_HALF[1][i] << "\t" << U_HALF[2][i] << "\t" << U_HALF[3][i] << endl;}
-//                 cout << "Pressure =\t" << PRESSURE_HALF[0] << "\t" << PRESSURE_HALF[1] << "\t" << PRESSURE_HALF[2] << endl;
-// #endif
+                double DT = 0.5*DT_TOT;
+
+                setup_half_state();
+
+                if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
+#ifdef DEBUG
+                        cout << "Skipping x boundary" << endl;
+#endif
+                        return ;
+                }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] - Y[2]) > 10.0){
+#ifdef DEBUG
+                        cout << "Skipping y boundary" << endl;
+#endif
+                        return ;
+                }
+
+#ifdef DEBUG
+                cout << "-- SECOND -------------------------------------------------------" << endl;
+                cout << "Time     =\t" << T << endl;
+                cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
+                cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
+                cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
+                cout << "Half State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
+                for(i=0;i<3;i++){cout << i << " =\t" << U_HALF[0][i] << "\t" << U_HALF[1][i] << "\t" << U_HALF[2][i] << "\t" << U_HALF[3][i] << endl;}
+                cout << "Pressure =\t" << PRESSURE_HALF[0] << "\t" << PRESSURE_HALF[1] << "\t" << PRESSURE_HALF[2] << endl;
+#endif
 
 //                 // calcualte sound speed for half time state
 

@@ -28,7 +28,8 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
 
                 //cout << "x =\t" << X << "\ty =\t" << Y << endl;
 
-                if(i>0.3*N_POINTS and i<0.7*N_POINTS){
+                //if(i>0.3*N_POINTS and i<0.7*N_POINTS){
+                if(i<0.5*N_POINTS){
                         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
                         NEW_VERTEX.set_x_velocity(0.00000001);                                 // units m/s
                         NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
@@ -62,11 +63,11 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
         }else if(IC == 2){
                 if(i==0 and j==0){cout << "Using 2D Sedov Blast" << endl;}
 
-                double RHO = 100.0;
+                double RHO = 1000.0;
                 double V = 0.00000001;
-                double P = 1.0;
+                double P = 100.0;
 
-                if((X > (50/2 - 2.0*DX) and X < (50/2 + 2.0*DX)) and (Y > (50/2 - 2.0*DY) and Y < (50/2 + 2.0*DY))){
+                if((X > (SIDE_LENGTH/2 - DX) and X < (SIDE_LENGTH/2 + DX)) and (Y > (SIDE_LENGTH/2 - DY) and Y < (SIDE_LENGTH/2 + DY))){
                         P = 100000/DX;
                         cout << "Setting blast pressure point" << endl;
                 }
@@ -75,6 +76,22 @@ VERTEX setup_vertex(int N_POINTS, int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_x_velocity(V);                             // units m/s
                 NEW_VERTEX.set_y_velocity(V);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
+        }else if(IC == 3){
+                if(i==0 and j==0){cout << "Using 2D Gaussian pulse" << endl;}
+
+                double CENTRE = 10.0;
+                double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
+                double X_VELOCITY = 1.0,PRESSURE = 1000.0;
+
+                S = abs(CENTRE - X);                                       // distance from centre of pulse
+                W = 2.0;                                                 // characteristic width
+
+                RHO = RHO_PULSE*exp(-S*S/(W*W)) + RHO_0*(1.0-exp(-S*S/(W*W)));
+
+                NEW_VERTEX.set_mass_density(RHO);
+                NEW_VERTEX.set_x_velocity(X_VELOCITY);
+                NEW_VERTEX.set_y_velocity(0.00000001);
+                NEW_VERTEX.set_pressure(PRESSURE);
         }
 
         NEW_VERTEX.setup_specific_energy();

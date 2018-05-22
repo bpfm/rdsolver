@@ -238,7 +238,7 @@ public:
 
                 for(int k=0;k<3;k++){
                         correction = 0.0;
-                        for(int m=0;m<3;m++){correction  = correction + alpha[m]*abs(e_val[m])*r_lower[k][m];}
+                        for(int m=0;m<3;m++){correction = correction + alpha[m]*abs(e_val[m])*r_lower[k][m];}
                         f_int[k] = 0.5*phi[k]*(f1[k]+f0[k]-correction);
                 }
 

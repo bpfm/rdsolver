@@ -4,7 +4,7 @@
 //#define THREE_D
 
 #define BOUNDARY "PERIODIC"
-//#define BOUNDARY "CLOSED"
+// #define BOUNDARY "CLOSED"
 
 #define FLUX_LIMITER 0
 #define FLUX_LIMITER_TYPE "MINMOD"
@@ -13,14 +13,14 @@
 
 #define N_SNAP 10
 
-int N_POINTS=500;
+int N_POINTS=400;
 
 // Sod Shcok Tube
 #if IC == 0
 double cfl = 0.1;
-double t_tot = 0.5;
+double t_tot = 0.1;
 double GAMMA = 1.4;
-double SIDE_LENGTH = 50.0;
+double SIDE_LENGTH = 60.0;
 #endif
 
 // Sine Wave
@@ -33,8 +33,8 @@ double SIDE_LENGTH = 50.0;
 
 // Sedov Blast Wave
 #if IC == 2
-double cfl = 0.1;
-double t_tot = 0.2;
+double cfl = 0.01;
+double t_tot = 0.1;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH = 50.0;
 #endif
@@ -42,7 +42,7 @@ double SIDE_LENGTH = 50.0;
 // Gaussian Pulse
 #if IC == 3
 double cfl = 0.1;
-double t_tot = 1.0;
+double t_tot = 10.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH = 50.0;
 #endif

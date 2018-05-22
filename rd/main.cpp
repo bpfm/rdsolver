@@ -42,12 +42,12 @@ int main(){
         cout << "Building grid of vertices" << endl;
 
 #ifdef TWO_D
-        for(j=0;j<N_POINTS;j++){
-                for(i=0;i<N_POINTS;i++){
-                        NEW_VERTEX = setup_vertex(N_POINTS,i,j,DX,DY);               // call VERTEX setup routine
+        for(i=0;i<N_POINTS;i++){
+                for(j=0;j<N_POINTS;j++){
+                        NEW_VERTEX = setup_vertex(N_POINTS,j,i,DX,DY);               // call VERTEX setup routine
                         X_POINTS.push_back(NEW_VERTEX);                              // add new VERTEX to vector of vertices in this row
-                        //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                // check dt is min required by CFL
-                        //if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
+                        X_POINTS[j].calc_next_dt(DX,CFL,POSSIBLE_DT);                // check dt is min required by CFL
+                        if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
                 POINTS.push_back(X_POINTS);
                 X_POINTS.clear();
@@ -80,10 +80,12 @@ int main(){
 
         while(T<T_TOT){
 
-                cout << "STEP =\t" << l << "\tTIME =\t" << T << endl;
+                cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << endl;
 
-                //DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
+                DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
+#ifdef FIXED_DT
                 DT = 0.00001;
+#endif
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
@@ -91,8 +93,7 @@ int main(){
                         output_state(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE, POINTS, T, DT, DX, DY);
                 }
 
-                NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
-
+                
                 for(i=0;i<2*N_POINTS;i++){                                        // loop over all triangles in MESH
                         for(j=0;j<N_POINTS;j++){ 
                                 MESH[i][j].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
@@ -114,15 +115,16 @@ int main(){
                         }
                 }
 
+                NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
+
                 for(i=0;i<N_POINTS;i++){
                         for(j=0;j<N_POINTS;j++){                                     // loop over all vertices
                                 POINTS[i][j].update_u_variables();                   // update the fluid state at vertex
                                 POINTS[i][j].con_to_prim();                          // convert these to their corresponding conserved
                                 POINTS[i][j].recalculate_pressure();                 // caclulate pressure from new conserved values
-                                //POINTS[i][j].prim_to_con();
                                 POINTS[i][j].reset_du();                             // reset du value to zero for next timestep
-                                //POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);        // calculate next timestep based on new state
-                                //if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
+                                POINTS[i][j].calc_next_dt(DX,CFL,POSSIBLE_DT);        // calculate next timestep based on new state
+                                if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                         }
                 }
 

@@ -9,9 +9,9 @@ centre setup_centre(int N_POINTS, int i, float dx){
                 if(i==0){cout << "Using 1D Sod Shock Tube" << endl;}
                 new_centre.set_x(x);
 
-                if(i>0.3*N_POINTS and i<0.7*N_POINTS){
+                if(i<0.5*N_POINTS){
                         new_centre.set_mass_density(1.0);                               // units kg/m^3
-                        new_centre.set_velocity(0.0);                                   // units m/s
+                        new_centre.set_velocity(0.00000001);                                   // units m/s
                         new_centre.set_pressure(500.0);                                 // units N/m^2
                 }else{
                         new_centre.set_mass_density(0.125);                             // units kg/m^3
@@ -61,7 +61,7 @@ centre setup_centre(int N_POINTS, int i, float dx){
                 new_centre.set_velocity(0);                            // units m/s
                 new_centre.set_pressure(1);                            // units N/m^2
     
-                if(x > (50/2 - dx) and x < (50/2 + dx)){new_centre.set_pressure(100000/dx);}
+                if(x > (SIDE_LENGTH/2 - dx) and x < (SIDE_LENGTH/2 + dx)){new_centre.set_pressure(100000/dx);}
 
                 new_centre.setup_specific_energy();
                 new_centre.prim_to_con();
@@ -72,7 +72,7 @@ centre setup_centre(int N_POINTS, int i, float dx){
 
         }else if(IC==3){
                 if(i==0){cout << "Using 1D Gaussian Pulse" << endl;}
-                double centre = 10.0;
+                double centre = 25.0;
                 double s,w,rho,rho_0 = 10.0,rho_pulse = 50.0;
                 double velocity = 1.0,pressure = 1000.0;
 

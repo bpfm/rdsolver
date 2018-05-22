@@ -129,7 +129,7 @@ public:
         void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}
         void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}
 
-        // update DU with value from face
+        // Update DU with value from face
         void update_du(double NEW_DU[4]){
                 DU[0] = DU[0] + NEW_DU[0];
                 DU[1] = DU[1] + NEW_DU[1];
@@ -144,7 +144,7 @@ public:
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
         }
 
-        // change primaitive vriables based on accumulated DU from all faces of cell
+        // Change conserved variables based on accumulated DU from all faces of cell
         void update_u_variables(){
                 //cout << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << endl;
                 U_VARIABLES[0] = U_HALF[0] - DU[0];
@@ -191,10 +191,20 @@ public:
                 }
         }
 
-        // calculate min timestep this cell requires
+        // Calculate min timestep this cell requires
         void calc_next_dt(double DX, double CFL, double &NEXT_DT){
                 double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
-                NEXT_DT = CFL*(DX/(C_SOUND+abs(X_VELOCITY)+abs(Y_VELOCITY)));
+                double V_MAX = max_val(abs(X_VELOCITY)+C_SOUND,abs(Y_VELOCITY)+C_SOUND);
+                NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*C_SOUND);
+                //cout << NEXT_DT << endl;
+        }
+
+        double max_val(double A, double B){
+                if(A>B){
+                        return A;
+                }else{
+                        return B;
+                }
         }
 
 };

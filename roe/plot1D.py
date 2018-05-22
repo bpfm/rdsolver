@@ -1,9 +1,14 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-#x,density = np.loadtxt("density.txt", usecols = (0,1))
+# verticle lines
 
-n_points = 500
+xl = np.array([7.24,7.24])
+yl = [0.0,4.0]
+
+xl = xl + 25.0
+
+n_points = 200
 dx = 50.0/float(n_points)
 
 data = np.loadtxt("density.txt")
@@ -11,7 +16,7 @@ x0,rho0 = data[0:n_points-1,0], data[0:n_points-1,1]
 x1,rho1 = data[n_points:2*n_points-1,0], data[n_points:2*n_points-1,1]
 x2,rho2 = data[2*n_points:3*n_points-1,0], data[2*n_points:3*n_points-1,1]
 x3,rho3 = data[3*n_points:4*n_points-1,0], data[3*n_points:4*n_points-1,1]
-x4,rho4 = data[4*n_points:5*n_points-1,0], data[4*n_points:5*n_points-1,1]
+x4,rho4 = data[9*n_points:10*n_points-1,0], data[9*n_points:10*n_points-1,1]
 
 rho_0 = 10.0
 rho_1 = 50.0
@@ -25,11 +30,15 @@ def f(x,t):
 
 plt.subplot(311)
 
-plt.plot(x0,rho0)
-plt.plot(x1,rho1)
-plt.plot(x2,rho2)
-plt.plot(x3,rho3)
-plt.plot(x4,rho4)
+x_corr = x0#- 15.0
+
+plt.plot(xl,yl,color = "black")
+
+plt.plot(x_corr,rho0)
+#plt.plot(x1,rho1)
+#plt.plot(x2,rho2)
+plt.plot(x_corr,rho3)
+plt.plot(x_corr,rho4)
 
 #times = np.array([0.00,2.00278,4.00166,6.00055,8.00333])
 times = np.array([0.00,2.00278,4.00166,6.00055,8.00333])
@@ -40,8 +49,8 @@ lines = x_0t
         #plt.axvline(x=l,color='black')
 
 #plt.xlabel("x [m]")
-plt.ylabel("density [kg/m^3]")
-#plt.xlim([20,30])
+plt.ylabel("Density [kg/m^3]")
+#plt.xlim([0,30])
 #plt.ylim([-1.0,1001])
 
 
@@ -49,23 +58,22 @@ plt.ylabel("density [kg/m^3]")
 
 data = np.loadtxt("pressure.txt")
 x0,rho0 = data[0:n_points-1,0], data[0:n_points-1,1]
-x1,rho1 = data[n_points:2*n_points-1,0], data[n_points:2*n_points-1,1]
-x2,rho2 = data[2*n_points:3*n_points-1,0], data[2*n_points:3*n_points-1,1]
+#x1,rho1 = data[n_points:2*n_points-1,0], data[n_points:2*n_points-1,1]
+#x2,rho2 = data[2*n_points:3*n_points-1,0], data[2*n_points:3*n_points-1,1]
 x3,rho3 = data[3*n_points:4*n_points-1,0], data[3*n_points:4*n_points-1,1]
-x4,rho4 = data[4*n_points:5*n_points-1,0], data[4*n_points:5*n_points-1,1]
-x5,rho5 = data[5*n_points:6*n_points-1,0], data[5*n_points:6*n_points-1,1]
+x4,rho4 = data[9*n_points:10*n_points-1,0], data[9*n_points:10*n_points-1,1]
 
 plt.subplot(312)
 
-plt.plot(x0,rho0)
-plt.plot(x1,rho1)
-plt.plot(x2,rho2)
-plt.plot(x3,rho3)
-plt.plot(x4,rho4)
+plt.plot(x_corr,rho0)
+#plt.plot(x1,rho1)
+#plt.plot(x2,rho2)
+plt.semilogy(x_corr,rho3)
+plt.plot(x_corr,rho4)
 
 #plt.xlabel("x [m]")
-plt.ylabel("pressure [N/m^2]")
-#plt.xlim([20,30])
+plt.ylabel("Pressure [N/m^2]")
+#plt.xlim([0,30])
 #plt.ylim([-1.0,1001])
 
 ############################## velocity plot ##############################
@@ -75,20 +83,19 @@ x0,rho0 = data[0:n_points-1,0], data[0:n_points-1,1]
 x1,rho1 = data[n_points:2*n_points-1,0], data[n_points:2*n_points-1,1]
 x2,rho2 = data[2*n_points:3*n_points-1,0], data[2*n_points:3*n_points-1,1]
 x3,rho3 = data[3*n_points:4*n_points-1,0], data[3*n_points:4*n_points-1,1]
-x4,rho4 = data[4*n_points:5*n_points-1,0], data[4*n_points:5*n_points-1,1]
-x5,rho5 = data[5*n_points:6*n_points-1,0], data[5*n_points:6*n_points-1,1]
+x4,rho4 = data[9*n_points:10*n_points-1,0], data[9*n_points:10*n_points-1,1]
 
 plt.subplot(313)
 
-plt.plot(x0,rho0)
-plt.plot(x1,rho1)
-plt.plot(x2,rho2)
-plt.plot(x3,rho3)
-plt.plot(x4,rho4)
+plt.plot(x_corr,rho0)
+#plt.plot(x1,rho1)
+#plt.plot(x2,rho2)
+plt.plot(x_corr,rho3)
+plt.plot(x_corr,rho4)
 
 plt.xlabel("x [m]")
-plt.ylabel("velocity [m/s]")
-#plt.xlim([20,30])
-#plt.ylim([-20,40])
+plt.ylabel("X Velocity [m/s]")
+#plt.xlim([0,30])
+#plt.ylim([0,20])
 
 plt.show()

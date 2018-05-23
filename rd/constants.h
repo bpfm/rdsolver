@@ -8,14 +8,20 @@
 
 // #define FIXED_DT
 
-int N_POINTS = 200;
+// #define LDA_SCHEME
+
+#define N_SCHEME
+
+int N_POINTS_X = 100;
+int N_POINTS_Y = 100;
 
 // Sod Shcok Tube
 #if IC == 0
-double CFL = 0.01;
+double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
-double SIDE_LENGTH = 30.0;
+double SIDE_LENGTH_X = 30.0;
+double SIDE_LENGTH_Y = 30.0;
 #endif
 
 // Sine Wave Tube
@@ -40,4 +46,12 @@ double CFL = 0.1;
 double T_TOT = 1.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH = 50.0;
+#endif
+
+// Sod Shcok Tube (Varied in Y)
+#if IC == 4
+double CFL = 0.1;
+double T_TOT = 0.1;
+double GAMMA = 1.4;
+double SIDE_LENGTH = 30.0;
 #endif

@@ -18,9 +18,6 @@ private:
         double U_N[4][3];
         double U_HALF[4][3];
 
-        // double VEL[3][2];
-        // double VEL_HALF[3][2];
-
         double FLUC[4][3];
         double FLUC_HALF[4][3];
 
@@ -70,14 +67,6 @@ public:
                 U_N[3][1] = VERTEX_1->get_u3();
                 U_N[3][2] = VERTEX_2->get_u3();
 
-                // VEL[0][0] = VERTEX_0->get_x_velocity();
-                // VEL[1][0] = VERTEX_1->get_x_velocity();
-                // VEL[2][0] = VERTEX_2->get_x_velocity();
-
-                // VEL[0][1] = VERTEX_0->get_y_velocity();
-                // VEL[1][1] = VERTEX_1->get_y_velocity();
-                // VEL[2][1] = VERTEX_2->get_y_velocity();
-
                 PRESSURE[0] = VERTEX_0->get_pressure();
                 PRESSURE[1] = VERTEX_1->get_pressure();
                 PRESSURE[2] = VERTEX_2->get_pressure();
@@ -103,14 +92,6 @@ public:
                 U_HALF[3][0] = VERTEX_0->get_u3_half();
                 U_HALF[3][1] = VERTEX_1->get_u3_half();
                 U_HALF[3][2] = VERTEX_2->get_u3_half();
-
-                // VEL_HALF[0][0] = VERTEX_0->get_x_velocity_half();
-                // VEL_HALF[1][0] = VERTEX_1->get_x_velocity_half();
-                // VEL_HALF[2][0] = VERTEX_2->get_x_velocity_half();
-
-                // VEL_HALF[0][1] = VERTEX_0->get_y_velocity_half();
-                // VEL_HALF[1][1] = VERTEX_1->get_y_velocity_half();
-                // VEL_HALF[2][1] = VERTEX_2->get_y_velocity_half();
 
                 PRESSURE[0] = VERTEX_0->get_pressure_half();
                 PRESSURE[1] = VERTEX_1->get_pressure_half();
@@ -356,6 +337,9 @@ public:
 
                 matInv(&INFLOW_MINUS_SUM[0][0],4);
 
+                // Calculate spatial splitting for first half timestep
+
+#ifdef LDA_SCHEME
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 BETA[i][0][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][0] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][0] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][0] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][0];
@@ -365,14 +349,39 @@ public:
                         }
                 }
 
-                // Calculate spatial splitting for first half timestep
-
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 FLUC[i][m] = BETA[i][0][m] * (PHI[0]) + BETA[i][1][m] * (PHI[1]) + BETA[i][2][m] * (PHI[2]) + BETA[i][3][m] * (PHI[3]);
-                                //cout << "FLUCTUATION =\t" << i << "\t" << m << "\t" << FLUC[i][m] << endl;
                         }
                 }
+#endif
+
+#ifdef N_SCHEME
+                double BRACKET[4][3];
+                double KZ_SUM[4];
+
+                for(i=0;i<4;++i){
+                        KZ_SUM[i] = 0.0;
+                        for(m=0;m<3;++m){
+                                KZ_SUM[i] += INFLOW[i][0][m][1] * Z[0][m] + INFLOW[i][1][m][1] * Z[1][m] + INFLOW[i][2][m][1] * Z[2][m] + INFLOW[i][3][m][1] * Z[3][m];
+                        }
+                }
+
+                for(i=0;i<4;++i){
+                        for(m=0;m<3;++m){
+                                BRACKET[i][m] = Z[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
+                        }
+                }
+
+                for(i=0;i<4;++i){
+                        for(m=0;m<3;++m){
+                                FLUC[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
+                        }
+                }
+#endif
+
+
+
 
                 // Calculate change to be distributed
 
@@ -647,14 +656,12 @@ public:
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 DIFF[i][m] = U_HALF[i][m] - U_N[i][m];
-                                //cout << "DIFF calc from =\t" << U_HALF [i][m] << "\t" << U_N[i][m] << "\t" << DIFF[i][m] << endl;
                         }
 
                 }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                //cout << MASS[i][0][m] << "\t" << DIFF[0][m] << "\t" << MASS[i][1][m] << "\t" << DIFF[1][m] << "\t" << MASS[i][2][m] << "\t" << DIFF[2][m] << "\t" << MASS[i][3][m] << "\t" << DIFF[3][m] << endl;
                                 MASS_DIFF[i][m] = MASS[i][0][m] * DIFF[0][m] + MASS[i][1][m] * DIFF[1][m] + MASS[i][2][m] * DIFF[2][m] + MASS[i][3][m] * DIFF[3][m];
                         }
                 }

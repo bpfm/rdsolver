@@ -42,9 +42,9 @@ int main(){
         cout << "Building grid of vertices" << endl;
 
 #ifdef TWO_D
-        for(i=0;i<N_POINTS;i++){
-                for(j=0;j<N_POINTS;j++){
-                        NEW_VERTEX = setup_vertex(N_POINTS,j,i,DX,DY);               // call VERTEX setup routine
+        for(i=0; i<N_POINTS_X; i++){
+                for(j=0; j<N_POINTS_Y; j++){
+                        NEW_VERTEX = setup_vertex(j,i,DX,DY);               // call VERTEX setup routine
                         X_POINTS.push_back(NEW_VERTEX);                              // add new VERTEX to vector of vertices in this row
                         X_POINTS[j].calc_next_dt(DX,CFL,POSSIBLE_DT);                // check dt is min required by CFL
                         if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
@@ -58,14 +58,16 @@ int main(){
 
          cout << "Assigning vertices to triangles" << endl;
 
-        for(j=0;j<2*(N_POINTS);j++){
-                for(i=0;i<N_POINTS;i++){
+        for(j=0; j<2*N_POINTS_Y; j++){
+                for(i=0; i<N_POINTS_X; i++){
                         NEW_TRIANGLE = setup_triangle(i,j,POINTS);
                         X_MESH.push_back(NEW_TRIANGLE);
                 }
                 MESH.push_back(X_MESH);
                 X_MESH.clear();
         }
+
+
 
         cout << "Finished triangle setup" << endl;
 
@@ -75,14 +77,15 @@ int main(){
 
         open_files(DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, DU_FILE);               // open output files
 
-        cout << "Evolving fluid ..." << endl;
         cout << "Mesh Size =\t" << MESH[0].size() << '\t' << MESH.size() << endl;
+        cout << "Evolving fluid ..." << endl;
 
         while(T<T_TOT){
 
                 cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << endl;
 
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
+
 #ifdef FIXED_DT
                 DT = 0.00001;
 #endif
@@ -94,14 +97,14 @@ int main(){
                 }
 
                 
-                for(i=0;i<2*N_POINTS;i++){                                        // loop over all triangles in MESH
-                        for(j=0;j<N_POINTS;j++){ 
+                for(i=0;i<2*N_POINTS_Y;i++){                                        // loop over all triangles in MESH
+                        for(j=0;j<N_POINTS_X;j++){ 
                                 MESH[i][j].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
                         }
                 }
 
-                for(i=0;i<N_POINTS;i++){
-                        for(j=0;j<N_POINTS;j++){                                     // loop over all vertices
+                for(i=0;i<N_POINTS_Y;i++){
+                        for(j=0;j<N_POINTS_X;j++){                                     // loop over all vertices
                                 POINTS[i][j].update_u_half();                        // update the half time state
                                 POINTS[i][j].con_to_prim_half();
                                 POINTS[i][j].recalculate_pressure_half();            // caclulate pressure from new conserved values
@@ -109,16 +112,16 @@ int main(){
                         }
                 }
 
-                for(i=0;i<2*(N_POINTS);i++){                                         // loop over all triangles in MESH
-                        for(j=0;j<N_POINTS;j++){
+                for(i=0;i<2*(N_POINTS_Y);i++){                                         // loop over all triangles in MESH
+                        for(j=0;j<N_POINTS_X;j++){
                                 MESH[i][j].calculate_second_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
                         }
                 }
 
                 NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
 
-                for(i=0;i<N_POINTS;i++){
-                        for(j=0;j<N_POINTS;j++){                                     // loop over all vertices
+                for(i=0;i<N_POINTS_Y;i++){
+                        for(j=0;j<N_POINTS_X;j++){                                     // loop over all vertices
                                 POINTS[i][j].update_u_variables();                   // update the fluid state at vertex
                                 POINTS[i][j].con_to_prim();                          // convert these to their corresponding conserved
                                 POINTS[i][j].recalculate_pressure();                 // caclulate pressure from new conserved values

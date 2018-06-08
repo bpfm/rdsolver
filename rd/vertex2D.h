@@ -8,10 +8,8 @@
                 VELOCITY = velocity of material in cell
                 PRESSURE = pressure in cell
                 SPECIFIC_ENERGY = SPECIFIC_ENERGY of cell (?) 
-                U_VARIABLES = array conatining values of vector U (see README)
+                U_VARIABLES = array conatining values of std::vector U (see README)
 */
-
-using namespace std;
 
 class VERTEX{
 
@@ -25,7 +23,7 @@ private:
         double U_HALF[4], DU_HALF[4];
         double MASS_DENSITY_HALF, X_VELOCITY_HALF, Y_VELOCITY_HALF;
         double PRESSURE_HALF, SPECIFIC_ENERGY_HALF;
-        vector<int> ASSOC_TRIANG;
+        std::vector<int> ASSOC_TRIANG;
 
 public:
 
@@ -146,7 +144,7 @@ public:
 
         // Change conserved variables based on accumulated DU from all faces of cell
         void update_u_variables(){
-                //cout << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << endl;
+                //std::cout << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << std::endl;
                 U_VARIABLES[0] = U_HALF[0] - DU[0];
                 U_VARIABLES[1] = U_HALF[1] - DU[1];
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
@@ -154,7 +152,7 @@ public:
         }
 
         void update_u_half(){
-                //cout << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << endl;
+                //std::cout << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << std::endl;
                 U_HALF[0] = U_VARIABLES[0] - DU_HALF[0];
                 U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
@@ -163,32 +161,34 @@ public:
 
         void check_values(){
 #ifdef DEBUG
-                cout << "Checking vertex state at " << X << "\t" << Y << endl;
+                std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
                 if (MASS_DENSITY < 0.0){
-                        cout << "Position =\t" << X << "\t" << Y;
-                        cout << "\tB WARNING: Exiting on negative density" << endl;
+                        std::cout << "B WARNING: Exiting on negative density\t";
+                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
                         //MASS_DENSITY = 0.000001;
                         exit(0);
                 }
                 if (PRESSURE < 0.0){
-                        cout << "Position =\t" << X << "\t" << Y;
-                        cout << "\tB WARNING: Exiting on negative pressure" << endl;
-                        //PRESSURE = 0.000001;
+                        std::cout << "B WARNING: Exiting on negative pressure\t";
+                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
+                        
+                        // PRESSURE = 0.000001;
                         exit(0);
                 }
                 if (MASS_DENSITY_HALF < 0.0){
-                        cout << "Position =\t" << X << "\t" << Y;
-                        cout << "\tB WARNING: Exiting on negative half state density" << endl;
+                        std::cout << "B WARNING: Exiting on negative half state density\t";
+                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
                         //MASS_DENSITY_HALF = 0.000001;
                         exit(0);
                 }
                 if (PRESSURE_HALF < 0.0){
-                        cout << "Position =\t" << X << "\t" << Y;
-                        cout << "\tB WARNING: Exiting on negative half state pressure" << endl;
-                        //PRESSURE_HALF = 0.000001;
+                        std::cout << "B WARNING: Exiting on negative half state pressure\t";
+                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
+                        // PRESSURE_HALF = 0.000001;
                         exit(0);
                 }
+
         }
 
         // Calculate min timestep this cell requires
@@ -196,7 +196,7 @@ public:
                 double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
                 double V_MAX = max_val(abs(X_VELOCITY)+C_SOUND,abs(Y_VELOCITY)+C_SOUND);
                 NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*C_SOUND);
-                //cout << NEXT_DT << endl;
+                //std::cout << NEXT_DT << std::endl;
         }
 
         double max_val(double A, double B){

@@ -1,5 +1,3 @@
-using namespace std;
-
 VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         VERTEX NEW_VERTEX;
         double X,Y;
@@ -24,23 +22,23 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         NEW_VERTEX.calculate_dual();
 
         if(IC == 0){
-                if(i==0 and j==0){cout << "Using 2D Sod Shock Tube" << endl;}
+                if(i==0 and j==0){std::cout << "Using 2D Sod Shock Tube" << std::endl;}
 
                 if(i<0.5*N_POINTS_X){
                         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.00000001);                                 // units m/s
+                        NEW_VERTEX.set_x_velocity(0.000000001);                                 // units m/s
                         NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
                         NEW_VERTEX.set_pressure(500.0);                                 // units N/m^2
                 }else{
                         NEW_VERTEX.set_mass_density(0.125);                             // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.00000001);                                 // units m/s
+                        NEW_VERTEX.set_x_velocity(0.000000001);                                 // units m/s
                         NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
                         NEW_VERTEX.set_pressure(100.0);                                 // units N/m^2
                 }
         }else if(IC == 1){
-                if(i==0 and j==0){cout << "Using 2D Sine Wave" << endl;}
+                if(i==0 and j==0){std::cout << "Using 2D Sine Wave" << std::endl;}
 
-                //cout << "x =\t" << X << "\ty =\t" << Y << endl;
+                //std::cout << "x =\t" << X << "\ty =\t" << Y << std::endl;
 
                 double RHO,RHO_0 = 50.0;
                 double P,P_0 = 3.0;
@@ -58,7 +56,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
         }else if(IC == 2){
-                if(i==0 and j==0){cout << "Using 2D Sedov Blast" << endl;}
+                if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
 
                 double RHO = 1000.0;
                 double V = 0.00000001;
@@ -66,7 +64,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
 
                 if((X > (SIDE_LENGTH_X/2 - DX) and X < (SIDE_LENGTH_X/2 + DX)) and (Y > (SIDE_LENGTH_Y/2 - DY) and Y < (SIDE_LENGTH_Y/2 + DY))){
                         P = 100000/DX;
-                        cout << "Setting blast pressure point" << endl;
+                        std::cout << "Setting blast pressure point" << std::endl;
                 }
 
                 NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
@@ -74,11 +72,11 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_y_velocity(V);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
         }else if(IC == 3){
-                if(i==0 and j==0){cout << "Using 2D Gaussian pulse" << endl;}
+                if(i==0 and j==0){std::cout << "Using 2D Gaussian pulse" << std::endl;}
 
                 double CENTRE = 10.0;
                 double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
-                double X_VELOCITY = 1.0,PRESSURE = 1000.0;
+                double X_VELOCITY = 10.0,PRESSURE = 1000.0;
 
                 S = abs(CENTRE - X);                                       // distance from centre of pulse
                 W = 2.0;                                                 // characteristic width
@@ -90,7 +88,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(PRESSURE);
         }else if(IC == 4){
-                if(i==0 and j==0){cout << "Using 2D Sod Shock Tube (Varied in Y)" << endl;}
+                if(i==0 and j==0){std::cout << "Using 2D Sod Shock Tube (Varied in Y)" << std::endl;}
 
                 if(j<0.5*N_POINTS_Y){
                         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
@@ -113,7 +111,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         return NEW_VERTEX;
 }
 
-TRIANGLE setup_triangle(int i0, int j0, vector<vector<VERTEX> > &POINTS){
+TRIANGLE setup_triangle(int i0, int j0, std::vector<std::vector<VERTEX> > &POINTS){
         int i,j;
         int VERTEX_I_ID_0,VERTEX_J_ID_0,VERTEX_I_ID_1,VERTEX_J_ID_1,VERTEX_I_ID_2,VERTEX_J_ID_2;            // VERTEX_id_0 and VERTEX_id_1 = index number of cells on either side of TRIANGLE
         VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2;                                                               // *VERTEX_0, *VERTEX_1 and *VERTEX_2 = pointers to vertices (labelled anticlockwise)
@@ -122,29 +120,29 @@ TRIANGLE setup_triangle(int i0, int j0, vector<vector<VERTEX> > &POINTS){
         if((j0 % 2) == 0){
                 i = i0;
                 j = j0/2;
-                VERTEX_I_ID_2 = j % N_POINTS_X;
-                VERTEX_J_ID_2 = i % N_POINTS_X;
-                VERTEX_I_ID_1 = (j+1) % N_POINTS_X;
-                VERTEX_J_ID_1 = i % N_POINTS_X;
-                VERTEX_I_ID_0 = j % N_POINTS_X;
-                VERTEX_J_ID_0 = (i+1) % N_POINTS_X;
+                VERTEX_I_ID_0 = i % N_POINTS_X;
+                VERTEX_J_ID_0 = j % N_POINTS_Y;
+                VERTEX_I_ID_1 = (i+1) % N_POINTS_X;
+                VERTEX_J_ID_1 = j % N_POINTS_Y;
+                VERTEX_I_ID_2 = i % N_POINTS_X;
+                VERTEX_J_ID_2 = (j+1) % N_POINTS_Y;
         }else{
                 i = i0;
                 j = (j0-1)/2;
-                VERTEX_I_ID_2 = (j+1) % N_POINTS_X;
-                VERTEX_J_ID_2 = i % N_POINTS_X;
-                VERTEX_I_ID_1 = (j+1) % N_POINTS_X;
-                VERTEX_J_ID_1 = (i+1) % N_POINTS_X;
-                VERTEX_I_ID_0 = j % N_POINTS_X;
-                VERTEX_J_ID_0 = (i+1) % N_POINTS_X;
+                VERTEX_I_ID_0 = (i+1) % N_POINTS_X;
+                VERTEX_J_ID_0 = j % N_POINTS_Y;
+                VERTEX_I_ID_1 = (i+1) % N_POINTS_X;
+                VERTEX_J_ID_1 = (j+1) % N_POINTS_Y;
+                VERTEX_I_ID_2 = i % N_POINTS_X;
+                VERTEX_J_ID_2 = (j+1) % N_POINTS_Y;
         }
 
-        VERTEX_0 = &POINTS[VERTEX_I_ID_0][VERTEX_J_ID_0];
-        VERTEX_1 = &POINTS[VERTEX_I_ID_1][VERTEX_J_ID_1];
-        VERTEX_2 = &POINTS[VERTEX_I_ID_2][VERTEX_J_ID_2];
+        VERTEX_0 = &POINTS[VERTEX_J_ID_0][VERTEX_I_ID_0];
+        VERTEX_1 = &POINTS[VERTEX_J_ID_1][VERTEX_I_ID_1];
+        VERTEX_2 = &POINTS[VERTEX_J_ID_2][VERTEX_I_ID_2];
 
 #ifdef DEBUG
-        cout << "Setting up\t" << i0 << "\t" << j0 << "\t" << VERTEX_0->get_x() << "\t" << VERTEX_0->get_y() << "\t" << endl;
+        std::cout << "Setting up\t" << i0 << "\t" << j0 << "\t(x,y) =\t" << VERTEX_0->get_x() << "\t" << VERTEX_0->get_y() << "\t" << VERTEX_1->get_x() << "\t" << VERTEX_1->get_y() << "\t" << VERTEX_2->get_x() << "\t" << VERTEX_2->get_y() << std::endl;
 #endif
 
         NEW_TRIANGLE.set_vertex_0(VERTEX_0);                                // pass these pointers to the TRIANGLE

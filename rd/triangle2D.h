@@ -3,8 +3,6 @@
         *VERTEX_1 = pointer to right VERTEX
 */
 
-using namespace std;
-
 class TRIANGLE{
 
 private:
@@ -120,50 +118,55 @@ public:
 
                 // Calculate normals (just in first timestep for static grid)
 
-                // double X_MOD[3],Y_MOD[3];
+                double X_MOD[3],Y_MOD[3];
 
-                // if(T==0.0){
-                //         for(m=0;m<3;++m){
-                //                 X_MOD[m] = X[m];
-                //                 Y_MOD[m] = Y[m];
-                //                 if(X[m] + DX > SIDE_LENGTH){
-                //                         X_MOD[m] = X[m] - SIDE_LENGTH;
-                //                         return ;
-                //                 }
-                //                 if(Y[m] + DY > SIDE_LENGTH){
-                //                         Y_MOD[m] = Y[m] - SIDE_LENGTH;
-                //                         return ;
-                //                 }
-                //         }
-                //         caclulate_normals(X_MOD,Y_MOD,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);
-                // }
-
-                if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
-#ifdef DEBUG
-                        cout << "Skipping x boundary" << endl;
-#endif
-                        return ;
-                }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] - Y[2]) > 10.0){
-#ifdef DEBUG
-                        cout << "Skipping y boundary" << endl;
-#endif
-                        return ;
+                if(T == 0.0){
+                        for(m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
+                        // std::cout << "X =\t" << X_MOD[0] << "\t" << X_MOD[1] << "\t" << X_MOD[2] << std::endl;
+                        // std::cout << "Y =\t" << Y_MOD[0] << "\t" << Y_MOD[1] << "\t" << Y_MOD[2] << std::endl;
+                        for(i=0; i<3; ++i){
+                                for(j=0; j<3; ++j){
+                                        if(X[j] - X[i] > 2.0*DX){
+                                                X_MOD[i] = X[i] + SIDE_LENGTH_X;
+                                                // std::cout << "Corrected to =\t" << X_MOD[0] << "\t" << X_MOD[1] << "\t" << X_MOD[2] << std::endl;
+                                        }
+                                        if(Y[j] - Y[i] > 2.0*DY){
+                                                Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+                                                // std::cout << "Corrected to =\t" << Y_MOD[0] << "\t" << Y_MOD[1] << "\t" << Y_MOD[2] << std::endl;
+                                        }
+                                }
+                        }
+                        caclulate_normals(X_MOD,Y_MOD,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);
                 }
 
-                if(T==0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
 
-                for(i=0;i<3;i++){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_N[0][i]);}
+//                 if(abs(X[0] - X[1]) > 2.0*DX or abs(X[0] - X[2]) > 2.0*DX or abs(X[1] - X[2]) > 2.0*DX){
+// #ifdef DEBUG
+//                         std::cout << "Skipping x boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
+// #endif
+//                         return ;
+//                 }else if(abs(Y[0] - Y[1]) > 2.0*DY or abs(Y[0] - Y[2]) > 2.0*DY or abs(Y[1] - Y[2]) > 2.0*DY){
+// #ifdef DEBUG
+//                         std::cout << "Skipping y boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
+// #endif
+//                         return ;
+//                 }
+
+
+                //if(T==0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
+
+                for(i=0; i<3; ++i){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_N[0][i]);}
 
 #ifdef DEBUG
-                cout << "-- FIRST  -------------------------------------------------------" << endl;
-                cout << "Time     =\t" << T << endl;
-                cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
-                cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
-                cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
-                cout << "State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
-                for(i=0;i<3;i++){cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << endl;}
-                cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << endl;
-                cout << "Sound Speed =\t" << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << endl;
+                std::cout << "-- FIRST  -------------------------------------------------------" << std::endl;
+                std::cout << "Time     =\t" << T << std::endl;
+                std::cout << "0 =\t" << X[0] << "\t" << Y[0] << std::endl;
+                std::cout << "1 =\t" << X[1] << "\t" << Y[1] << std::endl;
+                std::cout << "2 =\t" << X[2] << "\t" << Y[2] << std::endl;
+                std::cout << "State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << std::endl;
+                for(i=0;i<3;i++){std::cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << std::endl;}
+                std::cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << std::endl;
+                std::cout << "Sound Speed =\t" << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << std::endl;
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -173,7 +176,7 @@ public:
                 double U_AVG[4];
                 double C,U,U_C,V,V_C,H,H_C,GAMMA_1,GAMMA_2,ALPHA,ALPHA_C,W;
                 double Z[4][3];
-                double L_1,L_2,L_3,L_4,L_12,L_123;
+                double VALUE1,VALUE2,VALUE3,VALUE4,VALUE12,VALUE123;
                 double PRESSURE_AVG,C_SOUND_AVG;
                 double LAMBDA[4][3],LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
@@ -183,15 +186,16 @@ public:
                 for(i=0;i<4;++i){U_AVG[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2])/3.0;
+                //C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2] )/3.0;
+                C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/U_AVG[0]);
 
 #ifdef DEBUG
-                cout << "U_AVG =\t" << U_AVG[0] << "\t" << U_AVG[1] << "\t" << U_AVG[2] << "\t" << U_AVG[3] << endl;
-                cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << endl;
-                cout << "C_SOUND_AVG =\t" << C_SOUND_AVG << endl;
+                std::cout << "U_AVG =\t" << U_AVG[0] << "\t" << U_AVG[1] << "\t" << U_AVG[2] << "\t" << U_AVG[3] << std::endl;
+                std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
+                std::cout << "C_SOUND_AVG  =\t" << C_SOUND_AVG  << std::endl;
 #endif
 
-                // Construct Roe vector Z
+                // Construct Roe std::vector Z
 
                 for(m=0;m<3;++m){
                         Z[0][m] = sqrt(U_N[0][m]);
@@ -201,7 +205,12 @@ public:
 
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];
+#ifdef DEBUG
+                        std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
+#endif
                 }
+
+
 
                 // Reassign variables to local equivalents
 
@@ -210,7 +219,7 @@ public:
                 U   = U_AVG[1]/U_AVG[0];        // U now represents x velocity
                 U_C = U/C;
 
-                V   = U_AVG[2]/U_AVG[0];
+                V   = U_AVG[2]/U_AVG[0];        // V represents y velocity
                 V_C = V/C;
 
                 H   = (U_AVG[3] + PRESSURE_AVG)/U_AVG[0];
@@ -223,10 +232,11 @@ public:
                 ALPHA_C = ALPHA/C;
 
 #ifdef DEBUG
-                cout << "U =\t" << U << "\t" << U_C << endl;
-                cout << "V =\t" << V << "\t" << V_C << endl;
-                cout << "ALPHA =\t" << ALPHA << "\t" << ALPHA_C << endl;
-                cout << "W =\t";
+                std::cout << "U =\t" << U << "\tU_C =\t" << U_C << std::endl;
+                std::cout << "V =\t" << V << "\tV_C =\t" << V_C << std::endl;
+                std::cout << "H =\t" << H << "\tH_C =\t" << H_C << std::endl;
+                std::cout << "ALPHA =\t" << ALPHA << "\tALPHA_C =\t" << ALPHA_C << std::endl;
+                std::cout << std::endl;
 #endif
 
                 // Calculate K+,K- and K matrices for each vertex i,j,k
@@ -235,96 +245,123 @@ public:
 
                         W = U*N_X[m] + V*N_Y[m];
 
+#ifdef DEBUG
+                        std::cout << "W =\t" << W << std::endl;
+#endif
+
                         LAMBDA[0][m] = W + C;
                         LAMBDA[1][m] = W - C;
                         LAMBDA[2][m] = W;
                         LAMBDA[3][m] = W;
 
-#ifdef DEBUG
-                        cout << W << "\t";
-#endif
-
                         for(i=0;i<4;++i){
                                 LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
                                 LAMBDA_MINUS[i][m] = min_val(0.0,LAMBDA[i][m]);
-                        }
+                        } 
 
                         for(p=0;p<3;++p){
                                 if(p==0){       // Identify and select positive eigenvalues
-                                        L_1 = LAMBDA_PLUS[0][m];
-                                        L_2 = LAMBDA_PLUS[1][m];
-                                        L_3 = LAMBDA_PLUS[2][m];
-                                        L_4 = LAMBDA_PLUS[3][m];
+                                        VALUE1 = LAMBDA_PLUS[0][m];
+                                        VALUE2 = LAMBDA_PLUS[1][m];
+                                        VALUE3 = LAMBDA_PLUS[2][m];
+                                        VALUE4 = LAMBDA_PLUS[3][m];
+#ifdef DEBUG
+                                        std::cout << "K+" << std::endl;
+#endif
                                 }else if(p==1){ // Identify and select negative eigenvalues
-                                        L_1 = LAMBDA_MINUS[0][m];
-                                        L_2 = LAMBDA_MINUS[1][m];
-                                        L_3 = LAMBDA_MINUS[2][m];
-                                        L_4 = LAMBDA_MINUS[3][m];
+                                        VALUE1 = LAMBDA_MINUS[0][m];
+                                        VALUE2 = LAMBDA_MINUS[1][m];
+                                        VALUE3 = LAMBDA_MINUS[2][m];
+                                        VALUE4 = LAMBDA_MINUS[3][m];
+#ifdef DEBUG
+                                        std::cout << "K-" << std::endl;
+#endif
                                 }else{          // Select all eigenvalues
-                                        L_1 = LAMBDA[0][m];
-                                        L_2 = LAMBDA[1][m];
-                                        L_3 = LAMBDA[2][m];
-                                        L_4 = LAMBDA[3][m];
+                                        VALUE1 = LAMBDA[0][m];
+                                        VALUE2 = LAMBDA[1][m];
+                                        VALUE3 = LAMBDA[2][m];
+                                        VALUE4 = LAMBDA[3][m];
+#ifdef DEBUG
+                                        std::cout << "K" << std::endl;
+#endif
                                 }
 
-                                L_12  = (L_1 - L_2)/2.0;
-                                L_123 = (L_1 + L_2 - 2.0*L_3)/2.0;
+                                VALUE12  = (VALUE1 - VALUE2)/2.0;
+                                VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
 
-                                INFLOW[0][0][m][p] = ALPHA_C*L_123/C - W*L_12/C + L_3;
-                                INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*L_123/C +  N_X[m]*L_12/C;
-                                INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*L_123/C +  N_Y[m]*L_12/C;
-                                INFLOW[0][3][m][p] = GAMMA_1*L_123/(C*C);
+                                INFLOW[0][0][m][p] = ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3;
+                                INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*VALUE123/C +  N_X[m]*VALUE12/C;
+                                INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*VALUE123/C +  N_Y[m]*VALUE12/C;
+                                INFLOW[0][3][m][p] = GAMMA_1*VALUE123/(C*C);
 
-                                INFLOW[1][0][m][p] = (ALPHA_C*U_C - W*N_X[m])*L_123 + (ALPHA_C*N_X[m] - U_C*W)*L_12;
-                                INFLOW[1][1][m][p] = (N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*L_123 - (GAMMA_2*U_C*N_X[m]*L_12) + L_3;
-                                INFLOW[1][2][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*L_123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*L_12;
-                                INFLOW[1][3][m][p] = GAMMA_1*U_C*L_123/C + GAMMA_1*N_X[m]*L_12/C;
+                                INFLOW[1][0][m][p] = (ALPHA_C*U_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - U_C*W)*VALUE12;
+                                INFLOW[1][1][m][p] = (N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*VALUE123 - (GAMMA_2*U_C*N_X[m]*VALUE12) + VALUE3;
+                                INFLOW[1][2][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*VALUE12;
+                                INFLOW[1][3][m][p] = GAMMA_1*U_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C;
 
-                                INFLOW[2][0][m][p] = (ALPHA_C*V_C - W*N_Y[m])*L_123 + (ALPHA_C*N_Y[m] - V_C*W)*L_12;
-                                INFLOW[2][1][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*L_123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*L_12;
-                                INFLOW[2][2][m][p] = (N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*L_123 - (GAMMA_2*V_C*N_Y[m]*L_12) + L_3;
-                                INFLOW[2][3][m][p] = GAMMA_1*V_C*L_123/C + GAMMA_1*N_Y[m]*L_12/C;
+                                INFLOW[2][0][m][p] = (ALPHA_C*V_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - V_C*W)*VALUE12;
+                                INFLOW[2][1][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*VALUE12;
+                                INFLOW[2][2][m][p] = (N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*VALUE123 - (GAMMA_2*V_C*N_Y[m]*VALUE12) + VALUE3;
+                                INFLOW[2][3][m][p] = GAMMA_1*V_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C;
 
-                                INFLOW[3][0][m][p] = (ALPHA_C*H_C - W*W)*L_123 + W*(ALPHA_C - H_C)*L_12;
-                                INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*L_123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*L_12;
-                                INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*L_123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*L_12;
-                                INFLOW[3][3][m][p] = GAMMA_1*H_C*L_123/C + GAMMA_1*W*L_12/C + L_3;
+                                INFLOW[3][0][m][p] = (ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12;
+                                INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*VALUE12;
+                                INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*VALUE12;
+                                INFLOW[3][3][m][p] = GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3;
+
+#ifdef DEBUG
+                                for(i=0; i<4; ++i){
+                                        for (j=0; j<4; ++j){
+                                                std::cout << INFLOW[i][j][m][p] << "\t";
+                                        }
+                                        std::cout << std::endl;
+                                }
+                                std::cout << std::endl;
+#endif
                         }
                 }
 
-#ifdef DEBUG
-                cout << endl;;
-#endif
 
 #ifdef DEBUG
-                cout << "Lambda + =\t" << LAMBDA_PLUS[0][0] << "\t" << LAMBDA_PLUS[0][1] << "\t" << LAMBDA_PLUS[0][2] << endl;
-                cout << "Lambda + =\t" << LAMBDA_PLUS[1][0] << "\t" << LAMBDA_PLUS[1][1] << "\t" << LAMBDA_PLUS[1][2] << endl;
-                cout << "Lambda + =\t" << LAMBDA_PLUS[2][0] << "\t" << LAMBDA_PLUS[2][1] << "\t" << LAMBDA_PLUS[2][2] << endl;
-                cout << "Lambda + =\t" << LAMBDA_PLUS[3][0] << "\t" << LAMBDA_PLUS[3][1] << "\t" << LAMBDA_PLUS[3][2] << endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[0][0] << "\t" << LAMBDA_PLUS[0][1] << "\t" << LAMBDA_PLUS[0][2] << std::endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[1][0] << "\t" << LAMBDA_PLUS[1][1] << "\t" << LAMBDA_PLUS[1][2] << std::endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[2][0] << "\t" << LAMBDA_PLUS[2][1] << "\t" << LAMBDA_PLUS[2][2] << std::endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[3][0] << "\t" << LAMBDA_PLUS[3][1] << "\t" << LAMBDA_PLUS[3][2] << std::endl;
 
-                cout << "Lambda - =\t" << LAMBDA_MINUS[0][0] << "\t" << LAMBDA_MINUS[0][1] << "\t" << LAMBDA_MINUS[0][2] << endl;
-                cout << "Lambda - =\t" << LAMBDA_MINUS[1][0] << "\t" << LAMBDA_MINUS[1][1] << "\t" << LAMBDA_MINUS[1][2] << endl;
-                cout << "Lambda - =\t" << LAMBDA_MINUS[2][0] << "\t" << LAMBDA_MINUS[2][1] << "\t" << LAMBDA_MINUS[2][2] << endl;
-                cout << "Lambda - =\t" << LAMBDA_MINUS[3][0] << "\t" << LAMBDA_MINUS[3][1] << "\t" << LAMBDA_MINUS[3][2] << endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[0][0] << "\t" << LAMBDA_MINUS[0][1] << "\t" << LAMBDA_MINUS[0][2] << std::endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[1][0] << "\t" << LAMBDA_MINUS[1][1] << "\t" << LAMBDA_MINUS[1][2] << std::endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[2][0] << "\t" << LAMBDA_MINUS[2][1] << "\t" << LAMBDA_MINUS[2][2] << std::endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[3][0] << "\t" << LAMBDA_MINUS[3][1] << "\t" << LAMBDA_MINUS[3][2] << std::endl;
 
-                cout << "Lambda   =\t" << LAMBDA[0][0] << "\t" << LAMBDA[0][1] << "\t" << LAMBDA[0][2] << endl;
-                cout << "Lambda   =\t" << LAMBDA[1][0] << "\t" << LAMBDA[1][1] << "\t" << LAMBDA[1][2] << endl;
-                cout << "Lambda   =\t" << LAMBDA[2][0] << "\t" << LAMBDA[2][1] << "\t" << LAMBDA[2][2] << endl;
-                cout << "Lambda   =\t" << LAMBDA[3][0] << "\t" << LAMBDA[3][1] << "\t" << LAMBDA[3][2] << endl;
+                std::cout << "Lambda   =\t" << LAMBDA[0][0] << "\t" << LAMBDA[0][1] << "\t" << LAMBDA[0][2] << std::endl;
+                std::cout << "Lambda   =\t" << LAMBDA[1][0] << "\t" << LAMBDA[1][1] << "\t" << LAMBDA[1][2] << std::endl;
+                std::cout << "Lambda   =\t" << LAMBDA[2][0] << "\t" << LAMBDA[2][1] << "\t" << LAMBDA[2][2] << std::endl;
+                std::cout << "Lambda   =\t" << LAMBDA[3][0] << "\t" << LAMBDA[3][1] << "\t" << LAMBDA[3][2] << std::endl;
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
                 for(i=0;i<4;++i){
                         PHI[i] = 0.0;
+#ifdef DEBUG
+                        std::cout << "Calculating Phi " << i << std::endl;
+#endif
                         for(m=0;m<3;++m){
                                 PHI[i] += INFLOW[i][0][m][2]*Z[0][m] + INFLOW[i][1][m][2]*Z[1][m] + INFLOW[i][2][m][2]*Z[2][m] + INFLOW[i][3][m][2]*Z[3][m];
+#ifdef DEBUG
+                                std::cout << INFLOW[i][0][m][2] << "\t" << Z[0][m] << "\t" << INFLOW[i][1][m][2] << "\t" << Z[1][m] << "\t" <<  INFLOW[i][2][m][2] << "\t" << Z[2][m] << "\t" << INFLOW[i][3][m][2] << "\t" << Z[3][m] << std::endl;;
+#endif
                         }
+#ifdef DEBUG
+                        std::cout << std::endl;
+#endif
                 }
 
 #ifdef DEBUG
-                cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << endl;
+                std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
 #endif
+
+                // std::cout << "Pre-inversion =" << std::endl;
 
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
@@ -332,29 +369,63 @@ public:
                                 for(m=0;m<3;++m){
                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
                                 }
+#ifdef DEBUG
+                                // std::cout << INFLOW_MINUS_SUM[i][j] << "\t";
+#endif
                         }
+#ifdef DEBUG
+                        // std::cout << std::endl;
+#endif
                 }
 
                 matInv(&INFLOW_MINUS_SUM[0][0],4);
 
+                // /std::cout << "Post-inversion =" << std::endl;
+
+#ifdef DEBUG
+                for(i=0;i<4;++i){
+                        for(j=0;j<4;++j){
+                                std::cout << INFLOW_MINUS_SUM[i][j] << "\t";
+                        }
+                        std::cout << std::endl;
+                }
+#endif
+
                 // Calculate spatial splitting for first half timestep
 
 #ifdef LDA_SCHEME
+
+#ifdef DEBUG
+                std::cout << "BETA_1 =" << std::endl;
+#endif
+
                 for(i=0;i<4;++i){
-                        for(m=0;m<3;++m){
-                                BETA[i][0][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][0] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][0] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][0] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][0];
-                                BETA[i][1][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][1] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][1] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][1] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][1];
-                                BETA[i][2][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][2] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][2] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][2] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][2];
-                                BETA[i][3][m] = -1.0*INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][3] + -1.0*INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][3] + -1.0*INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][3] + -1.0*INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][3];
+                        for(j=0;j<4;++j){
+                                for(m=0;m<3;++m){
+                                        BETA[i][j][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][j] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][j] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][j] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][j]);
+                                        // BETA[i][0][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][0] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][0] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][0] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][0]);
+                                        // BETA[i][1][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][1] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][1] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][1] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][1]);
+                                        // BETA[i][2][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][2] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][2] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][2] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][2]);
+                                        // BETA[i][3][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][3] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][3] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][3] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][3]);
+                                }
+                                // std::cout << "Terms "<< i << j << " =\t" << INFLOW[i][0][0][0] << "\t" << INFLOW_MINUS_SUM[0][j] << "\t" << INFLOW[i][1][0][0] << "\t" << INFLOW_MINUS_SUM[1][j] << "\t" << INFLOW[i][2][0][0] << "\t" << INFLOW_MINUS_SUM[2][j] << "\t" << INFLOW[i][3][0][0] << "\t" << INFLOW_MINUS_SUM[3][j] << std::endl;
+                                // std::cout << "Terms (Prod) "<< i << j << " =\t" << INFLOW[i][0][0][0] * INFLOW_MINUS_SUM[0][j] << "\t" << INFLOW[i][1][0][0] * INFLOW_MINUS_SUM[1][j] << "\t" << INFLOW[i][2][0][0] * INFLOW_MINUS_SUM[2][j] << "\t" << INFLOW[i][3][0][0] * INFLOW_MINUS_SUM[3][j] << std::endl;
+
                         }
+#ifdef DEBUG
+                std::cout << BETA[i][0][0] << "\t" << BETA[i][1][0] << "\t" << BETA[i][2][0] << "\t" << BETA[i][3][0] << std::endl;
+#endif
                 }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                FLUC[i][m] = BETA[i][0][m] * (PHI[0]) + BETA[i][1][m] * (PHI[1]) + BETA[i][2][m] * (PHI[2]) + BETA[i][3][m] * (PHI[3]);
+                                FLUC[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3];
+                                // std::cout << "Terms =\t" << BETA[i][0][m] << "\t" << PHI[0] << "\t" << BETA[i][1][m] << "\t" << PHI[1] << "\t" << BETA[i][2][m] << "\t" << PHI[2] << "\t" << BETA[i][3][m] << "\t" << PHI[3] << std::endl;
+                                // std::cout << "Terms =\t" << BETA[i][0][m] * PHI[0] << "\t" << BETA[i][1][m] * PHI[1] << "\t" << BETA[i][2][m] * PHI[2] << "\t" << BETA[i][3][m] * PHI[3] << std::endl;
                         }
                 }
 #endif
+
 
 #ifdef N_SCHEME
                 double BRACKET[4][3];
@@ -381,8 +452,6 @@ public:
 #endif
 
 
-
-
                 // Calculate change to be distributed
 
                 for(i=0;i<4;i++){
@@ -396,14 +465,14 @@ public:
                 VERTEX_2->update_du_half(DU2);
 
 #ifdef DEBUG
-                        for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << endl;}
-                        cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << endl;
-                        cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
-                        cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
-                        cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
-                        cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
-                        cout << "-----------------------------------------------------------------" << endl;
-                        //if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
+                        std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
+                        std::cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
+                        std::cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
+                        std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
+                        std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
+                        std::cout << "-----------------------------------------------------------------" << std::endl;
+                        if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
                 return ;
@@ -416,7 +485,7 @@ public:
                 double DU0[4],DU1[4],DU2[4];
                 double INFLOW[4][4][3][3];
 
-                double DT = 0.5*DT_TOT;
+                double DT = DT_TOT;
 
                 double C_SOUND[3];
 
@@ -425,12 +494,12 @@ public:
 
                 if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
 #ifdef DEBUG
-                        cout << "Skipping x boundary" << endl;
+                        std::cout << "Skipping x boundary" << std::endl;
 #endif
                         return ;
                 }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] - Y[2]) > 10.0){
 #ifdef DEBUG
-                        cout << "Skipping y boundary" << endl;
+                        std::cout << "Skipping y boundary" << std::endl;
 #endif
                         return ;
                 }
@@ -440,14 +509,14 @@ public:
                 for(i=0;i<3;i++){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_HALF[0][i]);}
 
 #ifdef DEBUG
-                cout << "-- SECOND -------------------------------------------------------" << endl;
-                cout << "Time     =\t" << T << endl;
-                cout << "i =\t" << X[0] << "\t" << Y[0] << endl;
-                cout << "j =\t" << X[1] << "\t" << Y[1] << endl;
-                cout << "k =\t" << X[2] << "\t" << Y[2] << endl;
-                cout << "Half State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << endl;
-                for(i=0;i<3;i++){cout << i << " =\t" << U_HALF[0][i] << "\t" << U_HALF[1][i] << "\t" << U_HALF[2][i] << "\t" << U_HALF[3][i] << endl;}
-                cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << endl;
+                std::cout << "-- SECOND -------------------------------------------------------" << std::endl;
+                std::cout << "Time     =\t" << T << std::endl;
+                std::cout << "i =\t" << X[0] << "\t" << Y[0] << std::endl;
+                std::cout << "j =\t" << X[1] << "\t" << Y[1] << std::endl;
+                std::cout << "k =\t" << X[2] << "\t" << Y[2] << std::endl;
+                std::cout << "Half State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << std::endl;
+                for(i=0;i<3;i++){std::cout << i << " =\t" << U_HALF[0][i] << "\t" << U_HALF[1][i] << "\t" << U_HALF[2][i] << "\t" << U_HALF[3][i] << std::endl;}
+                std::cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << std::endl;
 #endif
 
 
@@ -458,31 +527,32 @@ public:
                 double U_AVG[4];
                 double C,U,U_C,V,V_C,H,H_C,GAMMA_1,GAMMA_2,ALPHA,ALPHA_C,W;
                 double Z[4][3];
-                double L_1,L_2,L_3,L_4,L_12,L_123;
+                double VALUE1,VALUE2,VALUE3,VALUE4,VALUE12,VALUE123;
                 double PRESSURE_AVG,C_SOUND_AVG;
                 double LAMBDA[4][3],LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
 
                 // Construct average state fro element
 
-                for(i=0;i<4;++i){U_AVG[i] = (U_HALF[i][0] + U_HALF[i][1] + U_HALF[i][2])/3.0;}
+                for(i=0;i<4;++i){U_AVG[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2])/3.0;
+                //C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2] )/3.0;
+                C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/U_AVG[0]);
 
 #ifdef DEBUG
-                cout << "U_AVG =\t" << U_AVG[0] << "\t" << U_AVG[1] << "\t" << U_AVG[2] << "\t" << U_AVG[3] << endl;
-                cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << endl;
-                cout << "C_SOUND_AVG =\t" << C_SOUND_AVG << endl;
+                std::cout << "U_AVG =\t" << U_AVG[0] << "\t" << U_AVG[1] << "\t" << U_AVG[2] << "\t" << U_AVG[3] << std::endl;
+                std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
+                std::cout << "C_SOUND_AVG  =\t" << C_SOUND_AVG  << std::endl;
 #endif
 
-                // Construct Roe vector Z
+                // Construct Roe std::vector Z
 
                 for(m=0;m<3;++m){
-                        Z[0][m] = sqrt(U_HALF[0][m]);
-                        Z[1][m] = U_HALF[1][m]/Z[0][m];
-                        Z[2][m] = U_HALF[2][m]/Z[0][m];
-                        Z[3][m] = (U_HALF[3][m] + PRESSURE[m])/Z[0][m];
+                        Z[0][m] = sqrt(U_N[0][m]);
+                        Z[1][m] = U_N[1][m]/Z[0][m];
+                        Z[2][m] = U_N[2][m]/Z[0][m];
+                        Z[3][m] = (U_N[3][m] + PRESSURE[m])/Z[0][m];
 
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];
@@ -495,7 +565,7 @@ public:
                 U   = U_AVG[1]/U_AVG[0];        // U now represents x velocity
                 U_C = U/C;
 
-                V   = U_AVG[2]/U_AVG[0];
+                V   = U_AVG[2]/U_AVG[0];        // V represents y velocity
                 V_C = V/C;
 
                 H   = (U_AVG[3] + PRESSURE_AVG)/U_AVG[0];
@@ -508,10 +578,12 @@ public:
                 ALPHA_C = ALPHA/C;
 
 #ifdef DEBUG
-                cout << "U =\t" << U << "\t" << U_C << endl;
-                cout << "V =\t" << V << "\t" << V_C << endl;
-                cout << "ALPHA =\t" << ALPHA << "\t" << ALPHA_C << endl;
-                cout << "W =\t";
+                std::cout << "U =\t" << U << "\tU_C =\t" << U_C << std::endl;
+                std::cout << "V =\t" << V << "\tV_C =\t" << V_C << std::endl;
+                std::cout << "H =\t" << H << "\tH_C =\t" << H_C << std::endl;
+                std::cout << "ALPHA =\t" << ALPHA << "\tALPHA_C =\t" << ALPHA_C << std::endl;
+                std::cout << std::endl;
+                //std::cout << "W =\t";
 #endif
 
                 // Calculate K+,K- and K matrices for each vertex i,j,k
@@ -525,77 +597,98 @@ public:
                         LAMBDA[2][m] = W;
                         LAMBDA[3][m] = W;
 
-#ifdef DEBUG
-                        cout << W << "\t";
-#endif
+// #ifdef DEBUG
+//                         std::cout << W << "\t";
+// #endif
 
                         for(i=0;i<4;++i){
                                 LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
                                 LAMBDA_MINUS[i][m] = min_val(0.0,LAMBDA[i][m]);
-                        }
+                        } 
 
                         for(p=0;p<3;++p){
                                 if(p==0){       // Identify and select positive eigenvalues
-                                        L_1 = LAMBDA_PLUS[0][m];
-                                        L_2 = LAMBDA_PLUS[1][m];
-                                        L_3 = LAMBDA_PLUS[2][m];
-                                        L_4 = LAMBDA_PLUS[3][m];
+                                        VALUE1 = LAMBDA_PLUS[0][m];
+                                        VALUE2 = LAMBDA_PLUS[1][m];
+                                        VALUE3 = LAMBDA_PLUS[2][m];
+                                        VALUE4 = LAMBDA_PLUS[3][m];
+#ifdef DEBUG
+                                        std::cout << "K+" << std::endl;
+#endif
                                 }else if(p==1){ // Identify and select negative eigenvalues
-                                        L_1 = LAMBDA_MINUS[0][m];
-                                        L_2 = LAMBDA_MINUS[1][m];
-                                        L_3 = LAMBDA_MINUS[2][m];
-                                        L_4 = LAMBDA_MINUS[3][m];
+                                        VALUE1 = LAMBDA_MINUS[0][m];
+                                        VALUE2 = LAMBDA_MINUS[1][m];
+                                        VALUE3 = LAMBDA_MINUS[2][m];
+                                        VALUE4 = LAMBDA_MINUS[3][m];
+#ifdef DEBUG
+                                        std::cout << "K-" << std::endl;
+#endif
                                 }else{          // Select all eigenvalues
-                                        L_1 = LAMBDA[0][m];
-                                        L_2 = LAMBDA[1][m];
-                                        L_3 = LAMBDA[2][m];
-                                        L_4 = LAMBDA[3][m];
+                                        VALUE1 = LAMBDA[0][m];
+                                        VALUE2 = LAMBDA[1][m];
+                                        VALUE3 = LAMBDA[2][m];
+                                        VALUE4 = LAMBDA[3][m];
+#ifdef DEBUG
+                                        std::cout << "K" << std::endl;
+#endif
                                 }
 
-                                L_12  = (L_1 - L_2)/2.0;
-                                L_123 = (L_1 + L_2 - 2.0*L_3)/2.0;
+                                VALUE12  = (VALUE1 - VALUE2)/2.0;
+                                VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
 
-                                INFLOW[0][0][m][p] = ALPHA_C*L_123/C - W*L_12/C + L_3;
-                                INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*L_123/C +  N_X[m]*L_12/C;
-                                INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*L_123/C +  N_Y[m]*L_12/C;
-                                INFLOW[0][3][m][p] = GAMMA_1*L_123/(C*C);
+                                // std::cout << "VALUE123\t" <<  VALUE123 << "\tVALUE1\t" << VALUE1 << "\tVALUE2\t" << VALUE2 << "\tVALUE3\t" << VALUE3 << "\tVALUE1 + VALUE2\t" << (VALUE1) + (VALUE2)  << "\t" << -2.0*VALUE3 << std::endl;
 
-                                INFLOW[1][0][m][p] = (ALPHA_C*U_C - W*N_X[m])*L_123 + (ALPHA_C*N_X[m] - U_C*W)*L_12;
-                                INFLOW[1][1][m][p] = (N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*L_123 - (GAMMA_2*U_C*N_X[m]*L_12) + L_3;
-                                INFLOW[1][2][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*L_123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*L_12;
-                                INFLOW[1][3][m][p] = GAMMA_1*U_C*L_123/C + GAMMA_1*N_X[m]*L_12/C;
+                                INFLOW[0][0][m][p] = ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3;
+                                INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*VALUE123/C +  N_X[m]*VALUE12/C;
+                                INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*VALUE123/C +  N_Y[m]*VALUE12/C;
+                                INFLOW[0][3][m][p] = GAMMA_1*VALUE123/(C*C);
 
-                                INFLOW[2][0][m][p] = (ALPHA_C*V_C - W*N_Y[m])*L_123 + (ALPHA_C*N_Y[m] - V_C*W)*L_12;
-                                INFLOW[2][1][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*L_123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*L_12;
-                                INFLOW[2][2][m][p] = (N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*L_123 - (GAMMA_2*V_C*N_Y[m]*L_12) + L_3;
-                                INFLOW[2][3][m][p] = GAMMA_1*V_C*L_123/C + GAMMA_1*N_Y[m]*L_12/C;
+                                INFLOW[1][0][m][p] = (ALPHA_C*U_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - U_C*W)*VALUE12;
+                                INFLOW[1][1][m][p] = (N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*VALUE123 - (GAMMA_2*U_C*N_X[m]*VALUE12) + VALUE3;
+                                INFLOW[1][2][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*VALUE12;
+                                INFLOW[1][3][m][p] = GAMMA_1*U_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C;
 
-                                INFLOW[3][0][m][p] = (ALPHA_C*H_C - W*W)*L_123 + W*(ALPHA_C - H_C)*L_12;
-                                INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*L_123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*L_12;
-                                INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*L_123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*L_12;
-                                INFLOW[3][3][m][p] = GAMMA_1*H_C*L_123/C + GAMMA_1*W*L_12/C + L_3;
+                                INFLOW[2][0][m][p] = (ALPHA_C*V_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - V_C*W)*VALUE12;
+                                INFLOW[2][1][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*VALUE12;
+                                INFLOW[2][2][m][p] = (N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*VALUE123 - (GAMMA_2*V_C*N_Y[m]*VALUE12) + VALUE3;
+                                INFLOW[2][3][m][p] = GAMMA_1*V_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C;
+
+                                INFLOW[3][0][m][p] = (ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12;
+                                INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*VALUE12;
+                                INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*VALUE12;
+                                INFLOW[3][3][m][p] = GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3;
+
+#ifdef DEBUG
+                                for(i=0; i<4; ++i){
+                                        for (j=0; j<4; ++j){
+                                                std::cout << INFLOW[i][j][m][p] << "\t";
+                                        }
+                                        std::cout << std::endl;
+                                }
+                                std::cout << std::endl;
+#endif
                         }
                 }
 
-#ifdef DEBUG
-                cout << endl;;
-#endif
+// #ifdef DEBUG
+//                 std::cout << std::endl;;
+// #endif
 
 #ifdef DEBUG
-                cout << "Lambda + =\t" << LAMBDA_PLUS[0][0] << "\t" << LAMBDA_PLUS[0][1] << "\t" << LAMBDA_PLUS[0][2] << endl;
-                cout << "Lambda + =\t" << LAMBDA_PLUS[1][0] << "\t" << LAMBDA_PLUS[1][1] << "\t" << LAMBDA_PLUS[1][2] << endl;
-                cout << "Lambda + =\t" << LAMBDA_PLUS[2][0] << "\t" << LAMBDA_PLUS[2][1] << "\t" << LAMBDA_PLUS[2][2] << endl;
-                cout << "Lambda + =\t" << LAMBDA_PLUS[3][0] << "\t" << LAMBDA_PLUS[3][1] << "\t" << LAMBDA_PLUS[3][2] << endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[0][0] << "\t" << LAMBDA_PLUS[0][1] << "\t" << LAMBDA_PLUS[0][2] << std::endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[1][0] << "\t" << LAMBDA_PLUS[1][1] << "\t" << LAMBDA_PLUS[1][2] << std::endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[2][0] << "\t" << LAMBDA_PLUS[2][1] << "\t" << LAMBDA_PLUS[2][2] << std::endl;
+                std::cout << "Lambda + =\t" << LAMBDA_PLUS[3][0] << "\t" << LAMBDA_PLUS[3][1] << "\t" << LAMBDA_PLUS[3][2] << std::endl;
 
-                cout << "Lambda - =\t" << LAMBDA_MINUS[0][0] << "\t" << LAMBDA_MINUS[0][1] << "\t" << LAMBDA_MINUS[0][2] << endl;
-                cout << "Lambda - =\t" << LAMBDA_MINUS[1][0] << "\t" << LAMBDA_MINUS[1][1] << "\t" << LAMBDA_MINUS[1][2] << endl;
-                cout << "Lambda - =\t" << LAMBDA_MINUS[2][0] << "\t" << LAMBDA_MINUS[2][1] << "\t" << LAMBDA_MINUS[2][2] << endl;
-                cout << "Lambda - =\t" << LAMBDA_MINUS[3][0] << "\t" << LAMBDA_MINUS[3][1] << "\t" << LAMBDA_MINUS[3][2] << endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[0][0] << "\t" << LAMBDA_MINUS[0][1] << "\t" << LAMBDA_MINUS[0][2] << std::endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[1][0] << "\t" << LAMBDA_MINUS[1][1] << "\t" << LAMBDA_MINUS[1][2] << std::endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[2][0] << "\t" << LAMBDA_MINUS[2][1] << "\t" << LAMBDA_MINUS[2][2] << std::endl;
+                std::cout << "Lambda - =\t" << LAMBDA_MINUS[3][0] << "\t" << LAMBDA_MINUS[3][1] << "\t" << LAMBDA_MINUS[3][2] << std::endl;
 
-                cout << "Lambda   =\t" << LAMBDA[0][0] << "\t" << LAMBDA[0][1] << "\t" << LAMBDA[0][2] << endl;
-                cout << "Lambda   =\t" << LAMBDA[1][0] << "\t" << LAMBDA[1][1] << "\t" << LAMBDA[1][2] << endl;
-                cout << "Lambda   =\t" << LAMBDA[2][0] << "\t" << LAMBDA[2][1] << "\t" << LAMBDA[2][2] << endl;
-                cout << "Lambda   =\t" << LAMBDA[3][0] << "\t" << LAMBDA[3][1] << "\t" << LAMBDA[3][2] << endl;
+                std::cout << "Lambda   =\t" << LAMBDA[0][0] << "\t" << LAMBDA[0][1] << "\t" << LAMBDA[0][2] << std::endl;
+                std::cout << "Lambda   =\t" << LAMBDA[1][0] << "\t" << LAMBDA[1][1] << "\t" << LAMBDA[1][2] << std::endl;
+                std::cout << "Lambda   =\t" << LAMBDA[2][0] << "\t" << LAMBDA[2][1] << "\t" << LAMBDA[2][2] << std::endl;
+                std::cout << "Lambda   =\t" << LAMBDA[3][0] << "\t" << LAMBDA[3][1] << "\t" << LAMBDA[3][2] << std::endl;
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -608,8 +701,6 @@ public:
                                 PHI_HALF[i] += INFLOW[i][0][m][2]*Z[0][m] + INFLOW[i][1][m][2]*Z[1][m] + INFLOW[i][2][m][2]*Z[2][m] + INFLOW[i][3][m][2]*Z[3][m];
                         }
                 }
-
-
 
                 // Calculate spatial splitting for first half timestep
 
@@ -635,7 +726,7 @@ public:
 #ifdef DEBUG
                 for(m=0;m<3;++m){
                         for(i=0;i<4;++i){
-                                cout << "BETA =\t" << m << "\t" <<  BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << endl;
+                                std::cout << "BETA =\t" << m << "\t" <<  BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << std::endl;
                         }
                 }
 #endif
@@ -668,7 +759,7 @@ public:
 
 #ifdef DEBUG
                 for(i=0;i<4;++i){
-                        cout << "MASS_DIFF =\t" << i << "\t" <<  MASS_DIFF[i][0] << "\t" << MASS_DIFF[i][1] << "\t" << MASS_DIFF[i][2] << endl;
+                        std::cout << "MASS_DIFF =\t" << i << "\t" <<  MASS_DIFF[i][0] << "\t" << MASS_DIFF[i][1] << "\t" << MASS_DIFF[i][2] << std::endl;
                 }
 #endif
 
@@ -694,12 +785,12 @@ public:
                 VERTEX_2->update_du(DU2);
 
 #ifdef DEBUG
-                        for(i=0;i<4;i++){cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << endl;}
-                        cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << endl;
-                        cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << endl;
-                        cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << endl;
-                        cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << endl;
-                        cout << "-----------------------------------------------------------------" << endl;
+                        for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << std::endl;}
+                        std::cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
+                        std::cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
+                        std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
+                        std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
+                        std::cout << "-----------------------------------------------------------------" << std::endl;
                         //if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
                         //if(U_HALF[0][0] != U_HALF[0][1] or U_HALF[0][0] != U_HALF[0][2] or U_HALF[0][1] != U_HALF[0][2]){exit(0);}
 #endif
@@ -708,13 +799,13 @@ public:
         }
 
         // Returns Roe average of left and right states
-        double roe_avg(double L1, double L2, double R1, double R2){
+        double roe_avg(double VALUE1, double VALUE2, double R1, double R2){
                 double AVG;
-                AVG = (sqrt(L1)*L2+sqrt(R1)*R2)/(sqrt(L1)+sqrt(R1));
+                AVG = (sqrt(VALUE1)*VALUE2+sqrt(R1)*R2)/(sqrt(VALUE1)+sqrt(R1));
                 return AVG;
         }
 
-        void caclulate_normals(double X[3],double Y[3], double &NORMAL00, double &NORMAL01, double &NORMAL10, double &NORMAL11, double &NORMAL20, double &NORMAL21){
+        void caclulate_normals(double X[3],double Y[3], double &NORMAL00, double &NORMAL01, double &NORMAVALUE10, double &NORMAVALUE11, double &NORMAVALUE20, double &NORMAVALUE21){
                 int i;
                 double PERP[3][2],MAG,NORMAL[3][2];
 
@@ -729,25 +820,25 @@ public:
 
                 for(i=0;i<3;i++){
                         MAG = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
-                        NORMAL[i][0] = PERP[i][0];
-                        NORMAL[i][1] = PERP[i][1];
+                        NORMAL[i][0] = PERP[i][0];///MAG;
+                        NORMAL[i][1] = PERP[i][1];///MAG;
                 }
 
                 AREA = 0.5*(X[0]*Y[1]-Y[0]*X[1]);
 
                 NORMAL00 = NORMAL[0][0];
                 NORMAL01 = NORMAL[0][1];
-                NORMAL10 = NORMAL[1][0];
-                NORMAL11 = NORMAL[1][1];
-                NORMAL20 = NORMAL[2][0];
-                NORMAL21 = NORMAL[2][1];
+                NORMAVALUE10 = NORMAL[1][0];
+                NORMAVALUE11 = NORMAL[1][1];
+                NORMAVALUE20 = NORMAL[2][0];
+                NORMAVALUE21 = NORMAL[2][1];
 
 #ifdef DEBUG
-                        cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << endl;
-                        cout << "Y =\t" << Y[0] << "\t" << Y[1] << "\t" << Y[2] << endl;
-                        cout << "Normal i =\t" << NORMAL00 << "\t" << NORMAL01 << endl;
-                        cout << "Normal j =\t" << NORMAL10 << "\t" << NORMAL11 << endl;
-                        cout << "Normal k =\t" << NORMAL20 << "\t" << NORMAL21 << endl;
+                        std::cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;
+                        std::cout << "Y =\t" << Y[0] << "\t" << Y[1] << "\t" << Y[2] << std::endl;
+                        std::cout << "Normal i =\t" << NORMAL00 << "\t" << NORMAL01 << std::endl;
+                        std::cout << "Normal j =\t" << NORMAVALUE10 << "\t" << NORMAVALUE11 << std::endl;
+                        std::cout << "Normal k =\t" << NORMAVALUE20 << "\t" << NORMAVALUE21 << std::endl;
 #endif
 
                 return ;

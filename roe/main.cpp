@@ -145,7 +145,7 @@ int main(){
 
                 t+=dt;                                                                          // increment time
                 l+=1;                                                                           // increment step number
-                // cout << "STEP =\t" << l << "\tTIME =\t" << t << endl;
+                 cout << "STEP =\t" << l << "\tTIME =\t" << t << endl;
         }
 #ifdef ONE_D
         output_state(density_map, pressure_map, velocity_map, du_file, points, t, dt, dx);      // write out final state

@@ -1,7 +1,7 @@
 #define IC 0
 
-#define ONE_D
-//#define THREE_D
+//#define ONE_D
+#define THREE_D
 
 #define BOUNDARY "PERIODIC"
 // #define BOUNDARY "CLOSED"
@@ -13,7 +13,7 @@
 
 #define N_SNAP 10
 
-int N_POINTS=400;
+int N_POINTS = 200;
 
 // Sod Shcok Tube
 #if IC == 0

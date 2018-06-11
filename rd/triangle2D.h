@@ -107,7 +107,7 @@ public:
                 double INFLOW[4][4][3][3];
                 double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
-                double DT = DT_TOT;
+                double DT = 0.5*DT_TOT;
 
                 double C_SOUND[3];
 
@@ -139,18 +139,19 @@ public:
                         caclulate_normals(X_MOD,Y_MOD,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);
                 }
 
-
-//                 if(abs(X[0] - X[1]) > 2.0*DX or abs(X[0] - X[2]) > 2.0*DX or abs(X[1] - X[2]) > 2.0*DX){
-// #ifdef DEBUG
-//                         std::cout << "Skipping x boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
-// #endif
-//                         return ;
-//                 }else if(abs(Y[0] - Y[1]) > 2.0*DY or abs(Y[0] - Y[2]) > 2.0*DY or abs(Y[1] - Y[2]) > 2.0*DY){
-// #ifdef DEBUG
-//                         std::cout << "Skipping y boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
-// #endif
-//                         return ;
-//                 }
+#ifdef CLOSED
+                if(abs(X[0] - X[1]) > 2.0*DX or abs(X[0] - X[2]) > 2.0*DX or abs(X[1] - X[2]) > 2.0*DX){
+#ifdef DEBUG
+                        std::cout << "Skipping x boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
+#endif
+                        return ;
+                }else if(abs(Y[0] - Y[1]) > 2.0*DY or abs(Y[0] - Y[2]) > 2.0*DY or abs(Y[1] - Y[2]) > 2.0*DY){
+#ifdef DEBUG
+                        std::cout << "Skipping y boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
+#endif
+                        return ;
+                }
+#endif
 
 
                 //if(T==0){caclulate_normals(X,Y,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);}
@@ -403,10 +404,6 @@ public:
                         for(j=0;j<4;++j){
                                 for(m=0;m<3;++m){
                                         BETA[i][j][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][j] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][j] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][j] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][j]);
-                                        // BETA[i][0][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][0] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][0] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][0] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][0]);
-                                        // BETA[i][1][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][1] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][1] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][1] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][1]);
-                                        // BETA[i][2][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][2] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][2] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][2] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][2]);
-                                        // BETA[i][3][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][3] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][3] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][3] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][3]);
                                 }
                                 // std::cout << "Terms "<< i << j << " =\t" << INFLOW[i][0][0][0] << "\t" << INFLOW_MINUS_SUM[0][j] << "\t" << INFLOW[i][1][0][0] << "\t" << INFLOW_MINUS_SUM[1][j] << "\t" << INFLOW[i][2][0][0] << "\t" << INFLOW_MINUS_SUM[2][j] << "\t" << INFLOW[i][3][0][0] << "\t" << INFLOW_MINUS_SUM[3][j] << std::endl;
                                 // std::cout << "Terms (Prod) "<< i << j << " =\t" << INFLOW[i][0][0][0] * INFLOW_MINUS_SUM[0][j] << "\t" << INFLOW[i][1][0][0] * INFLOW_MINUS_SUM[1][j] << "\t" << INFLOW[i][2][0][0] * INFLOW_MINUS_SUM[2][j] << "\t" << INFLOW[i][3][0][0] * INFLOW_MINUS_SUM[3][j] << std::endl;
@@ -472,7 +469,7 @@ public:
                         std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        //if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
                 return ;
@@ -485,24 +482,26 @@ public:
                 double DU0[4],DU1[4],DU2[4];
                 double INFLOW[4][4][3][3];
 
-                double DT = DT_TOT;
+                double DT = 0.5*DT_TOT;
 
                 double C_SOUND[3];
 
 
                 setup_half_state();
 
-                if(abs(X[0] - X[1]) > 10.0 or abs(X[0] - X[2]) > 10.0 or abs(X[1] - X[2]) > 10.0){
+#ifdef CLOSED
+                if(abs(X[0] - X[1]) > 2.0*DX or abs(X[0] - X[2]) > 2.0*DX or abs(X[1] - X[2]) > 2.0*DX){
 #ifdef DEBUG
-                        std::cout << "Skipping x boundary" << std::endl;
+                        std::cout << "Skipping x boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
 #endif
                         return ;
-                }else if(abs(Y[0] - Y[1]) > 10.0 or abs(Y[0] - Y[2]) > 10.0 or abs(Y[1] - Y[2]) > 10.0){
+                }else if(abs(Y[0] - Y[1]) > 2.0*DY or abs(Y[0] - Y[2]) > 2.0*DY or abs(Y[1] - Y[2]) > 2.0*DY){
 #ifdef DEBUG
-                        std::cout << "Skipping y boundary" << std::endl;
+                        std::cout << "Skipping y boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
 #endif
                         return ;
                 }
+#endif
 
                 // Calcualte sound speed for half time state
 
@@ -556,7 +555,12 @@ public:
 
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];
+#ifdef DEBUG
+                        std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
+#endif
                 }
+
+
 
                 // Reassign variables to local equivalents
 
@@ -583,7 +587,6 @@ public:
                 std::cout << "H =\t" << H << "\tH_C =\t" << H_C << std::endl;
                 std::cout << "ALPHA =\t" << ALPHA << "\tALPHA_C =\t" << ALPHA_C << std::endl;
                 std::cout << std::endl;
-                //std::cout << "W =\t";
 #endif
 
                 // Calculate K+,K- and K matrices for each vertex i,j,k
@@ -592,14 +595,14 @@ public:
 
                         W = U*N_X[m] + V*N_Y[m];
 
+#ifdef DEBUG
+                        std::cout << "W =\t" << W << std::endl;
+#endif
+
                         LAMBDA[0][m] = W + C;
                         LAMBDA[1][m] = W - C;
                         LAMBDA[2][m] = W;
                         LAMBDA[3][m] = W;
-
-// #ifdef DEBUG
-//                         std::cout << W << "\t";
-// #endif
 
                         for(i=0;i<4;++i){
                                 LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
@@ -636,8 +639,6 @@ public:
                                 VALUE12  = (VALUE1 - VALUE2)/2.0;
                                 VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
 
-                                // std::cout << "VALUE123\t" <<  VALUE123 << "\tVALUE1\t" << VALUE1 << "\tVALUE2\t" << VALUE2 << "\tVALUE3\t" << VALUE3 << "\tVALUE1 + VALUE2\t" << (VALUE1) + (VALUE2)  << "\t" << -2.0*VALUE3 << std::endl;
-
                                 INFLOW[0][0][m][p] = ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3;
                                 INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*VALUE123/C +  N_X[m]*VALUE12/C;
                                 INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*VALUE123/C +  N_Y[m]*VALUE12/C;
@@ -670,9 +671,6 @@ public:
                         }
                 }
 
-// #ifdef DEBUG
-//                 std::cout << std::endl;;
-// #endif
 
 #ifdef DEBUG
                 std::cout << "Lambda + =\t" << LAMBDA_PLUS[0][0] << "\t" << LAMBDA_PLUS[0][1] << "\t" << LAMBDA_PLUS[0][2] << std::endl;
@@ -731,6 +729,8 @@ public:
                 }
 #endif
 
+                AREA = 0.5*DX*DY;
+
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
                                 for(m=0;m<3;++m){
@@ -744,12 +744,25 @@ public:
                         }
                 }
 
+#ifdef DEBUG
+                for(m=0;m<3;++m){
+                        for(i=0;i<4;++i){
+                                std::cout << "MASS =\t" << i << "\t" <<  MASS[i][0][m] << "\t" << MASS[i][1][m] << "\t" << MASS[i][2][m] << "\t" << MASS[i][3][m] << std::endl;
+                        }
+                }
+#endif
+
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 DIFF[i][m] = U_HALF[i][m] - U_N[i][m];
                         }
-
                 }
+
+#ifdef DEBUG
+                for(i=0;i<4;++i){
+                        std::cout << "DIFF =\t" << i << "\t" <<  DIFF[i][0] << "\t" << DIFF[i][1] << "\t" << DIFF[i][2] << std::endl;
+                }
+#endif
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
@@ -771,13 +784,13 @@ public:
                 }
 
                 for(i=0;i<4;i++){
-                        // DU0[i] = (DT/DUAL[0])*(SUM_MASS[i] + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
-                        // DU1[i] = (DT/DUAL[1])*(SUM_MASS[i] + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
-                        // DU2[i] = (DT/DUAL[2])*(SUM_MASS[i] + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
+                        DU0[i] = (DT/DUAL[0])*(SUM_MASS[i] + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
+                        DU1[i] = (DT/DUAL[1])*(SUM_MASS[i] + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
+                        DU2[i] = (DT/DUAL[2])*(SUM_MASS[i] + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
 
-                        DU0[i] = 0.0;
-                        DU1[i] = 0.0;
-                        DU2[i] = 0.0;
+                        // DU0[i] = 0.0;
+                        // DU1[i] = 0.0;
+                        // DU2[i] = 0.0;
                 }
 
                 VERTEX_0->update_du(DU0);
@@ -791,7 +804,7 @@ public:
                         std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        //if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
                         //if(U_HALF[0][0] != U_HALF[0][1] or U_HALF[0][0] != U_HALF[0][2] or U_HALF[0][1] != U_HALF[0][2]){exit(0);}
 #endif
 
@@ -823,8 +836,6 @@ public:
                         NORMAL[i][0] = PERP[i][0];///MAG;
                         NORMAL[i][1] = PERP[i][1];///MAG;
                 }
-
-                AREA = 0.5*(X[0]*Y[1]-Y[0]*X[1]);
 
                 NORMAL00 = NORMAL[0][0];
                 NORMAL01 = NORMAL[0][1];

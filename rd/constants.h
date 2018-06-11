@@ -4,6 +4,8 @@
 
 #define N_SNAP 10
 
+#define CLOSED
+
 // #define DEBUG
 
 #define FIXED_DT
@@ -13,7 +15,7 @@
 // #define N_SCHEME
 
 int N_POINTS_X = 200;
-int N_POINTS_Y = 20;
+int N_POINTS_Y = 10;
 
 // Sod Shcok Tube
 #if IC == 0
@@ -27,7 +29,7 @@ double SIDE_LENGTH_Y = 3.0;
 // Sine Wave Tube
 #if IC == 1
 double CFL = 0.1;
-double T_TOT = 100.0;
+double T_TOT = 500.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 50.0;
 double SIDE_LENGTH_Y = 10.0;

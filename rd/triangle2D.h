@@ -187,7 +187,6 @@ public:
                 for(i=0;i<4;++i){U_AVG[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                //C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2] )/3.0;
                 C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/U_AVG[0]);
 
 #ifdef DEBUG
@@ -533,10 +532,9 @@ public:
 
                 // Construct average state fro element
 
-                for(i=0;i<4;++i){U_AVG[i] = (U_N[i][0] + U_N[i][1] + U_N[i][2])/3.0;}
+                for(i=0;i<4;++i){U_AVG[i] = (U_HALF[i][0] + U_HALF[i][1] + U_HALF[i][2])/3.0;}
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                //C_SOUND_AVG  = (C_SOUND[0]  + C_SOUND[1]  + C_SOUND[2] )/3.0;
                 C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/U_AVG[0]);
 
 #ifdef DEBUG
@@ -548,10 +546,10 @@ public:
                 // Construct Roe std::vector Z
 
                 for(m=0;m<3;++m){
-                        Z[0][m] = sqrt(U_N[0][m]);
-                        Z[1][m] = U_N[1][m]/Z[0][m];
-                        Z[2][m] = U_N[2][m]/Z[0][m];
-                        Z[3][m] = (U_N[3][m] + PRESSURE[m])/Z[0][m];
+                        Z[0][m] = sqrt(U_HALF[0][m]);
+                        Z[1][m] = U_HALF[1][m]/Z[0][m];
+                        Z[2][m] = U_HALF[2][m]/Z[0][m];
+                        Z[3][m] = (U_HALF[3][m] + PRESSURE[m])/Z[0][m];
 
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];

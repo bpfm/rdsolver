@@ -76,7 +76,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
 
                 double CENTRE = 10.0;
                 double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
-                double X_VELOCITY = 10.0,PRESSURE = 1000.0;
+                double X_VELOCITY = 1.0,PRESSURE = 1000.0;
 
                 S = abs(CENTRE - X);                                       // distance from centre of pulse
                 W = 2.0;                                                 // characteristic width

@@ -361,21 +361,13 @@ public:
                 std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
 #endif
 
-                // std::cout << "Pre-inversion =" << std::endl;
-
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
                                 INFLOW_MINUS_SUM[i][j] = 0.0;
                                 for(m=0;m<3;++m){
                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
                                 }
-#ifdef DEBUG
-                                // std::cout << INFLOW_MINUS_SUM[i][j] << "\t";
-#endif
                         }
-#ifdef DEBUG
-                        // std::cout << std::endl;
-#endif
                 }
 
                 matInv(&INFLOW_MINUS_SUM[0][0],4);
@@ -404,20 +396,15 @@ public:
                                 for(m=0;m<3;++m){
                                         BETA[i][j][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][j] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][j] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][j] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][j]);
                                 }
-                                // std::cout << "Terms "<< i << j << " =\t" << INFLOW[i][0][0][0] << "\t" << INFLOW_MINUS_SUM[0][j] << "\t" << INFLOW[i][1][0][0] << "\t" << INFLOW_MINUS_SUM[1][j] << "\t" << INFLOW[i][2][0][0] << "\t" << INFLOW_MINUS_SUM[2][j] << "\t" << INFLOW[i][3][0][0] << "\t" << INFLOW_MINUS_SUM[3][j] << std::endl;
-                                // std::cout << "Terms (Prod) "<< i << j << " =\t" << INFLOW[i][0][0][0] * INFLOW_MINUS_SUM[0][j] << "\t" << INFLOW[i][1][0][0] * INFLOW_MINUS_SUM[1][j] << "\t" << INFLOW[i][2][0][0] * INFLOW_MINUS_SUM[2][j] << "\t" << INFLOW[i][3][0][0] * INFLOW_MINUS_SUM[3][j] << std::endl;
-
                         }
 #ifdef DEBUG
-                std::cout << BETA[i][0][0] << "\t" << BETA[i][1][0] << "\t" << BETA[i][2][0] << "\t" << BETA[i][3][0] << std::endl;
+                        std::cout << BETA[i][0][0] << "\t" << BETA[i][1][0] << "\t" << BETA[i][2][0] << "\t" << BETA[i][3][0] << std::endl;
 #endif
                 }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 FLUC[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3];
-                                // std::cout << "Terms =\t" << BETA[i][0][m] << "\t" << PHI[0] << "\t" << BETA[i][1][m] << "\t" << PHI[1] << "\t" << BETA[i][2][m] << "\t" << PHI[2] << "\t" << BETA[i][3][m] << "\t" << PHI[3] << std::endl;
-                                // std::cout << "Terms =\t" << BETA[i][0][m] * PHI[0] << "\t" << BETA[i][1][m] * PHI[1] << "\t" << BETA[i][2][m] * PHI[2] << "\t" << BETA[i][3][m] * PHI[3] << std::endl;
                         }
                 }
 #endif
@@ -480,6 +467,7 @@ public:
                 int i,j,k,m,p;
                 double DU0[4],DU1[4],DU2[4];
                 double INFLOW[4][4][3][3];
+                double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
                 double DT = 0.5*DT_TOT;
 
@@ -691,6 +679,7 @@ public:
 
                 double PHI_HALF[4];
 
+#ifdef LDA_SCHEME
                 for(i=0;i<4;++i){
                         PHI_HALF[i] = 0.0;
                         for(m=0;m<3;++m){
@@ -706,19 +695,6 @@ public:
                         }
                 }
 
-                // for(i=0;i<4;++i){
-                //         for(m=0;m<3;++m){
-                //                 [i][0][m] = [i][0][m] * [0][0] + [i][1][m][0] * [1][0] + [i][2][m][0] * [2][0] + [i][3][m][0] * [3][0];
-                //                 [i][1][m] = [i][0][m] * [0][1] + [i][1][m][0] * [1][1] + [i][2][m][0] * [2][1] + [i][3][m][0] * [3][1];
-                //                 [i][2][m] = [i][0][m] * [0][2] + [i][1][m][0] * [1][2] + [i][2][m][0] * [2][2] + [i][3][m][0] * [3][2];
-                //                 [i][3][m] = [i][0][m] * [0][3] + [i][1][m][0] * [1][3] + [i][2][m][0] * [2][3] + [i][3][m][0] * [3][3];
-                //         }
-                // }
-
-                double MASS[4][4][3],MASS_GAL[4][4][3];
-                double DIFF[4][3], MASS_DIFF[4][3];
-                double SUM_MASS[4];
-
 #ifdef DEBUG
                 for(m=0;m<3;++m){
                         for(i=0;i<4;++i){
@@ -726,6 +702,10 @@ public:
                         }
                 }
 #endif
+
+                double MASS[4][4][3],MASS_GAL[4][4][3];
+                double DIFF[4][3], MASS_DIFF[4][3];
+                double SUM_MASS[4];
 
                 AREA = 0.5*DX*DY;
 
@@ -785,11 +765,58 @@ public:
                         DU0[i] = (DT/DUAL[0])*(SUM_MASS[i] + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
                         DU1[i] = (DT/DUAL[1])*(SUM_MASS[i] + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
                         DU2[i] = (DT/DUAL[2])*(SUM_MASS[i] + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
-
-                        // DU0[i] = 0.0;
-                        // DU1[i] = 0.0;
-                        // DU2[i] = 0.0;
                 }
+#endif
+
+#ifdef N_SCHEME
+
+                for(i=0;i<4;++i){
+                        for(j=0;j<4;++j){
+                                INFLOW_MINUS_SUM[i][j] = 0.0;
+                                for(m=0;m<3;++m){
+                                        INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
+                                }
+                        }
+                }
+
+                matInv(&INFLOW_MINUS_SUM[0][0],4);
+
+                double BRACKET[4][3];
+                double KZ_SUM[4];
+                double DIFF[4][3];
+
+
+                for(i=0;i<4;++i){
+                        KZ_SUM[i] = 0.0;
+                        for(m=0;m<3;++m){
+                                KZ_SUM[i] += INFLOW[i][0][m][1] * Z[0][m] + INFLOW[i][1][m][1] * Z[1][m] + INFLOW[i][2][m][1] * Z[2][m] + INFLOW[i][3][m][1] * Z[3][m];
+                        }
+                }
+
+                for(i=0;i<4;++i){
+                        for(m=0;m<3;++m){
+                                BRACKET[i][m] = Z[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
+                        }
+                }
+
+                for(i=0;i<4;++i){
+                        for(m=0;m<3;++m){
+                                FLUC_HALF[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
+                        }
+                }
+
+                for(i=0;i<4;++i){
+                        for(m=0;m<3;++m){
+                                DIFF[i][m] = U_HALF[i][m] - U_N[i][m];
+                        }
+                }
+
+                for(i=0;i<4;i++){
+                        DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
+                        DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
+                        DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
+                }
+#endif
 
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);

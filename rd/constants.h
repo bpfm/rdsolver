@@ -1,4 +1,4 @@
-#define IC 0
+#define IC 1
 
 #define TWO_D
 
@@ -8,11 +8,11 @@
 
 // #define DEBUG
 
-#define FIXED_DT
+// #define FIXED_DT
 
-#define LDA_SCHEME
+// #define LDA_SCHEME
 
-// #define N_SCHEME
+#define N_SCHEME
 
 int N_POINTS_X = 200;
 int N_POINTS_Y = 10;
@@ -47,7 +47,7 @@ double SIDE_LENGTH_Y = 10.0;
 // Gaussian pulse advection
 #if IC == 3
 double CFL = 0.1;
-double T_TOT = 1.0;
+double T_TOT = 10.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 50.0;
 double SIDE_LENGTH_Y = 1.0;

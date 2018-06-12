@@ -195,7 +195,7 @@ public:
         void calc_next_dt(double DX, double CFL, double &NEXT_DT){
                 double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
                 double V_MAX = max_val(abs(X_VELOCITY)+C_SOUND,abs(Y_VELOCITY)+C_SOUND);
-                NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*C_SOUND);
+                NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*V_MAX);
                 //std::cout << NEXT_DT << std::endl;
         }
 

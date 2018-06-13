@@ -1,4 +1,4 @@
-#define IC 1
+#define IC 0
 
 #define TWO_D
 
@@ -8,11 +8,11 @@
 
 // #define DEBUG
 
-// #define FIXED_DT
+#define FIXED_DT
 
-// #define LDA_SCHEME
+#define LDA_SCHEME
 
-#define N_SCHEME
+// #define N_SCHEME
 
 int N_POINTS_X = 200;
 int N_POINTS_Y = 10;

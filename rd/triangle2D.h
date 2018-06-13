@@ -136,7 +136,7 @@ public:
                                         }
                                 }
                         }
-                        caclulate_normals(X_MOD,Y_MOD,NORMAL[0][0],NORMAL[0][1],NORMAL[1][0],NORMAL[1][1],NORMAL[2][0],NORMAL[2][1]);
+                        calculate_normals(X_MOD,Y_MOD);
                 }
 
 #ifdef CLOSED
@@ -365,6 +365,7 @@ public:
                         for(j=0;j<4;++j){
                                 INFLOW_MINUS_SUM[i][j] = 0.0;
                                 for(m=0;m<3;++m){
+                                        INFLOW_PLUS_SUM[i][j]  += INFLOW[i][j][m][0];
                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
                                 }
                         }
@@ -455,7 +456,7 @@ public:
                         std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        //if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        // if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
                 return ;
@@ -713,10 +714,6 @@ public:
                         for(j=0;j<4;++j){
                                 for(m=0;m<3;++m){
                                         MASS[i][j][m]= AREA * BETA[i][j][m]/3.0;
-                                        if(i==j){
-                                                MASS_GAL[i][j][m] = AREA/6.0;
-                                        }else{
-                                                MASS_GAL[i][j][m] = AREA/12.0;
                                         }
                                 }
                         }
@@ -774,6 +771,7 @@ public:
                         for(j=0;j<4;++j){
                                 INFLOW_MINUS_SUM[i][j] = 0.0;
                                 for(m=0;m<3;++m){
+                                        INFLOW_PLUS_SUM[i][j] += INFLOW[i][j][m][0];
                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
                                 }
                         }
@@ -784,7 +782,6 @@ public:
                 double BRACKET[4][3];
                 double KZ_SUM[4];
                 double DIFF[4][3];
-
 
                 for(i=0;i<4;++i){
                         KZ_SUM[i] = 0.0;
@@ -807,7 +804,7 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                DIFF[i][m] = U_HALF[i][m] - U_N[i][m];
+                                DIFF[i][m] = AREA/(U_HALF[i][m] - U_N[i][m])/3.0;
                         }
                 }
 
@@ -815,6 +812,10 @@ public:
                         DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
                         DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
                         DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
+
+                        // DU0[i] = 0.0;
+                        // DU1[i] = 0.0;
+                        // DU2[i] = 0.0;
                 }
 #endif
 
@@ -843,9 +844,9 @@ public:
                 return AVG;
         }
 
-        void caclulate_normals(double X[3],double Y[3], double &NORMAL00, double &NORMAL01, double &NORMAVALUE10, double &NORMAVALUE11, double &NORMAVALUE20, double &NORMAVALUE21){
+        void calculate_normals(double X[3],double Y[3]){
                 int i;
-                double PERP[3][2],MAG,NORMAL[3][2];
+                double PERP[3][2],MAG;
 
                 PERP[0][0] = (Y[1] - Y[2]);
                 PERP[0][1] = (X[2] - X[1]);
@@ -861,13 +862,6 @@ public:
                         NORMAL[i][0] = PERP[i][0];///MAG;
                         NORMAL[i][1] = PERP[i][1];///MAG;
                 }
-
-                NORMAL00 = NORMAL[0][0];
-                NORMAL01 = NORMAL[0][1];
-                NORMAVALUE10 = NORMAL[1][0];
-                NORMAVALUE11 = NORMAL[1][1];
-                NORMAVALUE20 = NORMAL[2][0];
-                NORMAVALUE21 = NORMAL[2][1];
 
 #ifdef DEBUG
                         std::cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;

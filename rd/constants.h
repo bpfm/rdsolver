@@ -8,14 +8,14 @@
 
 // #define DEBUG
 
-#define FIXED_DT
+// #define FIXED_DT
 
 #define LDA_SCHEME
 
 // #define N_SCHEME
 
-int N_POINTS_X = 200;
-int N_POINTS_Y = 10;
+int N_POINTS_X = 400;
+int N_POINTS_Y = 50;
 
 // Sod Shcok Tube
 #if IC == 0

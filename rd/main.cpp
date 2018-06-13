@@ -21,7 +21,7 @@
 
 int main(){
 
-        int i, j, k, l = 0;                                          // ******* decalare varaibles and std::vectors ******
+        int i, j, l = 0;                                          // ******* decalare varaibles and std::vectors ******
         double DX, DY, DT, T = 0.0;                                // DX = space step,DT = timestep,t = time,CFL = CFL condition
         double NEXT_TIME  = 0.0;                                   // T_TOT = total time,NEXT_TIME = time of next snapshot
         VERTEX                     NEW_VERTEX;
@@ -32,7 +32,7 @@ int main(){
         std::vector<std::vector<TRIANGLE> >  MESH;
         std::vector<VERTEX>::iterator   IT_VERT;
         std::vector<TRIANGLE>::iterator IT_TRIANGLE;
-        double TOTAL_DENSITY, NEXT_DT = T_TOT, POSSIBLE_DT;               // TOTAL_DENSITY = total density in box
+        double NEXT_DT = T_TOT, POSSIBLE_DT;               // TOTAL_DENSITY = total density in box
 
         NEXT_DT = T_TOT;
 

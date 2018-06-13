@@ -100,7 +100,7 @@ public:
 
         // Calculate first half timestep change, passing change to vertice
         void calculate_first_half(double T, double DT_TOT, double DX, double DY){
-                int i,j,k,m,p;
+                int i,j,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
 
@@ -465,10 +465,9 @@ public:
         //**********************************************************************************************************************
 
         void calculate_second_half(double T, double DT_TOT, double DX, double DY){
-                int i,j,k,m,p;
+                int i,j,m,p;
                 double DU0[4],DU1[4],DU2[4];
                 double INFLOW[4][4][3][3];
-                double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
                 double DT = 0.5*DT_TOT;
 
@@ -704,18 +703,16 @@ public:
                 }
 #endif
 
-                double MASS[4][4][3],MASS_GAL[4][4][3];
-                double DIFF[4][3], MASS_DIFF[4][3];
+                double MASS[4][4][3];
+                double DIFF[4][3];
+                double MASS_DIFF[4][3];
                 double SUM_MASS[4];
 
                 AREA = 0.5*DX*DY;
 
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
-                                for(m=0;m<3;++m){
-                                        MASS[i][j][m]= AREA * BETA[i][j][m]/3.0;
-                                        }
-                                }
+                                for(m=0;m<3;++m){MASS[i][j][m]= AREA * BETA[i][j][m]/3.0;}
                         }
                 }
 
@@ -766,6 +763,8 @@ public:
 #endif
 
 #ifdef N_SCHEME
+
+                double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){

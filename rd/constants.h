@@ -8,16 +8,16 @@
 
 // #define DEBUG
 
-// #define FIXED_DT
+#define FIXED_DT
 
 #define LDA_SCHEME
 
 // #define N_SCHEME
 
-int N_POINTS_X = 400;
-int N_POINTS_Y = 50;
+int N_POINTS_X = 200;
+int N_POINTS_Y = 10;
 
-// Sod Shcok Tube
+// Sod Shock Tube
 #if IC == 0
 double CFL = 0.1;
 double T_TOT = 0.1;
@@ -53,7 +53,7 @@ double SIDE_LENGTH_X = 50.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
-// Sod Shcok Tube (Varied in Y)
+// Sod Shock Tube (Varied in Y)
 #if IC == 4
 double CFL = 0.1;
 double T_TOT = 0.1;

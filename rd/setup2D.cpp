@@ -24,7 +24,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         if(IC == 0){
                 if(i==0 and j==0){std::cout << "Using 2D Sod Shock Tube" << std::endl;}
 
-                if(i<0.5*N_POINTS_X){
+                if(i>0.3*N_POINTS_X and i<0.7*N_POINTS_X){
                         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
                         NEW_VERTEX.set_x_velocity(0.00000000001);                       // units m/s
                         NEW_VERTEX.set_y_velocity(0.00000000001);                       // units m/s

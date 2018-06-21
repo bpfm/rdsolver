@@ -24,19 +24,25 @@ int main(){
         int i, j, l = 0;                                          // ******* decalare varaibles and std::vectors ******
         double DX, DY, DT, T = 0.0;                                // DX = space step,DT = timestep,t = time,CFL = CFL condition
         double NEXT_TIME  = 0.0;                                   // T_TOT = total time,NEXT_TIME = time of next snapshot
-        VERTEX                     NEW_VERTEX;
-        TRIANGLE                   NEW_TRIANGLE;
-        std::vector<VERTEX>             X_POINTS;
+        VERTEX                               NEW_VERTEX;
+        TRIANGLE                             NEW_TRIANGLE;
+        std::vector<VERTEX>                  X_POINTS;
         std::vector<std::vector<VERTEX> >    POINTS;
-        std::vector<TRIANGLE>           X_MESH;
+        std::vector<TRIANGLE>                X_MESH;
         std::vector<std::vector<TRIANGLE> >  MESH;
-        std::vector<VERTEX>::iterator   IT_VERT;
-        std::vector<TRIANGLE>::iterator IT_TRIANGLE;
+        std::vector<VERTEX>::iterator        IT_VERT;
+        std::vector<TRIANGLE>::iterator      IT_TRIANGLE;
         double NEXT_DT = T_TOT, POSSIBLE_DT;               // TOTAL_DENSITY = total density in box
 
-        NEXT_DT = T_TOT;
-
         /****** Setup initial conditions of one dimensional tube ******/
+
+#ifdef LDA_SCHEME
+        std::cout << "Using LDA Scheme" << std::endl;
+#endif
+
+#ifdef N_SCHEME
+        std::cout << "Using N Scheme" << std::endl;
+#endif
 
         std::cout << "Building grid of vertices" << std::endl;
 
@@ -53,7 +59,7 @@ int main(){
         }
 #endif
 
-        /****** Setup system of MESH ******/
+        /****** Setup MESH ******/
 
          std::cout << "Assigning vertices to triangles" << std::endl;
 

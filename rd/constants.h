@@ -6,7 +6,7 @@
 
 #define CLOSED
 
-// #define DEBUG
+#define DEBUG
 
 #define FIXED_DT
 
@@ -14,7 +14,8 @@
 
 // #define N_SCHEME
 
-int N_POINTS_X = 200;
+
+int N_POINTS_X = 20;
 int N_POINTS_Y = 10;
 
 // Sod Shock Tube

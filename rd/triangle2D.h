@@ -450,7 +450,7 @@ public:
                         std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        // if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
                 return ;
@@ -504,26 +504,13 @@ public:
 
                 // Calculate inflow parameters
 
-                double U_AVG[4];
-                double C,U,U_C,V,V_C,H,H_C,GAMMA_1,GAMMA_2,ALPHA,ALPHA_C,W;
+                double H[3];
+                double RHO,C,U,U_C,V,V_C,H_AVG,H_C,GAMMA_1,GAMMA_2,ALPHA,ALPHA_C,W;
                 double Z[4][3];
                 double VALUE1,VALUE2,VALUE3,VALUE4,VALUE12,VALUE123;
                 double PRESSURE_AVG,C_SOUND_AVG;
                 double LAMBDA[4][3],LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
-
-                // Construct average state fro element
-
-                for(i=0;i<4;++i){U_AVG[i] = (U_HALF[i][0] + U_HALF[i][1] + U_HALF[i][2])/3.0;}
-
-                PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/U_AVG[0]);
-
-#ifdef DEBUG
-                std::cout << "U_AVG =\t" << U_AVG[0] << "\t" << U_AVG[1] << "\t" << U_AVG[2] << "\t" << U_AVG[3] << std::endl;
-                std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
-                std::cout << "C_SOUND_AVG  =\t" << C_SOUND_AVG  << std::endl;
-#endif
 
                 // Construct Roe std::vector Z
 
@@ -535,25 +522,39 @@ public:
 
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];
+
+                        H[m] = (U_HALF[3][m] + PRESSURE[m])/U_N[0][m];
 #ifdef DEBUG
                         std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
 #endif
                 }
 
+                // Construct average state for element
 
+                RHO   = pow((sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]))/3.0, 2);
+                U     = (sqrt(U_HALF[0][0])*U_HALF[1][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[1][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[1][2]/U_HALF[0][2])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));        // U now represents x velocity
+                V     = (sqrt(U_HALF[0][0])*U_HALF[2][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[2][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[2][2]/U_HALF[0][2])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));        // V represents y velocity
+                H_AVG = (sqrt(U_HALF[0][0])*H[0] + sqrt(U_HALF[0][1])*H[1] + sqrt(U_HALF[0][2])*H[2])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));
+               
+                // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
+
+                PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
+                C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+
+#ifdef DEBUG
+                std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
+                std::cout << "C_SOUND_AVG  =\t" << C_SOUND_AVG  << std::endl;
+#endif
 
                 // Reassign variables to local equivalents
 
                 C   = C_SOUND_AVG;
 
-                U   = U_AVG[1]/U_AVG[0];        // U now represents x velocity
                 U_C = U/C;
 
-                V   = U_AVG[2]/U_AVG[0];        // V represents y velocity
                 V_C = V/C;
 
-                H   = (U_AVG[3] + PRESSURE_AVG)/U_AVG[0];
-                H_C = H/C;
+                H_C = H_AVG/C;
 
                 GAMMA_1 = GAMMA - 1.0;
                 GAMMA_2 = GAMMA - 2.0;
@@ -564,7 +565,7 @@ public:
 #ifdef DEBUG
                 std::cout << "U =\t" << U << "\tU_C =\t" << U_C << std::endl;
                 std::cout << "V =\t" << V << "\tV_C =\t" << V_C << std::endl;
-                std::cout << "H =\t" << H << "\tH_C =\t" << H_C << std::endl;
+                std::cout << "H =\t" << H_AVG << "\tH_C =\t" << H_C << std::endl;
                 std::cout << "ALPHA =\t" << ALPHA << "\tALPHA_C =\t" << ALPHA_C << std::endl;
                 std::cout << std::endl;
 #endif
@@ -670,7 +671,6 @@ public:
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
                 double PHI_HALF[4];
 
 #ifdef LDA_SCHEME

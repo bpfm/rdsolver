@@ -162,7 +162,6 @@ public:
                 std::cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << std::endl;
                 std::cout << "Sound Speed =\t" << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << std::endl;
 #endif
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
                 // Calculate inflow parameters
@@ -174,6 +173,8 @@ public:
                 double PRESSURE_AVG,C_SOUND_AVG;
                 double LAMBDA[4][3],LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
+
+                double Z_BAR[4],W_HAT[4][3];
 
                 // Construct Roe std::vector Z
 
@@ -189,6 +190,30 @@ public:
                         H[m] = (U_N[3][m] + PRESSURE[m])/U_N[0][m];
 #ifdef DEBUG
                         std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
+#endif
+                }
+
+                for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
+
+#ifdef DEBUG
+                for(i=0; i<4; ++i){std::cout << "Z_BAR " << i << " =\t" << Z_BAR[i] << std::endl;}
+                std::cout << std::endl;
+#endif
+
+
+                for(m=0; m<3; ++m){
+                        W_HAT[0][m] =  2.0*Z_BAR[0]*Z[0][m];
+                        W_HAT[1][m] =  Z_BAR[1]*Z[0][m] + Z_BAR[0]*Z[1][m];
+                        W_HAT[2][m] =  Z_BAR[2]*Z[0][m] + Z_BAR[0]*Z[2][m];
+                        W_HAT[3][m] = (Z_BAR[3]*Z[0][m] + GAMMA_1*Z_BAR[1]*Z[1][m] + GAMMA_1*Z_BAR[2]*Z[2][m] + Z_BAR[0]*Z[3][m])/GAMMA;
+
+                        //std::cout << Z_BAR[1] << "\t" << Z[0][m] << "\t" << Z_BAR[0] << "\t" << Z[2][m] << std::endl;
+
+#ifdef DEBUG
+                        for(i=0;i<4;++i){
+                                std::cout << "W_HAT " << i << "\t" << m << " =\t" << W_HAT[i][m] << std::endl;
+                        }
+                        std::cout << std::endl;
 #endif
                 }
 
@@ -312,6 +337,7 @@ public:
                                 }
                                 std::cout << std::endl;
 #endif
+
                         }
                 }
 
@@ -341,14 +367,8 @@ public:
                         std::cout << "Calculating Phi " << i << std::endl;
 #endif
                         for(m=0;m<3;++m){
-                                PHI[i] += INFLOW[i][0][m][2]*Z[0][m] + INFLOW[i][1][m][2]*Z[1][m] + INFLOW[i][2][m][2]*Z[2][m] + INFLOW[i][3][m][2]*Z[3][m];
-#ifdef DEBUG
-                                std::cout << INFLOW[i][0][m][2] << "\t" << Z[0][m] << "\t" << INFLOW[i][1][m][2] << "\t" << Z[1][m] << "\t" <<  INFLOW[i][2][m][2] << "\t" << Z[2][m] << "\t" << INFLOW[i][3][m][2] << "\t" << Z[3][m] << std::endl;;
-#endif
+                                PHI[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m];
                         }
-#ifdef DEBUG
-                        std::cout << std::endl;
-#endif
                 }
 
 #ifdef DEBUG
@@ -412,13 +432,13 @@ public:
                 for(i=0;i<4;++i){
                         KZ_SUM[i] = 0.0;
                         for(m=0;m<3;++m){
-                                KZ_SUM[i] += INFLOW[i][0][m][1] * Z[0][m] + INFLOW[i][1][m][1] * Z[1][m] + INFLOW[i][2][m][1] * Z[2][m] + INFLOW[i][3][m][1] * Z[3][m];
+                                KZ_SUM[i] += INFLOW[i][0][m][1] * W_HAT[0][m] + INFLOW[i][1][m][1] * W_HAT[1][m] + INFLOW[i][2][m][1] * W_HAT[2][m] + INFLOW[i][3][m][1] * W_HAT[3][m];
                         }
                 }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                BRACKET[i][m] = Z[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
+                                BRACKET[i][m] = W_HAT[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
                         }
                 }
 
@@ -450,7 +470,7 @@ public:
                         std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        // if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
                 return ;
@@ -467,8 +487,10 @@ public:
 
                 double C_SOUND[3];
 
-
                 setup_half_state();
+
+                AREA = 0.5*DX*DY;
+
 
 #ifdef CLOSED
                 if(abs(X[0] - X[1]) > 2.0*DX or abs(X[0] - X[2]) > 2.0*DX or abs(X[1] - X[2]) > 2.0*DX){
@@ -512,6 +534,8 @@ public:
                 double LAMBDA[4][3],LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
 
+                double Z_BAR[4],W_HAT[4][3];
+
                 // Construct Roe std::vector Z
 
                 for(m=0;m<3;++m){
@@ -523,11 +547,28 @@ public:
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];
 
-                        H[m] = (U_HALF[3][m] + PRESSURE[m])/U_N[0][m];
+                        H[m] = (U_HALF[3][m] + PRESSURE[m])/U_HALF[0][m];
 #ifdef DEBUG
                         std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
 #endif
                 }
+
+                for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
+
+                for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
+
+                for(m=0; m<3; ++m){
+                        W_HAT[0][m] =  2.0*Z_BAR[0]*Z[0][m];
+                        W_HAT[1][m] =  Z_BAR[1]*Z[0][m] + Z_BAR[0]*Z[1][m];
+                        W_HAT[2][m] =  Z_BAR[2]*Z[0][m] + Z_BAR[0]*Z[2][m];
+                        W_HAT[3][m] = (Z_BAR[3]*Z[0][m] + GAMMA_1*Z_BAR[1]*Z[1][m] + GAMMA_1*Z_BAR[2]*Z[2][m] + Z_BAR[0]*Z[3][m])/GAMMA;
+                }
+
+#ifdef DEBUG
+                for(i=0;i<4;++i){
+                        std::cout << "W_HAT =\t" << W_HAT[i][m] << std::endl;
+                }
+#endif
 
                 // Construct average state for element
 
@@ -677,7 +718,7 @@ public:
                 for(i=0;i<4;++i){
                         PHI_HALF[i] = 0.0;
                         for(m=0;m<3;++m){
-                                PHI_HALF[i] += INFLOW[i][0][m][2]*Z[0][m] + INFLOW[i][1][m][2]*Z[1][m] + INFLOW[i][2][m][2]*Z[2][m] + INFLOW[i][3][m][2]*Z[3][m];
+                                PHI_HALF[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m];
                         }
                 }
 
@@ -701,8 +742,6 @@ public:
                 double DIFF[4][3];
                 double MASS_DIFF[4][3];
                 double SUM_MASS[4];
-
-                AREA = 0.5*DX*DY;
 
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
@@ -779,13 +818,13 @@ public:
                 for(i=0;i<4;++i){
                         KZ_SUM[i] = 0.0;
                         for(m=0;m<3;++m){
-                                KZ_SUM[i] += INFLOW[i][0][m][1] * Z[0][m] + INFLOW[i][1][m][1] * Z[1][m] + INFLOW[i][2][m][1] * Z[2][m] + INFLOW[i][3][m][1] * Z[3][m];
+                                KZ_SUM[i] += INFLOW[i][0][m][1] * W_HAT[0][m] + INFLOW[i][1][m][1] * W_HAT[1][m] + INFLOW[i][2][m][1] * W_HAT[2][m] + INFLOW[i][3][m][1] * W_HAT[3][m];
                         }
                 }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                BRACKET[i][m] = Z[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
+                                BRACKET[i][m] = W_HAT[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
                         }
                 }
 
@@ -824,7 +863,6 @@ public:
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
                         if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
-                        //if(U_HALF[0][0] != U_HALF[0][1] or U_HALF[0][0] != U_HALF[0][2] or U_HALF[0][1] != U_HALF[0][2]){exit(0);}
 #endif
 
                  return ;

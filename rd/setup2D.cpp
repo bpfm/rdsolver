@@ -26,14 +26,14 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
 
                 if(i<0.5*N_POINTS_X){
                         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.00000000001);                       // units m/s
-                        NEW_VERTEX.set_y_velocity(0.00000000001);                       // units m/s
-                        NEW_VERTEX.set_pressure(500.0);                                 // units N/m^2
+                        NEW_VERTEX.set_x_velocity(0.000000001);                       // units m/s
+                        NEW_VERTEX.set_y_velocity(0.000000001);                       // units m/s
+                        NEW_VERTEX.set_pressure(1.0);                                 // units N/m^2
                 }else{
                         NEW_VERTEX.set_mass_density(0.125);                             // units kg/m^3
-                        NEW_VERTEX.set_x_velocity(0.00000000001);                       // units m/s
-                        NEW_VERTEX.set_y_velocity(0.00000000001);                       // units m/s
-                        NEW_VERTEX.set_pressure(100.0);                                 // units N/m^2
+                        NEW_VERTEX.set_x_velocity(0.000000001);                       // units m/s
+                        NEW_VERTEX.set_y_velocity(0.000000001);                       // units m/s
+                        NEW_VERTEX.set_pressure(0.1);                                 // units N/m^2
                 }
         }else if(IC == 1){
                 if(i==0 and j==0){std::cout << "Using 2D Sine Wave" << std::endl;}
@@ -74,12 +74,12 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         }else if(IC == 3){
                 if(i==0 and j==0){std::cout << "Using 2D Gaussian pulse" << std::endl;}
 
-                double CENTRE = 10.0;
+                double CENTRE = 1.0;
                 double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
-                double X_VELOCITY = 1.0,PRESSURE = 1000.0;
+                double X_VELOCITY = 2.0,PRESSURE = 100.0;
 
                 S = abs(CENTRE - X);                                       // distance from centre of pulse
-                W = 2.0;                                                 // characteristic width
+                W = 0.1;                                                 // characteristic width
 
                 RHO = RHO_PULSE*exp(-S*S/(W*W)) + RHO_0*(1.0-exp(-S*S/(W*W)));
 
@@ -101,6 +101,14 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                         NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
                         NEW_VERTEX.set_pressure(100.0);                                 // units N/m^2
                 }
+        }else if(IC == 5){
+                if(i==0 and j==0){std::cout << "Using Flat Start" << std::endl;}
+
+                NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
+                NEW_VERTEX.set_x_velocity(10.0);                                 // units m/s
+                NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
+                NEW_VERTEX.set_pressure(5.0);                                 // units N/m^2
+
         }
 
         NEW_VERTEX.setup_specific_energy();
@@ -109,6 +117,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         NEW_VERTEX.reset_du();
 
         return NEW_VERTEX;
+
 }
 
 TRIANGLE setup_triangle(int i0, int j0, std::vector<std::vector<VERTEX> > &POINTS){

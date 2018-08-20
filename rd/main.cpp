@@ -6,11 +6,11 @@
 #include <cstdlib>
 #include <stdio.h>
 
+#include "constants.h"
+
 #include "cblas.h"
 #include "lapacke.h"
 #include "inverse.cpp"
-
-#include "constants.h"
 
 #ifdef TWO_D
 #include "vertex2D.h"

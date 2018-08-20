@@ -167,7 +167,7 @@ public:
                 // Calculate inflow parameters
 
                 double H[3];
-                double RHO,C,U,U_C,V,V_C,H_AVG,H_C,GAMMA_1,GAMMA_2,ALPHA,ALPHA_C,W;
+                double RHO,C,U,U_C,V,V_C,H_AVG,H_C,ALPHA,ALPHA_C,W;
                 double Z[4][3];
                 double VALUE1,VALUE2,VALUE3,VALUE4,VALUE12,VALUE123;
                 double PRESSURE_AVG,C_SOUND_AVG;
@@ -227,7 +227,8 @@ public:
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+                // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -243,9 +244,6 @@ public:
                 V_C = V/C;
 
                 H_C = H_AVG/C;
-
-                GAMMA_1 = GAMMA - 1.0;
-                GAMMA_2 = GAMMA - 2.0;
 
                 ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
                 ALPHA_C = ALPHA/C;
@@ -527,7 +525,7 @@ public:
                 // Calculate inflow parameters
 
                 double H[3];
-                double RHO,C,U,U_C,V,V_C,H_AVG,H_C,GAMMA_1,GAMMA_2,ALPHA,ALPHA_C,W;
+                double RHO,C,U,U_C,V,V_C,H_AVG,H_C,ALPHA,ALPHA_C,W;
                 double Z[4][3];
                 double VALUE1,VALUE2,VALUE3,VALUE4,VALUE12,VALUE123;
                 double PRESSURE_AVG,C_SOUND_AVG;
@@ -580,7 +578,8 @@ public:
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+                // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -596,9 +595,6 @@ public:
                 V_C = V/C;
 
                 H_C = H_AVG/C;
-
-                GAMMA_1 = GAMMA - 1.0;
-                GAMMA_2 = GAMMA - 2.0;
 
                 ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
                 ALPHA_C = ALPHA/C;
@@ -792,6 +788,10 @@ public:
                         DU0[i] = (DT/DUAL[0])*(SUM_MASS[i] + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
                         DU1[i] = (DT/DUAL[1])*(SUM_MASS[i] + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
                         DU2[i] = (DT/DUAL[2])*(SUM_MASS[i] + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
+
+                        // DU0[i] = 0.0;
+                        // DU1[i] = 0.0;
+                        // DU2[i] = 0.0;
                 }
 #endif
 
@@ -836,7 +836,7 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                DIFF[i][m] = AREA/(U_HALF[i][m] - U_N[i][m])/3.0;
+                                DIFF[i][m] = AREA*(U_HALF[i][m] - U_N[i][m])/3.0;
                         }
                 }
 

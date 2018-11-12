@@ -1,4 +1,4 @@
-lapack_int matInv(double *A, unsigned n){
+lapack_int matInv(double *A, unsigned n, double X, double Y){
         int ipiv[n+1];
         lapack_int ret;
 
@@ -9,7 +9,7 @@ lapack_int matInv(double *A, unsigned n){
 #endif
 
         if(ret !=0){
-                std::cout << "B WARNING: MATRIX CANNOT BE INVERTED\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular)" << std::endl;
+                std::cout << "B WARNING: MATRIX CANNOT BE INVERTED\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular) at " << X << "\t" << Y << std::endl;
                 for(int i=0;i<16;++i){
                         std::cout << A[i] << "\t";
                         if((i+1)%4 == 0){std::cout << std::endl;}

@@ -23,6 +23,10 @@ private:
         double U_HALF[4], DU_HALF[4];
         double MASS_DENSITY_HALF, X_VELOCITY_HALF, Y_VELOCITY_HALF;
         double PRESSURE_HALF, SPECIFIC_ENERGY_HALF;
+#ifdef UPDATE_TEST
+        double UPDATE;
+        double UPDATE_HALF;
+#endif
         std::vector<int> ASSOC_TRIANG;
 
 public:
@@ -74,7 +78,7 @@ public:
         // functions to set up the specific energy varaible, as well as u and f arrays
         void setup_specific_energy(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;
-                SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0;
+                SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
         }
 
         void calculate_dual(){
@@ -82,10 +86,10 @@ public:
         }
 
         void prim_to_con(){
-                U_VARIABLES[0] = MASS_DENSITY;
-                U_VARIABLES[1] = MASS_DENSITY * X_VELOCITY;
-                U_VARIABLES[2] = MASS_DENSITY * Y_VELOCITY;
-                U_VARIABLES[3] = MASS_DENSITY * SPECIFIC_ENERGY;
+                U_VARIABLES[0] = MASS_DENSITY;                          // U0 = mass density
+                U_VARIABLES[1] = MASS_DENSITY * X_VELOCITY;             // U1 = x momentum
+                U_VARIABLES[2] = MASS_DENSITY * Y_VELOCITY;             // U2 = y momentum
+                U_VARIABLES[3] = MASS_DENSITY * SPECIFIC_ENERGY;        // U3 = energy density
         }
 
         void reset_u_half(){
@@ -124,11 +128,14 @@ public:
         }
 
         // reset the changes in primative variables
-        void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}
-        void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}
+        void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}// UPDATE = 0;}
+        void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}// UPDATE_HALF = 0;}
 
         // Update DU with value from face
         void update_du(double NEW_DU[4]){
+#ifdef UPDATE_TEST
+                UPDATE_HALF += 1;
+#endif
                 DU[0] = DU[0] + NEW_DU[0];
                 DU[1] = DU[1] + NEW_DU[1];
                 DU[2] = DU[2] + NEW_DU[2];
@@ -136,11 +143,18 @@ public:
         }
 
         void update_du_half(double NEW_DU[4]){
+#ifdef UPDATE_TEST
+                UPDATE_HALF += 1;
+#endif
                 DU_HALF[0] = DU_HALF[0] + NEW_DU[0];
                 DU_HALF[1] = DU_HALF[1] + NEW_DU[1];
                 DU_HALF[2] = DU_HALF[2] + NEW_DU[2];
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
         }
+
+#ifdef UPDATE_TEST
+        void output_update_count(){std::cout << X << "\t" << Y << "\t" << UPDATE_HALF << std::endl;}
+#endif
 
         // Change conserved variables based on accumulated DU from all faces of cell
         void update_u_variables(){

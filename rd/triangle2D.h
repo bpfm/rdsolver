@@ -38,6 +38,18 @@ public:
         VERTEX* get_vertex_1(){return VERTEX_1;}
         VERTEX* get_vertex_2(){return VERTEX_2;}
 
+        void print_triangle_state(){
+                std::cout << "U[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << std::endl;
+                std::cout << "U[1] =\t" << U_N[1][0] << "\t" << U_N[1][1] << "\t" << U_N[1][2] << std::endl;
+                std::cout << "U[2] =\t" << U_N[2][0] << "\t" << U_N[2][1] << "\t" << U_N[2][2] << std::endl;
+                std::cout << "U[4] =\t" << U_N[3][0] << "\t" << U_N[3][1] << "\t" << U_N[3][2] << std::endl;
+
+                std::cout << "U_HALF[0] =\t" << U_HALF[0][0] << "\t" << U_HALF[0][1] << "\t" << U_HALF[0][2] << std::endl;
+                std::cout << "U_HALF[1] =\t" << U_HALF[1][0] << "\t" << U_HALF[1][1] << "\t" << U_HALF[1][2] << std::endl;
+                std::cout << "U_HALF[2] =\t" << U_HALF[2][0] << "\t" << U_HALF[2][1] << "\t" << U_HALF[2][2] << std::endl;
+                std::cout << "U_HALF[4] =\t" << U_HALF[3][0] << "\t" << U_HALF[3][1] << "\t" << U_HALF[3][2] << std::endl;
+        }
+
         void setup_positions(){
                 X[0] = VERTEX_0->get_x();
                 X[1] = VERTEX_1->get_x();
@@ -107,7 +119,7 @@ public:
                 double INFLOW[4][4][3][3];
                 double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
 
-                double DT = 0.5*DT_TOT;
+                double DT = DT_TOT;
 
                 double C_SOUND[3];
 
@@ -210,9 +222,7 @@ public:
                         //std::cout << Z_BAR[1] << "\t" << Z[0][m] << "\t" << Z_BAR[0] << "\t" << Z[2][m] << std::endl;
 
 #ifdef DEBUG
-                        for(i=0;i<4;++i){
-                                std::cout << "W_HAT " << i << "\t" << m << " =\t" << W_HAT[i][m] << std::endl;
-                        }
+                        for(i=0;i<4;++i){std::cout << "W_HAT " << i << "\t" << m << " =\t" << W_HAT[i][m] << std::endl;}
                         std::cout << std::endl;
 #endif
                 }
@@ -306,25 +316,25 @@ public:
                                 VALUE12  = (VALUE1 - VALUE2)/2.0;
                                 VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
 
-                                INFLOW[0][0][m][p] = ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3;
-                                INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*VALUE123/C +  N_X[m]*VALUE12/C;
-                                INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*VALUE123/C +  N_Y[m]*VALUE12/C;
-                                INFLOW[0][3][m][p] = GAMMA_1*VALUE123/(C*C);
+                                INFLOW[0][0][m][p] = 0.5*(ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3);
+                                INFLOW[0][1][m][p] = 0.5*(-1.0*GAMMA_1*U_C*VALUE123/C + N_X[m]*VALUE12/C);
+                                INFLOW[0][2][m][p] = 0.5*(-1.0*GAMMA_1*V_C*VALUE123/C + N_Y[m]*VALUE12/C);
+                                INFLOW[0][3][m][p] = 0.5*(GAMMA_1*VALUE123/(C*C));
 
-                                INFLOW[1][0][m][p] = (ALPHA_C*U_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - U_C*W)*VALUE12;
-                                INFLOW[1][1][m][p] = (N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*VALUE123 - (GAMMA_2*U_C*N_X[m]*VALUE12) + VALUE3;
-                                INFLOW[1][2][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*VALUE12;
-                                INFLOW[1][3][m][p] = GAMMA_1*U_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C;
+                                INFLOW[1][0][m][p] = 0.5*((ALPHA_C*U_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - U_C*W)*VALUE12);
+                                INFLOW[1][1][m][p] = 0.5*((N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*VALUE123 - (GAMMA_2*U_C*N_X[m]*VALUE12) + VALUE3);
+                                INFLOW[1][2][m][p] = 0.5*((N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*VALUE12);
+                                INFLOW[1][3][m][p] = 0.5*(GAMMA_1*U_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C);
 
-                                INFLOW[2][0][m][p] = (ALPHA_C*V_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - V_C*W)*VALUE12;
-                                INFLOW[2][1][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*VALUE12;
-                                INFLOW[2][2][m][p] = (N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*VALUE123 - (GAMMA_2*V_C*N_Y[m]*VALUE12) + VALUE3;
-                                INFLOW[2][3][m][p] = GAMMA_1*V_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C;
+                                INFLOW[2][0][m][p] = 0.5*((ALPHA_C*V_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - V_C*W)*VALUE12);
+                                INFLOW[2][1][m][p] = 0.5*((N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*VALUE12);
+                                INFLOW[2][2][m][p] = 0.5*((N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*VALUE123 - (GAMMA_2*V_C*N_Y[m]*VALUE12) + VALUE3);
+                                INFLOW[2][3][m][p] = 0.5*(GAMMA_1*V_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C);
 
-                                INFLOW[3][0][m][p] = (ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12;
-                                INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*VALUE12;
-                                INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*VALUE12;
-                                INFLOW[3][3][m][p] = GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3;
+                                INFLOW[3][0][m][p] = 0.5*((ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12);
+                                INFLOW[3][1][m][p] = 0.5*((W*N_X[m] - U - ALPHA_C*U_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*VALUE12);
+                                INFLOW[3][2][m][p] = 0.5*((W*N_Y[m] - V - ALPHA_C*V_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*VALUE12);
+                                INFLOW[3][3][m][p] = 0.5*(GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3);
 
 #ifdef DEBUG
                                 for(i=0; i<4; ++i){
@@ -383,7 +393,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4);
+                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
 
                 // /std::cout << "Post-inversion =" << std::endl;
 
@@ -481,7 +491,7 @@ public:
                 double DU0[4],DU1[4],DU2[4];
                 double INFLOW[4][4][3][3];
 
-                double DT = 0.5*DT_TOT;
+                double DT = DT_TOT;
 
                 double C_SOUND[3];
 
@@ -657,25 +667,25 @@ public:
                                 VALUE12  = (VALUE1 - VALUE2)/2.0;
                                 VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
 
-                                INFLOW[0][0][m][p] = ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3;
-                                INFLOW[0][1][m][p] = -1.0*GAMMA_1*U_C*VALUE123/C +  N_X[m]*VALUE12/C;
-                                INFLOW[0][2][m][p] = -1.0*GAMMA_1*V_C*VALUE123/C +  N_Y[m]*VALUE12/C;
-                                INFLOW[0][3][m][p] = GAMMA_1*VALUE123/(C*C);
+                                INFLOW[0][0][m][p] = 0.5*(ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3);
+                                INFLOW[0][1][m][p] = 0.5*(-1.0*GAMMA_1*U_C*VALUE123/C +  N_X[m]*VALUE12/C);
+                                INFLOW[0][2][m][p] = 0.5*(-1.0*GAMMA_1*V_C*VALUE123/C +  N_Y[m]*VALUE12/C);
+                                INFLOW[0][3][m][p] = 0.5*(GAMMA_1*VALUE123/(C*C));
 
-                                INFLOW[1][0][m][p] = (ALPHA_C*U_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - U_C*W)*VALUE12;
-                                INFLOW[1][1][m][p] = (N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*VALUE123 - (GAMMA_2*U_C*N_X[m]*VALUE12) + VALUE3;
-                                INFLOW[1][2][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*VALUE12;
-                                INFLOW[1][3][m][p] = GAMMA_1*U_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C;
+                                INFLOW[1][0][m][p] = 0.5*((ALPHA_C*U_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - U_C*W)*VALUE12);
+                                INFLOW[1][1][m][p] = 0.5*((N_X[m]*N_X[m] - GAMMA_1*U_C*U_C)*VALUE123 - (GAMMA_2*U_C*N_X[m]*VALUE12) + VALUE3);
+                                INFLOW[1][2][m][p] = 0.5*((N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (U_C*N_Y[m] - GAMMA_1*V_C*N_X[m])*VALUE12);
+                                INFLOW[1][3][m][p] = 0.5*(GAMMA_1*U_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C);
 
-                                INFLOW[2][0][m][p] = (ALPHA_C*V_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - V_C*W)*VALUE12;
-                                INFLOW[2][1][m][p] = (N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*VALUE12;
-                                INFLOW[2][2][m][p] = (N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*VALUE123 - (GAMMA_2*V_C*N_Y[m]*VALUE12) + VALUE3;
-                                INFLOW[2][3][m][p] = GAMMA_1*V_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C;
+                                INFLOW[2][0][m][p] = 0.5*((ALPHA_C*V_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - V_C*W)*VALUE12);
+                                INFLOW[2][1][m][p] = 0.5*((N_X[m]*N_Y[m] - GAMMA_1*U_C*V_C)*VALUE123 + (V_C*N_X[m] - GAMMA_1*U_C*N_Y[m])*VALUE12);
+                                INFLOW[2][2][m][p] = 0.5*((N_Y[m]*N_Y[m] - GAMMA_1*V_C*V_C)*VALUE123 - (GAMMA_2*V_C*N_Y[m]*VALUE12) + VALUE3);
+                                INFLOW[2][3][m][p] = 0.5*(GAMMA_1*V_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C);
 
-                                INFLOW[3][0][m][p] = (ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12;
-                                INFLOW[3][1][m][p] = (W*N_X[m] - U - ALPHA_C*U_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*VALUE12;
-                                INFLOW[3][2][m][p] = (W*N_Y[m] - V - ALPHA_C*V_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*VALUE12;
-                                INFLOW[3][3][m][p] = GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3;
+                                INFLOW[3][0][m][p] = 0.5*((ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12);
+                                INFLOW[3][1][m][p] = 0.5*((W*N_X[m] - U - ALPHA_C*U_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*VALUE12);
+                                INFLOW[3][2][m][p] = 0.5*((W*N_Y[m] - V - ALPHA_C*V_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*VALUE12);
+                                INFLOW[3][3][m][p] = 0.5*(GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3);
 
 #ifdef DEBUG
                                 for(i=0; i<4; ++i){
@@ -809,7 +819,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4);
+                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
 
                 double BRACKET[4][3];
                 double KZ_SUM[4];

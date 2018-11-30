@@ -1,7 +1,7 @@
-#define IC 0
+#define IC 1
 
-//#define ONE_D
-#define THREE_D
+#define ONE_D
+// #define THREE_D
 
 #define BOUNDARY "PERIODIC"
 // #define BOUNDARY "CLOSED"

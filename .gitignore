@@ -1,8 +1,10 @@
 *~
 *.png
 *.txt
+*a.out
 *sod
 *sine
 *sedov
-*OpenBLAS
+*OpenBLAS/
 *output
+copy_positions.sh

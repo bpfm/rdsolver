@@ -51,7 +51,7 @@ lines = x_0t
 #plt.xlabel("x [m]")
 plt.ylabel("Density [kg/m^3]")
 #plt.xlim([0,30])
-#plt.ylim([-1.0,1001])
+plt.ylim([50-0.0051,50.0051])
 
 
 ############################## pressure plot ##############################
@@ -68,7 +68,7 @@ plt.subplot(312)
 plt.plot(x_corr,rho0)
 #plt.plot(x1,rho1)
 #plt.plot(x2,rho2)
-plt.semilogy(x_corr,rho3)
+plt.plot(x_corr,rho3)
 plt.plot(x_corr,rho4)
 
 #plt.xlabel("x [m]")

@@ -34,6 +34,8 @@ int main(){
         std::vector<VERTEX>::iterator        IT_VERT;
         std::vector<TRIANGLE>::iterator      IT_TRIANGLE;
 
+        // Initialise seed for random number generator (rand)
+        std::srand(68315);
 
         /****** Setup initial conditions of one dimensional tube ******/
 
@@ -127,7 +129,9 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached ******/
 
-        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC;
+        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC, TEMP_FILE;
+
+        TEMP_FILE.open("temp.txt");
 
         open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC);               // open output files
 
@@ -151,26 +155,22 @@ int main(){
                 }
 
 #ifdef DEBUG
-                // std::cout << std::fixed;
-                // std::cout << std::setprecision(10);
+                std::cout << std::fixed;
+                std::cout << std::setprecision(6);
                 std::cout << "Calculating first half time step change" << std::endl;
 #endif
 
                 
                 for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
                         for(i=0;i<N_POINTS_X;i++){ 
-                                MESH[j][i].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_first_half(T, DT, DX, DY, TEMP_FILE);             // calculate flux through TRIANGLE
                         }
                 }
 
                 for(j=0;j<N_POINTS_Y;j++){
                         for(i=0;i<N_POINTS_X;i++){                                     // loop over all vertices
                                 POINTS[j][i].update_u_half();                        // update the half time state
-#ifdef UPDATE_TEST
-                                POINTS[j][i].output_update_count();
-#endif
                                 POINTS[j][i].con_to_prim_half();
-                                POINTS[j][i].recalculate_pressure_half();            // caclulate pressure from new conserved values
                                 POINTS[j][i].reset_du_half();                             // reset du value to zero for next timestep
                         }
                 }
@@ -187,7 +187,6 @@ int main(){
                         for(i=0;i<N_POINTS_X;i++){                                     // loop over all vertices
                                 POINTS[j][i].update_u_variables();                   // update the fluid state at vertex
                                 POINTS[j][i].con_to_prim();                          // convert these to their corresponding conserved
-                                POINTS[j][i].recalculate_pressure();                 // caclulate pressure from new conserved values
                                 POINTS[j][i].reset_du();                             // reset du value to zero for next timestep
                                 POINTS[j][i].calc_next_dt(DX,CFL,POSSIBLE_DT);        // calculate next timestep based on new state
                                 if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
@@ -197,9 +196,6 @@ int main(){
                 T+=DT;                                                            // increment time
                 l+=1;                                                             // increment step number
 
-#ifdef UPDATE_TEST
-                exit(0);
-#endif
         }
 
         output_state(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC, POINTS, T, DT, DX, DX);      // write out final state

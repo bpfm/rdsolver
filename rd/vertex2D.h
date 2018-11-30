@@ -23,10 +23,7 @@ private:
         double U_HALF[4], DU_HALF[4];
         double MASS_DENSITY_HALF, X_VELOCITY_HALF, Y_VELOCITY_HALF;
         double PRESSURE_HALF, SPECIFIC_ENERGY_HALF;
-#ifdef UPDATE_TEST
-        double UPDATE;
-        double UPDATE_HALF;
-#endif
+
         std::vector<int> ASSOC_TRIANG;
 
 public:
@@ -37,10 +34,11 @@ public:
         void set_y( double NEW_Y){Y   = NEW_Y;}
         void set_dx(double NEW_DX){DX = NEW_DX;}
         void set_dy(double NEW_DY){DY = NEW_DY;}
-        void set_mass_density(double NEW_MASS_DENSITY){MASS_DENSITY = NEW_MASS_DENSITY;}
-        void set_x_velocity(  double NEW_X_VELOCITY){  X_VELOCITY   = NEW_X_VELOCITY;}
-        void set_y_velocity(  double NEW_Y_VELOCITY){  Y_VELOCITY   = NEW_Y_VELOCITY;}
-        void set_pressure(    double NEW_PRESSURE){    PRESSURE     = NEW_PRESSURE;}
+        void set_mass_density( double NEW_MASS_DENSITY){MASS_DENSITY  = NEW_MASS_DENSITY;}
+        void set_x_velocity(   double NEW_X_VELOCITY){  X_VELOCITY    = NEW_X_VELOCITY;}
+        void set_y_velocity(   double NEW_Y_VELOCITY){  Y_VELOCITY    = NEW_Y_VELOCITY;}
+        void set_pressure(     double NEW_PRESSURE){    PRESSURE      = NEW_PRESSURE;}
+        void set_pressure_half(double NEW_PRESSURE){    PRESSURE_HALF = NEW_PRESSURE;}
 
         // add triangle to list of those associated with this vertex
 
@@ -105,6 +103,7 @@ public:
                 X_VELOCITY      = U_VARIABLES[1]/MASS_DENSITY;
                 Y_VELOCITY      = U_VARIABLES[2]/MASS_DENSITY;
                 SPECIFIC_ENERGY = U_VARIABLES[3]/MASS_DENSITY;
+                recalculate_pressure();
                 check_values();
         }
 
@@ -113,29 +112,31 @@ public:
                 X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY;
                 Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY;
                 SPECIFIC_ENERGY_HALF = U_HALF[3]/MASS_DENSITY;
+                recalculate_pressure_half();
                 check_values();
         }
 
         // recacluate PRESSURE based on updated primitive varaibles
         void recalculate_pressure(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;
+                // std::cout << "PRESSURE =\t" << PRESSURE << std::endl;
                 PRESSURE = (GAMMA-1.0) * MASS_DENSITY * (SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
+                // std::cout << "PRESSURE =\t" << PRESSURE << std::endl;
         }
 
         void recalculate_pressure_half(){
                 double VEL_SQ_SUM = X_VELOCITY_HALF*X_VELOCITY_HALF + Y_VELOCITY_HALF*Y_VELOCITY_HALF;
+                // std::cout << "PRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
                 PRESSURE_HALF = (GAMMA-1.0) * MASS_DENSITY_HALF * (SPECIFIC_ENERGY_HALF - VEL_SQ_SUM/2.0);
+                // std::cout << "PRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
         }
 
         // reset the changes in primative variables
-        void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}// UPDATE = 0;}
-        void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}// UPDATE_HALF = 0;}
+        void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}
+        void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}
 
         // Update DU with value from face
         void update_du(double NEW_DU[4]){
-#ifdef UPDATE_TEST
-                UPDATE_HALF += 1;
-#endif
                 DU[0] = DU[0] + NEW_DU[0];
                 DU[1] = DU[1] + NEW_DU[1];
                 DU[2] = DU[2] + NEW_DU[2];
@@ -143,22 +144,14 @@ public:
         }
 
         void update_du_half(double NEW_DU[4]){
-#ifdef UPDATE_TEST
-                UPDATE_HALF += 1;
-#endif
                 DU_HALF[0] = DU_HALF[0] + NEW_DU[0];
                 DU_HALF[1] = DU_HALF[1] + NEW_DU[1];
                 DU_HALF[2] = DU_HALF[2] + NEW_DU[2];
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
         }
 
-#ifdef UPDATE_TEST
-        void output_update_count(){std::cout << X << "\t" << Y << "\t" << UPDATE_HALF << std::endl;}
-#endif
-
-        // Change conserved variables based on accumulated DU from all faces of cell
         void update_u_variables(){
-                //std::cout << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << std::endl;
+                // std::cout << "DU =\t" << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << std::endl;
                 U_VARIABLES[0] = U_HALF[0] - DU[0];
                 U_VARIABLES[1] = U_HALF[1] - DU[1];
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
@@ -166,7 +159,7 @@ public:
         }
 
         void update_u_half(){
-                //std::cout << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << std::endl;
+                // std::cout << "DU_HALF  =\t" << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << std::endl;
                 U_HALF[0] = U_VARIABLES[0] - DU_HALF[0];
                 U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
@@ -177,29 +170,28 @@ public:
 #ifdef DEBUG
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
-                if (MASS_DENSITY < 0.0){
+                if (MASS_DENSITY <= 0.0){
                         std::cout << "B WARNING: Exiting on negative density\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
-                        //MASS_DENSITY = 0.000001;
+                        std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
+                        // MASS_DENSITY = 0.00001;
                         exit(0);
                 }
-                if (PRESSURE < 0.0){
+                if (PRESSURE <= 0.0){
                         std::cout << "B WARNING: Exiting on negative pressure\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
-                        
-                        // PRESSURE = 0.000001;
+                        std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
+                        // PRESSURE = 0.00001;
                         exit(0);
                 }
-                if (MASS_DENSITY_HALF < 0.0){
+                if (MASS_DENSITY_HALF <= 0.0){
                         std::cout << "B WARNING: Exiting on negative half state density\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
-                        //MASS_DENSITY_HALF = 0.000001;
+                        std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
+                        // MASS_DENSITY_HALF = 0.00001;
                         exit(0);
                 }
-                if (PRESSURE_HALF < 0.0){
+                if (PRESSURE_HALF <= 0.0){
                         std::cout << "B WARNING: Exiting on negative half state pressure\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << std::endl;
-                        // PRESSURE_HALF = 0.000001;
+                        std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
+                        // PRESSURE_HALF = 0.00001;
                         exit(0);
                 }
 

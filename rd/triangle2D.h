@@ -111,7 +111,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT, double DX, double DY){
+        void calculate_first_half(double T, double DT_TOT, double DX, double DY, std::ofstream &TEMP_FILE){
                 int i,j,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
@@ -470,6 +470,14 @@ public:
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
 
+                // if(PRESSURE[0] + PRESSURE[1] + PRESSURE[2] > 30.0){
+                //         for(i=0;i<3;++i){
+                //                 std::cout << i << "\t(X,Y) =\t( " << X[i] << " , " << Y[i] << " )\t";
+                //                 TEMP_FILE << X[i] << "\t" << Y[i] << std::endl;
+                //         }
+                //         std::cout << std::endl;
+                // }
+
 #ifdef DEBUG
                         for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
                         std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
@@ -478,7 +486,7 @@ public:
                         std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        // if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
                 return ;
@@ -872,16 +880,16 @@ public:
                         std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
                         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
                         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
+                        // if(U_N[0][0] != U_N[0][1] or U_N[0][0] != U_N[0][2] or U_N[0][1] != U_N[0][2]){exit(0);}
 #endif
 
                  return ;
         }
 
         // Returns Roe average of left and right states
-        double roe_avg(double VALUE1, double VALUE2, double R1, double R2){
+        double roe_avg(double L1, double L2, double R1, double R2){
                 double AVG;
-                AVG = (sqrt(VALUE1)*VALUE2+sqrt(R1)*R2)/(sqrt(VALUE1)+sqrt(R1));
+                AVG = (sqrt(L1)*L2+sqrt(R1)*R2)/(sqrt(L1)+sqrt(R1));
                 return AVG;
         }
 
@@ -903,6 +911,9 @@ public:
                         NORMAL[i][0] = PERP[i][0];///MAG;
                         NORMAL[i][1] = PERP[i][1];///MAG;
                 }
+
+                // std::cout << "(" << X[0] << "\t,\t" << Y[0] << ")\t(" << X[1] << "\t,\t" << Y[1] << ")\t(" << X[2] << "\t,\t" << Y[2] << ")\t
+                // std::cout << "(" << NORMAL[0][0] << "\t,\t" << NORMAL[0][1] << ")\t(" << NORMAL[1][0] << "\t,\t" << NORMAL[1][1] << ")\t(" << NORMAL[2][0] << "\t,\t" << NORMAL[2][1] << ")" << std::endl;
 
 #ifdef DEBUG
                         std::cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;

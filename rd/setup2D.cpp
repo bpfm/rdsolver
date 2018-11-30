@@ -1,25 +1,34 @@
 VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         VERTEX NEW_VERTEX;
         double X,Y;
-        // std::srand(68315);
-        // double RAND_DBLE_X = RANDOM_LVL*SIDE_LENGTH_X*(2.0*((double) rand()/RAND_MAX)/(double(N_POINTS_X))-1.0);
-        // double RAND_DBLE_Y = RANDOM_LVL*SIDE_LENGTH_Y*(2.0*((double) rand()/RAND_MAX)/(double(N_POINTS_Y))-1.0);
+        double RAND_DBLE_X = RANDOM_LVL * SIDE_LENGTH_X * (((2.0*(double) rand()/RAND_MAX)-1.0) / (double(N_POINTS_X)));
+        double RAND_DBLE_Y = RANDOM_LVL * SIDE_LENGTH_Y * (((2.0*(double) rand()/RAND_MAX)-1.0) / (double(N_POINTS_Y)));
 
         DX = SIDE_LENGTH_X/double(N_POINTS_X);
+#ifdef EQUILATERAL_GRID
+        DY = sqrt(3)*DX/2.0;
+#else
         DY = SIDE_LENGTH_Y/double(N_POINTS_Y);
+#endif
 
         if((j % 2) == 0){
-                // X=double(i)*DX + RAND_DBLE_X;
-                // Y=double(j)*DY + RAND_DBLE_Y;
-                X=double(i)*DX;
-                Y=double(j)*DY;
+                X=double(i)*DX + RAND_DBLE_X;
+                Y=double(j)*DY + RAND_DBLE_Y;
         }else{
-                // X=(double(i)+0.5)*DX;
-                // X=double(i)*DX + RAND_DBLE_X;
-                // Y=double(j)*DY + RAND_DBLE_Y;
-                X=double(i)*DX;
-                Y=double(j)*DY;
+#ifdef OFFSET_GRID
+                X=(double(i)+0.5)*DX + RAND_DBLE_X;
+#else
+                X=double(i)*DX + RAND_DBLE_X;
+#endif
+                Y=double(j)*DY + RAND_DBLE_Y;
         }
+
+        if(X < 0.0){X = 0.0;}
+        if(Y < 0.0){Y = 0.0;}
+
+        if(X > SIDE_LENGTH_X){X = SIDE_LENGTH_X;}
+        if(Y > SIDE_LENGTH_Y){Y = SIDE_LENGTH_Y;}
+
 
         NEW_VERTEX.set_x(X);
         NEW_VERTEX.set_y(Y);
@@ -60,20 +69,22 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 V = C_S * (RHO - RHO_0)/RHO_0 + 0.000000001;
 
                 NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
-                NEW_VERTEX.set_x_velocity(V);                             // units m/s
+                NEW_VERTEX.set_x_velocity(V);                           // units m/s
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
-
         }else if(IC == 2){
                 if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
 
-                double RHO = 10000.0;
+                double RHO = 1000.0;
                 double V = 0.00000001;
                 double P = 10.0;
 
-                if((X > (SIDE_LENGTH_X/2 - DX) and X < (SIDE_LENGTH_X/2 + DX)) and (Y > (SIDE_LENGTH_Y/2 - DY) and Y < (SIDE_LENGTH_Y/2 + DY))){
-                        P = 1000/DX;
-                        std::cout << "Setting blast pressure point" << std::endl;
+                double R = sqrt((X - SIDE_LENGTH_X/2)*(X - SIDE_LENGTH_X/2) + (Y - SIDE_LENGTH_Y/2)*(Y - SIDE_LENGTH_Y/2));
+
+                if(R < 0.03*SIDE_LENGTH_X){
+                        P = 100000/DX/BLAST_VERTICES;
+                        std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\tPressure =\t" << P << std::endl;
+                        POINT_CHECK ++;
                 }
 
                 NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
@@ -159,6 +170,20 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_y_velocity(Y_VELOCITY);
                 NEW_VERTEX.set_pressure(PRESSURE);
 
+        }else if(IC == 8){
+                if(i==0 and j==0){std::cout << "Using KH instability test" << std::endl;}
+
+                if(X < 0.25*SIDE_LENGTH_X or X > 0.75*SIDE_LENGTH_X){
+                        NEW_VERTEX.set_y_velocity(1.0);
+                        NEW_VERTEX.set_mass_density(100.0);
+                }else{
+                        NEW_VERTEX.set_y_velocity(-1.0);
+                        NEW_VERTEX.set_mass_density(200.0);
+                }
+
+                NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
+                NEW_VERTEX.set_pressure(100.0);
+
         }
 
         NEW_VERTEX.setup_specific_energy();
@@ -181,10 +206,8 @@ TRIANGLE setup_triangle(int i0, int j0, std::vector<std::vector<VERTEX> > &POINT
                 j = j0/2;
                 VERTEX_I_ID_0 = i % N_POINTS_X;
                 VERTEX_J_ID_0 = j % N_POINTS_Y;
-
                 VERTEX_I_ID_1 = (i+1) % N_POINTS_X;
                 VERTEX_J_ID_1 = j % N_POINTS_Y;
-                
                 VERTEX_I_ID_2 = i % N_POINTS_X;
                 VERTEX_J_ID_2 = (j+1) % N_POINTS_Y;
         }else{
@@ -197,6 +220,31 @@ TRIANGLE setup_triangle(int i0, int j0, std::vector<std::vector<VERTEX> > &POINT
                 VERTEX_I_ID_2 = i % N_POINTS_X;
                 VERTEX_J_ID_2 = (j+1) % N_POINTS_Y;
         }
+
+
+#ifdef OFFSET_GRID
+        if(((j0 - 2) % 4) == 0){
+                i = i0;
+                j = j0/2;
+                VERTEX_I_ID_0 = i % N_POINTS_X;
+                VERTEX_J_ID_0 = j % N_POINTS_Y;
+                VERTEX_I_ID_1 = (i+1) % N_POINTS_X;
+                VERTEX_J_ID_1 = j % N_POINTS_Y;
+                VERTEX_I_ID_2 = (i+1) % N_POINTS_X;
+                VERTEX_J_ID_2 = (j+1) % N_POINTS_Y;
+        }
+
+        if(((j0 - 3) % 4) == 0){
+                i = i0;
+                j = (j0-1)/2;
+                VERTEX_I_ID_0 = (i+1) % N_POINTS_X;
+                VERTEX_J_ID_0 = j % N_POINTS_Y;
+                VERTEX_I_ID_1 = (i+2) % N_POINTS_X;
+                VERTEX_J_ID_1 = (j+1) % N_POINTS_Y;
+                VERTEX_I_ID_2 = (i+1) % N_POINTS_X;
+                VERTEX_J_ID_2 = (j+1) % N_POINTS_Y;
+        }
+#endif
 
         VERTEX_0 = &POINTS[VERTEX_J_ID_0][VERTEX_I_ID_0];
         VERTEX_1 = &POINTS[VERTEX_J_ID_1][VERTEX_I_ID_1];

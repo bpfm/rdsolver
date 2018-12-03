@@ -80,10 +80,6 @@ public:
                 PRESSURE[0] = VERTEX_0->get_pressure();
                 PRESSURE[1] = VERTEX_1->get_pressure();
                 PRESSURE[2] = VERTEX_2->get_pressure();
-
-                DUAL[0] = VERTEX_0->get_dual();
-                DUAL[1] = VERTEX_1->get_dual();
-                DUAL[2] = VERTEX_2->get_dual();
         }
 
         void setup_half_state(){
@@ -128,24 +124,7 @@ public:
                 setup_positions();
                 setup_initial_state();
 
-                // Calculate normals (just in first timestep for static grid)
-
-                double X_MOD[3],Y_MOD[3];
-
-                if(T == 0.0){
-                        for(m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
-                        for(i=0; i<3; ++i){
-                                for(j=0; j<3; ++j){
-                                        if(X[j] - X[i] > 2.0*DX){
-                                                X_MOD[i] = X[i] + SIDE_LENGTH_X;
-                                        }
-                                        if(Y[j] - Y[i] > 2.0*DY){
-                                                Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
-                                        }
-                                }
-                        }
-                        calculate_normals(X_MOD,Y_MOD);
-                }
+                if(T == 0.0){setup_normals(DX,DY);}
 
 #ifdef CLOSED
                 if(abs(X[0] - X[1]) > 2.0*DX or abs(X[0] - X[2]) > 2.0*DX or abs(X[1] - X[2]) > 2.0*DX){
@@ -457,8 +436,13 @@ public:
                 }
 #endif
 
+                DUAL[0] = VERTEX_0->get_dual();
+                DUAL[1] = VERTEX_1->get_dual();
+                DUAL[2] = VERTEX_2->get_dual();
 
                 // Calculate change to be distributed
+
+                // std::cout << DUAL[0] << "\t" << DUAL[1] << "\t" << DUAL[2] << "\t" << AREA <<  std::endl;
 
                 for(i=0;i<4;i++){
                         DU0[i] = DT*FLUC[i][0]/DUAL[0];
@@ -504,9 +488,6 @@ public:
                 double C_SOUND[3];
 
                 setup_half_state();
-
-                AREA = 0.5*DX*DY;
-
 
 #ifdef CLOSED
                 if(abs(X[0] - X[1]) > 2.0*DX or abs(X[0] - X[2]) > 2.0*DX or abs(X[1] - X[2]) > 2.0*DX){
@@ -862,10 +843,6 @@ public:
                         DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
                         DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
                         DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
-
-                        // DU0[i] = 0.0;
-                        // DU1[i] = 0.0;
-                        // DU2[i] = 0.0;
                 }
 #endif
 
@@ -895,7 +872,8 @@ public:
 
         void calculate_normals(double X[3],double Y[3]){
                 int i;
-                double PERP[3][2],MAG;
+                double PERP[3][2];
+                double MAG;
 
                 PERP[0][0] = (Y[1] - Y[2]);
                 PERP[0][1] = (X[2] - X[1]);
@@ -906,14 +884,26 @@ public:
                 PERP[2][0] = (Y[0] - Y[1]);
                 PERP[2][1] = (X[1] - X[0]);
 
+
+                // calculate area of triangle and pass 1/3 to each vertex for dual
+                double THETA0 = atan(PERP[0][1]/PERP[0][0]);
+                double THETA1 = atan(PERP[1][1]/PERP[1][0]);
+
+                double THETA = abs(THETA0 - THETA1);
+
+                if(THETA > 3.14159/2.0){THETA = 3.14159 - THETA;}
+
+                AREA = 0.5*(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1])*sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1]))*sin(THETA);
+
+                VERTEX_0->calculate_dual(AREA/3.0);
+                VERTEX_1->calculate_dual(AREA/3.0);
+                VERTEX_2->calculate_dual(AREA/3.0);
+
                 for(i=0;i<3;i++){
-                        MAG = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
+                        // MAG = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
                         NORMAL[i][0] = PERP[i][0];///MAG;
                         NORMAL[i][1] = PERP[i][1];///MAG;
                 }
-
-                // std::cout << "(" << X[0] << "\t,\t" << Y[0] << ")\t(" << X[1] << "\t,\t" << Y[1] << ")\t(" << X[2] << "\t,\t" << Y[2] << ")\t
-                // std::cout << "(" << NORMAL[0][0] << "\t,\t" << NORMAL[0][1] << ")\t(" << NORMAL[1][0] << "\t,\t" << NORMAL[1][1] << ")\t(" << NORMAL[2][0] << "\t,\t" << NORMAL[2][1] << ")" << std::endl;
 
 #ifdef DEBUG
                         std::cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;
@@ -924,6 +914,28 @@ public:
 #endif
 
                 return ;
+        }
+
+        void setup_normals(double DX, double DY){
+                // Calculate normals (just in first timestep for static grid)
+
+                double X_MOD[3],Y_MOD[3];
+
+                setup_positions();
+
+                for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
+                for(int i=0; i<3; ++i){
+                        for(int j=0; j<3; ++j){
+                                if(X[j] - X[i] > 2.0*DX){
+                                        X_MOD[i] = X[i] + SIDE_LENGTH_X;
+                                }
+                                if(Y[j] - Y[i] > 2.0*DY){
+                                        Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+                                }
+                        }
+                }
+                calculate_normals(X_MOD,Y_MOD);
+
         }
 
         double max_val(double A, double B){

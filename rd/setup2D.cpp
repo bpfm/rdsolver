@@ -36,7 +36,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         NEW_VERTEX.set_dx(DX);
         NEW_VERTEX.set_dy(DY);
 
-        NEW_VERTEX.calculate_dual();
+        NEW_VERTEX.set_dual();
 
         if(IC == 0){
                 if(i==0 and j==0){std::cout << "Using 1D Sod Shock Tube (Varied in X)" << std::endl;}
@@ -171,7 +171,21 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_pressure(PRESSURE);
 
         }else if(IC == 8){
-                if(i==0 and j==0){std::cout << "Using KH instability test" << std::endl;}
+                if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
+
+                if(Y < 0.25*SIDE_LENGTH_Y or Y > 0.75*SIDE_LENGTH_Y){
+                        NEW_VERTEX.set_x_velocity(1.0);
+                        NEW_VERTEX.set_mass_density(100.0);
+                }else{
+                        NEW_VERTEX.set_x_velocity(-1.0);
+                        NEW_VERTEX.set_mass_density(200.0);
+                }
+
+                NEW_VERTEX.set_y_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_X)*X));
+                NEW_VERTEX.set_pressure(100.0);
+
+        }else if(IC == 9){
+                if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
 
                 if(X < 0.25*SIDE_LENGTH_X or X > 0.75*SIDE_LENGTH_X){
                         NEW_VERTEX.set_y_velocity(1.0);

@@ -24,7 +24,7 @@ private:
         double MASS_DENSITY_HALF, X_VELOCITY_HALF, Y_VELOCITY_HALF;
         double PRESSURE_HALF, SPECIFIC_ENERGY_HALF;
 
-        std::vector<int> ASSOC_TRIANG;
+        std::vector<int> ASSOC_TRIANG; // not used yet
 
 public:
 
@@ -34,6 +34,7 @@ public:
         void set_y( double NEW_Y){Y   = NEW_Y;}
         void set_dx(double NEW_DX){DX = NEW_DX;}
         void set_dy(double NEW_DY){DY = NEW_DY;}
+        void set_dual(){DUAL = 0.0;}
         void set_mass_density( double NEW_MASS_DENSITY){MASS_DENSITY  = NEW_MASS_DENSITY;}
         void set_x_velocity(   double NEW_X_VELOCITY){  X_VELOCITY    = NEW_X_VELOCITY;}
         void set_y_velocity(   double NEW_Y_VELOCITY){  Y_VELOCITY    = NEW_Y_VELOCITY;}
@@ -42,7 +43,7 @@ public:
 
         // add triangle to list of those associated with this vertex
 
-        void add_triang(int NEW_TRIANGLE){ASSOC_TRIANG.push_back(NEW_TRIANGLE);}
+        void add_triang(int NEW_TRIANGLE){ASSOC_TRIANG.push_back(NEW_TRIANGLE);} // not used yet
 
 
         // getter functions for eXtracting values of variables
@@ -79,8 +80,8 @@ public:
                 SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
         }
 
-        void calculate_dual(){
-                DUAL = 6.0/(2.0*3.0)*DX*DY;
+        void calculate_dual(double CONTRIBUTION){
+                DUAL = DUAL + CONTRIBUTION;
         }
 
         void prim_to_con(){
@@ -119,16 +120,12 @@ public:
         // recacluate PRESSURE based on updated primitive varaibles
         void recalculate_pressure(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;
-                // std::cout << "PRESSURE =\t" << PRESSURE << std::endl;
                 PRESSURE = (GAMMA-1.0) * MASS_DENSITY * (SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
-                // std::cout << "PRESSURE =\t" << PRESSURE << std::endl;
         }
 
         void recalculate_pressure_half(){
                 double VEL_SQ_SUM = X_VELOCITY_HALF*X_VELOCITY_HALF + Y_VELOCITY_HALF*Y_VELOCITY_HALF;
-                // std::cout << "PRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
                 PRESSURE_HALF = (GAMMA-1.0) * MASS_DENSITY_HALF * (SPECIFIC_ENERGY_HALF - VEL_SQ_SUM/2.0);
-                // std::cout << "PRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
         }
 
         // reset the changes in primative variables

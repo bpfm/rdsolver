@@ -55,12 +55,14 @@ int main(){
                 for(i=0; i<N_POINTS_X; i++){
                         NEW_VERTEX = setup_vertex(i,j,DX,DY);               // call VERTEX setup routine
                         X_POINTS.push_back(NEW_VERTEX);                              // add new VERTEX to std::vector of vertices in this row
-                        X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                // check dt is min required by CFL
-                        if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
+                        // X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                // check dt is min required by CFL
+                        // if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
                 POINTS.push_back(X_POINTS);
                 X_POINTS.clear();
         }
+
+        NEXT_DT = 0.0000001;
 #endif
 #endif
 
@@ -76,12 +78,14 @@ int main(){
                 for(i=0; i<N_POINTS_X; i++){
                         NEW_VERTEX = READ_IC_LINE(IC_FILE);
                         X_POINTS.push_back(NEW_VERTEX);                     // add new VERTEX to std::vector of vertices in this row
-                        X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);       // check dt is min required by CFL
-                        if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
+                        // X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);       // check dt is min required by CFL
+                        // if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
                 POINTS.push_back(X_POINTS);
                 X_POINTS.clear();
         }
+
+        NEXT_DT = 0.0000001;
 
         IC_FILE.close();
 #endif
@@ -138,6 +142,12 @@ int main(){
         std::cout << "Mesh Size =\t" << MESH[0].size() << '\t' << MESH.size() << std::endl;
         std::cout << "Evolving fluid ..." << std::endl;
 
+        // for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
+        //         for(i=0;i<N_POINTS_X;i++){ 
+        //                 MESH[j][i].setup_normals(DX,DY);
+        //         }
+        // }
+
         while(T<T_TOT){
 
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
@@ -160,7 +170,6 @@ int main(){
                 std::cout << "Calculating first half time step change" << std::endl;
 #endif
 
-                
                 for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
                         for(i=0;i<N_POINTS_X;i++){ 
                                 MESH[j][i].calculate_first_half(T, DT, DX, DY, TEMP_FILE);             // calculate flux through TRIANGLE

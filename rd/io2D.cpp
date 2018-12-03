@@ -63,7 +63,7 @@ VERTEX READ_IC_LINE(std::ifstream &IC_FILE){
         NEW_VERTEX.set_dx(DX);
         NEW_VERTEX.set_dy(DY);
 
-        NEW_VERTEX.calculate_dual();
+        // NEW_VERTEX.calculate_dual();
 
         NEW_VERTEX.setup_specific_energy();
         NEW_VERTEX.prim_to_con();

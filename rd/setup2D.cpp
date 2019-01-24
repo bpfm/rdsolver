@@ -36,7 +36,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         NEW_VERTEX.set_dx(DX);
         NEW_VERTEX.set_dy(DY);
 
-        NEW_VERTEX.set_dual(DX*DY);
+        // NEW_VERTEX.set_dual(DX*DY);
 
         if(IC == 0){
                 if(i==0 and j==0){std::cout << "Using 1D Sod Shock Tube (Varied in X)" << std::endl;}
@@ -206,10 +206,9 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         NEW_VERTEX.reset_du();
 
         return NEW_VERTEX;
-
 }
 
-TRIANGLE setup_triangle(int i0, int j0, std::vector<std::vector<VERTEX> > &POINTS){
+TRIANGLE setup_triangle(int i0, int j0, std::vector<std::vector<VERTEX> > &POINTS, double DX, double DY){
         int i,j;
         int VERTEX_I_ID_0,VERTEX_J_ID_0,VERTEX_I_ID_1,VERTEX_J_ID_1,VERTEX_I_ID_2,VERTEX_J_ID_2;            // VERTEX_id_0 and VERTEX_id_1 = index number of cells on either side of TRIANGLE
         VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2;                                                               // *VERTEX_0, *VERTEX_1 and *VERTEX_2 = pointers to vertices (labelled anticlockwise)
@@ -271,6 +270,8 @@ TRIANGLE setup_triangle(int i0, int j0, std::vector<std::vector<VERTEX> > &POINT
         NEW_TRIANGLE.set_vertex_0(VERTEX_0);                                // pass these pointers to the TRIANGLE
         NEW_TRIANGLE.set_vertex_1(VERTEX_1);
         NEW_TRIANGLE.set_vertex_2(VERTEX_2);
+
+        NEW_TRIANGLE.setup_normals(DX, DY);
 
         return NEW_TRIANGLE;
 }

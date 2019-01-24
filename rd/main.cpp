@@ -96,61 +96,38 @@ int main(){
 
         /****** Setup MESH ******/
 
-#ifdef MESH_TEST
-        std::ofstream MESH_POS;
-        MESH_POS.open("mesh_pos.txt");
-#endif
-
-         std::cout << "Assigning vertices to triangles" << std::endl;
+         std::cout << "Assigning vertices to triangles ..." << std::endl;
 
         for(j=0; j<2*N_POINTS_Y; j++){
                 for(i=0; i<N_POINTS_X; i++){
-                        NEW_TRIANGLE = setup_triangle(i,j,POINTS);
+                        NEW_TRIANGLE = setup_triangle(i,j,POINTS,DX,DY);
                         X_MESH.push_back(NEW_TRIANGLE);
-#ifdef MESH_TEST
-                        // if(i>0 and i<N_POINTS_X and j>0 and j<2*N_POINTS_Y){
-                                // std::cout << i << "\t" << j << std::endl;
-                                double X_CENTRE = (NEW_TRIANGLE.get_vertex_0()->get_x() + NEW_TRIANGLE.get_vertex_1()->get_x() + NEW_TRIANGLE.get_vertex_2()->get_x())/3.0;
-                                double Y_CENTRE = (NEW_TRIANGLE.get_vertex_0()->get_y() + NEW_TRIANGLE.get_vertex_1()->get_y() + NEW_TRIANGLE.get_vertex_2()->get_y())/3.0;
-                                double X_DIST_0 = X_CENTRE - NEW_TRIANGLE.get_vertex_0()->get_x();
-                                double X_DIST_1 = X_CENTRE - NEW_TRIANGLE.get_vertex_1()->get_x();
-                                double X_DIST_2 = X_CENTRE - NEW_TRIANGLE.get_vertex_2()->get_x();
-                                double Y_DIST_0 = Y_CENTRE - NEW_TRIANGLE.get_vertex_0()->get_y();
-                                double Y_DIST_1 = Y_CENTRE - NEW_TRIANGLE.get_vertex_1()->get_y();
-                                double Y_DIST_2 = Y_CENTRE - NEW_TRIANGLE.get_vertex_2()->get_y();
-                                double LEN_0 = sqrt(X_DIST_0*X_DIST_0 + Y_DIST_0*Y_DIST_0);
-                                double LEN_1 = sqrt(X_DIST_1*X_DIST_1 + Y_DIST_0*Y_DIST_0);
-                                double LEN_2 = sqrt(X_DIST_2*X_DIST_2 + Y_DIST_0*Y_DIST_0);
-                                MESH_POS << NEW_TRIANGLE.get_vertex_0()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_0()->get_y() << "\t" << NEW_TRIANGLE.get_vertex_1()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_1()->get_y() << "\t" << NEW_TRIANGLE.get_vertex_2()->get_x() << "\t" << NEW_TRIANGLE.get_vertex_2()->get_y() << "\t" << X_CENTRE << "\t" << Y_CENTRE << "\t" << LEN_0 << "\t" << LEN_1 << "\t" << LEN_2 << std::endl;
-                        // }
-#endif
                 }
                 MESH.push_back(X_MESH);
                 X_MESH.clear();
         }
 
-#ifdef MESH_TEST
-        exit(0);
-#endif
-
-        std::cout << "Finished triangle setup" << std::endl;
+        std::cout << "Finished triangle setup ..." << std::endl;
 
         /****** Loop over time until total time T_TOT is reached ******/
 
-        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC, TEMP_FILE;
-
-        TEMP_FILE.open("temp.txt");
+        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC;
 
         open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC);               // open output files
 
         std::cout << "Mesh Size =\t" << MESH[0].size() << '\t' << MESH.size() << std::endl;
-        std::cout << "Evolving fluid ..." << std::endl;
+
+        // std::cout << "Calculating dual areas ..." << std::endl;
 
         // for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
         //         for(i=0;i<N_POINTS_X;i++){ 
         //                 MESH[j][i].setup_normals(DX,DY);
         //         }
         // }
+
+        std::cout << "Evolving fluid ..." << std::endl;
+
+
 
         while(T<T_TOT){
 
@@ -176,7 +153,7 @@ int main(){
 
                 for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
                         for(i=0;i<N_POINTS_X;i++){ 
-                                MESH[j][i].calculate_first_half(T, DT, DX, DY, TEMP_FILE);             // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
                         }
                 }
 

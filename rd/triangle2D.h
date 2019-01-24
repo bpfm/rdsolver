@@ -109,7 +109,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT, double DX, double DY, std::ofstream &TEMP_FILE){
+        void calculate_first_half(double T, double DT_TOT, double DX, double DY){
                 int i,j,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
@@ -126,7 +126,7 @@ public:
                 setup_positions();
                 setup_initial_state();
 
-                if(T == 0.0){setup_normals(DX,DY);}
+                // if(T == 0.0){setup_normals(DX,DY);}
 
 #ifdef CLOSED
                 if(std::abs(X[0] - X[1]) > 2.0*DX or std::abs(X[0] - X[2]) > 2.0*DX or std::abs(X[1] - X[2]) > 2.0*DX){
@@ -897,11 +897,6 @@ public:
                         DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
                         DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
                         DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
-
-                        DU0[i] = 0.0;
-                        DU1[i] = 0.0;
-                        DU2[i] = 0.0;
-
                 }
 
 #endif
@@ -930,18 +925,18 @@ public:
                 return AVG;
         }
 
-        void calculate_normals(double X[3],double Y[3]){
+        void calculate_normals(double X_NORM[3],double Y_NORM[3]){
                 int i;
                 double PERP[3][2];
 
-                PERP[0][0] = (Y[1] - Y[2]);
-                PERP[0][1] = (X[2] - X[1]);
+                PERP[0][0] = (Y_NORM[1] - Y_NORM[2]);
+                PERP[0][1] = (X_NORM[2] - X_NORM[1]);
 
-                PERP[1][0] = (Y[2] - Y[0]);
-                PERP[1][1] = (X[0] - X[2]);
+                PERP[1][0] = (Y_NORM[2] - Y_NORM[0]);
+                PERP[1][1] = (X_NORM[0] - X_NORM[2]);
 
-                PERP[2][0] = (Y[0] - Y[1]);
-                PERP[2][1] = (X[1] - X[0]);
+                PERP[2][0] = (Y_NORM[0] - Y_NORM[1]);
+                PERP[2][1] = (X_NORM[1] - X_NORM[0]);
 
 
                 // calculate area of triangle and pass 1/3 to each vertex for dual
@@ -954,9 +949,9 @@ public:
 
                 AREA = 0.5*(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1])*sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1]))*sin(THETA);
 
-                // VERTEX_0->calculate_dual(AREA/3.0);
-                // VERTEX_1->calculate_dual(AREA/3.0);
-                // VERTEX_2->calculate_dual(AREA/3.0);
+                VERTEX_0->calculate_dual(AREA/3.0);
+                VERTEX_1->calculate_dual(AREA/3.0);
+                VERTEX_2->calculate_dual(AREA/3.0);
 
                 for(i=0;i<3;i++){
                         MAG[i] = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
@@ -965,8 +960,8 @@ public:
                 }
 
 #ifdef DEBUG
-                        std::cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;
-                        std::cout << "Y =\t" << Y[0] << "\t" << Y[1] << "\t" << Y[2] << std::endl;
+                        std::cout << "X =\t" << X_NORM[0] << "\t" << X_NORM[1] << "\t" << X_NORM[2] << std::endl;
+                        std::cout << "Y =\t" << Y_NORM[0] << "\t" << Y_NORM[1] << "\t" << Y_NORM[2] << std::endl;
                         std::cout << "Normal i =\t" << NORMAL[0][0] << "\t" << NORMAL[0][1] << std::endl;
                         std::cout << "Normal j =\t" << NORMAL[1][0] << "\t" << NORMAL[1][1] << std::endl;
                         std::cout << "Normal k =\t" << NORMAL[2][0] << "\t" << NORMAL[2][1] << std::endl;

@@ -5,7 +5,6 @@
 #define N_SNAP 10
 
 // #define DEBUG
-// #define ASTRIX_COMP
 
 #define GENERATE_IC
 // #define READ_IC           // doesn't work yet

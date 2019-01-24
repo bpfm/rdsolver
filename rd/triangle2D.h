@@ -455,67 +455,6 @@ public:
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
 
-#ifdef ASTRIX_COMP
-                for(m=0;m<3;m++){
-                        // std::cout << m << "\t" << X[m] << "\t" << Y[m] << std::endl;
-                        if((X[m] >= 4.921 and X[m] <= 4.922) and (Y[m] >= 4.531 and Y[m] <= 4.532)){
-                                int K_INDEX = 2;
-                                if(m == 0){
-                                        // std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU0 =\t" << DU0[0] << std::endl;
-                                        std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tFLUC0 =\t" << FLUC[0][m] << std::endl;
-                                        std::cout << "\tDX  =\t" << DX << "\tDY =\t" << DY << std::endl;
-                                        std::cout << "\tN_x =\t" << N_X[0] << "\t" << N_X[1] << "\t" << N_X[2] << std::endl;
-                                        std::cout << "\tN_y =\t" << N_Y[0] << "\t" << N_Y[1] << "\t" << N_Y[2] << std::endl;
-                                        std::cout << "\tW_h =\t" << W_HAT[0][m] << "\t" << W_HAT[1][m] << "\t" << W_HAT[2][m] << "\t" << W_HAT[3][m] << "\t" << std::endl;
-                                        std::cout << "\tPHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
-                                        std::cout << "\tDU0 =\t" << DU0[0] << "\t" << DU0[1] << "\t" << DU0[2] << "\t" << DU0[3] << std::endl;
-                                        // std::cout << "\tBETA =\t" << std::endl;
-                                        // for(i=0;i<4;++i){std::cout << BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << std::endl;}
-                                        std::cout << "\tK =\t" << std::endl;
-                                        for(i=0;i<4;++i){std::cout << INFLOW[i][0][m][K_INDEX] << "\t" << INFLOW[i][1][m][K_INDEX] << "\t" << INFLOW[i][2][m][K_INDEX] << "\t" << INFLOW[i][3][m][K_INDEX] << std::endl;}
-                                        std::cout << std::endl; 
-                                        // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
-                                }else if(m == 1){
-                                        // std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU1 =\t" << DU1[0] << std::endl;
-                                        std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tFLUC1 =\t" << FLUC[0][m] << std::endl;
-                                        std::cout << "\tN_x =\t" << N_X[0] << "\t" << N_X[1] << "\t" << N_X[2] << std::endl;
-                                        std::cout << "\tN_y =\t" << N_Y[0] << "\t" << N_Y[1] << "\t" << N_Y[2] << std::endl;
-                                        std::cout << "\tW_h =\t" << W_HAT[0][m] << "\t" << W_HAT[1][m] << "\t" << W_HAT[2][m] << "\t" << W_HAT[3][m] << "\t" << std::endl;
-                                        std::cout << "\tPHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
-                                        std::cout << "\tDU1 =\t" << DU1[0] << "\t" << DU1[1] << "\t" << DU1[2] << "\t" << DU1[3] << std::endl;
-                                        // std::cout << "\tBETA =\t" << std::endl;
-                                        // for(i=0;i<4;++i){std::cout << BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << std::endl;}
-                                        std::cout << "\tK =\t" << std::endl;
-                                        for(i=0;i<4;++i){std::cout << INFLOW[i][0][m][K_INDEX] << "\t" << INFLOW[i][1][m][K_INDEX] << "\t" << INFLOW[i][2][m][K_INDEX] << "\t" << INFLOW[i][3][m][K_INDEX] << std::endl;}
-                                        std::cout << std::endl;
-                                        // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
-                                }else{
-                                        // std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU2 =\t" << DU2[0] << std::endl;
-                                        std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tFLUC2 =\t" << FLUC[0][m] << std::endl;
-                                        std::cout << "\tN_x =\t" << N_X[0] << "\t" << N_X[1] << "\t" << N_X[2] << std::endl;
-                                        std::cout << "\tN_y =\t" << N_Y[0] << "\t" << N_Y[1] << "\t" << N_Y[2] << std::endl;
-                                        std::cout << "\tW_h  =\t" << W_HAT[0][m] << "\t" << W_HAT[1][m] << "\t" << W_HAT[2][m] << "\t" << W_HAT[3][m] << "\t" << std::endl;
-                                        std::cout << "\tPHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
-                                        std::cout << "\tDU2 =\t" << DU2[0] << "\t" << DU2[1] << "\t" << DU2[2] << "\t" << DU2[3] << std::endl;
-                                        // std::cout << "\tBETA =\t" << std::endl;
-                                        // for(i=0;i<4;++i){std::cout << BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << std::endl;}
-                                        std::cout << "\tK =\t" << std::endl;
-                                        for(i=0;i<4;++i){std::cout << INFLOW[i][0][m][K_INDEX] << "\t" << INFLOW[i][1][m][K_INDEX] << "\t" << INFLOW[i][2][m][K_INDEX] << "\t" << INFLOW[i][3][m][K_INDEX] << std::endl;}
-                                        std::cout << std::endl;
-                                        // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
-                                }
-                                // std::cout << "\tKZ_SUM =\t" << KZ_SUM[0] << "\t" << KZ_SUM[1] << "\t" << KZ_SUM[2] << "\t" << KZ_SUM[3] << std::endl;
-                                // std::cout << "\tBRACKET =\t" << BRACKET[0][m] << "\t" << BRACKET[1][m] << "\t" << BRACKET[2][m] << "\t" << BRACKET[3][m] << std::endl;
-                                // std::cout << "0\t" << BRACKET[0][0] << "\t" << BRACKET[1][0] << "\t" << BRACKET[2][0] << "\t" << BRACKET[3][0] << std::endl;
-                                // std::cout << "1\t" << BRACKET[0][1] << "\t" << BRACKET[1][1] << "\t" << BRACKET[2][1] << "\t" << BRACKET[3][1] << std::endl;
-                                // std::cout << "2\t" << BRACKET[0][2] << "\t" << BRACKET[1][2] << "\t" << BRACKET[2][2] << "\t" << BRACKET[3][2] << std::endl;
-                                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl; 
-                                // std::cout << "\tN_m =\t" << std::endl;
-                                // for(i=0;i<4;++i){std::cout << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << std::endl;}        
-                        }
-                }
-#endif
-
 
 #ifdef DEBUG
                         for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}

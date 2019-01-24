@@ -39,6 +39,10 @@ int main(){
 
         /****** Setup initial conditions of one dimensional tube ******/
 
+        std::cout << std::fixed;
+        std::cout << std::setprecision(6);
+
+
 #ifdef LDA_SCHEME
         std::cout << "Using LDA Scheme" << std::endl;
 #endif
@@ -62,7 +66,7 @@ int main(){
                 X_POINTS.clear();
         }
 
-        NEXT_DT = 0.0000001;
+        NEXT_DT = 0.00000001;
 #endif
 #endif
 
@@ -85,7 +89,7 @@ int main(){
                 X_POINTS.clear();
         }
 
-        NEXT_DT = 0.0000001;
+        NEXT_DT = 0.00000001;
 
         IC_FILE.close();
 #endif
@@ -153,7 +157,7 @@ int main(){
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
 
 #ifdef FIXED_DT
-                DT = 0.00001;
+                DT = 0.0001;
 #endif
 
                 std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << std::endl;

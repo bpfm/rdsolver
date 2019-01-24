@@ -36,7 +36,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
         NEW_VERTEX.set_dx(DX);
         NEW_VERTEX.set_dy(DY);
 
-        NEW_VERTEX.set_dual();
+        NEW_VERTEX.set_dual(DX*DY);
 
         if(IC == 0){
                 if(i==0 and j==0){std::cout << "Using 1D Sod Shock Tube (Varied in X)" << std::endl;}
@@ -79,10 +79,10 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 double V = 0.00000001;
                 double P = 10.0;
 
-                double R = sqrt((X - SIDE_LENGTH_X/2)*(X - SIDE_LENGTH_X/2) + (Y - SIDE_LENGTH_Y/2)*(Y - SIDE_LENGTH_Y/2));
+                double R = sqrt((X - 5.0)*(X - 5.0) + (Y - 5.0)*(Y - 5.0));
 
-                if(R < 0.03*SIDE_LENGTH_X){
-                        P = 100000/DX/BLAST_VERTICES;
+                if(R < 0.5){
+                        P = 1000.0;///DX/BLAST_VERTICES;
                         std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\tPressure =\t" << P << std::endl;
                         POINT_CHECK ++;
                 }
@@ -99,7 +99,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
                 double X_VELOCITY = 2.0,PRESSURE = 100.0;
 
-                S = abs(CENTRE - X);                                       // distance from centre of pulse
+                S = std::abs(CENTRE - X);                                       // distance from centre of pulse
                 W = 0.1;                                                 // characteristic width
 
                 RHO = RHO_PULSE*exp(-S*S/(W*W)) + RHO_0*(1.0-exp(-S*S/(W*W)));
@@ -151,7 +151,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 NEW_VERTEX.set_mass_density(1.0);
                 NEW_VERTEX.set_x_velocity(X_VEL);
                 NEW_VERTEX.set_y_velocity(Y_VEL);
-                NEW_VERTEX.set_pressure(0.00000001);
+                NEW_VERTEX.set_pressure(0.1);
 
         }else if(IC == 7){
                 if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse (y-direction)" << std::endl;}
@@ -160,7 +160,7 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
                 double Y_VELOCITY = 2.0,PRESSURE = 100.0;
 
-                S = abs(CENTRE - Y);                                       // distance from centre of pulse
+                S = std::abs(CENTRE - Y);                                       // distance from centre of pulse
                 W = 0.1;                                                 // characteristic width
 
                 RHO = RHO_PULSE*exp(-S*S/(W*W)) + RHO_0*(1.0-exp(-S*S/(W*W)));
@@ -188,15 +188,15 @@ VERTEX setup_vertex(int i, int j, double &DX, double &DY){
                 if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
 
                 if(X < 0.25*SIDE_LENGTH_X or X > 0.75*SIDE_LENGTH_X){
-                        NEW_VERTEX.set_y_velocity(1.0);
-                        NEW_VERTEX.set_mass_density(100.0);
+                        NEW_VERTEX.set_y_velocity(0.5);
+                        NEW_VERTEX.set_mass_density(1.0);
                 }else{
-                        NEW_VERTEX.set_y_velocity(-1.0);
-                        NEW_VERTEX.set_mass_density(200.0);
+                        NEW_VERTEX.set_y_velocity(-0.5);
+                        NEW_VERTEX.set_mass_density(2.0);
                 }
 
                 NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
-                NEW_VERTEX.set_pressure(100.0);
+                NEW_VERTEX.set_pressure(1.0);
 
         }
 

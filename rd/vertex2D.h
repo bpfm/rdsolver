@@ -34,7 +34,7 @@ public:
         void set_y( double NEW_Y){Y   = NEW_Y;}
         void set_dx(double NEW_DX){DX = NEW_DX;}
         void set_dy(double NEW_DY){DY = NEW_DY;}
-        void set_dual(){DUAL = 0.0;}
+        void set_dual(double NEW_DUAL){DUAL = NEW_DUAL;}
         void set_mass_density( double NEW_MASS_DENSITY){MASS_DENSITY  = NEW_MASS_DENSITY;}
         void set_x_velocity(   double NEW_X_VELOCITY){  X_VELOCITY    = NEW_X_VELOCITY;}
         void set_y_velocity(   double NEW_Y_VELOCITY){  Y_VELOCITY    = NEW_Y_VELOCITY;}
@@ -80,9 +80,9 @@ public:
                 SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
         }
 
-        void calculate_dual(double CONTRIBUTION){
-                DUAL = DUAL + CONTRIBUTION;
-        }
+        // void calculate_dual(double CONTRIBUTION){
+        //         DUAL = DUAL + CONTRIBUTION;
+        // }
 
         void prim_to_con(){
                 U_VARIABLES[0] = MASS_DENSITY;                          // U0 = mass density
@@ -197,7 +197,7 @@ public:
         // Calculate min timestep this cell requires
         void calc_next_dt(double DX, double CFL, double &NEXT_DT){
                 double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
-                double V_MAX = max_val(abs(X_VELOCITY)+C_SOUND,abs(Y_VELOCITY)+C_SOUND);
+                double V_MAX = max_val(std::abs(X_VELOCITY)+C_SOUND,std::abs(Y_VELOCITY)+C_SOUND);
                 NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*V_MAX);
                 //std::cout << NEXT_DT << std::endl;
         }

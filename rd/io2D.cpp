@@ -31,8 +31,8 @@ void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofs
                         PRESSURE_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density()*POINTS[j][i].get_specific_energy() << std::endl;
                         VELOCITY_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density()*POINTS[j][i].get_x_velocity()   << "\t" << POINTS[j][i].get_mass_density()*POINTS[j][i].get_y_velocity() << std::endl;
                         if(j == N_POINTS_Y/2){CENTRAL_COLUMN << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density() << "\t" <<POINTS[j][i].get_pressure() << "\t" << POINTS[j][i].get_x_velocity() << "\t" << POINTS[j-1][i].get_mass_density() << "\t" << POINTS[j+1][i].get_mass_density() << std::endl;}
-                        TOTAL_DENSITY += POINTS[j][i].get_mass_density()*DX*DY;
-                        TOTAL_ENERGY += POINTS[j][i].get_specific_energy()*DX*DY * POINTS[j][i].get_mass_density();
+                        TOTAL_DENSITY += POINTS[j][i].get_mass_density()*POINTS[j][i].get_dual();
+                        TOTAL_ENERGY += POINTS[j][i].get_specific_energy()*POINTS[j][i].get_dual() * POINTS[j][i].get_mass_density();
                 }
         }
 

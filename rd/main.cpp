@@ -100,7 +100,7 @@ int main(){
 
         for(j=0; j<2*N_POINTS_Y; j++){
                 for(i=0; i<N_POINTS_X; i++){
-                        NEW_TRIANGLE = setup_triangle(i,j,POINTS);
+                        NEW_TRIANGLE = setup_triangle(i,j,POINTS,DX,DY);
                         X_MESH.push_back(NEW_TRIANGLE);
                 }
                 MESH.push_back(X_MESH);

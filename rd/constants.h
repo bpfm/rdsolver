@@ -2,7 +2,7 @@
 
 #define TWO_D
 
-#define N_SNAP 20
+#define N_SNAP 10
 
 // #define DEBUG
 // #define MESH_TEST
@@ -25,12 +25,12 @@
 int N_POINTS_X = 64;
 int N_POINTS_Y = 64;
 
-double RANDOM_LVL = 0.0;
+double RANDOM_LVL = 0.0; // doesn't work yet
 
 // Sod Shock Tube
 #if IC == 0
 double CFL = 0.1;
-double T_TOT = 0.5;
+double T_TOT = 0.2;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
@@ -117,7 +117,6 @@ double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
-
 
 double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;

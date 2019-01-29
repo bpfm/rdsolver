@@ -126,7 +126,7 @@ public:
                 setup_positions();
                 setup_initial_state();
 
-                if(T == 0.0){setup_normals(DX,DY);}
+                // if(T == 0.0){setup_normals(DX,DY);}
 
 #ifdef CLOSED
                 if(std::abs(X[0] - X[1]) > 2.0*DX or std::abs(X[0] - X[2]) > 2.0*DX or std::abs(X[1] - X[2]) > 2.0*DX){
@@ -995,9 +995,9 @@ public:
 
                 AREA = 0.5*(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1])*sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1]))*sin(THETA);
 
-                // VERTEX_0->calculate_dual(AREA/3.0);
-                // VERTEX_1->calculate_dual(AREA/3.0);
-                // VERTEX_2->calculate_dual(AREA/3.0);
+                VERTEX_0->calculate_dual(AREA/3.0);
+                VERTEX_1->calculate_dual(AREA/3.0);
+                VERTEX_2->calculate_dual(AREA/3.0);
 
                 for(i=0;i<3;i++){
                         MAG[i] = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);

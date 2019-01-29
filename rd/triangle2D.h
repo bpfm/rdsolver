@@ -109,7 +109,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT, double DX, double DY){
+        void calculate_first_half(double T, double DT_TOT, double DX, double DY, std::ofstream &TEMP_FILE){
                 int i,j,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
@@ -126,7 +126,7 @@ public:
                 setup_positions();
                 setup_initial_state();
 
-                // if(T == 0.0){setup_normals(DX,DY);}
+                if(T == 0.0){setup_normals(DX,DY);}
 
 #ifdef CLOSED
                 if(std::abs(X[0] - X[1]) > 2.0*DX or std::abs(X[0] - X[2]) > 2.0*DX or std::abs(X[1] - X[2]) > 2.0*DX){
@@ -198,6 +198,8 @@ public:
                         W_HAT[1][m] =  Z_BAR[1]*Z[0][m] + Z_BAR[0]*Z[1][m];
                         W_HAT[2][m] =  Z_BAR[2]*Z[0][m] + Z_BAR[0]*Z[2][m];
                         W_HAT[3][m] = (Z_BAR[3]*Z[0][m] + GAMMA_1*Z_BAR[1]*Z[1][m] + GAMMA_1*Z_BAR[2]*Z[2][m] + Z_BAR[0]*Z[3][m])/GAMMA;
+
+                        //std::cout << Z_BAR[1] << "\t" << Z[0][m] << "\t" << Z_BAR[0] << "\t" << Z[2][m] << std::endl;
 
 #ifdef DEBUG
                         for(i=0;i<4;++i){std::cout << "W_HAT " << i << "\t" << m << " =\t" << W_HAT[i][m] << std::endl;}
@@ -455,6 +457,82 @@ public:
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
 
+#ifdef ASTRIX_COMP
+                for(m=0;m<3;m++){
+                        // std::cout << m << "\t" << X[m] << "\t" << Y[m] << std::endl;
+                        if((X[m] >= 4.921 and X[m] <= 4.922) and (Y[m] >= 4.531 and Y[m] <= 4.532)){
+                                int K_INDEX = 2;
+                                if(m == 0){
+                                        // std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU0 =\t" << DU0[0] << std::endl;
+                                        std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tFLUC0 =\t" << FLUC[0][m] << std::endl;
+                                        std::cout << "\tDX  =\t" << DX << "\tDY =\t" << DY << std::endl;
+                                        std::cout << "\tN_x =\t" << N_X[0] << "\t" << N_X[1] << "\t" << N_X[2] << std::endl;
+                                        std::cout << "\tN_y =\t" << N_Y[0] << "\t" << N_Y[1] << "\t" << N_Y[2] << std::endl;
+                                        std::cout << "\tW_h =\t" << W_HAT[0][m] << "\t" << W_HAT[1][m] << "\t" << W_HAT[2][m] << "\t" << W_HAT[3][m] << "\t" << std::endl;
+                                        std::cout << "\tPHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
+                                        std::cout << "\tDU0 =\t" << DU0[0] << "\t" << DU0[1] << "\t" << DU0[2] << "\t" << DU0[3] << std::endl;
+                                        // std::cout << "\tBETA =\t" << std::endl;
+                                        // for(i=0;i<4;++i){std::cout << BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << std::endl;}
+                                        std::cout << "\tK =\t" << std::endl;
+                                        for(i=0;i<4;++i){std::cout << INFLOW[i][0][m][K_INDEX] << "\t" << INFLOW[i][1][m][K_INDEX] << "\t" << INFLOW[i][2][m][K_INDEX] << "\t" << INFLOW[i][3][m][K_INDEX] << std::endl;}
+                                        std::cout << std::endl; 
+                                        // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
+                                }else if(m == 1){
+                                        // std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU1 =\t" << DU1[0] << std::endl;
+                                        std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tFLUC1 =\t" << FLUC[0][m] << std::endl;
+                                        std::cout << "\tN_x =\t" << N_X[0] << "\t" << N_X[1] << "\t" << N_X[2] << std::endl;
+                                        std::cout << "\tN_y =\t" << N_Y[0] << "\t" << N_Y[1] << "\t" << N_Y[2] << std::endl;
+                                        std::cout << "\tW_h =\t" << W_HAT[0][m] << "\t" << W_HAT[1][m] << "\t" << W_HAT[2][m] << "\t" << W_HAT[3][m] << "\t" << std::endl;
+                                        std::cout << "\tPHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
+                                        std::cout << "\tDU1 =\t" << DU1[0] << "\t" << DU1[1] << "\t" << DU1[2] << "\t" << DU1[3] << std::endl;
+                                        // std::cout << "\tBETA =\t" << std::endl;
+                                        // for(i=0;i<4;++i){std::cout << BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << std::endl;}
+                                        std::cout << "\tK =\t" << std::endl;
+                                        for(i=0;i<4;++i){std::cout << INFLOW[i][0][m][K_INDEX] << "\t" << INFLOW[i][1][m][K_INDEX] << "\t" << INFLOW[i][2][m][K_INDEX] << "\t" << INFLOW[i][3][m][K_INDEX] << std::endl;}
+                                        std::cout << std::endl;
+                                        // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
+                                }else{
+                                        // std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU2 =\t" << DU2[0] << std::endl;
+                                        std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tFLUC2 =\t" << FLUC[0][m] << std::endl;
+                                        std::cout << "\tN_x =\t" << N_X[0] << "\t" << N_X[1] << "\t" << N_X[2] << std::endl;
+                                        std::cout << "\tN_y =\t" << N_Y[0] << "\t" << N_Y[1] << "\t" << N_Y[2] << std::endl;
+                                        std::cout << "\tW_h  =\t" << W_HAT[0][m] << "\t" << W_HAT[1][m] << "\t" << W_HAT[2][m] << "\t" << W_HAT[3][m] << "\t" << std::endl;
+                                        std::cout << "\tPHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
+                                        std::cout << "\tDU2 =\t" << DU2[0] << "\t" << DU2[1] << "\t" << DU2[2] << "\t" << DU2[3] << std::endl;
+                                        // std::cout << "\tBETA =\t" << std::endl;
+                                        // for(i=0;i<4;++i){std::cout << BETA[i][0][m] << "\t" << BETA[i][1][m] << "\t" << BETA[i][2][m] << "\t" << BETA[i][3][m] << std::endl;}
+                                        std::cout << "\tK =\t" << std::endl;
+                                        for(i=0;i<4;++i){std::cout << INFLOW[i][0][m][K_INDEX] << "\t" << INFLOW[i][1][m][K_INDEX] << "\t" << INFLOW[i][2][m][K_INDEX] << "\t" << INFLOW[i][3][m][K_INDEX] << std::endl;}
+                                        std::cout << std::endl;
+                                        // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
+                                }
+                                std::cout << "\tKZ_SUM =\t" << KZ_SUM[0] << "\t" << KZ_SUM[1] << "\t" << KZ_SUM[2] << "\t" << KZ_SUM[3] << std::endl;
+                                std::cout << "\tBRACKET =\t" << BRACKET[0][m] << "\t" << BRACKET[1][m] << "\t" << BRACKET[2][m] << "\t" << BRACKET[3][m] << std::endl;
+                                // std::cout << "0\t" << BRACKET[0][0] << "\t" << BRACKET[1][0] << "\t" << BRACKET[2][0] << "\t" << BRACKET[3][0] << std::endl;
+                                // std::cout << "1\t" << BRACKET[0][1] << "\t" << BRACKET[1][1] << "\t" << BRACKET[2][1] << "\t" << BRACKET[3][1] << std::endl;
+                                // std::cout << "2\t" << BRACKET[0][2] << "\t" << BRACKET[1][2] << "\t" << BRACKET[2][2] << "\t" << BRACKET[3][2] << std::endl;
+                                std::cout << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl; 
+                                // std::cout << "\tN_m =\t" << std::endl;
+                                // for(i=0;i<4;++i){std::cout << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << std::endl;}        
+                        }
+                }
+
+                // for(m=0;m<3;m++){
+                //         if((X[m] >= 4.921 and X[m] <= 4.922) and (Y[m] >= 5.468 and Y[m] <= 5.469)){
+                //                 if(m == 0){
+                //                         std::cout << "-\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU0 =\t" << DU0[0] << std::endl;
+                //                         // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
+                //                 }else if(m == 1){
+                //                         std::cout << "-\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU1 =\t" << DU1[0] << std::endl;
+                //                         // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
+                //                 }else{
+                //                         std::cout << "-\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU2 =\t" << DU2[0] << std::endl;
+                //                         // std::cout << "DT =\t" << DT << "\tDUAL =\t" << DUAL[m] << std::endl;
+                //                 }
+                //         }
+                // }
+#endif
+
 
 #ifdef DEBUG
                         for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
@@ -474,7 +552,6 @@ public:
 
         void calculate_second_half(double T, double DT_TOT, double DX, double DY){
                 int i,j,m,p;
-
                 double DU0[4],DU1[4],DU2[4];
                 double INFLOW[4][4][3][3];
 
@@ -515,6 +592,7 @@ public:
 
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
                 // Calculate inflow parameters
 
                 double H[3];
@@ -527,18 +605,18 @@ public:
 
                 double Z_BAR[4],W_HAT[4][3];
 
-                // Construct Roe vector Z
+                // Construct Roe std::vector Z
 
                 for(m=0;m<3;++m){
-                        Z[0][m] = sqrt(U_N[0][m]);
-                        Z[1][m] = U_N[1][m]/Z[0][m];
-                        Z[2][m] = U_N[2][m]/Z[0][m];
-                        Z[3][m] = (U_N[3][m] + PRESSURE[m])/Z[0][m];
+                        Z[0][m] = sqrt(U_HALF[0][m]);
+                        Z[1][m] = U_HALF[1][m]/Z[0][m];
+                        Z[2][m] = U_HALF[2][m]/Z[0][m];
+                        Z[3][m] = (U_HALF[3][m] + PRESSURE[m])/Z[0][m];
 
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];
 
-                        H[m] = (U_N[3][m] + PRESSURE[m])/U_N[0][m];
+                        H[m] = (U_HALF[3][m] + PRESSURE[m])/U_HALF[0][m];
 #ifdef DEBUG
                         std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
 #endif
@@ -546,30 +624,27 @@ public:
 
                 for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
 
-#ifdef DEBUG
-                for(i=0; i<4; ++i){std::cout << "Z_BAR " << i << " =\t" << Z_BAR[i] << std::endl;}
-                std::cout << std::endl;
-#endif
-
+                for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
 
                 for(m=0; m<3; ++m){
                         W_HAT[0][m] =  2.0*Z_BAR[0]*Z[0][m];
                         W_HAT[1][m] =  Z_BAR[1]*Z[0][m] + Z_BAR[0]*Z[1][m];
                         W_HAT[2][m] =  Z_BAR[2]*Z[0][m] + Z_BAR[0]*Z[2][m];
                         W_HAT[3][m] = (Z_BAR[3]*Z[0][m] + GAMMA_1*Z_BAR[1]*Z[1][m] + GAMMA_1*Z_BAR[2]*Z[2][m] + Z_BAR[0]*Z[3][m])/GAMMA;
+                }
 
 #ifdef DEBUG
-                        for(i=0;i<4;++i){std::cout << "W_HAT " << i << "\t" << m << " =\t" << W_HAT[i][m] << std::endl;}
-                        std::cout << std::endl;
-#endif
+                for(i=0;i<4;++i){
+                        std::cout << "W_HAT =\t" << W_HAT[i][m] << std::endl;
                 }
+#endif
 
                 // Construct average state for element
 
-                RHO   = pow((sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]))/3.0, 2);
-                U     = (sqrt(U_N[0][0])*U_N[1][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[1][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[1][2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));        // U now represents x velocity
-                V     = (sqrt(U_N[0][0])*U_N[2][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[2][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[2][2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));        // V represents y velocity
-                H_AVG = (sqrt(U_N[0][0])*H[0] + sqrt(U_N[0][1])*H[1] + sqrt(U_N[0][2])*H[2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
+                RHO   = pow((sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]))/3.0, 2);
+                U     = (sqrt(U_HALF[0][0])*U_HALF[1][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[1][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[1][2]/U_HALF[0][2])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));        // U now represents x velocity
+                V     = (sqrt(U_HALF[0][0])*U_HALF[2][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[2][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[2][2]/U_HALF[0][2])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));        // V represents y velocity
+                H_AVG = (sqrt(U_HALF[0][0])*H[0] + sqrt(U_HALF[0][1])*H[1] + sqrt(U_HALF[0][2])*H[2])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));
                
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
@@ -713,7 +788,7 @@ public:
                                 PHI_HALF[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m];
                         }
                 }
-§
+
                 // Calculate spatial splitting for first half timestep
 
                 for(i=0;i<4;++i){
@@ -836,6 +911,11 @@ public:
                         DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
                         DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
                         DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
+
+                        // DU0[i] = 0.0;
+                        // DU1[i] = 0.0;
+                        // DU2[i] = 0.0;
+
                 }
 
 #endif
@@ -843,6 +923,33 @@ public:
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
+
+#ifdef ASTRIX_COMP
+                // for(m=0;m<3;m++){
+                //         // std::cout << m << "\t" << X[m] << "\t" << Y[m] << std::endl;
+                //         if((X[m] >= 4.921 and X[m] <= 4.922) and (Y[m] >= 4.531 and Y[m] <= 4.532)){
+                //                 if(m == 0){
+                //                         std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU0 =\t" << DU0[0] << std::endl;
+                //                 }else if(m == 1){
+                //                         std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU1 =\t" << DU1[0] << std::endl;
+                //                 }else{
+                //                         std::cout << "+\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU2 =\t" << DU2[0] << std::endl;
+                //                 }
+                //         }
+                // }
+
+                // for(m=0;m<3;m++){
+                //         if((X[m] >= 4.921 and X[m] <= 4.922) and (Y[m] >= 5.468 and Y[m] <= 5.469)){
+                //                 if(m == 0){
+                //                         std::cout << "-\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU0 =\t" << DU0[0] << std::endl;
+                //                 }else if(m == 1){
+                //                         std::cout << "-\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU1 =\t" << DU1[0] << std::endl;
+                //                 }else{
+                //                         std::cout << "-\t" << m << "\tX =\t" << X[m] << "\tY =\t" << Y[m] << "\tDU2 =\t" << DU2[0] << std::endl;
+                //                 }
+                //         }
+                // }
+#endif
 
 #ifdef DEBUG
                         for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << std::endl;}
@@ -864,18 +971,18 @@ public:
                 return AVG;
         }
 
-        void calculate_normals(double X_NORM[3],double Y_NORM[3]){
+        void calculate_normals(double X[3],double Y[3]){
                 int i;
                 double PERP[3][2];
 
-                PERP[0][0] = (Y_NORM[1] - Y_NORM[2]);
-                PERP[0][1] = (X_NORM[2] - X_NORM[1]);
+                PERP[0][0] = (Y[1] - Y[2]);
+                PERP[0][1] = (X[2] - X[1]);
 
-                PERP[1][0] = (Y_NORM[2] - Y_NORM[0]);
-                PERP[1][1] = (X_NORM[0] - X_NORM[2]);
+                PERP[1][0] = (Y[2] - Y[0]);
+                PERP[1][1] = (X[0] - X[2]);
 
-                PERP[2][0] = (Y_NORM[0] - Y_NORM[1]);
-                PERP[2][1] = (X_NORM[1] - X_NORM[0]);
+                PERP[2][0] = (Y[0] - Y[1]);
+                PERP[2][1] = (X[1] - X[0]);
 
 
                 // calculate area of triangle and pass 1/3 to each vertex for dual
@@ -888,9 +995,9 @@ public:
 
                 AREA = 0.5*(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1])*sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1]))*sin(THETA);
 
-                VERTEX_0->calculate_dual(AREA/3.0);
-                VERTEX_1->calculate_dual(AREA/3.0);
-                VERTEX_2->calculate_dual(AREA/3.0);
+                // VERTEX_0->calculate_dual(AREA/3.0);
+                // VERTEX_1->calculate_dual(AREA/3.0);
+                // VERTEX_2->calculate_dual(AREA/3.0);
 
                 for(i=0;i<3;i++){
                         MAG[i] = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
@@ -899,8 +1006,8 @@ public:
                 }
 
 #ifdef DEBUG
-                        std::cout << "X =\t" << X_NORM[0] << "\t" << X_NORM[1] << "\t" << X_NORM[2] << std::endl;
-                        std::cout << "Y =\t" << Y_NORM[0] << "\t" << Y_NORM[1] << "\t" << Y_NORM[2] << std::endl;
+                        std::cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;
+                        std::cout << "Y =\t" << Y[0] << "\t" << Y[1] << "\t" << Y[2] << std::endl;
                         std::cout << "Normal i =\t" << NORMAL[0][0] << "\t" << NORMAL[0][1] << std::endl;
                         std::cout << "Normal j =\t" << NORMAL[1][0] << "\t" << NORMAL[1][1] << std::endl;
                         std::cout << "Normal k =\t" << NORMAL[2][0] << "\t" << NORMAL[2][1] << std::endl;

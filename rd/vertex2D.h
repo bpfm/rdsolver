@@ -80,9 +80,9 @@ public:
                 SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
         }
 
-        void calculate_dual(double CONTRIBUTION){
-                DUAL = DUAL + CONTRIBUTION;
-        }
+        // void calculate_dual(double CONTRIBUTION){
+        //         DUAL = DUAL + CONTRIBUTION;
+        // }
 
         void prim_to_con(){
                 U_VARIABLES[0] = MASS_DENSITY;                          // U0 = mass density

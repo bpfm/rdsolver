@@ -40,7 +40,7 @@ int main(){
         /****** Setup initial conditions of one dimensional tube ******/
 
         std::cout << std::fixed;
-        std::cout << std::setprecision(6);
+        std::cout << std::setprecision(9);
 
 
 #ifdef LDA_SCHEME
@@ -66,7 +66,7 @@ int main(){
                 X_POINTS.clear();
         }
 
-        NEXT_DT = 0.00000001;
+        NEXT_DT = 0.0000000001;
 #endif
 #endif
 
@@ -89,7 +89,7 @@ int main(){
                 X_POINTS.clear();
         }
 
-        NEXT_DT = 0.00000001;
+        NEXT_DT = 0.0000000001;
 
         IC_FILE.close();
 #endif
@@ -100,7 +100,7 @@ int main(){
 
         for(j=0; j<2*N_POINTS_Y; j++){
                 for(i=0; i<N_POINTS_X; i++){
-                        NEW_TRIANGLE = setup_triangle(i,j,POINTS,DX,DY);
+                        NEW_TRIANGLE = setup_triangle(i,j,POINTS);
                         X_MESH.push_back(NEW_TRIANGLE);
                 }
                 MESH.push_back(X_MESH);
@@ -111,7 +111,9 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached ******/
 
-        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC;
+        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC, TEMP_FILE;
+
+        TEMP_FILE.open("temp.txt");
 
         open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC);               // open output files
 
@@ -153,7 +155,7 @@ int main(){
 
                 for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
                         for(i=0;i<N_POINTS_X;i++){ 
-                                MESH[j][i].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_first_half(T, DT, DX, DY, TEMP_FILE);             // calculate flux through TRIANGLE
                         }
                 }
 

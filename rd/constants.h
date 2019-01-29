@@ -1,10 +1,12 @@
-#define IC 2
+#define IC 9
 
 #define TWO_D
 
-#define N_SNAP 10
+#define N_SNAP 20
 
 // #define DEBUG
+// #define MESH_TEST
+// #define ASTRIX_COMP
 
 #define GENERATE_IC
 // #define READ_IC           // doesn't work yet
@@ -17,21 +19,21 @@
 #define OFFSET_GRID
 // #define EQUILATERAL_GRID
 
-// #define LDA_SCHEME
-#define N_SCHEME
+#define LDA_SCHEME
+// #define N_SCHEME
 
 int N_POINTS_X = 64;
 int N_POINTS_Y = 64;
 
-double RANDOM_LVL = 0.4;	 // doesn't work for non zero values
+double RANDOM_LVL = 0.0;
 
 // Sod Shock Tube
 #if IC == 0
-double CFL = 0.01;
-double T_TOT = 0.1;
+double CFL = 0.1;
+double T_TOT = 0.5;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 0.05;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Sine Wave Tube
@@ -46,7 +48,8 @@ double SIDE_LENGTH_Y = 0.1;
 // Sedov Blast Wave
 #if IC == 2
 double CFL = 0.1;
-double T_TOT = 5.0;
+double T_TOT = 10.0;
+// double GAMMA = 5.0/3.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
@@ -54,8 +57,8 @@ double SIDE_LENGTH_Y = 10.0;
 
 // Gaussian pulse advection (x-direction)
 #if IC == 3
-double CFL = 0.2;
-double T_TOT = 1.0;
+double CFL = 0.1;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 0.05;
@@ -108,7 +111,7 @@ double SIDE_LENGTH_Y = 1.0;
 
 // KH instability (y flow)
 #if IC == 9
-double CFL = 1.0;
+double CFL = 0.1;
 double T_TOT = 2.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;

@@ -21,18 +21,18 @@
 
 int main(){
 
-        int i, j, l = 0;                                          // ******* decalare varaibles and std::vectors ******
-        double DX, DY, DT, T = 0.0;                                // DX = space step,DT = timestep,t = time
-        double NEXT_TIME = 0.0;                                   // NEXT_TIME = time of next snapshot
-        double NEXT_DT = T_TOT, POSSIBLE_DT;                       // NEXT_DT = timestep for upcoming time iteration
-        VERTEX                               NEW_VERTEX;
-        TRIANGLE                             NEW_TRIANGLE;
-        std::vector<VERTEX>                  X_POINTS;
-        std::vector<std::vector<VERTEX> >    POINTS;
-        std::vector<TRIANGLE>                X_MESH;
-        std::vector<std::vector<TRIANGLE> >  MESH;
-        std::vector<VERTEX>::iterator        IT_VERT;
-        std::vector<TRIANGLE>::iterator      IT_TRIANGLE;
+        int i, j, l = 0;                                           // ******* decalare varaibles and vectors ******
+        double DX, DY, DT, T = 0.0;                                // DX           = space step,DT = timestep,t = time
+        double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
+        double NEXT_DT = T_TOT, POSSIBLE_DT;                       // NEXT_DT.     = timestep for upcoming time iteration
+        VERTEX                               NEW_VERTEX;           // NEW_VERTEX   = dummy variable for setting up vertices
+        TRIANGLE                             NEW_TRIANGLE;         // NEW_TRIABLE  = dummy variable for setting up triangles
+        std::vector<VERTEX>                  X_POINTS;             // X_POINTS     = vector of x vertices
+        std::vector<std::vector<VERTEX> >    POINTS;               // POINTS       = vector of rows of vertices
+        std::vector<TRIANGLE>                X_MESH;               // X_MESH       = vector of x triangles
+        std::vector<std::vector<TRIANGLE> >  MESH;                 // MESH         = vector of rows of triangles
+        std::vector<VERTEX>::iterator        IT_VERT;              // IT_VERT      = iterator for vertex vector
+        std::vector<TRIANGLE>::iterator      IT_TRIANGLE;          // IT_TRIANGLE  = iterator for triangle vector
 
         // Initialise seed for random number generator (rand)
         std::srand(68315);
@@ -57,9 +57,9 @@ int main(){
 #ifdef TWO_D
         for(j=0; j<N_POINTS_Y; j++){
                 for(i=0; i<N_POINTS_X; i++){
-                        NEW_VERTEX = setup_vertex(i,j,DX,DY);               // call VERTEX setup routine
-                        X_POINTS.push_back(NEW_VERTEX);                              // add new VERTEX to std::vector of vertices in this row
-                        // X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);                // check dt is min required by CFL
+                        NEW_VERTEX = setup_vertex(i,j,DX,DY);                 // call VERTEX setup routine
+                        X_POINTS.push_back(NEW_VERTEX);                       // add new VERTEX to std::vector of vertices in this row
+                        // X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);      // check dt is min required by CFL
                         // if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
                 POINTS.push_back(X_POINTS);
@@ -81,7 +81,7 @@ int main(){
         for(j=0; j<N_POINTS_Y; j++){
                 for(i=0; i<N_POINTS_X; i++){
                         NEW_VERTEX = READ_IC_LINE(IC_FILE);
-                        X_POINTS.push_back(NEW_VERTEX);                     // add new VERTEX to std::vector of vertices in this row
+                        X_POINTS.push_back(NEW_VERTEX);                        // add new VERTEX to std::vector of vertices in this row
                         // X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);       // check dt is min required by CFL
                         // if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }

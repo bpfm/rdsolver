@@ -2,27 +2,34 @@
 
 #define TWO_D
 
+/* set umber of snapshots */
 #define N_SNAP 10
 
+/* debug flag for debug output */
 // #define DEBUG
-// #define ASTRIX_COMP
 
+/* define flag either generating ICs using setup.cpp or reading ICs from ASCII file */
 #define GENERATE_IC
 // #define READ_IC           // doesn't work yet
 
+/* define boundary conditions (none for periodic) */
 // #define CLOSED
 // #define REFLECTIVE        // doesn't work yet
 
+/* define flag for fixed timestep */
 // #define FIXED_DT
 
+/* define type of grid (none for square grid of vertices) */
 #define OFFSET_GRID
 // #define EQUILATERAL_GRID
 
+/* define distribution scheme */
 #define LDA_SCHEME
 // #define N_SCHEME
+// #define BLENDED
 
-int N_POINTS_X = 96;
-int N_POINTS_Y = 96;
+int N_POINTS_X = 64;
+int N_POINTS_Y = 64;
 
 double RANDOM_LVL = 0.0; // doesn't work yet
 

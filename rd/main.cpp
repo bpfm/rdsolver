@@ -118,15 +118,6 @@ int main(){
         open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC);               // open output files
 
         std::cout << "Mesh Size =\t" << MESH[0].size() << '\t' << MESH.size() << std::endl;
-
-        // std::cout << "Calculating dual areas ..." << std::endl;
-
-        // for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
-        //         for(i=0;i<N_POINTS_X;i++){ 
-        //                 MESH[j][i].setup_normals(DX,DY);
-        //         }
-        // }
-
         std::cout << "Evolving fluid ..." << std::endl;
 
 

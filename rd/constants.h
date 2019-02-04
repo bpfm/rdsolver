@@ -5,7 +5,6 @@
 #define N_SNAP 10
 
 // #define DEBUG
-// #define MESH_TEST
 // #define ASTRIX_COMP
 
 #define GENERATE_IC
@@ -22,8 +21,8 @@
 #define LDA_SCHEME
 // #define N_SCHEME
 
-int N_POINTS_X = 64;
-int N_POINTS_Y = 64;
+int N_POINTS_X = 96;
+int N_POINTS_Y = 96;
 
 double RANDOM_LVL = 0.0; // doesn't work yet
 
@@ -48,8 +47,7 @@ double SIDE_LENGTH_Y = 0.1;
 // Sedov Blast Wave
 #if IC == 2
 double CFL = 0.1;
-double T_TOT = 10.0;
-// double GAMMA = 5.0/3.0;
+double T_TOT = 0.2;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
@@ -121,5 +119,5 @@ double SIDE_LENGTH_Y = 1.0;
 double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
-double BLAST_VERTICES = 14.0;
+double BLAST_VERTICES = 75.0;
 int POINT_CHECK = 0;

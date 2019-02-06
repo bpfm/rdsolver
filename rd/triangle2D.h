@@ -407,6 +407,7 @@ public:
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3];
+                                // std::cout << FLUC_LDA[i][m] << std::endl;
                         }
                 }
 #endif
@@ -432,6 +433,7 @@ public:
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 FLUC_N[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
+                                // std::cout << FLUC_N[i][m] << std::endl;
                         }
                 }
 #endif
@@ -447,14 +449,16 @@ public:
                         DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
                         DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
+                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
                 }
 #endif
 
-#ifdef N
+#ifdef N_SCHEME
                 for(i=0;i<4;i++){
                         DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
                         DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
+                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
                 }
 #endif
 

@@ -25,8 +25,8 @@
 
 /* define distribution scheme */
 // #define LDA_SCHEME
-// #define N_SCHEME
-#define BLENDED			 // only 1st order implemented
+#define N_SCHEME
+// #define BLENDED			 // only 1st order implemented
 
 /* dset order of scheme (none for 2nd order) */
 #define FIRST_ORDER

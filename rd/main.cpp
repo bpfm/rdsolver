@@ -51,6 +51,10 @@ int main(){
         std::cout << "Using N Scheme" << std::endl;
 #endif
 
+#ifdef BLENDED
+        std::cout << "Using B Scheme" << std::endl;
+#endif
+
 #ifdef FIRST_ORDER
         std::cout << "Using 1st order" << std::endl;
 #else

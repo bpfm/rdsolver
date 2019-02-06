@@ -25,11 +25,11 @@
 
 /* define distribution scheme */
 // #define LDA_SCHEME
-#define N_SCHEME
-// #define BLENDED			 // doesn't work yet
+// #define N_SCHEME
+#define BLENDED			 // only 1st order implemented
 
 /* dset order of scheme (none for 2nd order) */
-// #define FIRST_ORDER
+#define FIRST_ORDER
 
 int N_POINTS_X = 64;
 int N_POINTS_Y = 64;

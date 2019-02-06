@@ -24,14 +24,17 @@
 // #define EQUILATERAL_GRID
 
 /* define distribution scheme */
-#define LDA_SCHEME
-// #define N_SCHEME
-// #define BLENDED
+// #define LDA_SCHEME
+#define N_SCHEME
+// #define BLENDED			 // doesn't work yet
+
+/* dset order of scheme (none for 2nd order) */
+// #define FIRST_ORDER
 
 int N_POINTS_X = 64;
 int N_POINTS_Y = 64;
 
-double RANDOM_LVL = 0.0; // doesn't work yet
+double RANDOM_LVL = 0.0;     // doesn't work yet
 
 // Sod Shock Tube
 #if IC == 0

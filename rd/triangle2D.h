@@ -16,8 +16,8 @@ private:
         double U_N[4][3];
         double U_HALF[4][3];
 
-        double FLUC[4][3];
-        double FLUC_HALF[4][3];
+        double FLUC_LDA[4][3],FLUC_N[4][3],FLUC_B[4][3];
+        double FLUC_HALF_LDA[4][3],FLUC_HALF_N[4][3],FLUC_HALF_B[4][3];
 
         double PRESSURE[3];
 
@@ -109,7 +109,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT, double DX, double DY, std::ofstream &TEMP_FILE){
+        void calculate_first_half(double T, double DT_TOT, double DX, double DY){
                 int i,j,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
@@ -406,7 +406,7 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                FLUC[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3];
+                                FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3];
                         }
                 }
 #endif
@@ -431,7 +431,7 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                FLUC[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
+                                FLUC_N[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
                         }
                 }
 #endif
@@ -439,14 +439,25 @@ public:
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
                 DUAL[2] = VERTEX_2->get_dual();
-
+                
                 // Calculate change to be distributed
 
+#ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC[i][2]/DUAL[2];
+                        DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
                 }
+#endif
+
+#ifdef N
+                for(i=0;i<4;i++){
+                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
+                }
+#endif
+
 
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
@@ -479,6 +490,20 @@ public:
                 double C_SOUND[3];
 
                 setup_half_state();
+
+#ifdef FIRST_ORDER
+                for(i=0;i<4;i++){
+                        DU0[i] = 0.0;
+                        DU1[i] = 0.0;
+                        DU2[i] = 0.0;
+                }
+
+                VERTEX_0->update_du(DU0);
+                VERTEX_1->update_du(DU1);
+                VERTEX_2->update_du(DU2);
+
+                return ;
+#endif
 
 #ifdef CLOSED
                 if(std::abs(X[0] - X[1]) > 2.0*DX or std::abs(X[0] - X[2]) > 2.0*DX or std::abs(X[1] - X[2]) > 2.0*DX){
@@ -712,7 +737,7 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                FLUC_HALF[i][m] = BETA[i][0][m] * (PHI_HALF[0]) + BETA[i][1][m] * (PHI_HALF[1]) + BETA[i][2][m] * (PHI_HALF[2]) + BETA[i][3][m] * (PHI_HALF[3]);
+                                FLUC_HALF_LDA[i][m] = BETA[i][0][m] * (PHI_HALF[0]) + BETA[i][1][m] * (PHI_HALF[1]) + BETA[i][2][m] * (PHI_HALF[2]) + BETA[i][3][m] * (PHI_HALF[3]);
                         }
                 }
 
@@ -774,11 +799,7 @@ public:
                         }
                 }
 
-                for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*(SUM_MASS[i] + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
-                        DU1[i] = (DT/DUAL[1])*(SUM_MASS[i] + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
-                        DU2[i] = (DT/DUAL[2])*(SUM_MASS[i] + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
-                }
+
 #endif
 
 #ifdef N_SCHEME
@@ -816,7 +837,7 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                FLUC_HALF[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
+                                FLUC_HALF_N[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
                         }
                 }
 
@@ -825,17 +846,22 @@ public:
                                 DIFF[i][m] = AREA*(U_HALF[i][m] - U_N[i][m])/3.0;
                         }
                 }
+#endif
 
+#ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC[i][0] + FLUC_HALF[i][0]));
-                        DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC[i][1] + FLUC_HALF[i][1]));
-                        DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC[i][2] + FLUC_HALF[i][2]));
-
-                        // DU0[i] = 0.0;
-                        // DU1[i] = 0.0;
-                        // DU2[i] = 0.0;
+                        DU0[i] = (DT/DUAL[0])*(SUM_MASS[i] + 0.5*(FLUC_LDA[i][0] + FLUC_HALF_LDA[i][0]));
+                        DU1[i] = (DT/DUAL[1])*(SUM_MASS[i] + 0.5*(FLUC_LDA[i][1] + FLUC_HALF_LDA[i][1]));
+                        DU2[i] = (DT/DUAL[2])*(SUM_MASS[i] + 0.5*(FLUC_LDA[i][2] + FLUC_HALF_LDA[i][2]));
                 }
+#endif
 
+#ifdef N_SCHEME
+                for(i=0;i<4;i++){
+                        DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC_N[i][0] + FLUC_HALF_N[i][0]));
+                        DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC_N[i][1] + FLUC_HALF_N[i][1]));
+                        DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC_N[i][2] + FLUC_HALF_N[i][2]));
+                }
 #endif
 
                 VERTEX_0->update_du(DU0);

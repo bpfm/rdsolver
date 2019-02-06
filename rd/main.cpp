@@ -51,6 +51,12 @@ int main(){
         std::cout << "Using N Scheme" << std::endl;
 #endif
 
+#ifdef FIRST_ORDER
+        std::cout << "Using 1st order" << std::endl;
+#else
+        std::cout << "Using 2nd order" << std::endl;
+#endif
+
         std::cout << "Building grid of vertices" << std::endl;
 
 #ifdef GENERATE_IC
@@ -111,9 +117,7 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached ******/
 
-        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC, TEMP_FILE;
-
-        TEMP_FILE.open("temp.txt");
+        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC;
 
         open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC);               // open output files
 
@@ -146,7 +150,7 @@ int main(){
 
                 for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
                         for(i=0;i<N_POINTS_X;i++){ 
-                                MESH[j][i].calculate_first_half(T, DT, DX, DY, TEMP_FILE);             // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
                         }
                 }
 

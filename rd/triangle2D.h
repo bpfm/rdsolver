@@ -109,14 +109,12 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT, double DX, double DY){
+        void calculate_first_half(double T, double DT_TOT, double DX, double DY, std::ofstream &TEMP){
                 int i,j,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
 
                 double INFLOW[4][4][3][3];
-                double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
-
                 double DT = DT_TOT;
 
                 double C_SOUND[3];
@@ -362,11 +360,13 @@ public:
                 std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
 #endif
 
+
+                double INFLOW_MINUS_SUM[4][4];
+
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
                                 INFLOW_MINUS_SUM[i][j] = 0.0;
                                 for(m=0;m<3;++m){
-                                        INFLOW_PLUS_SUM[i][j]  += INFLOW[i][j][m][0];
                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
                                 }
                         }
@@ -500,6 +500,13 @@ public:
                         DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
                 }
+
+#ifdef SINGLE_STEP
+                if(T>0.5*T_TOT){
+                        TEMP << FLUC_N[0][0] << "\t" << FLUC_LDA[0][0] << "\t" << THETA_E[0][0] << "\t" << FLUC_B[0][0] << std::endl;
+                }
+#endif
+
 #endif
 
 
@@ -523,11 +530,15 @@ public:
 
         //**********************************************************************************************************************
 
+
+
+
+
         void calculate_second_half(double T, double DT_TOT, double DX, double DY){
                 int i,j,m,p;
                 double DU0[4],DU1[4],DU2[4];
-                double INFLOW[4][4][3][3];
 
+                double INFLOW[4][4][3][3];
                 double DT = DT_TOT;
 
                 double C_SOUND[3];
@@ -766,9 +777,14 @@ public:
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                double PHI_HALF[4];
+                
+                double DIFF[4][3];
 
-#ifdef LDA_SCHEME
+#if defined(LDA_SCHEME) or defined(BLENDED)
+
+                double PHI_HALF[4];
+                double SECOND_FLUC_LDA[4][3];
+
                 for(i=0;i<4;++i){
                         PHI_HALF[i] = 0.0;
                         for(m=0;m<3;++m){
@@ -793,7 +809,6 @@ public:
 #endif
 
                 double MASS[4][4][3];
-                double DIFF[4][3];
                 double MASS_DIFF[4][3];
                 double SUM_MASS[4];
 
@@ -842,18 +857,24 @@ public:
                         }
                 }
 
+                for(i=0;i<4;++i){
+                        for(m=0;m<3;++m){
+                                SECOND_FLUC_LDA[i][m] = SUM_MASS[i] + 0.5*(FLUC_LDA[i][m] + FLUC_HALF_LDA[i][m]);
+                        }
+                }
+
 
 #endif
 
-#ifdef N_SCHEME
+#if defined(N_SCHEME) or defined(BLENDED)
 
-                double INFLOW_PLUS_SUM[4][4], INFLOW_MINUS_SUM[4][4];
+                double INFLOW_MINUS_SUM[4][4];
+                double SECOND_FLUC_N[4][3];
 
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
                                 INFLOW_MINUS_SUM[i][j] = 0.0;
                                 for(m=0;m<3;++m){
-                                        INFLOW_PLUS_SUM[i][j] += INFLOW[i][j][m][0];
                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
                                 }
                         }
@@ -863,7 +884,6 @@ public:
 
                 double BRACKET[4][3];
                 double KZ_SUM[4];
-                double DIFF[4][3];
 
                 for(i=0;i<4;++i){
                         KZ_SUM[i] = 0.0;
@@ -889,21 +909,69 @@ public:
                                 DIFF[i][m] = AREA*(U_HALF[i][m] - U_N[i][m])/3.0;
                         }
                 }
+
+                for(i=0;i<4;++i){
+                        for(m=0;m<3;++m){
+                                SECOND_FLUC_N[i][m] = DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+                        }
+                }
+
+
 #endif
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*(SUM_MASS[i] + 0.5*(FLUC_LDA[i][0] + FLUC_HALF_LDA[i][0]));
-                        DU1[i] = (DT/DUAL[1])*(SUM_MASS[i] + 0.5*(FLUC_LDA[i][1] + FLUC_HALF_LDA[i][1]));
-                        DU2[i] = (DT/DUAL[2])*(SUM_MASS[i] + 0.5*(FLUC_LDA[i][2] + FLUC_HALF_LDA[i][2]));
+                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
+                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
+                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
                 }
 #endif
 
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*(DIFF[i][0]/DT + 0.5*(FLUC_N[i][0] + FLUC_HALF_N[i][0]));
-                        DU1[i] = (DT/DUAL[1])*(DIFF[i][1]/DT + 0.5*(FLUC_N[i][1] + FLUC_HALF_N[i][1]));
-                        DU2[i] = (DT/DUAL[2])*(DIFF[i][2]/DT + 0.5*(FLUC_N[i][2] + FLUC_HALF_N[i][2]));
+                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
+                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][0];
+                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][0];
+                }
+#endif
+
+#ifdef BLENDED
+                double THETA_E[4][4];
+                double IDENTITY[4][4];
+                double SUM_FLUC_N[4];
+
+                THETA_E[0][0] = IDENTITY[0][0] = 1.0;
+                THETA_E[0][1] = IDENTITY[0][1] = 0.0;
+                THETA_E[0][2] = IDENTITY[0][2] = 0.0;
+                THETA_E[0][3] = IDENTITY[0][3] = 0.0;
+
+                THETA_E[1][0] = IDENTITY[1][0] = 0.0;
+                THETA_E[1][1] = IDENTITY[1][1] = 1.0;
+                THETA_E[1][2] = IDENTITY[1][2] = 0.0;
+                THETA_E[1][3] = IDENTITY[1][3] = 0.0;
+
+                THETA_E[2][0] = IDENTITY[2][0] = 0.0;
+                THETA_E[2][1] = IDENTITY[2][1] = 0.0;
+                THETA_E[2][2] = IDENTITY[2][2] = 1.0;
+                THETA_E[2][3] = IDENTITY[2][3] = 0.0;
+
+                THETA_E[3][0] = IDENTITY[3][0] = 0.0;
+                THETA_E[3][1] = IDENTITY[3][1] = 0.0;
+                THETA_E[3][2] = IDENTITY[3][2] = 0.0;
+                THETA_E[3][3] = IDENTITY[3][3] = 1.0;
+
+                for(i=0;i<4;i++){
+                        SUM_FLUC_N[i] = abs(SECOND_FLUC_N[i][0]) + abs(SECOND_FLUC_N[i][1]) + abs(SECOND_FLUC_N[i][2]);
+
+                        THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+
+                        FLUC_B[i][0] = THETA_E[i][i]*SECOND_FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][0];
+                        FLUC_B[i][1] = THETA_E[i][i]*SECOND_FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][1];
+                        FLUC_B[i][2] = THETA_E[i][i]*SECOND_FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][2];
+
+                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
                 }
 #endif
 
@@ -928,6 +996,28 @@ public:
                 double AVG;
                 AVG = (sqrt(L1)*L2+sqrt(R1)*R2)/(sqrt(L1)+sqrt(R1));
                 return AVG;
+        }
+
+        void setup_normals(double DX, double DY){
+                // Calculate normals (just in first timestep for static grid)
+
+                double X_MOD[3],Y_MOD[3];
+
+                setup_positions();
+
+                for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
+                for(int i=0; i<3; ++i){
+                        for(int j=0; j<3; ++j){
+                                if(X[j] - X[i] > 2.0*DX){
+                                        X_MOD[i] = X[i] + SIDE_LENGTH_X;
+                                }
+                                if(Y[j] - Y[i] > 2.0*DY){
+                                        Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+                                }
+                        }
+                }
+                calculate_normals(X_MOD,Y_MOD);
+
         }
 
         void calculate_normals(double X[3],double Y[3]){
@@ -973,28 +1063,6 @@ public:
 #endif
 
                 return ;
-        }
-
-        void setup_normals(double DX, double DY){
-                // Calculate normals (just in first timestep for static grid)
-
-                double X_MOD[3],Y_MOD[3];
-
-                setup_positions();
-
-                for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
-                for(int i=0; i<3; ++i){
-                        for(int j=0; j<3; ++j){
-                                if(X[j] - X[i] > 2.0*DX){
-                                        X_MOD[i] = X[i] + SIDE_LENGTH_X;
-                                }
-                                if(Y[j] - Y[i] > 2.0*DY){
-                                        Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
-                                }
-                        }
-                }
-                calculate_normals(X_MOD,Y_MOD);
-
         }
 
         double max_val(double A, double B){

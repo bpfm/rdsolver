@@ -42,6 +42,7 @@ int main(){
         std::cout << std::fixed;
         std::cout << std::setprecision(9);
 
+        std::cout << "*********************************************************" << std::endl;
 
 #ifdef LDA_SCHEME
         std::cout << "Using LDA Scheme" << std::endl;
@@ -63,20 +64,18 @@ int main(){
 
         std::cout << "Building grid of vertices" << std::endl;
 
+        /****** Setup Vertices ******/
+
 #ifdef GENERATE_IC
 #ifdef TWO_D
         for(j=0; j<N_POINTS_Y; j++){
                 for(i=0; i<N_POINTS_X; i++){
                         NEW_VERTEX = setup_vertex(i,j,DX,DY);                 // call VERTEX setup routine
                         X_POINTS.push_back(NEW_VERTEX);                       // add new VERTEX to std::vector of vertices in this row
-                        // X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);      // check dt is min required by CFL
-                        // if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
                 POINTS.push_back(X_POINTS);
                 X_POINTS.clear();
         }
-
-        NEXT_DT = 0.0000000001;
 #endif
 #endif
 
@@ -92,21 +91,17 @@ int main(){
                 for(i=0; i<N_POINTS_X; i++){
                         NEW_VERTEX = READ_IC_LINE(IC_FILE);
                         X_POINTS.push_back(NEW_VERTEX);                        // add new VERTEX to std::vector of vertices in this row
-                        // X_POINTS[i].calc_next_dt(DX,CFL,POSSIBLE_DT);       // check dt is min required by CFL
-                        // if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 }
                 POINTS.push_back(X_POINTS);
                 X_POINTS.clear();
         }
-
-        NEXT_DT = 0.0000000001;
 
         IC_FILE.close();
 #endif
 
         /****** Setup MESH ******/
 
-         std::cout << "Assigning vertices to triangles ..." << std::endl;
+        std::cout << "Assigning vertices to triangles ..." << std::endl;
 
         for(j=0; j<2*N_POINTS_Y; j++){
                 for(i=0; i<N_POINTS_X; i++){
@@ -117,11 +112,22 @@ int main(){
                 X_MESH.clear();
         }
 
-        std::cout << "Finished triangle setup ..." << std::endl;
+        /****** Set initial timestep  ******/
+
+        std::cout << "Finding initial timestep ..." << std::endl;
+
+        for(j=0; j<N_POINTS_Y; j++){
+                for(i=0; i<N_POINTS_X; i++){
+                        POINTS[j][i].calc_next_dt(DX,CFL,POSSIBLE_DT);      // check dt is min required by CFL
+                        if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
+              }
+        }
 
         /****** Loop over time until total time T_TOT is reached ******/
 
-        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC;
+        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC, TEMP;
+
+        TEMP.open("output/temp.txt");
 
         open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC);               // open output files
 
@@ -154,7 +160,7 @@ int main(){
 
                 for(j=0;j<2*N_POINTS_Y;j++){                                        // loop over all triangles in MESH
                         for(i=0;i<N_POINTS_X;i++){ 
-                                MESH[j][i].calculate_first_half(T, DT, DX, DY);             // calculate flux through TRIANGLE
+                                MESH[j][i].calculate_first_half(T, DT, DX, DY, TEMP);             // calculate flux through TRIANGLE
                         }
                 }
 
@@ -183,6 +189,10 @@ int main(){
                                 if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                         }
                 }
+
+#ifdef SINGLE_STEP      
+                if(T>0.5*T_TOT){exit(0);}
+#endif
 
                 T+=DT;                                                            // increment time
                 l+=1;                                                             // increment step number

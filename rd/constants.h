@@ -1,9 +1,9 @@
-#define IC 9
+#define IC 2
 
 #define TWO_D
 
 /* set umber of snapshots */
-#define N_SNAP 10
+#define N_SNAP 20
 
 /* debug flag for debug output */
 // #define DEBUG
@@ -25,16 +25,18 @@
 
 /* define distribution scheme */
 // #define LDA_SCHEME
-#define N_SCHEME
-// #define BLENDED			 // only 1st order implemented
+// #define N_SCHEME
+#define BLENDED			 // only 1st order implemented
 
 /* dset order of scheme (none for 2nd order) */
 #define FIRST_ORDER
 
+#define SINGLE_STEP
+
 int N_POINTS_X = 64;
 int N_POINTS_Y = 64;
 
-double RANDOM_LVL = 0.0;     // doesn't work yet
+double RANDOM_LVL = 0.4;     // 0.0 < RANDOM_LVL << 0.4
 
 // Sod Shock Tube
 #if IC == 0
@@ -119,7 +121,7 @@ double SIDE_LENGTH_Y = 1.0;
 
 // KH instability (y flow)
 #if IC == 9
-double CFL = 0.1;
+double CFL = 0.5;
 double T_TOT = 2.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
@@ -129,5 +131,5 @@ double SIDE_LENGTH_Y = 1.0;
 double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
-double BLAST_VERTICES = 75.0;
-int POINT_CHECK = 0;
+double BLAST_VERTICES = 31.0;
+int POINT_CHECK = 1;

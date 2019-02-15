@@ -197,7 +197,6 @@ public:
                 double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
                 double V_MAX = max_val(std::abs(X_VELOCITY)+C_SOUND,std::abs(Y_VELOCITY)+C_SOUND);
                 NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*V_MAX);
-                //std::cout << NEXT_DT << std::endl;
         }
 
         double max_val(double A, double B){

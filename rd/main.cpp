@@ -123,8 +123,6 @@ int main(){
               }
         }
 
-        /****** Loop over time until total time T_TOT is reached ******/
-
         std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, GENERATED_IC, TEMP;
 
         TEMP.open("output/temp.txt");
@@ -134,7 +132,7 @@ int main(){
         std::cout << "Mesh Size =\t" << MESH[0].size() << '\t' << MESH.size() << std::endl;
         std::cout << "Evolving fluid ..." << std::endl;
 
-
+        /****** Loop over time until total time T_TOT is reached ******/
 
         while(T<T_TOT){
 

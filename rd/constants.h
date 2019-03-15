@@ -1,54 +1,82 @@
-#define IC 2
+#define IC 9
 
+//-----------------------------------------
+/* set dimensionality */
+//-----------------------------------------
 #define TWO_D
 
+//-----------------------------------------
 /* set umber of snapshots */
-#define N_SNAP 20
+//-----------------------------------------
+#define N_SNAP 10
 
+//-----------------------------------------
 /* debug flag for debug output */
+//-----------------------------------------
 // #define DEBUG
 
+//-----------------------------------------
 /* define flag either generating ICs using setup.cpp or reading ICs from ASCII file */
+//-----------------------------------------
 #define GENERATE_IC
 // #define READ_IC           // doesn't work yet
 
+//-----------------------------------------
 /* define boundary conditions (none for periodic) */
+//-----------------------------------------
 // #define CLOSED
 // #define REFLECTIVE        // doesn't work yet
 
+//-----------------------------------------
 /* define flag for fixed timestep */
+//-----------------------------------------
 // #define FIXED_DT
 
+//-----------------------------------------
 /* define type of grid (none for square grid of vertices) */
+//-----------------------------------------
 #define OFFSET_GRID
 // #define EQUILATERAL_GRID
 
+//-----------------------------------------
 /* define distribution scheme */
-// #define LDA_SCHEME
+//-----------------------------------------
+#define LDA_SCHEME
 // #define N_SCHEME
-#define BLENDED			 // only 1st order implemented
+// #define BLENDED
 
-/* dset order of scheme (none for 2nd order) */
+//-----------------------------------------
+/* set order of scheme (none for 2nd order) */
+//-----------------------------------------
 #define FIRST_ORDER
 
-#define SINGLE_STEP
+// #define SINGLE_STEP
 
-int N_POINTS_X = 64;
-int N_POINTS_Y = 64;
+int N_POINTS_X = 512;
+int N_POINTS_Y = 512;
 
-double RANDOM_LVL = 0.4;     // 0.0 < RANDOM_LVL << 0.4
+double RANDOM_LVL = 0.0;     // 0.0 < RANDOM_LVL << 0.4
 
-// Sod Shock Tube
+// Sod Shock Tube (Varied in X)
 #if IC == 0
 double CFL = 0.1;
-double T_TOT = 0.2;
+double T_TOT = 0.1;
+double GAMMA = 1.4;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
+#endif
+
+// Sod Shock Tube (Varied in Y)
+#if IC == 1
+double CFL = 1.0;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Sine Wave Tube
-#if IC == 1
+#if IC == 2
 double CFL = 0.1;
 double T_TOT = 5.0;
 double GAMMA = 1.4;
@@ -57,7 +85,7 @@ double SIDE_LENGTH_Y = 0.1;
 #endif
 
 // Sedov Blast Wave
-#if IC == 2
+#if IC == 3
 double CFL = 0.1;
 double T_TOT = 0.2;
 double GAMMA = 1.4;
@@ -66,25 +94,25 @@ double SIDE_LENGTH_Y = 10.0;
 #endif
 
 // Gaussian pulse advection (x-direction)
-#if IC == 3
-double CFL = 0.1;
-double T_TOT = 0.1;
-double GAMMA = 1.4;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 0.05;
-#endif
-
-// Sod Shock Tube (Varied in Y)
 #if IC == 4
-double CFL = 0.01;
+double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
-// Uniform flow
+// Gaussian pulse advection (y-direction)
 #if IC == 5
+double CFL = 0.01;
+double T_TOT = 0.1;
+double GAMMA = 1.4;
+double SIDE_LENGTH_X = 0.05;
+double SIDE_LENGTH_Y = 1.0;
+#endif
+
+// Uniform flow
+#if IC == 6
 double CFL = 0.01;
 double T_TOT = 1.0;
 double GAMMA = 1.4;
@@ -93,21 +121,12 @@ double SIDE_LENGTH_Y = 30.0;
 #endif
 
 // 2D Noh problem
-#if IC == 6
+#if IC == 7
 double CFL = 0.01;
 double T_TOT = 2.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 2.0;
 double SIDE_LENGTH_Y = 2.0;
-#endif
-
-// Gaussian pulse advection (y-direction)
-#if IC == 7
-double CFL = 0.01;
-double T_TOT = 0.1;
-double GAMMA = 1.4;
-double SIDE_LENGTH_X = 0.05;
-double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability (x flow)
@@ -126,6 +145,15 @@ double T_TOT = 2.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
+#endif
+
+// Blob test !!! NOT WORKING !!!
+#if IC == 10
+double CFL = 0.1;
+double T_TOT = 0.01;
+double GAMMA = 5.0/3.0;
+double SIDE_LENGTH_X = 12.0;
+double SIDE_LENGTH_Y = 8.0;
 #endif
 
 double GAMMA_1 = GAMMA - 1.0;

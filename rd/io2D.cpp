@@ -46,29 +46,26 @@ void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofs
         return;
 }
 
-VERTEX READ_IC_LINE(std::ifstream &IC_FILE){
-        double X,Y,MASS_DENSITY,PRESSURE,X_VELOCITY,Y_VELOCTIY,DX,DY;
+int READ_POSITION_HEADER(std::ifstream &POSITIONS_FILE){
+        std::string INFO;
+        int N_POINTS;
+
+        std::getline(POSITIONS_FILE,INFO);
+
+        POSITIONS_FILE >> N_POINTS;
+
+        return N_POINTS;
+}
+
+VERTEX READ_POSITION_LINE(int N_POINTS, std::ifstream &POSITIONS_FILE){
+        double X,Y;
         VERTEX NEW_VERTEX;
-
-        IC_FILE >> X >> Y >> MASS_DENSITY >> PRESSURE >> X_VELOCITY >> Y_VELOCTIY >> DX >> DY;
-
-        //std::cout << X << "\t" << Y << "\t" << MASS_DENSITY << "\t" << PRESSURE << "\t" << X_VELOCITY << "\t" << Y_VELOCTIY << "\t" << DX << "\t" << DY << std::endl;
 
         NEW_VERTEX.set_x(X);
         NEW_VERTEX.set_y(Y);
-        NEW_VERTEX.set_mass_density(MASS_DENSITY);                   // units kg/m^3
-        NEW_VERTEX.set_x_velocity(X_VELOCITY);                       // units m/s
-        NEW_VERTEX.set_y_velocity(Y_VELOCTIY);                       // units m/s
-        NEW_VERTEX.set_pressure(PRESSURE);                           // units N/m^2
-        NEW_VERTEX.set_dx(DX);
-        NEW_VERTEX.set_dy(DY);
-
-        // NEW_VERTEX.calculate_dual();
-
-        NEW_VERTEX.setup_specific_energy();
-        NEW_VERTEX.prim_to_con();
-        NEW_VERTEX.reset_du_half();
-        NEW_VERTEX.reset_du();
 
         return NEW_VERTEX;
 }
+
+
+

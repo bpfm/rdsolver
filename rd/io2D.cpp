@@ -18,22 +18,21 @@ void close_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofst
         return;
 }
 
-void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::ofstream &GENERATED_IC, std::vector<std::vector<VERTEX> > POINTS, double T, double DT, double DX, double DY){
+void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::ofstream &GENERATED_IC, std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS){
         int i,j;
         double TOTAL_DENSITY = 0.0;
         double TOTAL_ENERGY = 0.0;
 
-        for(j=0;j<N_POINTS_Y;j++){
-                for(i=0;i<N_POINTS_X;i++){
-                        if(T == 0.0){POSITIONS << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << std::endl;}
-                        GENERATED_IC << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density() << "\t" << POINTS[j][i].get_pressure() << "\t" << POINTS[j][i].get_x_velocity() << "\t" <<POINTS[j][i].get_y_velocity() << "\t" << POINTS[j][i].get_dx() << "\t" <<POINTS[j][i].get_dy() << std::endl;
-                        DENSITY_MAP  << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density() << std::endl;
-                        PRESSURE_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density()*POINTS[j][i].get_specific_energy() << std::endl;
-                        VELOCITY_MAP << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density()*POINTS[j][i].get_x_velocity()   << "\t" << POINTS[j][i].get_mass_density()*POINTS[j][i].get_y_velocity() << std::endl;
-                        if(j == N_POINTS_Y/2){CENTRAL_COLUMN << POINTS[j][i].get_x() << "\t" << POINTS[j][i].get_y() << "\t" << POINTS[j][i].get_mass_density() << "\t" <<POINTS[j][i].get_pressure() << "\t" << POINTS[j][i].get_x_velocity() << "\t" << POINTS[j-1][i].get_mass_density() << "\t" << POINTS[j+1][i].get_mass_density() << std::endl;}
-                        TOTAL_DENSITY += POINTS[j][i].get_mass_density()*POINTS[j][i].get_dual();
-                        TOTAL_ENERGY += POINTS[j][i].get_specific_energy()*POINTS[j][i].get_dual() * POINTS[j][i].get_mass_density();
-                }
+        for(i=0;i<N_POINTS;++i){
+                // std::cout << POINTS[i].get_dual() << std::endl;
+                if(T == 0.0){POSITIONS << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << std::endl;}
+                // GENERATED_IC << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_x_velocity() << "\t" <<POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_dx() << "\t" <<POINTS[i].get_dy() << std::endl;
+                DENSITY_MAP  << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << std::endl;
+                PRESSURE_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_specific_energy() << std::endl;
+                VELOCITY_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_x_velocity()   << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_y_velocity() << std::endl;
+                if(POINTS[i].get_y() > 0.45*SIDE_LENGTH_Y and POINTS[i].get_y() < 0.55 *SIDE_LENGTH_Y){CENTRAL_COLUMN << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" <<POINTS[i].get_pressure() << "\t" << POINTS[i].get_x_velocity() << std::endl;}
+                TOTAL_DENSITY += POINTS[i].get_mass_density()*POINTS[i].get_dual();
+                TOTAL_ENERGY += POINTS[i].get_specific_energy()*POINTS[i].get_dual() * POINTS[i].get_mass_density();
         }
 
         std::cout << "*********************************************************" << std::endl;            // right out time and total density to terminal
@@ -46,26 +45,56 @@ void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofs
         return;
 }
 
-int READ_POSITION_HEADER(std::ifstream &POSITIONS_FILE){
+int READ_POSITIONS_HEADER(std::ifstream &POSITIONS_FILE){
         std::string INFO;
         int N_POINTS;
 
         std::getline(POSITIONS_FILE,INFO);
+
+        std::cout << "Details of point creation =\t" << INFO << std::endl;
 
         POSITIONS_FILE >> N_POINTS;
 
         return N_POINTS;
 }
 
-VERTEX READ_POSITION_LINE(int N_POINTS, std::ifstream &POSITIONS_FILE){
+int READ_TRIANGLES_HEADER(std::ifstream &TRIANGLES_FILE){
+        int N_TRIANG;
+
+        TRIANGLES_FILE >> N_TRIANG;
+
+        return N_TRIANG;
+}
+
+VERTEX READ_POSITIONS_LINE(std::ifstream &POSITIONS_FILE){
         double X,Y;
         VERTEX NEW_VERTEX;
 
-        NEW_VERTEX.set_x(X);
-        NEW_VERTEX.set_y(Y);
+        POSITIONS_FILE >> X >> Y;
+
+        X = SIDE_LENGTH_X*(X + 0.5);
+        Y = SIDE_LENGTH_Y*(Y + 0.5);
+
+        NEW_VERTEX = setup_vertex(X,Y);
 
         return NEW_VERTEX;
 }
 
+TRIANGLE READ_TRIANGLES_LINE(std::ifstream &TRIANGLES_FILE, std::vector<VERTEX> &POINTS){
+        int N_VERT,VERT0,VERT1,VERT2;
+        TRIANGLE NEW_TRIANGLE;
+
+        TRIANGLES_FILE >> N_VERT >> VERT0 >> VERT1 >> VERT2;
+
+        // std::cout << VERT0 << "\t" << VERT1 << "\t" << VERT2 << std::endl;
+
+        NEW_TRIANGLE.set_vertex_0(&POINTS[VERT0]);
+        NEW_TRIANGLE.set_vertex_1(&POINTS[VERT1]);
+        NEW_TRIANGLE.set_vertex_2(&POINTS[VERT2]);
+
+        NEW_TRIANGLE.setup_normals();
+
+        return NEW_TRIANGLE;
+}
 
 

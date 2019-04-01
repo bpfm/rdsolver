@@ -1,4 +1,4 @@
-#define IC 9
+#define IC 0
 
 //-----------------------------------------
 /* set dimensionality */
@@ -18,8 +18,8 @@
 //-----------------------------------------
 /* define flag either generating ICs using setup.cpp or reading ICs from ASCII file */
 //-----------------------------------------
-#define GENERATE_IC
-// #define READ_IC           // doesn't work yet
+// #define GENERATE_IC			 // disabled for now
+#define READ_IC           // doesn't work yet
 
 //-----------------------------------------
 /* define boundary conditions (none for periodic) */
@@ -30,7 +30,7 @@
 //-----------------------------------------
 /* define flag for fixed timestep */
 //-----------------------------------------
-// #define FIXED_DT
+#define FIXED_DT
 
 //-----------------------------------------
 /* define type of grid (none for square grid of vertices) */
@@ -48,12 +48,9 @@
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-#define FIRST_ORDER
+// #define FIRST_ORDER
 
-// #define SINGLE_STEP
 
-int N_POINTS_X = 512;
-int N_POINTS_Y = 512;
 
 double RANDOM_LVL = 0.0;     // 0.0 < RANDOM_LVL << 0.4
 
@@ -68,7 +65,7 @@ double SIDE_LENGTH_Y = 1.0;
 
 // Sod Shock Tube (Varied in Y)
 #if IC == 1
-double CFL = 1.0;
+double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
@@ -87,7 +84,7 @@ double SIDE_LENGTH_Y = 0.1;
 // Sedov Blast Wave
 #if IC == 3
 double CFL = 0.1;
-double T_TOT = 0.2;
+double T_TOT = 0.5;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
@@ -159,5 +156,5 @@ double SIDE_LENGTH_Y = 8.0;
 double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
-double BLAST_VERTICES = 31.0;
+double BLAST_VERTICES = 74.0;
 int POINT_CHECK = 1;

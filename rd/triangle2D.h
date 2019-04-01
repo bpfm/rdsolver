@@ -109,7 +109,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT, double DX, double DY, std::ofstream &TEMP){
+        void calculate_first_half(double T, double DT_TOT){
                 int i,j,m,p;
 
                 double DU0[4],DU1[4],DU2[4];
@@ -124,21 +124,11 @@ public:
                 setup_positions();
                 setup_initial_state();
 
-                // if(T == 0.0){setup_normals(DX,DY);}
-
-#ifdef CLOSED
-                if(std::abs(X[0] - X[1]) > 2.0*DX or std::abs(X[0] - X[2]) > 2.0*DX or std::abs(X[1] - X[2]) > 2.0*DX){
-#ifdef DEBUG
-                        std::cout << "Skipping x boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
-#endif
-                        return ;
-                }else if(std::abs(Y[0] - Y[1]) > 2.0*DY or std::abs(Y[0] - Y[2]) > 2.0*DY or std::abs(Y[1] - Y[2]) > 2.0*DY){
-#ifdef DEBUG
-                        std::cout << "Skipping y boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
-#endif
-                        return ;
+                for(m=0;m<3;++m){
+                        if(X[m] > 0.99*SIDE_LENGTH_X or X[m] < 0.01*SIDE_LENGTH_X or Y[m] > 0.99*SIDE_LENGTH_Y or Y[m] < 0.01*SIDE_LENGTH_Y){
+                                return ;
+                        }
                 }
-#endif
 
                 for(i=0; i<3; ++i){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_N[0][i]);}
 
@@ -501,14 +491,7 @@ public:
                         DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
                 }
 
-#ifdef SINGLE_STEP
-                if(T>0.5*T_TOT){
-                        TEMP << FLUC_N[0][0] << "\t" << FLUC_LDA[0][0] << "\t" << THETA_E[0][0] << "\t" << FLUC_B[0][0] << std::endl;
-                }
 #endif
-
-#endif
-
 
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
@@ -532,9 +515,7 @@ public:
 
 
 
-
-
-        void calculate_second_half(double T, double DT_TOT, double DX, double DY){
+        void calculate_second_half(double T, double DT_TOT){
                 int i,j,m,p;
                 double DU0[4],DU1[4],DU2[4];
 
@@ -557,20 +538,6 @@ public:
                 VERTEX_2->update_du(DU2);
 
                 return ;
-#endif
-
-#ifdef CLOSED
-                if(std::abs(X[0] - X[1]) > 2.0*DX or std::abs(X[0] - X[2]) > 2.0*DX or std::abs(X[1] - X[2]) > 2.0*DX){
-#ifdef DEBUG
-                        std::cout << "Skipping x boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
-#endif
-                        return ;
-                }else if(std::abs(Y[0] - Y[1]) > 2.0*DY or std::abs(Y[0] - Y[2]) > 2.0*DY or std::abs(Y[1] - Y[2]) > 2.0*DY){
-#ifdef DEBUG
-                        std::cout << "Skipping y boundary\t" << (X[0]+X[1]+X[2])/3.0 << "\t" << (Y[0]+Y[1]+Y[2])/3.0 << "\t" << std::endl;
-#endif
-                        return ;
-                }
 #endif
 
                 // Calcualte sound speed for half time state
@@ -619,8 +586,6 @@ public:
                         std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
 #endif
                 }
-
-                for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
 
                 for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
 
@@ -778,7 +743,6 @@ public:
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 
-                double DIFF[4][3];
 
 #if defined(LDA_SCHEME) or defined(BLENDED)
 
@@ -807,7 +771,7 @@ public:
                         }
                 }
 #endif
-
+                double DIFF[4][3];
                 double MASS[4][4][3];
                 double MASS_DIFF[4][3];
                 double SUM_MASS[4];
@@ -857,11 +821,16 @@ public:
                         }
                 }
 
+                // std::cout << "2nd half fluctuation (LDA) =\t" << FLUC_HALF_LDA[0][0] << "\t" << FLUC_HALF_LDA[1][0] << "\t" << FLUC_HALF_LDA[2][0] << "\t" << FLUC_HALF_LDA[3][0] << std::endl;
+
+
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 SECOND_FLUC_LDA[i][m] = SUM_MASS[i] + 0.5*(FLUC_LDA[i][m] + FLUC_HALF_LDA[i][m]);
                         }
                 }
+
+                // std::cout << "2nd half fluctiation (LDA) =\t" << SECOND_FLUC_LDA[0][0] << "\t" << SECOND_FLUC_LDA[0][1] << "\t" << SECOND_FLUC_LDA[0][2] << std::endl;
 
 
 #endif
@@ -882,6 +851,7 @@ public:
 
                 matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
 
+                double AREA_DIFF[4][3];
                 double BRACKET[4][3];
                 double KZ_SUM[4];
 
@@ -906,18 +876,22 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                DIFF[i][m] = AREA*(U_HALF[i][m] - U_N[i][m])/3.0;
+                                AREA_DIFF[i][m] = AREA*(U_HALF[i][m] - U_N[i][m])/3.0;
                         }
                 }
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                SECOND_FLUC_N[i][m] = DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+                                SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
                         }
                 }
 
 
 #endif
+
+                DUAL[0] = VERTEX_0->get_dual();
+                DUAL[1] = VERTEX_1->get_dual();
+                DUAL[2] = VERTEX_2->get_dual();
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
@@ -980,7 +954,7 @@ public:
                 VERTEX_2->update_du(DU2);
 
 #ifdef DEBUG
-                        for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << std::endl;}
+                        // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << std::endl;}
                         std::cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
                         std::cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
                         std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
@@ -998,7 +972,7 @@ public:
                 return AVG;
         }
 
-        void setup_normals(double DX, double DY){
+        void setup_normals(){
                 // Calculate normals (just in first timestep for static grid)
 
                 double X_MOD[3],Y_MOD[3];
@@ -1006,16 +980,7 @@ public:
                 setup_positions();
 
                 for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
-                for(int i=0; i<3; ++i){
-                        for(int j=0; j<3; ++j){
-                                if(X[j] - X[i] > 2.0*DX){
-                                        X_MOD[i] = X[i] + SIDE_LENGTH_X;
-                                }
-                                if(Y[j] - Y[i] > 2.0*DY){
-                                        Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
-                                }
-                        }
-                }
+                
                 calculate_normals(X_MOD,Y_MOD);
 
         }

@@ -193,10 +193,16 @@ public:
         }
 
         // Calculate min timestep this cell requires
-        void calc_next_dt(double DX, double CFL, double &NEXT_DT){
+        double calc_next_dt(){
                 double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
                 double V_MAX = max_val(std::abs(X_VELOCITY)+C_SOUND,std::abs(Y_VELOCITY)+C_SOUND);
-                NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*V_MAX);
+                double DS,NEXT_DT;
+
+                DS = 0.5*sqrt(DUAL);
+
+                NEXT_DT = 2.0*CFL*DUAL/(6.0*DS*V_MAX);
+
+                return NEXT_DT;
         }
 
         double max_val(double A, double B){

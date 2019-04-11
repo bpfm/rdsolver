@@ -30,11 +30,11 @@ for i in range(len(n_vert)):
 
 	cross = l1x*l2y - l1y*l2x
 
-	if cross > 0.0:
+	if cross < 0.0:
 		vert1[i] = vert1[i] + vert2[i]
 		vert2[i] = vert1[i] - vert2[i]
 		vert1[i] = vert1[i] - vert2[i]
-
+		
 	f.write(str(int(n_vert[i])) + "\t" + str(int(vert0[i])) + "\t" + str(int(vert1[i])) + "\t" + str(int(vert2[i])) + "\n")
 
 f.close()

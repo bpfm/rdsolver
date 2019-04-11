@@ -1,36 +1,32 @@
-void open_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::ofstream &GENERATED_IC){
+void open_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN){
         POSITIONS.open("output/positions.txt");
         DENSITY_MAP.open("output/density.txt");
         PRESSURE_MAP.open("output/energy.txt");
         VELOCITY_MAP.open("output/momentum.txt");
-        CENTRAL_COLUMN.open("output/column.txt");
-        GENERATED_IC.open("output/ic.txt");
+        CENTRAL_COLUMN.open("output/column.txt");       
         return;
 }
 
-void close_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::ofstream &GENERATED_IC){
+void close_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN){
         POSITIONS.close();
         DENSITY_MAP.close();
         PRESSURE_MAP.close();
         VELOCITY_MAP.close();
-        CENTRAL_COLUMN.close();
-        GENERATED_IC.close();
+        CENTRAL_COLUMN.close();        
         return;
 }
 
-void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::ofstream &GENERATED_IC, std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS){
+void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS){
         int i,j;
         double TOTAL_DENSITY = 0.0;
         double TOTAL_ENERGY = 0.0;
 
         for(i=0;i<N_POINTS;++i){
-                // std::cout << POINTS[i].get_dual() << std::endl;
                 if(T == 0.0){POSITIONS << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << std::endl;}
-                // GENERATED_IC << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_x_velocity() << "\t" <<POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_dx() << "\t" <<POINTS[i].get_dy() << std::endl;
                 DENSITY_MAP  << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << std::endl;
                 PRESSURE_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_specific_energy() << std::endl;
                 VELOCITY_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_x_velocity()   << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_y_velocity() << std::endl;
-                if(POINTS[i].get_y() > 0.45*SIDE_LENGTH_Y and POINTS[i].get_y() < 0.55 *SIDE_LENGTH_Y){CENTRAL_COLUMN << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" <<POINTS[i].get_pressure() << "\t" << POINTS[i].get_x_velocity() << std::endl;}
+                if(POINTS[i].get_y() > 0.49*SIDE_LENGTH_Y and POINTS[i].get_y() < 0.51 *SIDE_LENGTH_Y){CENTRAL_COLUMN << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" <<POINTS[i].get_pressure() << "\t" << POINTS[i].get_x_velocity() << std::endl;}
                 TOTAL_DENSITY += POINTS[i].get_mass_density()*POINTS[i].get_dual();
                 TOTAL_ENERGY += POINTS[i].get_specific_energy()*POINTS[i].get_dual() * POINTS[i].get_mass_density();
         }

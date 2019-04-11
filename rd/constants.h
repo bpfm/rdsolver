@@ -35,7 +35,7 @@
 //-----------------------------------------
 /* define type of grid (none for square grid of vertices) */
 //-----------------------------------------
-#define OFFSET_GRID
+// #define OFFSET_GRID
 // #define EQUILATERAL_GRID
 
 //-----------------------------------------
@@ -48,16 +48,13 @@
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-// #define FIRST_ORDER
+#define FIRST_ORDER
 
-
-
-double RANDOM_LVL = 0.0;     // 0.0 < RANDOM_LVL << 0.4
 
 // Sod Shock Tube (Varied in X)
 #if IC == 0
 double CFL = 0.1;
-double T_TOT = 0.1;
+double T_TOT = 0.2;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
@@ -83,8 +80,8 @@ double SIDE_LENGTH_Y = 0.1;
 
 // Sedov Blast Wave
 #if IC == 3
-double CFL = 0.1;
-double T_TOT = 0.5;
+double CFL = 0.01;
+double T_TOT = 1.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
@@ -110,7 +107,7 @@ double SIDE_LENGTH_Y = 1.0;
 
 // Uniform flow
 #if IC == 6
-double CFL = 0.01;
+double CFL = 0.1;
 double T_TOT = 1.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 30.0;
@@ -156,5 +153,5 @@ double SIDE_LENGTH_Y = 8.0;
 double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
-double BLAST_VERTICES = 74.0;
+double BLAST_VERTICES = 143.0;
 int POINT_CHECK = 1;

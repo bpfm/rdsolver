@@ -19,7 +19,7 @@ private:
         double FLUC_LDA[4][3],FLUC_N[4][3],FLUC_B[4][3];
         double FLUC_HALF_LDA[4][3],FLUC_HALF_N[4][3],FLUC_HALF_B[4][3];
 
-        double PRESSURE[3];
+        double PRESSURE[3], PRESSURE_HALF[3];
 
         double PHI[4];
         double BETA[4][4][3];
@@ -101,9 +101,9 @@ public:
                 U_HALF[3][1] = VERTEX_1->get_u3_half();
                 U_HALF[3][2] = VERTEX_2->get_u3_half();
 
-                PRESSURE[0] = VERTEX_0->get_pressure_half();
-                PRESSURE[1] = VERTEX_1->get_pressure_half();
-                PRESSURE[2] = VERTEX_2->get_pressure_half();
+                PRESSURE_HALF[0] = VERTEX_0->get_pressure_half();
+                PRESSURE_HALF[1] = VERTEX_1->get_pressure_half();
+                PRESSURE_HALF[2] = VERTEX_2->get_pressure_half();
         }
 
         //**********************************************************************************************************************
@@ -130,8 +130,6 @@ public:
                         }
                 }
 
-                for(i=0; i<3; ++i){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_N[0][i]);}
-
 #ifdef DEBUG
                 std::cout << "-- FIRST  -------------------------------------------------------" << std::endl;
                 std::cout << "Time     =\t" << T << std::endl;
@@ -141,8 +139,8 @@ public:
                 std::cout << "State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << std::endl;
                 for(i=0;i<3;i++){std::cout << i << " =\t" << U_N[0][i] << "\t" << U_N[1][i] << "\t" << U_N[2][i] << "\t" << U_N[3][i] << std::endl;}
                 std::cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << std::endl;
-                std::cout << "Sound Speed =\t" << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << std::endl;
 #endif
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 // Calculate inflow parameters
 
@@ -499,7 +497,7 @@ public:
 
 
 #ifdef DEBUG
-                        for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
+                        // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
                         std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
                         std::cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
                         std::cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
@@ -540,9 +538,11 @@ public:
                 return ;
 #endif
 
-                // Calcualte sound speed for half time state
-
-                for(i=0;i<3;i++){C_SOUND[i] = sqrt(GAMMA*PRESSURE[i]/U_HALF[0][i]);}
+                for(m=0;m<3;++m){
+                        if(X[m] > 0.99*SIDE_LENGTH_X or X[m] < 0.01*SIDE_LENGTH_X or Y[m] > 0.99*SIDE_LENGTH_Y or Y[m] < 0.01*SIDE_LENGTH_Y){
+                                return ;
+                        }
+                }
 
 #ifdef DEBUG
                 std::cout << "-- SECOND -------------------------------------------------------" << std::endl;
@@ -552,12 +552,10 @@ public:
                 std::cout << "2 =\t" << X[2] << "\t" << Y[2] << std::endl;
                 std::cout << "Half State    =" << "\trho" << "\tx_mom" << "\ty_mom" << "\tenergy" << std::endl;
                 for(i=0;i<3;i++){std::cout << i << " =\t" << U_HALF[0][i] << "\t" << U_HALF[1][i] << "\t" << U_HALF[2][i] << "\t" << U_HALF[3][i] << std::endl;}
-                std::cout << "Pressure =\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << std::endl;
+                std::cout << "Pressure =\t" << PRESSURE_HALF[0] << "\t" << PRESSURE_HALF[1] << "\t" << PRESSURE_HALF[2] << std::endl;
 #endif
 
-
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
                 // Calculate inflow parameters
 
                 double H[3];
@@ -570,18 +568,18 @@ public:
 
                 double Z_BAR[4],W_HAT[4][3];
 
-                // Construct Roe std::vector Z
+                // Construct Roe vector Z
 
                 for(m=0;m<3;++m){
                         Z[0][m] = sqrt(U_HALF[0][m]);
                         Z[1][m] = U_HALF[1][m]/Z[0][m];
                         Z[2][m] = U_HALF[2][m]/Z[0][m];
-                        Z[3][m] = (U_HALF[3][m] + PRESSURE[m])/Z[0][m];
+                        Z[3][m] = (U_HALF[3][m] + PRESSURE_HALF[m])/Z[0][m];
 
                         N_X[m]  = NORMAL[m][0];
                         N_Y[m]  = NORMAL[m][1];
 
-                        H[m] = (U_HALF[3][m] + PRESSURE[m])/U_HALF[0][m];
+                        H[m] = (U_HALF[3][m] + PRESSURE_HALF[m])/U_HALF[0][m];
 #ifdef DEBUG
                         std::cout << "Z =\t" << Z[0][m] << "\t" << Z[1][m] << "\t" << Z[2][m] << "\t" << Z[3][m] << std::endl;
 #endif
@@ -589,18 +587,25 @@ public:
 
                 for(i=0; i<4; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2])/3.0;}
 
+#ifdef DEBUG
+                for(i=0; i<4; ++i){std::cout << "Z_BAR " << i << " =\t" << Z_BAR[i] << std::endl;}
+                std::cout << std::endl;
+#endif
+
+
                 for(m=0; m<3; ++m){
                         W_HAT[0][m] =  2.0*Z_BAR[0]*Z[0][m];
                         W_HAT[1][m] =  Z_BAR[1]*Z[0][m] + Z_BAR[0]*Z[1][m];
                         W_HAT[2][m] =  Z_BAR[2]*Z[0][m] + Z_BAR[0]*Z[2][m];
                         W_HAT[3][m] = (Z_BAR[3]*Z[0][m] + GAMMA_1*Z_BAR[1]*Z[1][m] + GAMMA_1*Z_BAR[2]*Z[2][m] + Z_BAR[0]*Z[3][m])/GAMMA;
-                }
+
+                        //std::cout << Z_BAR[1] << "\t" << Z[0][m] << "\t" << Z_BAR[0] << "\t" << Z[2][m] << std::endl;
 
 #ifdef DEBUG
-                for(i=0;i<4;++i){
-                        std::cout << "W_HAT =\t" << W_HAT[i][m] << std::endl;
-                }
+                        for(i=0;i<4;++i){std::cout << "W_HAT " << i << "\t" << m << " =\t" << W_HAT[i][m] << std::endl;}
+                        std::cout << std::endl;
 #endif
+                }
 
                 // Construct average state for element
 
@@ -611,7 +616,7 @@ public:
                
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
-                PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
+                PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/3.0;
                 C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
@@ -687,6 +692,7 @@ public:
                                         std::cout << "K" << std::endl;
 #endif
                                 }
+
 
                                 VALUE12  = (VALUE1 - VALUE2)/2.0;
                                 VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
@@ -778,7 +784,7 @@ public:
 
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
-                                for(m=0;m<3;++m){MASS[i][j][m]= AREA * BETA[i][j][m]/3.0;}
+                                for(m=0;m<3;++m){MASS[i][j][m] = AREA * BETA[i][j][m]/3.0;}
                         }
                 }
 
@@ -821,9 +827,6 @@ public:
                         }
                 }
 
-                // std::cout << "2nd half fluctuation (LDA) =\t" << FLUC_HALF_LDA[0][0] << "\t" << FLUC_HALF_LDA[1][0] << "\t" << FLUC_HALF_LDA[2][0] << "\t" << FLUC_HALF_LDA[3][0] << std::endl;
-
-
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 SECOND_FLUC_LDA[i][m] = SUM_MASS[i] + 0.5*(FLUC_LDA[i][m] + FLUC_HALF_LDA[i][m]);
@@ -831,7 +834,6 @@ public:
                 }
 
                 // std::cout << "2nd half fluctiation (LDA) =\t" << SECOND_FLUC_LDA[0][0] << "\t" << SECOND_FLUC_LDA[0][1] << "\t" << SECOND_FLUC_LDA[0][2] << std::endl;
-
 
 #endif
 
@@ -886,12 +888,13 @@ public:
                         }
                 }
 
-
+        
 #endif
-
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
                 DUAL[2] = VERTEX_2->get_dual();
+
+                
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
@@ -904,9 +907,16 @@ public:
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
                         DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
-                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][0];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][0];
+                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
+                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];   
                 }
+
+                // if(X[0] == 0.45 and Y[0] == 0.3 and X[1] == 0.55 and Y[1] == 0.3){
+                //         std::cout << X[0] << "\t" << Y[0] << "\t" << X[1] << "\t" << Y[1] << "\t" << X[2] << "\t" << Y[2] << "\tFLUC_N =\t" << FLUC_N[0][0] << "\tFLUC_HALF_N =\t" << FLUC_HALF_N[0][0] << "\t" << SECOND_FLUC_N[0][0] << "\t" << AREA << "\t" << DUAL[0] << std::endl;
+                //         std::cout << "DU0 =\t" << DU0[0] << std::endl;
+                //         // exit(0);
+                //         std::cout << VERTEX_0->get_x() << "\t" << VERTEX_0->get_y() << std::endl;
+                // }
 #endif
 
 #ifdef BLENDED
@@ -953,14 +963,16 @@ public:
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
 
-#ifdef DEBUG
-                        // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC_HALF[i][0] << "\t" << FLUC_HALF[i][1] << "\t" << FLUC_HALF[i][2] << std::endl;}
-                        std::cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
-                        std::cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
-                        std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
-                        std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
-                        std::cout << "-----------------------------------------------------------------" << std::endl;
-#endif
+// #ifdef DEBUG
+                        // if(X[0] == 0.45 and Y[0] == 0.3 and X[1] == 0.55 and Y[1] == 0.3){
+                        //         std::cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
+                        //         std::cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
+                        //         std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
+                        //         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
+                        //         std::cout << "-----------------------------------------------------------------" << std::endl;
+                        // }
+                        // if(U_N[0][0] != U_N[0][1]){exit(0);}
+// #endif
 
                  return ;
         }

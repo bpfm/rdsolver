@@ -127,7 +127,10 @@ public:
         }
 
         // reset the changes in primative variables
-        void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}
+        void reset_du(){    
+                // std::cout << "Resetting vertex\t" << X << "\t" << Y << std::endl;
+                DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;
+        }
         void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}
 
         // Update DU with value from face
@@ -198,7 +201,7 @@ public:
                 double V_MAX = max_val(std::abs(X_VELOCITY)+C_SOUND,std::abs(Y_VELOCITY)+C_SOUND);
                 double DS,NEXT_DT;
 
-                DS = 0.5*sqrt(DUAL);
+                DS = sqrt(DUAL);
 
                 NEXT_DT = 2.0*CFL*DUAL/(6.0*DS*V_MAX);
 

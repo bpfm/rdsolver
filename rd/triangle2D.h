@@ -8,6 +8,9 @@ class TRIANGLE{
 private:
         int ID;
         VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2;
+
+        int BOUNDARY;
+
         double AREA;
 
         double X[3],Y[3],DUAL[3];
@@ -34,11 +37,15 @@ public:
         void set_vertex_1(VERTEX* NEW_VERTEX){VERTEX_1 = NEW_VERTEX;}
         void set_vertex_2(VERTEX* NEW_VERTEX){VERTEX_2 = NEW_VERTEX;}
 
+        void set_boundary(int NEW_BOUNDARY){BOUNDARY = NEW_BOUNDARY;}
+
         int get_id(){return ID;}
 
         VERTEX* get_vertex_0(){return VERTEX_0;}
         VERTEX* get_vertex_1(){return VERTEX_1;}
         VERTEX* get_vertex_2(){return VERTEX_2;}
+
+        int get_boundary(){return BOUNDARY;}
 
         void print_triangle_state(){
                 std::cout << "U[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << std::endl;
@@ -124,11 +131,13 @@ public:
                 setup_positions();
                 setup_initial_state();
 
+#ifdef CLOSED
                 for(m=0;m<3;++m){
                         if(X[m] > 0.99*SIDE_LENGTH_X or X[m] < 0.01*SIDE_LENGTH_X or Y[m] > 0.99*SIDE_LENGTH_Y or Y[m] < 0.01*SIDE_LENGTH_Y){
                                 return ;
                         }
                 }
+#endif
 
 #ifdef DEBUG
                 std::cout << "-- FIRST  -------------------------------------------------------" << std::endl;
@@ -538,11 +547,13 @@ public:
                 return ;
 #endif
 
+#ifdef CLOSED
                 for(m=0;m<3;++m){
                         if(X[m] > 0.99*SIDE_LENGTH_X or X[m] < 0.01*SIDE_LENGTH_X or Y[m] > 0.99*SIDE_LENGTH_Y or Y[m] < 0.01*SIDE_LENGTH_Y){
                                 return ;
                         }
                 }
+#endif
 
 #ifdef DEBUG
                 std::cout << "-- SECOND -------------------------------------------------------" << std::endl;
@@ -910,13 +921,6 @@ public:
                         DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
                         DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];   
                 }
-
-                // if(X[0] == 0.45 and Y[0] == 0.3 and X[1] == 0.55 and Y[1] == 0.3){
-                //         std::cout << X[0] << "\t" << Y[0] << "\t" << X[1] << "\t" << Y[1] << "\t" << X[2] << "\t" << Y[2] << "\tFLUC_N =\t" << FLUC_N[0][0] << "\tFLUC_HALF_N =\t" << FLUC_HALF_N[0][0] << "\t" << SECOND_FLUC_N[0][0] << "\t" << AREA << "\t" << DUAL[0] << std::endl;
-                //         std::cout << "DU0 =\t" << DU0[0] << std::endl;
-                //         // exit(0);
-                //         std::cout << VERTEX_0->get_x() << "\t" << VERTEX_0->get_y() << std::endl;
-                // }
 #endif
 
 #ifdef BLENDED
@@ -963,16 +967,16 @@ public:
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
 
-// #ifdef DEBUG
-                        // if(X[0] == 0.45 and Y[0] == 0.3 and X[1] == 0.55 and Y[1] == 0.3){
-                        //         std::cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
-                        //         std::cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
-                        //         std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
-                        //         std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
-                        //         std::cout << "-----------------------------------------------------------------" << std::endl;
-                        // }
-                        // if(U_N[0][0] != U_N[0][1]){exit(0);}
-// #endif
+#ifdef DEBUG
+                        if(X[0] == 0.45 and Y[0] == 0.3 and X[1] == 0.55 and Y[1] == 0.3){
+                                std::cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
+                                std::cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
+                                std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
+                                std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
+                                std::cout << "-----------------------------------------------------------------" << std::endl;
+                        }
+                        if(U_N[0][0] != U_N[0][1]){exit(0);}
+#endif
 
                  return ;
         }
@@ -986,12 +990,27 @@ public:
 
         void setup_normals(){
                 // Calculate normals (just in first timestep for static grid)
-
+                int m;
                 double X_MOD[3],Y_MOD[3];
 
                 setup_positions();
 
                 for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
+
+#ifdef PERIODIC
+                if(BOUNDARY == 1){
+                        for(int i=0; i<3; ++i){
+                                for(int j=0; j<3; ++j){
+                                        if(X[j] - X[i] > 0.5*SIDE_LENGTH_X){
+                                                X_MOD[i] = X[i] + SIDE_LENGTH_X;
+                                        }
+                                        if(Y[j] - Y[i] > 0.5*SIDE_LENGTH_Y){
+                                                Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+                                        }
+                                }
+                        }
+                }
+#endif
                 
                 calculate_normals(X_MOD,Y_MOD);
 

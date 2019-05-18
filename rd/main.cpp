@@ -64,61 +64,83 @@ int main(){
 
         /****** Setup Vertices ******/
 
-// #ifdef GENERATE_IC
-// #ifdef TWO_D
-//         for(j=0; j<N_POINTS_Y; j++){
-//                 for(i=0; i<N_POINTS_X; i++){
-//                         NEW_VERTEX = setup_vertex(i,j,DX,DY);                 // call VERTEX setup routine
-//                         X_POINTS.push_back(NEW_VERTEX);                       // add new VERTEX to std::vector of vertices in this row
-//                 }
-//                 POINTS.push_back(X_POINTS);
-//                 X_POINTS.clear();
-//         }
-// #endif
-// #endif
-
 #ifdef READ_IC
+#ifdef QHULL_IC
         int N_POINTS, N_TRIANG;
         std::string   POSITIONS_FILE_NAME, TRIANGLES_FILE_NAME;
         std::ifstream POSITIONS_FILE, TRIANGLES_FILE;
 
         /****** Setup vertices ******/
 
-        std::cout << "Reading vertex positions ..." << std::endl;
+        std::cout << "Reading QHULL vertex positions ..." << std::endl;
 
-        POSITIONS_FILE_NAME = "test/points.txt";
-        TRIANGLES_FILE_NAME = "test/ordered_triangles.txt";
+        POSITIONS_FILE_NAME = "triangulation/points.txt";
+        TRIANGLES_FILE_NAME = "triangulation/ordered_triangles.txt";
 
         POSITIONS_FILE.open(POSITIONS_FILE_NAME);
         TRIANGLES_FILE.open(TRIANGLES_FILE_NAME);
 
-        N_POINTS = READ_POSITIONS_HEADER(POSITIONS_FILE);
-        N_TRIANG = READ_TRIANGLES_HEADER(TRIANGLES_FILE);
+        N_POINTS = qhull_read_positions_header(POSITIONS_FILE);
+        N_TRIANG = qhull_read_triangles_header(TRIANGLES_FILE);
 
         std::cout << "Number of vertices = " << N_POINTS << std::endl;
 
         for(i=0; i<N_POINTS; ++i){
-                NEW_VERTEX = READ_POSITIONS_LINE(POSITIONS_FILE);
+                NEW_VERTEX = qhull_read_positions_line(POSITIONS_FILE);
                 RAND_POINTS.push_back(NEW_VERTEX);
         }
 
 
         /****** Setup mesh ******/
 
-        std::cout << "Reading triangles ..." << std::endl;
+        std::cout << "Reading QHULL triangles ..." << std::endl;
 
         std::cout << "Number of triangles = " << N_TRIANG << std::endl;
 
         for(j=0; j<N_TRIANG; ++j){
-                NEW_TRIANGLE = READ_TRIANGLES_LINE(TRIANGLES_FILE,RAND_POINTS);
+                NEW_TRIANGLE = qhull_read_triangles_line(TRIANGLES_FILE,RAND_POINTS);
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
         POSITIONS_FILE.close();
         TRIANGLES_FILE.close();
+#endif
+#ifdef CGAL_IC
+        int N_POINTS, N_TRIANG;
+        std::string   CGAL_FILE_NAME;
+        std::ifstream CGAL_FILE;
 
-        
+        /****** Setup vertices ******/
 
+        std::cout << "Reading CGAL vertex positions ..." << std::endl;
+
+        CGAL_FILE_NAME = "triangulation/cgal/output.tri";
+
+        CGAL_FILE.open(CGAL_FILE_NAME);
+
+        N_POINTS = cgal_read_positions_header(CGAL_FILE);
+
+        std::cout << "Number of vertices = " << N_POINTS << std::endl;
+
+        for(i=0; i<N_POINTS; ++i){
+                NEW_VERTEX = cgal_read_positions_line(CGAL_FILE);
+                RAND_POINTS.push_back(NEW_VERTEX);
+        }
+
+        /****** Setup mesh ******/
+
+        std::cout << "Reading CGAL triangles ..." << std::endl;
+
+        N_TRIANG = cgal_read_triangles_header(CGAL_FILE);
+
+        std::cout << "Number of triangles = " << N_TRIANG << std::endl;
+
+        for(j=0; j<N_TRIANG; ++j){
+                NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS);
+                RAND_MESH.push_back(NEW_TRIANGLE);
+        }
+
+#endif        
 #endif
 
         /****** Set initial timestep  ******/
@@ -140,7 +162,7 @@ int main(){
 
         std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
 
-        // std::cout << "Evolving fluid ..." << std::endl;
+        std::cout << "Evolving fluid ..." << std::endl;
 
         /****** Loop over time until total time T_TOT is reached ******/
 

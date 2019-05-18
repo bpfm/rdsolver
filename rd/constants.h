@@ -1,4 +1,4 @@
-#define IC 0
+#define IC 9
 
 //-----------------------------------------
 /* set dimensionality */
@@ -8,7 +8,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 10
+#define N_SNAP 100
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -16,21 +16,28 @@
 // #define DEBUG
 
 //-----------------------------------------
-/* define flag either generating ICs using setup.cpp or reading ICs from ASCII file */
+/* define flag to read positions and triangles from file (only option currently) */
 //-----------------------------------------
-// #define GENERATE_IC			 // disabled for now
 #define READ_IC           // doesn't work yet
+
+
+//-----------------------------------------
+/* define flag for using either QHULL or CGAL triangulation */
+//-----------------------------------------
+// #define QHULL_IC
+#define CGAL_IC
 
 //-----------------------------------------
 /* define boundary conditions (none for periodic) */
 //-----------------------------------------
 // #define CLOSED
+#define PERIODIC
 // #define REFLECTIVE        // doesn't work yet
 
 //-----------------------------------------
 /* define flag for fixed timestep */
 //-----------------------------------------
-#define FIXED_DT
+// #define FIXED_DT
 
 //-----------------------------------------
 /* define type of grid (none for square grid of vertices) */
@@ -41,23 +48,24 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-#define LDA_SCHEME
+#define LDA_SCHEME 
 // #define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-#define FIRST_ORDER
+// #define FIRST_ORDER
+
 
 
 // Sod Shock Tube (Varied in X)
 #if IC == 0
 double CFL = 0.1;
-double T_TOT = 0.2;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+double SIDE_LENGTH_X = 2.0;
+double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sod Shock Tube (Varied in Y)
@@ -65,8 +73,8 @@ double SIDE_LENGTH_Y = 1.0;
 double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+double SIDE_LENGTH_X = 2.0;
+double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sine Wave Tube
@@ -74,14 +82,14 @@ double SIDE_LENGTH_Y = 1.0;
 double CFL = 0.1;
 double T_TOT = 5.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 0.1;
+double SIDE_LENGTH_X = 2.0;
+double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sedov Blast Wave
 #if IC == 3
-double CFL = 0.01;
-double T_TOT = 1.0;
+double CFL = 0.05;
+double T_TOT = 0.2;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
@@ -110,14 +118,14 @@ double SIDE_LENGTH_Y = 1.0;
 double CFL = 0.1;
 double T_TOT = 1.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 30.0;
-double SIDE_LENGTH_Y = 30.0;
+double SIDE_LENGTH_X = 2.0;
+double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // 2D Noh problem
 #if IC == 7
-double CFL = 0.01;
-double T_TOT = 2.0;
+double CFL = 0.1;
+double T_TOT = 1.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 2.0;
 double SIDE_LENGTH_Y = 2.0;
@@ -128,17 +136,17 @@ double SIDE_LENGTH_Y = 2.0;
 double CFL = 0.1;
 double T_TOT = 1.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+double SIDE_LENGTH_X = 2.0;
+double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // KH instability (y flow)
 #if IC == 9
-double CFL = 0.5;
-double T_TOT = 2.0;
+double CFL = 0.1;
+double T_TOT = 4.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+double SIDE_LENGTH_X = 2.0;
+double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Blob test !!! NOT WORKING !!!
@@ -153,5 +161,5 @@ double SIDE_LENGTH_Y = 8.0;
 double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
-double BLAST_VERTICES = 143.0;
+double BLAST_VERTICES = 73.0;
 int POINT_CHECK = 1;

@@ -1,7 +1,7 @@
 import numpy as np
 
-NX = 200
-NY = 50
+NX = 64
+NY = 64
 
 NTOT = NX*NY
 

@@ -41,7 +41,8 @@ void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofs
         return;
 }
 
-int READ_POSITIONS_HEADER(std::ifstream &POSITIONS_FILE){
+#ifdef QHULL_IC
+int qhull_read_positions_header(std::ifstream &POSITIONS_FILE){
         std::string INFO;
         int N_POINTS;
 
@@ -54,7 +55,7 @@ int READ_POSITIONS_HEADER(std::ifstream &POSITIONS_FILE){
         return N_POINTS;
 }
 
-int READ_TRIANGLES_HEADER(std::ifstream &TRIANGLES_FILE){
+int qhull_read_triangles_header(std::ifstream &TRIANGLES_FILE){
         int N_TRIANG;
 
         TRIANGLES_FILE >> N_TRIANG;
@@ -62,7 +63,7 @@ int READ_TRIANGLES_HEADER(std::ifstream &TRIANGLES_FILE){
         return N_TRIANG;
 }
 
-VERTEX READ_POSITIONS_LINE(std::ifstream &POSITIONS_FILE){
+VERTEX qhull_read_positions_line(std::ifstream &POSITIONS_FILE){
         double X,Y;
         VERTEX NEW_VERTEX;
 
@@ -76,7 +77,7 @@ VERTEX READ_POSITIONS_LINE(std::ifstream &POSITIONS_FILE){
         return NEW_VERTEX;
 }
 
-TRIANGLE READ_TRIANGLES_LINE(std::ifstream &TRIANGLES_FILE, std::vector<VERTEX> &POINTS){
+TRIANGLE qhull_read_triangles_line(std::ifstream &TRIANGLES_FILE, std::vector<VERTEX> &POINTS){
         int N_VERT,VERT0,VERT1,VERT2;
         TRIANGLE NEW_TRIANGLE;
 
@@ -92,5 +93,116 @@ TRIANGLE READ_TRIANGLES_LINE(std::ifstream &TRIANGLES_FILE, std::vector<VERTEX> 
 
         return NEW_TRIANGLE;
 }
+#endif
+
+#ifdef CGAL_IC
+int cgal_read_positions_header(std::ifstream &CGAL_FILE){
+        int N_POINTS, XSHEETS, YSHEETS;
+        float XLOW, YLOW, XHIGH, YHIGH;
+
+        CGAL_FILE >> XLOW >> YLOW >> XHIGH >> YHIGH;
+
+        // check boundaries match
+        if(XLOW < 0.0 or YLOW < 0.0 or int(XHIGH) != SIDE_LENGTH_X or int(YHIGH) != SIDE_LENGTH_Y){
+                std::cout << "BWARNING: Exiting on mismatching boundaries." << std::endl;
+                exit(0);
+        }
+
+        CGAL_FILE >> XSHEETS >> YSHEETS;
+
+        // check data in 1-sheet format
+        if(XSHEETS !=1 or YSHEETS!=1){
+                std::cout << "BWARNING: Exiting on CGAL file not in 1-sheet format." << std::endl;
+                exit(0);
+        }
+
+        CGAL_FILE >> N_POINTS;
+
+        return N_POINTS;
+}
+
+int cgal_read_triangles_header(std::ifstream &CGAL_FILE){
+        int N_TRIANG;
+        int EMPTY;
+
+        CGAL_FILE >> N_TRIANG;
+
+        return N_TRIANG;
+}
+
+VERTEX cgal_read_positions_line(std::ifstream &CGAL_FILE){
+        double X,Y;
+        VERTEX NEW_VERTEX;
+
+        CGAL_FILE >> X >> Y;
+
+        NEW_VERTEX = setup_vertex(X,Y);
+
+        return NEW_VERTEX;
+}
+
+TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS){
+        int VERT0,VERT1,VERT2;
+        TRIANGLE NEW_TRIANGLE;
+
+        CGAL_FILE >> VERT0 >> VERT1 >> VERT2;
+
+        // std::cout << POINTS[VERT0].get_x() << "\t" << POINTS[VERT1].get_x() << "\t" << POINTS[VERT2].get_x() << std::endl;
+
+        double X0,X1,X2,Y0,Y1,Y2;
+        double L1X,L1Y,L2X,L2Y,CROSS;
+
+        X0 = POINTS[VERT0].get_x();
+        X1 = POINTS[VERT1].get_x();
+        X2 = POINTS[VERT2].get_x();
+
+        Y0 = POINTS[VERT0].get_y();
+        Y1 = POINTS[VERT1].get_y();
+        Y2 = POINTS[VERT2].get_y();
+
+        L1X = X1 - X0;
+        L1Y = Y1 - Y0;
+
+        L2X = X2 - X0;
+        L2Y = Y2 - Y0;
+
+        CROSS = L1X*L2Y - L1Y*L2X;
+
+        std::cout << CROSS << std::endl;
+
+        if(CROSS < 0.0){
+                VERT1 = VERT1 + VERT2;
+                VERT2 = VERT1 - VERT2;
+                VERT1 = VERT1 - VERT2;
+        }
+
+        NEW_TRIANGLE.set_vertex_0(&POINTS[VERT0]);
+        NEW_TRIANGLE.set_vertex_1(&POINTS[VERT1]);
+        NEW_TRIANGLE.set_vertex_2(&POINTS[VERT2]);
+
+        // check if boundary triangle
+
+        X0 = POINTS[VERT0].get_x();
+        X1 = POINTS[VERT1].get_x();
+        X2 = POINTS[VERT2].get_x();
+
+        Y0 = POINTS[VERT0].get_y();
+        Y1 = POINTS[VERT1].get_y();
+        Y2 = POINTS[VERT2].get_y();
+
+        if(abs(X0 - X1) > 0.5*SIDE_LENGTH_X or abs(X0 - X2) > 0.5*SIDE_LENGTH_X or abs(X1 - X2) > 0.5*SIDE_LENGTH_X or
+           abs(Y0 - Y1) > 0.5*SIDE_LENGTH_Y or abs(Y0 - Y2) > 0.5*SIDE_LENGTH_Y or abs(Y1 - Y2) > 0.5*SIDE_LENGTH_Y){
+                NEW_TRIANGLE.set_boundary(1);
+        }else{
+                NEW_TRIANGLE.set_boundary(0);
+        }
+
+        NEW_TRIANGLE.setup_normals();
+
+        return NEW_TRIANGLE;
+}
+
+#endif
+
 
 

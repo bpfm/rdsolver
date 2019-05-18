@@ -1,8 +1,8 @@
 import numpy as np
 from random import *
 
-NX = 200
-NY = 200
+NX = 64
+NY = 64
 
 NTOT = 0
 
@@ -11,6 +11,11 @@ XMAX = 0.5
 
 YMIN = -0.5
 YMAX = 0.5
+
+DX = (XMAX - XMIN)/float(NX)
+DY = (YMAX - YMIN)/float(NY)
+
+REF = 1
 
 f = open('points.txt','w')
 
@@ -43,12 +48,12 @@ for i in range(NX):
 		R = np.sqrt(X*X + Y*Y)
 
 		if R < 0.2:
-			for k in range(10):
+			for k in range(REF):
 				RANDX = 2.0*random()-1.0
 				RANDY = 2.0*random()-1.0
 
-				XZOOM = X + 0.025*RANDX
-				YZOOM = Y + 0.025*RANDY
+				XZOOM = X + DX*RANDX
+				YZOOM = Y + DY*RANDY
 
 				f.write(str(XZOOM)+"\t"+str(YZOOM)+'\n')
 				NTOT = NTOT + 1
@@ -59,4 +64,5 @@ for i in range(NX):
 
 f.close()
 
+print("2 create_points_central D2", NTOT)
 print(NTOT)

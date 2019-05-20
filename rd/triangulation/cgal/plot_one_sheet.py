@@ -31,8 +31,8 @@ def connectpoints(x,y,p1,p2):
     y1, y2 = y[p1], y[p2]
     if (np.abs(x1 - x2) < 0.5*(xhigh - xlow)) and (np.abs(y1 - y2) < 0.5*(yhigh- ylow)):
     	plt.plot([x1,x2],[y1,y2],'k-')
-    else:
-    	plt.plot([x1,x2],[y1,y2],'g-')
+    # else:
+    	# plt.plot([x1,x2],[y1,y2],'g-')
 
 
 for j in range(int(ntri)):

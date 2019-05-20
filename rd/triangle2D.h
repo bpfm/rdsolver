@@ -1011,8 +1011,38 @@ public:
                         }
                 }
 #endif
+
+                // check vertices are ordered counter-clockwise
+
+                double X0,X1,X2,Y0,Y1,Y2;
+                double L1X,L1Y,L2X,L2Y,CROSS;
+
+                X0 = X_MOD[0];
+                X1 = X_MOD[1];
+                X2 = X_MOD[2];
+
+                Y0 = Y_MOD[0];
+                Y1 = Y_MOD[1];
+                Y2 = Y_MOD[2];
+
+                L1X = X1 - X0;
+                L1Y = Y1 - Y0;
+
+                L2X = X2 - X0;
+                L2Y = Y2 - Y0;
+
+                CROSS = L1X*L2Y - L1Y*L2X;
+
+                // std::cout << CROSS << std::endl;
+
+                if(CROSS < 0.0){
+                        // std::cout << X_MOD[0] << "\t" << X_MOD[1] << "\t" << X_MOD[2] << "\t" << Y_MOD[0] << "\t" << Y_MOD[1] << "\t" << Y_MOD[2] << std::endl;
+                        reorder_vertices();
+                }
                 
                 calculate_normals(X_MOD,Y_MOD);
+
+                return ;
 
         }
 
@@ -1031,6 +1061,7 @@ public:
 
 
                 // calculate area of triangle and pass 1/3 to each vertex for dual
+
                 double THETA0 = atan(PERP[0][1]/PERP[0][0]);
                 double THETA1 = atan(PERP[1][1]/PERP[1][0]);
 
@@ -1050,14 +1081,6 @@ public:
                         NORMAL[i][1] = PERP[i][1]/MAG[i];
                 }
 
-#ifdef DEBUG
-                        std::cout << "X =\t" << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;
-                        std::cout << "Y =\t" << Y[0] << "\t" << Y[1] << "\t" << Y[2] << std::endl;
-                        std::cout << "Normal i =\t" << NORMAL[0][0] << "\t" << NORMAL[0][1] << std::endl;
-                        std::cout << "Normal j =\t" << NORMAL[1][0] << "\t" << NORMAL[1][1] << std::endl;
-                        std::cout << "Normal k =\t" << NORMAL[2][0] << "\t" << NORMAL[2][1] << std::endl;
-#endif
-
                 return ;
         }
 
@@ -1075,6 +1098,19 @@ public:
                 }else{
                         return B;
                 }
+        }
+
+        void reorder_vertices(){
+                VERTEX *TEMP_VERTEX;
+
+                TEMP_VERTEX = VERTEX_1;
+
+                VERTEX_1 = VERTEX_2;
+
+                VERTEX_2 = TEMP_VERTEX;
+
+                return;
+
         }
 
 };

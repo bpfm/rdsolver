@@ -147,38 +147,36 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
 
         CGAL_FILE >> VERT0 >> VERT1 >> VERT2;
 
-        // std::cout << POINTS[VERT0].get_x() << "\t" << POINTS[VERT1].get_x() << "\t" << POINTS[VERT2].get_x() << std::endl;
-
-        double X0,X1,X2,Y0,Y1,Y2;
-        double L1X,L1Y,L2X,L2Y,CROSS;
-
-        X0 = POINTS[VERT0].get_x();
-        X1 = POINTS[VERT1].get_x();
-        X2 = POINTS[VERT2].get_x();
-
-        Y0 = POINTS[VERT0].get_y();
-        Y1 = POINTS[VERT1].get_y();
-        Y2 = POINTS[VERT2].get_y();
-
-        L1X = X1 - X0;
-        L1Y = Y1 - Y0;
-
-        L2X = X2 - X0;
-        L2Y = Y2 - Y0;
-
-        CROSS = L1X*L2Y - L1Y*L2X;
-
-        std::cout << CROSS << std::endl;
-
-        if(CROSS < 0.0){
-                VERT1 = VERT1 + VERT2;
-                VERT2 = VERT1 - VERT2;
-                VERT1 = VERT1 - VERT2;
-        }
-
         NEW_TRIANGLE.set_vertex_0(&POINTS[VERT0]);
         NEW_TRIANGLE.set_vertex_1(&POINTS[VERT1]);
         NEW_TRIANGLE.set_vertex_2(&POINTS[VERT2]);
+
+        // std::cout << POINTS[VERT0].get_x() << "\t" << POINTS[VERT1].get_x() << "\t" << POINTS[VERT2].get_x() << std::endl;
+
+        double X0,X1,X2,Y0,Y1,Y2;
+        // double L1X,L1Y,L2X,L2Y,CROSS;
+
+        // X0 = POINTS[VERT0].get_x();
+        // X1 = POINTS[VERT1].get_x();
+        // X2 = POINTS[VERT2].get_x();
+
+        // Y0 = POINTS[VERT0].get_y();
+        // Y1 = POINTS[VERT1].get_y();
+        // Y2 = POINTS[VERT2].get_y();
+
+        // L1X = X1 - X0;
+        // L1Y = Y1 - Y0;
+
+        // L2X = X2 - X0;
+        // L2Y = Y2 - Y0;
+
+        // CROSS = L1X*L2Y - L1Y*L2X;
+
+        // if(CROSS < 0.0){
+        //         VERT1 = VERT1 + VERT2;
+        //         VERT2 = VERT1 - VERT2;
+        //         VERT1 = VERT1 - VERT2;
+        // }
 
         // check if boundary triangle
 
@@ -195,8 +193,8 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
                 NEW_TRIANGLE.set_boundary(1);
         }else{
                 NEW_TRIANGLE.set_boundary(0);
-        }
-
+        } 
+        
         NEW_TRIANGLE.setup_normals();
 
         return NEW_TRIANGLE;

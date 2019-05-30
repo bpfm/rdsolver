@@ -23,7 +23,7 @@ int main(){
   std::list<Point> L;
 
   int i,j;
-  int nx = 32, ny = 32, count = nx*ny;
+  int nx = 64, ny = 64, count = nx*ny;
   float x,y;
 
   // for (int i = 0; i < count; ++i){
@@ -73,7 +73,7 @@ int main(){
 
   // std::cout << T << std::endl;
 
-  std::ofstream oFileT("output.tri", std::ios::out);
+  std::ofstream oFileT("output.txt", std::ios::out);
   // writing file output;
   oFileT << T;
 

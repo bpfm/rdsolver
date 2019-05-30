@@ -114,7 +114,7 @@ int main(){
 
         std::cout << "Reading CGAL vertex positions ..." << std::endl;
 
-        CGAL_FILE_NAME = "triangulation/cgal/output.tri";
+        CGAL_FILE_NAME = "triangulation/cgal/output.txt";
 
         CGAL_FILE.open(CGAL_FILE_NAME);
 

@@ -504,7 +504,6 @@ public:
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
 
-
 #ifdef DEBUG
                         // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
                         std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
@@ -967,18 +966,7 @@ public:
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
 
-#ifdef DEBUG
-                        if(X[0] == 0.45 and Y[0] == 0.3 and X[1] == 0.55 and Y[1] == 0.3){
-                                std::cout << "Change (rho)    =\t" << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
-                                std::cout << "Change (x mom)  =\t" << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
-                                std::cout << "Change (y mom)  =\t" << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
-                                std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
-                                std::cout << "-----------------------------------------------------------------" << std::endl;
-                        }
-                        if(U_N[0][0] != U_N[0][1]){exit(0);}
-#endif
-
-                 return ;
+                return ;
         }
 
         // Returns Roe average of left and right states

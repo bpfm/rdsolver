@@ -1,4 +1,4 @@
-#define IC 3
+#define IC 9
 
 //-----------------------------------------
 /* set dimensionality */
@@ -8,7 +8,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 100
+#define N_SNAP 10
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -48,8 +48,8 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-// #define LDA_SCHEME 
-#define N_SCHEME
+#define LDA_SCHEME 
+// #define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
@@ -143,19 +143,19 @@ double SIDE_LENGTH_Y = 2.0;
 // KH instability (y flow)
 #if IC == 9
 double CFL = 0.1;
-double T_TOT = 4.0;
+double T_TOT = 2.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Blob test !!! NOT WORKING !!!
 #if IC == 10
-double CFL = 0.1;
+double CFL = 0.01;
 double T_TOT = 0.01;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 12.0;
-double SIDE_LENGTH_Y = 8.0;
+double SIDE_LENGTH_X = 10.0;
+double SIDE_LENGTH_Y = 10.0;
 #endif
 
 double GAMMA_1 = GAMMA - 1.0;

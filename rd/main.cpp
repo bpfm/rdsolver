@@ -171,7 +171,7 @@ int main(){
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
 
 #ifdef FIXED_DT
-                DT = 0.0001;
+                DT = 0.00001;
 #endif
 
                 std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << std::endl;
@@ -200,7 +200,7 @@ int main(){
 
                 }
 
-                for(j=0;j<N_POINTS;j++){                                         // loop over all triangles in MESH
+                for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
                         RAND_MESH[j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
                 }
 

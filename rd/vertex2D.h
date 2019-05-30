@@ -139,6 +139,7 @@ public:
                 DU[1] = DU[1] + NEW_DU[1];
                 DU[2] = DU[2] + NEW_DU[2];
                 DU[3] = DU[3] + NEW_DU[3];
+                // if((X >= 0.249 and X <= 0.251) and (Y >= 0.749 and Y <= 0.751)){std::cout << "+1" << std::endl;}
         }
 
         void update_du_half(double NEW_DU[4]){
@@ -146,6 +147,7 @@ public:
                 DU_HALF[1] = DU_HALF[1] + NEW_DU[1];
                 DU_HALF[2] = DU_HALF[2] + NEW_DU[2];
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
+                // if((X >= 0.249 and X <= 0.251) and (Y >= 0.749 and Y <= 0.751)){std::cout << "+1" << std::endl;}
         }
 
         void update_u_variables(){

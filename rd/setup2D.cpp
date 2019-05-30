@@ -175,6 +175,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
                 NEW_VERTEX.set_pressure(1.0);
 
+                // if(X == 0.03125){std::cout << X << "\t" << Y <<std::endl;}
+
         }else if(IC == 10){
                 // if(i==0 and j==0){std::cout << "Using Blob test" << std::endl;}
 
@@ -265,9 +267,6 @@ VERTEX setup_vertex(double X, double Y){
 //         VERTEX_1 = &POINTS[VERTEX_J_ID_1][VERTEX_I_ID_1];
 //         VERTEX_2 = &POINTS[VERTEX_J_ID_2][VERTEX_I_ID_2];
 
-// #ifdef DEBUG
-//         std::cout << "Setting up\t" << i0 << "\t" << j0 << "\t(x,y) =\t" << VERTEX_0->get_x() << "\t" << VERTEX_0->get_y() << "\t" << VERTEX_1->get_x() << "\t" << VERTEX_1->get_y() << "\t" << VERTEX_2->get_x() << "\t" << VERTEX_2->get_y() << std::endl;
-// #endif
 
 //         NEW_TRIANGLE.set_vertex_0(VERTEX_0);                                // pass these pointers to the TRIANGLE
 //         NEW_TRIANGLE.set_vertex_1(VERTEX_1);

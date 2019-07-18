@@ -16,7 +16,7 @@ typedef PDT::Point                                          Point;
 typedef PDT::Iso_rectangle                                  Iso_rectangle;
 typedef PDT::Covering_sheets                                Covering_sheets;
 int main(){
-  float xmax=1.0,ymax=1.0;
+  float xmax=10.0,ymax=10.0;
   Iso_rectangle domain(0, 0, xmax, ymax); // The cube for the periodic domain
 
   // construction from a list of points :
@@ -26,11 +26,11 @@ int main(){
   int nx = 64, ny = 64, count = nx*ny;
   float x,y;
 
-  // for (int i = 0; i < count; ++i){
-  //   x = xmax*(rand() % 10000)/10000.0;
-  //   y = ymax*(rand() % 10000)/10000.0;
-  //   L.push_back(Point(x,y));
-  // }
+  for (int i = 0; i < count; ++i){
+    x = xmax*(rand() % 10000)/10000.0;
+    y = ymax*(rand() % 10000)/10000.0;
+    L.push_back(Point(x,y));
+  }
 
   // for(i=0; i < (nx); ++i){
   //   x = (xmax) * float(i) / float(nx);
@@ -40,19 +40,16 @@ int main(){
   //   }
   // }
 
-  for(i=0; i < (nx); ++i){
-    for(j=0; j < (ny); ++j){
-      if(j % 2 != 0){
-        x = (xmax) * (float(i) + 0.5) / float(nx);
-        // std::cout << x << "\t" << y << std::endl;
-      }else{
-        x = (xmax) * float(i) / float(nx);
-      }
-      y = (ymax) * float(j) / float(ny);L.push_back(Point(x,y));
-      
-    }
-    
-  }
+  // for(i=0; i < (nx); ++i){
+  //   for(j=0; j < (ny); ++j){
+  //     if(j % 2 != 0){
+  //       x = (xmax) * (float(i) + 0.5) / float(nx);
+  //     }else{
+  //       x = (xmax) * float(i) / float(nx);
+  //     }
+  //     y = (ymax) * float(j) / float(ny);L.push_back(Point(x,y));
+  //   }
+  // }
 
   PDT T(L.begin(), L.end(), domain); // Put the domain with the constructor
   size_t n = T.number_of_vertices();

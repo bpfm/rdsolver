@@ -65,39 +65,39 @@ CMAKE_SOURCE_DIR = "/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/r
 CMAKE_BINARY_DIR = "/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/triangulation/cgal"
 
 #=============================================================================
-# Target rules for target CMakeFiles/cgal_test.dir
+# Target rules for target CMakeFiles/cgal_periodic2D.dir
 
 # All Build rule for target.
-CMakeFiles/cgal_test.dir/all:
-	$(MAKE) -f CMakeFiles/cgal_test.dir/build.make CMakeFiles/cgal_test.dir/depend
-	$(MAKE) -f CMakeFiles/cgal_test.dir/build.make CMakeFiles/cgal_test.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/triangulation/cgal/CMakeFiles" --progress-num=1,2 "Built target cgal_test"
-.PHONY : CMakeFiles/cgal_test.dir/all
+CMakeFiles/cgal_periodic2D.dir/all:
+	$(MAKE) -f CMakeFiles/cgal_periodic2D.dir/build.make CMakeFiles/cgal_periodic2D.dir/depend
+	$(MAKE) -f CMakeFiles/cgal_periodic2D.dir/build.make CMakeFiles/cgal_periodic2D.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/triangulation/cgal/CMakeFiles" --progress-num=1,2 "Built target cgal_periodic2D"
+.PHONY : CMakeFiles/cgal_periodic2D.dir/all
 
 # Include target in all.
-all: CMakeFiles/cgal_test.dir/all
+all: CMakeFiles/cgal_periodic2D.dir/all
 
 .PHONY : all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/cgal_test.dir/rule: cmake_check_build_system
+CMakeFiles/cgal_periodic2D.dir/rule: cmake_check_build_system
 	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/triangulation/cgal/CMakeFiles" 2
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/cgal_test.dir/all
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/cgal_periodic2D.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/triangulation/cgal/CMakeFiles" 0
-.PHONY : CMakeFiles/cgal_test.dir/rule
+.PHONY : CMakeFiles/cgal_periodic2D.dir/rule
 
 # Convenience name for target.
-cgal_test: CMakeFiles/cgal_test.dir/rule
+cgal_periodic2D: CMakeFiles/cgal_periodic2D.dir/rule
 
-.PHONY : cgal_test
-
-# clean rule for target.
-CMakeFiles/cgal_test.dir/clean:
-	$(MAKE) -f CMakeFiles/cgal_test.dir/build.make CMakeFiles/cgal_test.dir/clean
-.PHONY : CMakeFiles/cgal_test.dir/clean
+.PHONY : cgal_periodic2D
 
 # clean rule for target.
-clean: CMakeFiles/cgal_test.dir/clean
+CMakeFiles/cgal_periodic2D.dir/clean:
+	$(MAKE) -f CMakeFiles/cgal_periodic2D.dir/build.make CMakeFiles/cgal_periodic2D.dir/clean
+.PHONY : CMakeFiles/cgal_periodic2D.dir/clean
+
+# clean rule for target.
+clean: CMakeFiles/cgal_periodic2D.dir/clean
 
 .PHONY : clean
 

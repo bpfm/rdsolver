@@ -111,44 +111,44 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named cgal_test
+# Target rules for targets named cgal_periodic2D
 
 # Build rule for target.
-cgal_test: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 cgal_test
-.PHONY : cgal_test
+cgal_periodic2D: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 cgal_periodic2D
+.PHONY : cgal_periodic2D
 
 # fast build rule for target.
-cgal_test/fast:
-	$(MAKE) -f CMakeFiles/cgal_test.dir/build.make CMakeFiles/cgal_test.dir/build
-.PHONY : cgal_test/fast
+cgal_periodic2D/fast:
+	$(MAKE) -f CMakeFiles/cgal_periodic2D.dir/build.make CMakeFiles/cgal_periodic2D.dir/build
+.PHONY : cgal_periodic2D/fast
 
-cgal_test.o: cgal_test.cpp.o
+cgal_periodic2D.o: cgal_periodic2D.cpp.o
 
-.PHONY : cgal_test.o
+.PHONY : cgal_periodic2D.o
 
 # target to build an object file
-cgal_test.cpp.o:
-	$(MAKE) -f CMakeFiles/cgal_test.dir/build.make CMakeFiles/cgal_test.dir/cgal_test.cpp.o
-.PHONY : cgal_test.cpp.o
+cgal_periodic2D.cpp.o:
+	$(MAKE) -f CMakeFiles/cgal_periodic2D.dir/build.make CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.o
+.PHONY : cgal_periodic2D.cpp.o
 
-cgal_test.i: cgal_test.cpp.i
+cgal_periodic2D.i: cgal_periodic2D.cpp.i
 
-.PHONY : cgal_test.i
+.PHONY : cgal_periodic2D.i
 
 # target to preprocess a source file
-cgal_test.cpp.i:
-	$(MAKE) -f CMakeFiles/cgal_test.dir/build.make CMakeFiles/cgal_test.dir/cgal_test.cpp.i
-.PHONY : cgal_test.cpp.i
+cgal_periodic2D.cpp.i:
+	$(MAKE) -f CMakeFiles/cgal_periodic2D.dir/build.make CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.i
+.PHONY : cgal_periodic2D.cpp.i
 
-cgal_test.s: cgal_test.cpp.s
+cgal_periodic2D.s: cgal_periodic2D.cpp.s
 
-.PHONY : cgal_test.s
+.PHONY : cgal_periodic2D.s
 
 # target to generate assembly for a file
-cgal_test.cpp.s:
-	$(MAKE) -f CMakeFiles/cgal_test.dir/build.make CMakeFiles/cgal_test.dir/cgal_test.cpp.s
-.PHONY : cgal_test.cpp.s
+cgal_periodic2D.cpp.s:
+	$(MAKE) -f CMakeFiles/cgal_periodic2D.dir/build.make CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.s
+.PHONY : cgal_periodic2D.cpp.s
 
 # Help Target
 help:
@@ -158,10 +158,10 @@ help:
 	@echo "... depend"
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
-	@echo "... cgal_test"
-	@echo "... cgal_test.o"
-	@echo "... cgal_test.i"
-	@echo "... cgal_test.s"
+	@echo "... cgal_periodic2D"
+	@echo "... cgal_periodic2D.o"
+	@echo "... cgal_periodic2D.i"
+	@echo "... cgal_periodic2D.s"
 .PHONY : help
 
 

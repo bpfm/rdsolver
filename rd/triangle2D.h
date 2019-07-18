@@ -528,8 +528,6 @@ public:
                 double INFLOW[4][4][3][3];
                 double DT = DT_TOT;
 
-                double C_SOUND[3];
-
                 setup_half_state();
 
 #ifdef FIRST_ORDER
@@ -1021,10 +1019,7 @@ public:
 
                 CROSS = L1X*L2Y - L1Y*L2X;
 
-                // std::cout << CROSS << std::endl;
-
                 if(CROSS < 0.0){
-                        // std::cout << X_MOD[0] << "\t" << X_MOD[1] << "\t" << X_MOD[2] << "\t" << Y_MOD[0] << "\t" << Y_MOD[1] << "\t" << Y_MOD[2] << std::endl;
                         reorder_vertices();
                 }
                 
@@ -1068,6 +1063,56 @@ public:
                         NORMAL[i][0] = PERP[i][0]/MAG[i];
                         NORMAL[i][1] = PERP[i][1]/MAG[i];
                 }
+
+                return ;
+        }
+
+        void calculate_len_vel_contribution(){
+                int m;
+                double L02,L12,L22;
+                double H,U,V,VEL[3];
+                double C_SOUND[3];
+                double LMAX,VMAX,CONT;
+
+                setup_initial_state();
+
+                L02 = (X[1] - X[0])*(X[1] - X[0]) + (Y[1] - Y[0])*(Y[1] - Y[0]);
+                L12 = (X[2] - X[0])*(X[2] - X[0]) + (Y[2] - Y[0])*(Y[2] - Y[0]);
+                L22 = (X[2] - X[1])*(X[2] - X[1]) + (Y[2] - Y[1])*(Y[2] - Y[1]);
+
+                // std::cout << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;
+                // std::cout << Y[0] << "\t" << Y[1] << "\t" << Y[2] << std::endl;
+
+                LMAX = max_val(L02,L12);
+                LMAX = max_val(LMAX,L22);
+
+                LMAX = sqrt(LMAX);
+
+                // std::cout << LMAX << std::endl;
+
+                for(m=0;m<3;++m){
+                        H = (U_N[3][m] + PRESSURE[m])/U_N[0][m];
+                        U = U_N[1][m]/U_N[0][m];
+                        V = U_N[2][m]/U_N[0][m];
+                        VEL[m] = sqrt(U*U + V*V);
+                        // std::cout << U << "\t" << V << "\t" << VEL[m] << std::endl;
+                        C_SOUND[m] = sqrt((GAMMA-1.0) * H - (GAMMA-1.0) * (U*U + V*V)/2.0);
+                }
+
+                // std::cout << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << std::endl;
+
+                VMAX = max_val((VEL[0] + C_SOUND[0]),(VEL[1] + C_SOUND[1]));
+                VMAX = max_val(VMAX,(VEL[2] + C_SOUND[2]));
+
+                // std::cout << VMAX << std::endl;
+
+                CONT = LMAX * VMAX;
+
+                VERTEX_0->update_len_vel_sum(CONT);
+                VERTEX_1->update_len_vel_sum(CONT);
+                VERTEX_2->update_len_vel_sum(CONT);
+
+                // exit(0);
 
                 return ;
         }

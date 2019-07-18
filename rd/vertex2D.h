@@ -16,7 +16,7 @@ class VERTEX{
 private:
 
         double X, Y, DX, DY;
-        double DUAL;
+        double DUAL,LEN_VEL_SUM;
         double U_VARIABLES[4], DU[4];
         double MASS_DENSITY, X_VELOCITY, Y_VELOCITY;
         double PRESSURE, SPECIFIC_ENERGY;
@@ -127,11 +127,11 @@ public:
         }
 
         // reset the changes in primative variables
-        void reset_du(){    
-                // std::cout << "Resetting vertex\t" << X << "\t" << Y << std::endl;
-                DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;
-        }
+        void reset_du(){DU[0] = DU[1] = DU[2] = DU[3] = 0.0;}
         void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}
+
+        // reset sum for timestep calculation
+        void reset_len_vel_sum(){LEN_VEL_SUM = 0.0;}
 
         // Update DU with value from face
         void update_du(double NEW_DU[4]){
@@ -164,6 +164,10 @@ public:
                 U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
+        }
+
+        void update_len_vel_sum(double CONTRIBUTION){
+                LEN_VEL_SUM = LEN_VEL_SUM + CONTRIBUTION;
         }
 
         void check_values(){
@@ -199,13 +203,9 @@ public:
 
         // Calculate min timestep this cell requires
         double calc_next_dt(){
-                double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
-                double V_MAX = max_val(std::abs(X_VELOCITY)+C_SOUND,std::abs(Y_VELOCITY)+C_SOUND);
-                double DS,NEXT_DT;
+                double NEXT_DT;
 
-                DS = sqrt(DUAL);
-
-                NEXT_DT = 2.0*CFL*DUAL/(6.0*DS*V_MAX);
+                NEXT_DT = CFL*2.0*DUAL/LEN_VEL_SUM;
 
                 return NEXT_DT;
         }

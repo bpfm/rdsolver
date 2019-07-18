@@ -87,6 +87,7 @@ int main(){
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = qhull_read_positions_line(POSITIONS_FILE);
+                NEW_VERTEX.reset_len_vel_sum();
                 RAND_POINTS.push_back(NEW_VERTEX);
         }
 
@@ -124,6 +125,7 @@ int main(){
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = cgal_read_positions_line(CGAL_FILE);
+                NEW_VERTEX.reset_len_vel_sum();
                 RAND_POINTS.push_back(NEW_VERTEX);
         }
 
@@ -147,9 +149,14 @@ int main(){
 
         std::cout << "Finding initial timestep ..." << std::endl;
 
+        for(j=0;j<N_TRIANG;++j){                                           // loop over all triangles in MESH
+                RAND_MESH[j].calculate_len_vel_contribution();             // calculate flux through TRIANGLE
+        }
+
         for(i=0; i<N_POINTS; ++i){
                 NEXT_DT = RAND_POINTS[i].calc_next_dt();      // check dt is min required by CFL
                 if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
+                RAND_POINTS[i].reset_len_vel_sum();
         }
 
         std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, TEMP;
@@ -189,33 +196,41 @@ int main(){
 // #endif
 
                 for(j=0;j<N_TRIANG;++j){                                        // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_first_half(T, DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].calculate_first_half(T, DT);               // calculate flux through TRIANGLE
 
                 }
 
-                for(i=0;i<N_POINTS;++i){                                   // loop over all vertices
+                for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                         RAND_POINTS[i].update_u_half();                        // update the half time state
                         RAND_POINTS[i].con_to_prim_half();
-                        RAND_POINTS[i].reset_du_half();                             // reset du value to zero for next timestep
+                        RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep
 
                 }
 
-                for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
+                for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                         RAND_MESH[j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                }
+
+                for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
+                        RAND_POINTS[i].update_u_variables();                   // update the fluid state at vertex
+                        RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
+                        RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep
+                }
+
+                for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
+                        RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
                 }
 
                 NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
 
-                for(i=0;i<N_POINTS;++i){                                   // loop over all vertices
-                        RAND_POINTS[i].update_u_variables();                   // update the fluid state at vertex
-                        RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
-                        RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep
-                        POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();        // calculate next timestep based on new state
+                for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
+                        POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
                         if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
+                        RAND_POINTS[i].reset_len_vel_sum();
                 }
 
-                T+=DT;                                                            // increment time
-                l+=1;                                                             // increment step number
+                T+=DT;                                                         // increment time
+                l+=1;                                                          // increment step number
 
         }
 

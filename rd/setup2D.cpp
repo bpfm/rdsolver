@@ -201,8 +201,6 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
                 NEW_VERTEX.set_pressure(2.5);
 
-
-
         }else if(IC == 11){
                 // if(i==0 and j==0){std::cout << "Using Blob test" << std::endl;}
 
@@ -227,6 +225,16 @@ VERTEX setup_vertex(double X, double Y){
 
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(100.0);
+
+        }else if(IC == 12){
+                // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
+
+                NEW_VERTEX.set_mass_density(100.0);
+
+                NEW_VERTEX.set_x_velocity(0.00000001);
+                NEW_VERTEX.set_y_velocity(0.00000001);
+                NEW_VERTEX.set_pressure(0.0001);
+
         }
 
         NEW_VERTEX.setup_specific_energy();

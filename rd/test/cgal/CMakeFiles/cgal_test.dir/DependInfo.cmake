@@ -4,12 +4,19 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/test/cgal/cgal_test.cpp" "/Users/morton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/test/cgal/CMakeFiles/cgal_test.dir/cgal_test.cpp.o"
+  "/Users/benmorton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/test/cgal/cgal_test.cpp" "/Users/benmorton/Library/Mobile Documents/com~apple~CloudDocs/rdsolver/rd/test/cgal/CMakeFiles/cgal_test.dir/cgal_test.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "Clang")
 
+# Preprocessor definitions for this target.
+set(CMAKE_TARGET_DEFINITIONS_CXX
+  "BOOST_ALL_NO_LIB"
+  "BOOST_THREAD_DYN_LINK"
+  )
+
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "/opt/local/include"
   "/usr/local/include"
   )
 

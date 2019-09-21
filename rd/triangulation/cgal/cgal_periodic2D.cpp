@@ -16,14 +16,14 @@ typedef PDT::Point                                          Point;
 typedef PDT::Iso_rectangle                                  Iso_rectangle;
 typedef PDT::Covering_sheets                                Covering_sheets;
 int main(){
-  float xmax=10.0,ymax=10.0;
+  float xmax=1.0,ymax=1.0;
   Iso_rectangle domain(0, 0, xmax, ymax); // The cube for the periodic domain
 
   // construction from a list of points :
   std::list<Point> L;
 
   int i,j;
-  int nx = 64, ny = 64, count = nx*ny;
+  int nx = 128, ny = 128, count = nx*ny;
   float x,y;
 
   for (int i = 0; i < count; ++i){

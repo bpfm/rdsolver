@@ -23,7 +23,7 @@ int main(){
   std::list<Point> L;
 
   int i,j;
-  int nx = 100, ny = 10, count = 5000;
+  int nx = 32, ny = 32, count = 5000;
   float x,y;
 
   // for (int i = 0; i < count; ++i){

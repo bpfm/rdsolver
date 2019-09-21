@@ -31,7 +31,7 @@ void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofs
                 TOTAL_ENERGY += POINTS[i].get_specific_energy()*POINTS[i].get_dual() * POINTS[i].get_mass_density();
         }
 
-        std::cout << "*********************************************************" << std::endl;            // right out time and total density to terminal
+        std::cout << "*************************************************************************************************" << std::endl;            // right out time and total density to terminal
         std::cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY << " \t-> total energy =\t" << TOTAL_ENERGY << "\ttime step = \t" << DT << std::endl;
         DENSITY_MAP    << " " << std::endl;
         PRESSURE_MAP   << " " << std::endl;

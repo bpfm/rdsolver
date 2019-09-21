@@ -1080,9 +1080,6 @@ public:
                 L12 = (X[2] - X[0])*(X[2] - X[0]) + (Y[2] - Y[0])*(Y[2] - Y[0]);
                 L22 = (X[2] - X[1])*(X[2] - X[1]) + (Y[2] - Y[1])*(Y[2] - Y[1]);
 
-                // std::cout << X[0] << "\t" << X[1] << "\t" << X[2] << std::endl;
-                // std::cout << Y[0] << "\t" << Y[1] << "\t" << Y[2] << std::endl;
-
                 LMAX = max_val(L02,L12);
                 LMAX = max_val(LMAX,L22);
 
@@ -1095,25 +1092,18 @@ public:
                         U = U_N[1][m]/U_N[0][m];
                         V = U_N[2][m]/U_N[0][m];
                         VEL[m] = sqrt(U*U + V*V);
-                        // std::cout << U << "\t" << V << "\t" << VEL[m] << std::endl;
                         C_SOUND[m] = sqrt((GAMMA-1.0) * H - (GAMMA-1.0) * (U*U + V*V)/2.0);
                 }
 
-                // std::cout << C_SOUND[0] << "\t" << C_SOUND[1] << "\t" << C_SOUND[2] << std::endl;
-
                 VMAX = max_val((VEL[0] + C_SOUND[0]),(VEL[1] + C_SOUND[1]));
                 VMAX = max_val(VMAX,(VEL[2] + C_SOUND[2]));
-
-                // std::cout << VMAX << std::endl;
 
                 CONT = LMAX * VMAX;
 
                 VERTEX_0->update_len_vel_sum(CONT);
                 VERTEX_1->update_len_vel_sum(CONT);
                 VERTEX_2->update_len_vel_sum(CONT);
-
-                // exit(0);
-
+                
                 return ;
         }
 

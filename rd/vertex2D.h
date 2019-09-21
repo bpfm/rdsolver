@@ -198,8 +198,31 @@ public:
                         // PRESSURE_HALF = 0.00001;
                         exit(0);
                 }
-
+                return ;
         }
+
+        void calc_newtonian_gravity(double DT, int HALF_STEP){
+                double GM,AX,AY;
+                double MPERT = 1000;//2.5e4 * MSOLAR;
+                double XC = 0.5, YC = 0.5;
+                double DELTAX = X - XC, DELTAY = Y - YC;
+                double EPS = 0.1;
+                double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
+                GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
+                AX = DELTAX * GM;
+                AY = DELTAY * GM;
+                if(HALF_STEP == 0){
+                        // std::cout << U_VARIABLES[1]  << std::endl;
+                        U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
+                        U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
+                        // std::cout << U_VARIABLES[1]  << std::endl;
+                }else if(HALF_STEP == 1){
+                        U_HALF[1] = U_HALF[1] - AX*DT*MASS_DENSITY_HALF;
+                        U_HALF[2] = U_HALF[2] - AY*DT*MASS_DENSITY_HALF;
+                }
+                return ;
+        }
+
 
         // Calculate min timestep this cell requires
         double calc_next_dt(){

@@ -1,4 +1,4 @@
-#define IC 9
+#define IC 12
 
 //-----------------------------------------
 /* set dimensionality */
@@ -144,8 +144,8 @@ double SIDE_LENGTH_Y = 2.0;
 double CFL = 0.5;
 double T_TOT = 2.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 10.0;
-double SIDE_LENGTH_Y = 10.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability - smoothed (y flow)
@@ -162,8 +162,17 @@ double SIDE_LENGTH_Y = 1.0;
 double CFL = 0.01;
 double T_TOT = 0.01;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 10.0;
-double SIDE_LENGTH_Y = 10.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
+#endif
+
+// Grav Test
+#if IC == 12
+double CFL = 0.5;
+double T_TOT = 100.0;
+double GAMMA = 1.4;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 double GAMMA_1 = GAMMA - 1.0;
@@ -171,3 +180,6 @@ double GAMMA_2 = GAMMA - 2.0;
 
 double BLAST_VERTICES = 46.0;
 int POINT_CHECK = 1;
+
+double GRAV   = 6.63e-11;
+double MSOLAR = 1.989e30;

@@ -181,7 +181,7 @@ int main(){
                 DT = 0.00001;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << std::endl;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
@@ -201,10 +201,10 @@ int main(){
                 }
 
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
+                        RAND_POINTS[i].calc_newtonian_gravity(DT,0);
                         RAND_POINTS[i].update_u_half();                        // update the half time state
                         RAND_POINTS[i].con_to_prim_half();
-                        RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep
-
+                        RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep 
                 }
 
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
@@ -212,9 +212,10 @@ int main(){
                 }
 
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
+                        RAND_POINTS[i].calc_newtonian_gravity(DT,1);
                         RAND_POINTS[i].update_u_variables();                   // update the fluid state at vertex
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
-                        RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep
+                        RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep       
                 }
 
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH

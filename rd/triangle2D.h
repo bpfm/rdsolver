@@ -1,6 +1,26 @@
-/* class containing values associated with the face
-        *VERTEX_0 = pointer to left VERTEX
-        *VERTEX_1 = pointer to right VERTEX
+/* class containing values and functions associated with triangles
+
+        ID = ID number of triangle
+        *VERTEX_0 => pointers to VERTEX 0 of triangle (counter clockwise order)
+        *VERTEX_1 => pointers to VERTEX 1 of triangle
+        *VERTEX_2 => pointers to VERTEX 2 of triangle
+        BOUNDARY  => 0 or 1, denoted whether triangle crosses boundary
+        AREA => area of triangle
+        X,Y  => vertex coordinates for 0,1,2
+        DUAL => area of dual cells corresponding to each vertex
+        U_N  => fluid state at each vertex at start of timestep
+        U_HALF => intermediate fluid state at each vertex
+        FLUC_LDA => nodal residuals for each fluid variable based on initial state (LDA scheme)
+        FLUC_N   => nodal residuals for each fluid variable based on initial state (N scheme)
+        FLUC_B   => nodal residuals for each fluid variable based on initial state (B scheme)
+        FLUC_HALF_LDA => nodal residuals for each fluid variable based on intermediate state (LDA scheme)
+        FLUC_HALF_N   => nodal residuals for each fluid variable based on intermediate state (N scheme)
+        FLUC_HALF_B   => nodal residuals for each fluid variable based on intermediate state (B scheme)
+        PRESSURE = pressure at position of each vertex
+        PRESSURE_HALF = pressure of iintermediate state at each vertex
+        PHI => element residual
+        BETA => distribution coefficient defined by chosen scheme
+        MAG => length of normal to each edge
 */
 
 class TRIANGLE{
@@ -1103,7 +1123,7 @@ public:
                 VERTEX_0->update_len_vel_sum(CONT);
                 VERTEX_1->update_len_vel_sum(CONT);
                 VERTEX_2->update_len_vel_sum(CONT);
-                
+
                 return ;
         }
 

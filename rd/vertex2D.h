@@ -1,14 +1,25 @@
-/*      class containing conserved and primative variables of fluid at the position of the TRIANGLE
-                X = x position
-                Y = y position
-                DX = change in x between vertices
+/*      class containing conserved and primative variables of fluid at the position of the vertex
+
+                X = x position of vertex
+                Y = y position of vertex
+                DX = change in x between vertices (should no longer be used)
                 DY = change in y between vertices
                 DUAL = dual cell area
-                MASS_DENSITY = mass_density of material in cell
-                VELOCITY = velocity of material in cell
-                PRESSURE = pressure in cell
-                SPECIFIC_ENERGY = SPECIFIC_ENERGY of cell (?) 
-                U_VARIABLES = array conatining values of std::vector U (see README)
+                LEN_VEL_SUM = sum of product of edge length and velocity for every edge (ised in dt calc)
+                U_VARIABLES = vector of fluid variables
+                DU = sum of change in fluid variables for first half timestep
+                MASS_DENSITY = mass_density of material at vertex
+                X_VELOCITY = x velocity of material at vertex
+                Y_VELOCITY = y velocity of material at vertex
+                PRESSURE = pressure at vertex
+                SPECIFIC_ENERGY = specific energy density at vertex
+                U_HALF = vector of fluid variables for intermediate state
+                DU_HALF = sum of change in fluid variables for second half timestep
+                MASS_DENSIT_HALF = mass_density of material for vertex at intermediate state
+                X_VELOCITY_HALF = x velocity of material at vertex at intermediate state
+                Y_VELOCITY_HALF = y velocity of material at vertex at intermediate state
+                PRESSURE_HALF = pressure at vertex at intermediate state
+                SPECIFIC_ENERGY_HALF = specific energy density at vertex at intermediate state
 */
 
 class VERTEX{
@@ -201,27 +212,26 @@ public:
                 return ;
         }
 
-        void calc_newtonian_gravity(double DT, int HALF_STEP){
-                double GM,AX,AY;
-                double MPERT = 1000;//2.5e4 * MSOLAR;
-                double XC = 0.5, YC = 0.5;
-                double DELTAX = X - XC, DELTAY = Y - YC;
-                double EPS = 0.1;
-                double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
-                GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
-                AX = DELTAX * GM;
-                AY = DELTAY * GM;
-                if(HALF_STEP == 0){
-                        // std::cout << U_VARIABLES[1]  << std::endl;
-                        U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
-                        U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
-                        // std::cout << U_VARIABLES[1]  << std::endl;
-                }else if(HALF_STEP == 1){
-                        U_HALF[1] = U_HALF[1] - AX*DT*MASS_DENSITY_HALF;
-                        U_HALF[2] = U_HALF[2] - AY*DT*MASS_DENSITY_HALF;
-                }
-                return ;
-        }
+        // void calc_newtonian_gravity(double DT, int HALF_STEP){
+        //         // Fixed Plummer potential at (XC,YC)
+        //         double GM,AX,AY;
+        //         double MPERT = 1000;//2.5e4 * MSOLAR;
+        //         double XC = 0.5, YC = 0.5;
+        //         double DELTAX = X - XC, DELTAY = Y - YC;
+        //         double EPS = 0.1;
+        //         double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
+        //         GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
+        //         AX = DELTAX * GM;
+        //         AY = DELTAY * GM;
+        //         if(HALF_STEP == 0){
+        //                 U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
+        //                 U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
+        //         }else if(HALF_STEP == 1){
+        //                 U_HALF[1] = U_HALF[1] - AX*DT*MASS_DENSITY_HALF;
+        //                 U_HALF[2] = U_HALF[2] - AY*DT*MASS_DENSITY_HALF;
+        //         }
+        //         return ;
+        // }
 
 
         // Calculate min timestep this cell requires

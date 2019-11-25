@@ -1,4 +1,4 @@
-#define IC 12
+#define IC 10
 
 //-----------------------------------------
 /* set dimensionality */
@@ -8,7 +8,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 20
+#define N_SNAP 10
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -48,14 +48,14 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-// #define LDA_SCHEME
-#define N_SCHEME
+#define LDA_SCHEME
+// #define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-// #define FIRST_ORDER
+#define FIRST_ORDER
 
 
 // Sod Shock Tube (Varied in X)
@@ -123,8 +123,8 @@ double SIDE_LENGTH_Y = 2.0;
 
 // 2D Noh problem
 #if IC == 7
-double CFL = 0.1;
-double T_TOT = 1.0;
+double CFL = 0.5;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 2.0;
 double SIDE_LENGTH_Y = 2.0;
@@ -132,11 +132,11 @@ double SIDE_LENGTH_Y = 2.0;
 
 // KH instability (x flow)
 #if IC == 8
-double CFL = 0.1;
-double T_TOT = 1.0;
+double CFL = 0.5;
+double T_TOT = 2.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability (y flow)
@@ -148,17 +148,26 @@ double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
-// KH instability - smoothed (y flow)
+// KH instability - smoothed (x flow)
 #if IC == 10
 double CFL = 0.5;
-double T_TOT = 10.0;
+double T_TOT = 1.0;
+double GAMMA = 1.4;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
+#endif
+
+// KH instability - smoothed (y flow)
+#if IC == 11
+double CFL = 0.5;
+double T_TOT = 1.0;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Blob test !!! NOT WORKING !!!
-#if IC == 11
+#if IC == 12
 double CFL = 0.01;
 double T_TOT = 0.01;
 double GAMMA = 5.0/3.0;
@@ -166,8 +175,8 @@ double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
-// Grav Test
-#if IC == 12
+// Grav Test !!! NOT WORKING !!!
+#if IC == 13
 double CFL = 0.5;
 double T_TOT = 100.0;
 double GAMMA = 1.4;
@@ -183,3 +192,7 @@ int POINT_CHECK = 1;
 
 double GRAV   = 6.63e-11;
 double MSOLAR = 1.989e30;
+
+#ifdef FIXED_DT
+double DT_FIX = 0.00001
+#endif

@@ -79,6 +79,7 @@ public:
                 std::cout << "U_HALF[4] =\t" << U_HALF[3][0] << "\t" << U_HALF[3][1] << "\t" << U_HALF[3][2] << std::endl;
         }
 
+        // import x and y for all vertices
         void setup_positions(){
                 X[0] = VERTEX_0->get_x();
                 X[1] = VERTEX_1->get_x();
@@ -89,6 +90,7 @@ public:
                 Y[2] = VERTEX_2->get_y();
         }
 
+        // import initial fluid state and pressure for all vertices
         void setup_initial_state(){
                 U_N[0][0] = VERTEX_0->get_u0();
                 U_N[0][1] = VERTEX_1->get_u0();
@@ -111,6 +113,7 @@ public:
                 PRESSURE[2] = VERTEX_2->get_pressure();
         }
 
+        // import intermediate fluid state and pressure for all vertices
         void setup_half_state(){
                 U_HALF[0][0] = VERTEX_0->get_u0_half();
                 U_HALF[0][1] = VERTEX_1->get_u0_half();

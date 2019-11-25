@@ -163,15 +163,15 @@ VERTEX setup_vertex(double X, double Y){
                 // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
 
                 if(Y < 0.25*SIDE_LENGTH_Y or Y > 0.75*SIDE_LENGTH_Y){
-                        NEW_VERTEX.set_x_velocity(1.0);
-                        NEW_VERTEX.set_mass_density(100.0);
+                        NEW_VERTEX.set_x_velocity(0.5);
+                        NEW_VERTEX.set_mass_density(1.0);
                 }else{
-                        NEW_VERTEX.set_x_velocity(-1.0);
-                        NEW_VERTEX.set_mass_density(200.0);
+                        NEW_VERTEX.set_x_velocity(-0.5);
+                        NEW_VERTEX.set_mass_density(2.0);
                 }
 
                 NEW_VERTEX.set_y_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_X)*X));
-                NEW_VERTEX.set_pressure(100.0);
+                NEW_VERTEX.set_pressure(1.0);
 
         }else if(IC == 9){
                 // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
@@ -188,6 +188,19 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_pressure(1.0);
 
         }else if(IC == 10){
+                // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
+
+                double VEL0  = -0.5, RHOL = 1.0, RHOH = 2.0;
+                double WIDTH = 0.2;
+                double DENS  = (RHOH - RHOL) * G(0.5+(Y-0.25)/WIDTH) * G(0.5-(Y-0.75)/WIDTH) + RHOL;
+                double VEL   = 2.0 * VEL0    * G(0.5+(Y-0.25)/WIDTH) * G(0.5-(Y-0.75)/WIDTH) - VEL0;
+
+                NEW_VERTEX.set_x_velocity(VEL);
+                NEW_VERTEX.set_mass_density(DENS);
+
+                NEW_VERTEX.set_y_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_X)*X));
+                NEW_VERTEX.set_pressure(2.5);
+        }else if(IC == 11){
                 // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
 
                 double VEL0  = -0.5, RHOL = 1.0, RHOH = 2.0;
@@ -200,8 +213,7 @@ VERTEX setup_vertex(double X, double Y){
 
                 NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
                 NEW_VERTEX.set_pressure(2.5);
-
-        }else if(IC == 11){
+        }else if(IC == 12){
                 // if(i==0 and j==0){std::cout << "Using Blob test" << std::endl;}
 
                 double CENTRE_X = 3.0;
@@ -226,12 +238,12 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(100.0);
 
-        }else if(IC == 12){
+        }else if(IC == 13){
                 // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
 
                 NEW_VERTEX.set_mass_density(100.0);
 
-                NEW_VERTEX.set_x_velocity(0.00000001);
+                NEW_VERTEX.set_x_velocity(0.005);
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(0.0001);
 

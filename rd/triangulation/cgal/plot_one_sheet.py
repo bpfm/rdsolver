@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-xlow, ylow, xhigh, yhigh = np.loadtxt("output.tri",skiprows=0,max_rows=1)
-nx, ny = np.loadtxt("output.tri",skiprows=1,max_rows=1)
-ndata = np.loadtxt("output.tri",skiprows=2,max_rows=1)
+xlow, ylow, xhigh, yhigh = np.loadtxt("output.txt",skiprows=0,max_rows=1)
+nx, ny = np.loadtxt("output.txt",skiprows=1,max_rows=1)
+ndata = np.loadtxt("output.txt",skiprows=2,max_rows=1)
 
-data = np.loadtxt("output.tri",skiprows=3,max_rows=int(ndata))
+data = np.loadtxt("output.txt",skiprows=3,max_rows=int(ndata))
 
 x = np.zeros(shape=int(ndata))
 y = np.zeros(shape=int(ndata))
@@ -16,9 +16,9 @@ for j in range(0,int(ndata)):
 
 print(data)
 
-ntri = np.loadtxt("output.tri",skiprows=3+int(ndata),max_rows=1)
+ntri = np.loadtxt("output.txt",skiprows=3+int(ndata),max_rows=1)
 
-data_tri = np.loadtxt("output.tri",skiprows=5+int(ndata),max_rows=int(ntri))
+data_tri = np.loadtxt("output.txt",skiprows=5+int(ndata),max_rows=int(ntri))
 
 print(data_tri)
 

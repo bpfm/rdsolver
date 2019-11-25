@@ -79,11 +79,9 @@ cgal_periodic2D_EXTERNAL_OBJECTS =
 
 cgal_periodic2D: CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.o
 cgal_periodic2D: CMakeFiles/cgal_periodic2D.dir/build.make
-cgal_periodic2D: /opt/local/lib/libmpfr.dylib
-cgal_periodic2D: /opt/local/lib/libgmp.dylib
 cgal_periodic2D: /opt/local/lib/libCGAL.13.0.2.dylib
-cgal_periodic2D: /opt/local/lib/libmpfr.dylib
 cgal_periodic2D: /opt/local/lib/libgmp.dylib
+cgal_periodic2D: /opt/local/lib/libmpfr.dylib
 cgal_periodic2D: /opt/local/lib/libboost_thread-mt.dylib
 cgal_periodic2D: /opt/local/lib/libboost_system-mt.dylib
 cgal_periodic2D: /opt/local/lib/libboost_chrono-mt.dylib

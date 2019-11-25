@@ -15,6 +15,12 @@ typedef PDT::Locate_type                                    Locate_type;
 typedef PDT::Point                                          Point;
 typedef PDT::Iso_rectangle                                  Iso_rectangle;
 typedef PDT::Covering_sheets                                Covering_sheets;
+
+
+// #define RANDOMIC
+// #define UNIFORMIC
+#define UNIFORMOFFSETIC
+
 int main(){
   float xmax=1.0,ymax=1.0;
   Iso_rectangle domain(0, 0, xmax, ymax); // The cube for the periodic domain
@@ -23,33 +29,38 @@ int main(){
   std::list<Point> L;
 
   int i,j;
-  int nx = 128, ny = 128, count = nx*ny;
+  int nx = 64, ny = 64, count = nx*ny;
   float x,y;
-
+#ifdef RANDOMIC
   for (int i = 0; i < count; ++i){
     x = xmax*(rand() % 10000)/10000.0;
     y = ymax*(rand() % 10000)/10000.0;
     L.push_back(Point(x,y));
   }
+#endif
 
-  // for(i=0; i < (nx); ++i){
-  //   x = (xmax) * float(i) / float(nx);
-  //   for(j=0; j < (ny); ++j){
-  //     y = (ymax) * float(j) / float(ny);
-  //     L.push_back(Point(x,y));
-  //   }
-  // }
+#ifdef UNIFORMIC
+  for(i=0; i < (nx); ++i){
+    x = (xmax) * float(i) / float(nx);
+    for(j=0; j < (ny); ++j){
+      y = (ymax) * float(j) / float(ny);
+      L.push_back(Point(x,y));
+    }
+  }
+#endif
 
-  // for(i=0; i < (nx); ++i){
-  //   for(j=0; j < (ny); ++j){
-  //     if(j % 2 != 0){
-  //       x = (xmax) * (float(i) + 0.5) / float(nx);
-  //     }else{
-  //       x = (xmax) * float(i) / float(nx);
-  //     }
-  //     y = (ymax) * float(j) / float(ny);L.push_back(Point(x,y));
-  //   }
-  // }
+#ifdef UNIFORMOFFSETIC
+  for(i=0; i < (nx); ++i){
+    for(j=0; j < (ny); ++j){
+      if(j % 2 != 0){
+        x = (xmax) * (float(i) + 0.5) / float(nx);
+      }else{
+        x = (xmax) * float(i) / float(nx);
+      }
+      y = (ymax) * float(j) / float(ny);L.push_back(Point(x,y));
+    }
+  }
+#endif
 
   PDT T(L.begin(), L.end(), domain); // Put the domain with the constructor
   size_t n = T.number_of_vertices();

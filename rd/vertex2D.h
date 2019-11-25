@@ -85,7 +85,7 @@ public:
         double get_u3_half(){return U_HALF[3];}
 
 
-        // functions to set up the specific energy varaible, as well as u and f arrays
+        // set up the specific energy varaible, as well as u and f arrays
         void setup_specific_energy(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;
                 SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
@@ -100,6 +100,7 @@ public:
                 U_VARIABLES[3] = MASS_DENSITY * SPECIFIC_ENERGY;        // U3 = energy density
         }
 
+        // reset half state to new intial state
         void reset_u_half(){
                 U_HALF[0] = U_VARIABLES[0];
                 U_HALF[1] = U_VARIABLES[1];
@@ -126,7 +127,7 @@ public:
                 check_values();
         }
 
-        // recacluate PRESSURE based on updated primitive varaibles
+        // recacluate pressure based on updated primitive varaibles
         void recalculate_pressure(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;
                 PRESSURE = (GAMMA-1.0) * MASS_DENSITY * (SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
@@ -144,13 +145,12 @@ public:
         // reset sum for timestep calculation
         void reset_len_vel_sum(){LEN_VEL_SUM = 0.0;}
 
-        // Update DU with value from face
+        // update DU with value from face
         void update_du(double NEW_DU[4]){
                 DU[0] = DU[0] + NEW_DU[0];
                 DU[1] = DU[1] + NEW_DU[1];
                 DU[2] = DU[2] + NEW_DU[2];
                 DU[3] = DU[3] + NEW_DU[3];
-                // if((X >= 0.249 and X <= 0.251) and (Y >= 0.749 and Y <= 0.751)){std::cout << "+1" << std::endl;}
         }
 
         void update_du_half(double NEW_DU[4]){
@@ -158,9 +158,9 @@ public:
                 DU_HALF[1] = DU_HALF[1] + NEW_DU[1];
                 DU_HALF[2] = DU_HALF[2] + NEW_DU[2];
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
-                // if((X >= 0.249 and X <= 0.251) and (Y >= 0.749 and Y <= 0.751)){std::cout << "+1" << std::endl;}
         }
 
+        // update fluid varaiables based on sum of changes
         void update_u_variables(){
                 // std::cout << "DU =\t" << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << std::endl;
                 U_VARIABLES[0] = U_HALF[0] - DU[0];
@@ -177,6 +177,7 @@ public:
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
         }
 
+        // calculate sum of length and velocity (used to calculate dt)
         void update_len_vel_sum(double CONTRIBUTION){
                 LEN_VEL_SUM = LEN_VEL_SUM + CONTRIBUTION;
         }
@@ -188,25 +189,21 @@ public:
                 if (MASS_DENSITY <= 0.0){
                         std::cout << "B WARNING: Exiting on negative density\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
-                        // MASS_DENSITY = 0.00001;
                         exit(0);
                 }
                 if (PRESSURE <= 0.0){
                         std::cout << "B WARNING: Exiting on negative pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
-                        // PRESSURE = 0.00001;
                         exit(0);
                 }
                 if (MASS_DENSITY_HALF <= 0.0){
                         std::cout << "B WARNING: Exiting on negative half state density\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
-                        // MASS_DENSITY_HALF = 0.00001;
                         exit(0);
                 }
                 if (PRESSURE_HALF <= 0.0){
                         std::cout << "B WARNING: Exiting on negative half state pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
-                        // PRESSURE_HALF = 0.00001;
                         exit(0);
                 }
                 return ;
@@ -234,7 +231,7 @@ public:
         // }
 
 
-        // Calculate min timestep this cell requires
+        // calculate min timestep this cell requires
         double calc_next_dt(){
                 double NEXT_DT;
 
@@ -243,6 +240,7 @@ public:
                 return NEXT_DT;
         }
 
+        // maximum value between A and B 
         double max_val(double A, double B){
                 if(A>B){
                         return A;

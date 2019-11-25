@@ -21,6 +21,9 @@
 #endif
 
 int main(){
+        /*
+        Setup and run simulation from input file constants.h, using precalculated triangulation
+        */
 
         int i, j, l = 0;                                           // ******* decalare varaibles and vectors ******
         double DX, DY, DT, T = 0.0;                                // DX           = space step,DT = timestep,t = time
@@ -159,9 +162,7 @@ int main(){
                 RAND_POINTS[i].reset_len_vel_sum();
         }
 
-        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, TEMP;
-
-        // TEMP.open("output/temp.txt");
+        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN;
 
         open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN);               // open output files
 
@@ -178,7 +179,7 @@ int main(){
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
 
 #ifdef FIXED_DT
-                DT = 0.00001;
+                DT = DT_FIX;
 #endif
 
                 std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
@@ -201,7 +202,7 @@ int main(){
                 }
 
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
-                        RAND_POINTS[i].calc_newtonian_gravity(DT,0);
+                        //RAND_POINTS[i].calc_newtonian_gravity(DT,0);
                         RAND_POINTS[i].update_u_half();                        // update the half time state
                         RAND_POINTS[i].con_to_prim_half();
                         RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep 
@@ -212,7 +213,7 @@ int main(){
                 }
 
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
-                        RAND_POINTS[i].calc_newtonian_gravity(DT,1);
+                        //RAND_POINTS[i].calc_newtonian_gravity(DT,1);
                         RAND_POINTS[i].update_u_variables();                   // update the fluid state at vertex
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                         RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep       

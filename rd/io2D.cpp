@@ -1,12 +1,19 @@
+/*
+IO routines to write simple ASCII output for python plotting
+        open_files => opens ouptut files to write positions, dens, pressure, vel maps, and column of values for 1D plot
+*/
+
+// open files output files (created if not present)
 void open_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN){
         POSITIONS.open("output/positions.txt");
         DENSITY_MAP.open("output/density.txt");
         PRESSURE_MAP.open("output/energy.txt");
         VELOCITY_MAP.open("output/momentum.txt");
-        CENTRAL_COLUMN.open("output/column.txt");       
+        CENTRAL_COLUMN.open("output/column.txt");
         return;
 }
 
+// close files on completion
 void close_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN){
         POSITIONS.close();
         DENSITY_MAP.close();
@@ -16,6 +23,7 @@ void close_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofst
         return;
 }
 
+// write state to outut files, print total mass and energy as continuity check
 void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS){
         int i,j;
         double TOTAL_DENSITY = 0.0;
@@ -41,6 +49,7 @@ void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofs
         return;
 }
 
+// if using qhull triangulation (closed boundaries only), read vertex header info on triangulation
 #ifdef QHULL_IC
 int qhull_read_positions_header(std::ifstream &POSITIONS_FILE){
         std::string INFO;
@@ -55,6 +64,7 @@ int qhull_read_positions_header(std::ifstream &POSITIONS_FILE){
         return N_POINTS;
 }
 
+// read qhull triangles header info
 int qhull_read_triangles_header(std::ifstream &TRIANGLES_FILE){
         int N_TRIANG;
 
@@ -63,6 +73,7 @@ int qhull_read_triangles_header(std::ifstream &TRIANGLES_FILE){
         return N_TRIANG;
 }
 
+// read one qhull vertex position
 VERTEX qhull_read_positions_line(std::ifstream &POSITIONS_FILE){
         double X,Y;
         VERTEX NEW_VERTEX;
@@ -77,6 +88,7 @@ VERTEX qhull_read_positions_line(std::ifstream &POSITIONS_FILE){
         return NEW_VERTEX;
 }
 
+// read one qhull triangle (indices of vertices)
 TRIANGLE qhull_read_triangles_line(std::ifstream &TRIANGLES_FILE, std::vector<VERTEX> &POINTS){
         int N_VERT,VERT0,VERT1,VERT2;
         TRIANGLE NEW_TRIANGLE;
@@ -95,6 +107,7 @@ TRIANGLE qhull_read_triangles_line(std::ifstream &TRIANGLES_FILE, std::vector<VE
 }
 #endif
 
+// if using CGAL triangulation file, read vertex header info
 #ifdef CGAL_IC
 int cgal_read_positions_header(std::ifstream &CGAL_FILE){
         int N_POINTS, XSHEETS, YSHEETS;
@@ -121,6 +134,7 @@ int cgal_read_positions_header(std::ifstream &CGAL_FILE){
         return N_POINTS;
 }
 
+// read CGAL triangle header info
 int cgal_read_triangles_header(std::ifstream &CGAL_FILE){
         int N_TRIANG;
         int EMPTY;
@@ -130,6 +144,7 @@ int cgal_read_triangles_header(std::ifstream &CGAL_FILE){
         return N_TRIANG;
 }
 
+// read postion of one CGAL vertex
 VERTEX cgal_read_positions_line(std::ifstream &CGAL_FILE){
         double X,Y;
         VERTEX NEW_VERTEX;
@@ -141,6 +156,7 @@ VERTEX cgal_read_positions_line(std::ifstream &CGAL_FILE){
         return NEW_VERTEX;
 }
 
+// read indices of vertices for one CGAL triangle
 TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS){
         int VERT0,VERT1,VERT2;
         TRIANGLE NEW_TRIANGLE;

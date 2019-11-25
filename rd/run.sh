@@ -2,7 +2,10 @@ g++ main.cpp -I /usr/local/opt/openblas/include /usr/local/opt/openblas/lib/libo
 ./a.out
 
 # cd output
-# python plot1D.py &
+# pythonw plot1D.py &
+
+# cd output
+# pythonw vor_plot2D.py
 
 # cd ../../../exact_sod
 # python sod_plot_rd.py &

@@ -1,14 +1,25 @@
-/*      class containing conserved and primative variables of fluid at the position of the TRIANGLE
-                X = x position
-                Y = y position
-                DX = change in x between vertices
+/*      class containing conserved and primative variables of fluid at the position of the vertex
+
+                X = x position of vertex
+                Y = y position of vertex
+                DX = change in x between vertices (should no longer be used)
                 DY = change in y between vertices
                 DUAL = dual cell area
-                MASS_DENSITY = mass_density of material in cell
-                VELOCITY = velocity of material in cell
-                PRESSURE = pressure in cell
-                SPECIFIC_ENERGY = SPECIFIC_ENERGY of cell (?) 
-                U_VARIABLES = array conatining values of std::vector U (see README)
+                LEN_VEL_SUM = sum of product of edge length and velocity for every edge (ised in dt calc)
+                U_VARIABLES = vector of fluid variables
+                DU = sum of change in fluid variables for first half timestep
+                MASS_DENSITY = mass_density of material at vertex
+                X_VELOCITY = x velocity of material at vertex
+                Y_VELOCITY = y velocity of material at vertex
+                PRESSURE = pressure at vertex
+                SPECIFIC_ENERGY = specific energy density at vertex
+                U_HALF = vector of fluid variables for intermediate state
+                DU_HALF = sum of change in fluid variables for second half timestep
+                MASS_DENSIT_HALF = mass_density of material for vertex at intermediate state
+                X_VELOCITY_HALF = x velocity of material at vertex at intermediate state
+                Y_VELOCITY_HALF = y velocity of material at vertex at intermediate state
+                PRESSURE_HALF = pressure at vertex at intermediate state
+                SPECIFIC_ENERGY_HALF = specific energy density at vertex at intermediate state
 */
 
 class VERTEX{
@@ -16,7 +27,7 @@ class VERTEX{
 private:
 
         double X, Y, DX, DY;
-        double DUAL;
+        double DUAL,LEN_VEL_SUM;
         double U_VARIABLES[4], DU[4];
         double MASS_DENSITY, X_VELOCITY, Y_VELOCITY;
         double PRESSURE, SPECIFIC_ENERGY;
@@ -74,7 +85,7 @@ public:
         double get_u3_half(){return U_HALF[3];}
 
 
-        // functions to set up the specific energy varaible, as well as u and f arrays
+        // set up the specific energy varaible, as well as u and f arrays
         void setup_specific_energy(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;
                 SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
@@ -89,6 +100,7 @@ public:
                 U_VARIABLES[3] = MASS_DENSITY * SPECIFIC_ENERGY;        // U3 = energy density
         }
 
+        // reset half state to new intial state
         void reset_u_half(){
                 U_HALF[0] = U_VARIABLES[0];
                 U_HALF[1] = U_VARIABLES[1];
@@ -115,7 +127,7 @@ public:
                 check_values();
         }
 
-        // recacluate PRESSURE based on updated primitive varaibles
+        // recacluate pressure based on updated primitive varaibles
         void recalculate_pressure(){
                 double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY;
                 PRESSURE = (GAMMA-1.0) * MASS_DENSITY * (SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
@@ -127,10 +139,13 @@ public:
         }
 
         // reset the changes in primative variables
-        void reset_du(){     DU[0]      = DU[1]      = DU[2]      = DU[3]      = 0.0;}
+        void reset_du(){DU[0] = DU[1] = DU[2] = DU[3] = 0.0;}
         void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = 0.0;}
 
-        // Update DU with value from face
+        // reset sum for timestep calculation
+        void reset_len_vel_sum(){LEN_VEL_SUM = 0.0;}
+
+        // update DU with value from face
         void update_du(double NEW_DU[4]){
                 DU[0] = DU[0] + NEW_DU[0];
                 DU[1] = DU[1] + NEW_DU[1];
@@ -145,6 +160,7 @@ public:
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
         }
 
+        // update fluid varaiables based on sum of changes
         void update_u_variables(){
                 // std::cout << "DU =\t" << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << std::endl;
                 U_VARIABLES[0] = U_HALF[0] - DU[0];
@@ -161,6 +177,11 @@ public:
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
         }
 
+        // calculate sum of length and velocity (used to calculate dt)
+        void update_len_vel_sum(double CONTRIBUTION){
+                LEN_VEL_SUM = LEN_VEL_SUM + CONTRIBUTION;
+        }
+
         void check_values(){
 #ifdef DEBUG
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
@@ -168,38 +189,58 @@ public:
                 if (MASS_DENSITY <= 0.0){
                         std::cout << "B WARNING: Exiting on negative density\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
-                        // MASS_DENSITY = 0.00001;
                         exit(0);
                 }
                 if (PRESSURE <= 0.0){
                         std::cout << "B WARNING: Exiting on negative pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
-                        // PRESSURE = 0.00001;
                         exit(0);
                 }
                 if (MASS_DENSITY_HALF <= 0.0){
                         std::cout << "B WARNING: Exiting on negative half state density\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
-                        // MASS_DENSITY_HALF = 0.00001;
                         exit(0);
                 }
                 if (PRESSURE_HALF <= 0.0){
                         std::cout << "B WARNING: Exiting on negative half state pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
-                        // PRESSURE_HALF = 0.00001;
                         exit(0);
                 }
-
+                return ;
         }
 
-        // Calculate min timestep this cell requires
-        void calc_next_dt(double DX, double CFL, double &NEXT_DT){
-                double C_SOUND = sqrt(GAMMA*PRESSURE/MASS_DENSITY);
-                double V_MAX = max_val(std::abs(X_VELOCITY)+C_SOUND,std::abs(Y_VELOCITY)+C_SOUND);
-                NEXT_DT = 2.0*CFL*DUAL/(6.0*DX*V_MAX);
-                //std::cout << NEXT_DT << std::endl;
+        // void calc_newtonian_gravity(double DT, int HALF_STEP){
+        //         // Fixed Plummer potential at (XC,YC)
+        //         double GM,AX,AY;
+        //         double MPERT = 1000;//2.5e4 * MSOLAR;
+        //         double XC = 0.5, YC = 0.5;
+        //         double DELTAX = X - XC, DELTAY = Y - YC;
+        //         double EPS = 0.1;
+        //         double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
+        //         GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
+        //         AX = DELTAX * GM;
+        //         AY = DELTAY * GM;
+        //         if(HALF_STEP == 0){
+        //                 U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
+        //                 U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
+        //         }else if(HALF_STEP == 1){
+        //                 U_HALF[1] = U_HALF[1] - AX*DT*MASS_DENSITY_HALF;
+        //                 U_HALF[2] = U_HALF[2] - AY*DT*MASS_DENSITY_HALF;
+        //         }
+        //         return ;
+        // }
+
+
+        // calculate min timestep this cell requires
+        double calc_next_dt(){
+                double NEXT_DT;
+
+                NEXT_DT = CFL*2.0*DUAL/LEN_VEL_SUM;
+
+                return NEXT_DT;
         }
 
+        // maximum value between A and B 
         double max_val(double A, double B){
                 if(A>B){
                         return A;

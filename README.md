@@ -1,2 +1,2 @@
-# Residual Distribution hydrodynamics for Galaxy Formation Simulations
+# Residual Distribution Hydrodynamics for Galaxy Formation Simulations
 ## WORK IN PROGRESS

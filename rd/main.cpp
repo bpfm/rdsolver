@@ -33,6 +33,7 @@ int main(){
         TRIANGLE                             NEW_TRIANGLE;         // NEW_TRIABLE  = dummy variable for setting up triangles
         std::vector<VERTEX>                  RAND_POINTS;             // X_POINTS     = vector of x vertices
         std::vector<TRIANGLE>                RAND_MESH;               // X_MESH       = vector of x triangles
+        double SNAP_ID = 0;
 
 
         // Initialise seed for random number generator (rand)
@@ -162,10 +163,6 @@ int main(){
                 RAND_POINTS[i].reset_len_vel_sum();
         }
 
-        std::ofstream POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN;
-
-        open_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN);               // open output files
-
         std::cout << "Checking mesh size ..." << std::endl;
 
         std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
@@ -185,9 +182,10 @@ int main(){
                 std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
+                        write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
-                        output_state(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, RAND_POINTS, T, DT, N_POINTS);
+                        SNAP_ID ++;
                 }
 
 // #ifdef DEBUG
@@ -236,8 +234,7 @@ int main(){
 
         }
 
-        output_state(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN, RAND_POINTS, T, DT, N_POINTS);      // write out final state
-        close_files(POSITIONS, DENSITY_MAP, PRESSURE_MAP, VELOCITY_MAP, CENTRAL_COLUMN);
+        write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID);
 
         return 0;
 }

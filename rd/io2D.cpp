@@ -3,49 +3,26 @@ IO routines to write simple ASCII output for python plotting
         open_files => opens ouptut files to write positions, dens, pressure, vel maps, and column of values for 1D plot
 */
 
-// open files output files (created if not present)
-void open_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN){
-        POSITIONS.open("output/positions.txt");
-        DENSITY_MAP.open("output/density.txt");
-        PRESSURE_MAP.open("output/energy.txt");
-        VELOCITY_MAP.open("output/momentum.txt");
-        CENTRAL_COLUMN.open("output/column.txt");
+void open_snap(std::ofstream &SNAPFILE, int i){
+        SNAPFILE.open("output/snapshot_"+std::to_string(i)+".txt");
         return;
 }
 
-// close files on completion
-void close_files(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN){
-        POSITIONS.close();
-        DENSITY_MAP.close();
-        PRESSURE_MAP.close();
-        VELOCITY_MAP.close();
-        CENTRAL_COLUMN.close();        
-        return;
-}
-
-// write state to outut files, print total mass and energy as continuity check
-void output_state(std::ofstream &POSITIONS, std::ofstream &DENSITY_MAP, std::ofstream &PRESSURE_MAP, std::ofstream &VELOCITY_MAP, std::ofstream &CENTRAL_COLUMN, std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS){
-        int i,j;
+void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, int SNAP_ID){
+        std::ofstream SNAPFILE;
+        open_snap(SNAPFILE,SNAP_ID);
         double TOTAL_DENSITY = 0.0;
         double TOTAL_ENERGY = 0.0;
-
-        for(i=0;i<N_POINTS;++i){
-                if(T == 0.0){POSITIONS << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << std::endl;}
-                DENSITY_MAP  << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << std::endl;
-                PRESSURE_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_specific_energy() << std::endl;
-                VELOCITY_MAP << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_x_velocity()   << "\t" << POINTS[i].get_mass_density()*POINTS[i].get_y_velocity() << std::endl;
-                if(POINTS[i].get_y() > 0.49*SIDE_LENGTH_Y and POINTS[i].get_y() < 0.51 *SIDE_LENGTH_Y){CENTRAL_COLUMN << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" <<POINTS[i].get_pressure() << "\t" << POINTS[i].get_y_velocity() << std::endl;}
+        SNAPFILE << N_POINTS << "\t" << T << std::endl;
+        for(int i=0;i<N_POINTS;++i){
+                // write         X                           Y                                 rho                                   v_x                                    v_y                                 p                                      e                                         |S|
+                SNAPFILE << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_x_velocity() << "\t" << POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_specific_energy() << "\t" << POINTS[i].get_dual() << std::endl;
                 TOTAL_DENSITY += POINTS[i].get_mass_density()*POINTS[i].get_dual();
                 TOTAL_ENERGY += POINTS[i].get_specific_energy()*POINTS[i].get_dual() * POINTS[i].get_mass_density();
         }
-
         std::cout << "*************************************************************************************************" << std::endl;            // right out time and total density to terminal
         std::cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY << " \t-> total energy =\t" << TOTAL_ENERGY << "\ttime step = \t" << DT << std::endl;
-        DENSITY_MAP    << " " << std::endl;
-        PRESSURE_MAP   << " " << std::endl;
-        VELOCITY_MAP   << " " << std::endl;
-        CENTRAL_COLUMN << " " << std::endl;
-
+        SNAPFILE.close();
         return;
 }
 
@@ -170,29 +147,6 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
         // std::cout << POINTS[VERT0].get_x() << "\t" << POINTS[VERT1].get_x() << "\t" << POINTS[VERT2].get_x() << std::endl;
 
         double X0,X1,X2,Y0,Y1,Y2;
-        // double L1X,L1Y,L2X,L2Y,CROSS;
-
-        // X0 = POINTS[VERT0].get_x();
-        // X1 = POINTS[VERT1].get_x();
-        // X2 = POINTS[VERT2].get_x();
-
-        // Y0 = POINTS[VERT0].get_y();
-        // Y1 = POINTS[VERT1].get_y();
-        // Y2 = POINTS[VERT2].get_y();
-
-        // L1X = X1 - X0;
-        // L1Y = Y1 - Y0;
-
-        // L2X = X2 - X0;
-        // L2Y = Y2 - Y0;
-
-        // CROSS = L1X*L2Y - L1Y*L2X;
-
-        // if(CROSS < 0.0){
-        //         VERT1 = VERT1 + VERT2;
-        //         VERT2 = VERT1 - VERT2;
-        //         VERT1 = VERT1 - VERT2;
-        // }
 
         // check if boundary triangle
 

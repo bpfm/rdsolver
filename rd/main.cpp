@@ -18,6 +18,7 @@
 #include "triangle2D.h"
 #include "setup2D.cpp"
 #include "io2D.cpp"
+#include "gravity2D.cpp"
 #endif
 
 int main(){
@@ -146,8 +147,19 @@ int main(){
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
-#endif        
 #endif
+#endif
+
+        double ETOT;
+
+        if(IC==3){
+                for(i=0; i<N_POINTS; ++i){
+                        if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
+                                ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
+                                std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        }
+                }
+        }
 
         /****** Set initial timestep  ******/
 
@@ -200,7 +212,6 @@ int main(){
                 }
 
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
-                        //RAND_POINTS[i].calc_newtonian_gravity(DT,0);
                         RAND_POINTS[i].update_u_half();                        // update the half time state
                         RAND_POINTS[i].con_to_prim_half();
                         RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep 
@@ -211,11 +222,14 @@ int main(){
                 }
 
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
-                        //RAND_POINTS[i].calc_newtonian_gravity(DT,1);
                         RAND_POINTS[i].update_u_variables();                   // update the fluid state at vertex
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
-                        RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep       
+                        RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep
                 }
+
+#ifdef SELF_GRAVITY
+                direct_gravity(RAND_POINTS, N_POINTS, DT);
+#endif
 
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                         RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE

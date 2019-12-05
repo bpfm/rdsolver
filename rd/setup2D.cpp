@@ -80,9 +80,9 @@ VERTEX setup_vertex(double X, double Y){
 
                 double R = sqrt((X - 5.0)*(X - 5.0) + (Y - 5.0)*(Y - 5.0));
 
-                if(R < 0.5){
-                        P = 100000.0/BLAST_VERTICES;
-                        std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\tPressure =\t" << P << std::endl;
+                if(R < R_BLAST){
+                        NEW_VERTEX.set_pressure(100000.0);
+                        std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\t" << std::endl;
                         POINT_CHECK ++;
                 }
 
@@ -90,10 +90,6 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_x_velocity(V);                             // units m/s
                 NEW_VERTEX.set_y_velocity(V);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
-
-                if(R > 1.5 and R < 2.5 and X < 5.0 and Y < 5.0){
-                        NEW_VERTEX.set_mass_density(2.0*RHO);
-                }
 
         }else if(IC == 4){
                 // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse" << std::endl;}
@@ -216,24 +212,26 @@ VERTEX setup_vertex(double X, double Y){
         }else if(IC == 12){
                 // if(i==0 and j==0){std::cout << "Using Blob test" << std::endl;}
 
-                double CENTRE_X = 3.0;
-                double CENTRE_Y = 4.0;
+                double CENTRE_X = 2.0;
+                double CENTRE_Y = 2.0;
 
                 double RADIUS = sqrt((X - CENTRE_X)*(X - CENTRE_X) + (Y - CENTRE_Y)*(Y - CENTRE_Y));
 
-                if(RADIUS < 1.5){
+                if(RADIUS < 0.5){
                         NEW_VERTEX.set_mass_density(100.0);
+                        NEW_VERTEX.set_x_velocity(0.0);
                 }else{
-                        NEW_VERTEX.set_mass_density(10.0);
+                        NEW_VERTEX.set_mass_density(25.0);
+                        NEW_VERTEX.set_x_velocity(1.0);
                 }
 
-                if(X < (CENTRE_X-1.5)){
-                        NEW_VERTEX.set_x_velocity(10.0);
-                }else{
-                        NEW_VERTEX.set_x_velocity(0.00000001);
-                }
+                // if(X < (CENTRE_X-0.5)){
+                //         NEW_VERTEX.set_x_velocity(10.0);
+                // }else{
+                //         NEW_VERTEX.set_x_velocity(0.00000001);
+                // }
 
-                NEW_VERTEX.set_x_velocity(5.0);
+                // NEW_VERTEX.set_x_velocity(5.0);
 
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(100.0);
@@ -243,9 +241,13 @@ VERTEX setup_vertex(double X, double Y){
 
                 NEW_VERTEX.set_mass_density(100.0);
 
-                NEW_VERTEX.set_x_velocity(0.005);
+                double R = sqrt((X - 0.5)*(X - 0.5) + (Y - 0.5)*(Y - 0.5));
+
+                if(R<0.2){NEW_VERTEX.set_mass_density(1000.0);}
+
+                NEW_VERTEX.set_x_velocity(0.00000001);
                 NEW_VERTEX.set_y_velocity(0.00000001);
-                NEW_VERTEX.set_pressure(0.0001);
+                NEW_VERTEX.set_pressure(0.1);
 
         }
 

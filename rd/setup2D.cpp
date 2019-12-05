@@ -23,7 +23,7 @@ VERTEX setup_vertex(double X, double Y){
 
         NEW_VERTEX.set_dual(0.0);
 
-        if(IC == 0){
+#ifdef SODX
                 // std::cout << "Using 1D Sod Shock Tube (Varied in X)" << std::endl;}
 
                 if(X<0.5*SIDE_LENGTH_X){
@@ -37,7 +37,8 @@ VERTEX setup_vertex(double X, double Y){
                         NEW_VERTEX.set_y_velocity(0.000000001);                       // units m/s
                         NEW_VERTEX.set_pressure(0.1);                                 // units N/m^2
                 }
-        }else if(IC == 1){
+#endif
+#ifdef SODY
                 // if(i==0 and j==0){std::cout << "Using 1D Sod Shock Tube (Varied in Y)" << std::endl;}
 
                 if(Y<0.5*SIDE_LENGTH_Y){
@@ -52,7 +53,8 @@ VERTEX setup_vertex(double X, double Y){
                         NEW_VERTEX.set_pressure(0.1);                                 // units N/m^2
                 }
                 
-        }else if(IC == 2){
+#endif
+#ifdef SINEX
                 // if(i==0 and j==0){std::cout << "Using 1D Sine Wave" << std::endl;}
 
                 double RHO,RHO_0 = 50.0;
@@ -71,7 +73,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
-        }else if(IC == 3){
+#endif
+#ifdef SEDOV
                  // if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
 
                 double RHO = 1.0;
@@ -81,8 +84,8 @@ VERTEX setup_vertex(double X, double Y){
                 double R = sqrt((X - 5.0)*(X - 5.0) + (Y - 5.0)*(Y - 5.0));
 
                 if(R < R_BLAST){
-                        NEW_VERTEX.set_pressure(100000.0);
-                        std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\t" << std::endl;
+                        P = 100000.0;
+                        std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\t" << P << std::endl;
                         POINT_CHECK ++;
                 }
 
@@ -91,7 +94,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(V);
                 NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
-        }else if(IC == 4){
+#endif
+#ifdef GAUSSX
                 // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse" << std::endl;}
 
                 double CENTRE = 0.3;
@@ -108,7 +112,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(PRESSURE);
                 
-        }else if(IC == 5){
+#endif
+#ifdef GAUSSY
                 // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse (y-direction)" << std::endl;}
 
                 double CENTRE = 0.2;
@@ -125,7 +130,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(Y_VELOCITY);
                 NEW_VERTEX.set_pressure(PRESSURE);
 
-        }else if(IC == 6){
+#endif
+#ifdef UNIFORM
                 // if(i==0 and j==0){std::cout << "Using Flat Start" << std::endl;}
 
                 NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
@@ -133,7 +139,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
                 NEW_VERTEX.set_pressure(5.0);                                 // units N/m^2
 
-        }else if(IC == 7){
+#endif
+#ifdef NOH
                 // if(i==0 and j==0){std::cout << "Using 2D Noh Problem" << std::endl;}
 
                 double X_VEL,Y_VEL;
@@ -155,7 +162,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(Y_VEL);
                 NEW_VERTEX.set_pressure(0.1);
 
-        }else if(IC == 8){
+#endif
+#ifdef KHX
                 // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
 
                 if(Y < 0.25*SIDE_LENGTH_Y or Y > 0.75*SIDE_LENGTH_Y){
@@ -169,7 +177,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_X)*X));
                 NEW_VERTEX.set_pressure(1.0);
 
-        }else if(IC == 9){
+#endif
+#ifdef KHY
                 // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
 
                 if(X < 0.25*SIDE_LENGTH_X or X > 0.75*SIDE_LENGTH_X){
@@ -183,7 +192,8 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
                 NEW_VERTEX.set_pressure(1.0);
 
-        }else if(IC == 10){
+#endif
+#ifdef KHXSMOOTH
                 // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
 
                 double VEL0  = -0.5, RHOL = 1.0, RHOH = 2.0;
@@ -196,7 +206,9 @@ VERTEX setup_vertex(double X, double Y){
 
                 NEW_VERTEX.set_y_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_X)*X));
                 NEW_VERTEX.set_pressure(2.5);
-        }else if(IC == 11){
+
+#endif
+#ifdef KHYSMOOTH
                 // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
 
                 double VEL0  = -0.5, RHOL = 1.0, RHOH = 2.0;
@@ -209,7 +221,9 @@ VERTEX setup_vertex(double X, double Y){
 
                 NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
                 NEW_VERTEX.set_pressure(2.5);
-        }else if(IC == 12){
+
+#endif
+#ifdef BLOB
                 // if(i==0 and j==0){std::cout << "Using Blob test" << std::endl;}
 
                 double CENTRE_X = 2.0;
@@ -236,14 +250,15 @@ VERTEX setup_vertex(double X, double Y){
                 NEW_VERTEX.set_y_velocity(0.00000001);
                 NEW_VERTEX.set_pressure(100.0);
 
-        }else if(IC == 13){
+#endif
+#ifdef GRAVITY
                 // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
 
                 NEW_VERTEX.set_mass_density(100.0);
 
                 double R = sqrt((X - 0.5)*(X - 0.5) + (Y - 0.5)*(Y - 0.5));
 
-                if(R<0.2){NEW_VERTEX.set_mass_density(1000.0);}
+                if(R<0.1){NEW_VERTEX.set_mass_density(1000.0);}
 
                 NEW_VERTEX.set_x_velocity(0.00000001);
                 NEW_VERTEX.set_y_velocity(0.00000001);

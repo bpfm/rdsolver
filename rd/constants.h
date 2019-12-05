@@ -1,4 +1,19 @@
-#define IC 13
+#define IC 10
+
+// #define SODX
+// #define SODY
+// #define SINEX
+// #define SEDOV
+// #define GAUSSX
+// #define GAUSSY
+// #define UNIFORM
+// #define NOH
+// #define KHX
+// #define KHY
+// #define KHXSMOOTH
+// #define KHYSMOOTH
+// #define BLOB
+// #define GRAVITY
 
 //-----------------------------------------
 /* set dimensionality */
@@ -57,11 +72,11 @@
 //-----------------------------------------
 #define FIRST_ORDER
 
-#define SELF_GRAVITY
+// #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 
 
 // Sod Shock Tube (Varied in X)
-#if IC == 0
+#ifdef SODX
 double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
@@ -70,7 +85,7 @@ double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sod Shock Tube (Varied in Y)
-#if IC == 1
+#ifdef SODY
 double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
@@ -79,7 +94,7 @@ double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sine Wave Tube
-#if IC == 2
+#ifdef SINX
 double CFL = 0.1;
 double T_TOT = 5.0;
 double GAMMA = 1.4;
@@ -88,9 +103,9 @@ double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sedov Blast Wave
-#if IC == 3
+#ifdef SEDOV
 double CFL = 0.4;
-double T_TOT = 0.25;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
@@ -101,7 +116,7 @@ double R_BLAST = 0.5;
 int POINT_CHECK = 0;
 
 // Gaussian pulse advection (x-direction)
-#if IC == 4
+#ifdef GAUSSX
 double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
@@ -110,7 +125,7 @@ double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Gaussian pulse advection (y-direction)
-#if IC == 5
+#ifdef GAUSSY
 double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
@@ -119,7 +134,7 @@ double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Uniform flow
-#if IC == 6
+#ifdef UNIFORM
 double CFL = 0.1;
 double T_TOT = 1.0;
 double GAMMA = 1.4;
@@ -128,7 +143,7 @@ double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // 2D Noh problem
-#if IC == 7
+#ifdef NOH
 double CFL = 0.5;
 double T_TOT = 0.1;
 double GAMMA = 1.4;
@@ -137,7 +152,7 @@ double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // KH instability (x flow)
-#if IC == 8
+#ifdef KHX
 double CFL = 0.5;
 double T_TOT = 2.0;
 double GAMMA = 1.4;
@@ -146,7 +161,7 @@ double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability (y flow)
-#if IC == 9
+#ifdef KHY
 double CFL = 0.9;
 double T_TOT = 2.0;
 double GAMMA = 5.0/3.0;
@@ -155,16 +170,16 @@ double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability - smoothed (x flow)
-#if IC == 10
+#ifdef KHXSMOOTH
 double CFL = 0.5;
-double T_TOT = 1.0;
+double T_TOT = 0.1;
 double GAMMA = 1.4;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability - smoothed (y flow)
-#if IC == 11
+#ifdef KHXSMOOTH
 double CFL = 0.5;
 double T_TOT = 1.0;
 double GAMMA = 1.4;
@@ -173,7 +188,7 @@ double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Blob test
-#if IC == 12
+#ifdef BLOB
 double CFL = 0.9;
 double T_TOT = 10.0;
 double GAMMA = 5.0/3.0;
@@ -182,12 +197,12 @@ double SIDE_LENGTH_Y = 4.0;
 #endif
 
 // Grav Test !!! NOT WORKING !!!
-#if IC == 13
+#ifdef GRAVITY
 double CFL = 0.5;
-double T_TOT = 100.0;
+double T_TOT = 10.0;
 double GAMMA = 1.4;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+double SIDE_LENGTH_X = 10.0;
+double SIDE_LENGTH_Y = 10.0;
 #endif
 
 double GAMMA_1 = GAMMA - 1.0;

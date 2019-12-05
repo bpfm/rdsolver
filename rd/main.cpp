@@ -150,16 +150,17 @@ int main(){
 #endif
 #endif
 
-        double ETOT;
-
-        if(IC==3){
-                for(i=0; i<N_POINTS; ++i){
-                        if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
-                                ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
-                                std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
-                        }
-                }
-        }
+// #ifdef SEDOV
+//         double ETOT = 0.0;
+//         if(IC==3){
+//                 for(i=0; i<N_POINTS; ++i){
+//                         if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
+//                                 ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
+//                                 std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+//                         }
+//                 }
+//         }
+// #endif
 
         /****** Set initial timestep  ******/
 

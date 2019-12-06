@@ -1,5 +1,9 @@
-g++ main.cpp -I /usr/local/opt/openblas/include /usr/local/opt/openblas/lib/libopenblas.a
-./a.out
+#g++ main.cpp -I /usr/local/opt/openblas/include /usr/local/opt/openblas/lib/libopenblas.a
+#./a.out
+
+clang++ -Xpreprocessor -fopenmp -lomp -I /usr/local/opt/openblas/include /usr/local/opt/openblas/lib/libopenblas.a main.cpp -o lairds
+./lairds
+
 
 # cd output
 # pythonw plot1D.py &

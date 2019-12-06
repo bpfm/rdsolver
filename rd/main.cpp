@@ -6,6 +6,7 @@
 #include <vector>
 #include <cstdlib>
 #include <stdio.h>
+#include <omp.h> 
 
 #include "constants.h"
 
@@ -184,6 +185,8 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached ******/
 
+        int nthreads, tid;
+
         while(T<T_TOT){
 
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
@@ -207,10 +210,12 @@ int main(){
                 // std::cout << "Calculating first half time step change" << std::endl;
 // #endif
 
+                #pragma omp parallel for
                 for(j=0;j<N_TRIANG;++j){                                        // loop over all triangles in MESH
                         RAND_MESH[j].calculate_first_half(T, DT);               // calculate flux through TRIANGLE
-
                 }
+
+
 
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                         RAND_POINTS[i].update_u_half();                        // update the half time state
@@ -218,6 +223,7 @@ int main(){
                         RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep 
                 }
 
+                #pragma omp parallel for
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                         RAND_MESH[j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
                 }

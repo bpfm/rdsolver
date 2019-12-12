@@ -63,6 +63,7 @@ public:
         double get_dx(){  return DX;}
         double get_dy(){  return DY;}
         double get_dual(){return DUAL;}
+        double get_mass(){return DUAL*MASS_DENSITY;}
 
         double get_specific_energy(){return SPECIFIC_ENERGY;}
         double get_mass_density(){   return MASS_DENSITY;}
@@ -100,6 +101,13 @@ public:
                 U_VARIABLES[3] = MASS_DENSITY * SPECIFIC_ENERGY;        // U3 = energy density
         }
 
+        void prim_to_con_half(){
+                U_HALF[0] = MASS_DENSITY_HALF;                          // U0 = mass density
+                U_HALF[1] = MASS_DENSITY_HALF * X_VELOCITY_HALF;             // U1 = x momentum
+                U_HALF[2] = MASS_DENSITY_HALF * Y_VELOCITY_HALF;             // U2 = y momentum
+                U_HALF[3] = MASS_DENSITY_HALF * SPECIFIC_ENERGY_HALF;        // U3 = energy density
+        }
+
         // reset half state to new intial state
         void reset_u_half(){
                 U_HALF[0] = U_VARIABLES[0];
@@ -116,6 +124,7 @@ public:
                 SPECIFIC_ENERGY = U_VARIABLES[3]/MASS_DENSITY;
                 recalculate_pressure();
                 check_values();
+                // prim_to_con();
         }
 
         void con_to_prim_half(){
@@ -125,6 +134,7 @@ public:
                 SPECIFIC_ENERGY_HALF = U_HALF[3]/MASS_DENSITY;
                 recalculate_pressure_half();
                 check_values();
+                // prim_to_con_half();
         }
 
         // recacluate pressure based on updated primitive varaibles
@@ -147,16 +157,24 @@ public:
 
         // update DU with value from face
         void update_du(double NEW_DU[4]){
+                #pragma omp atomic update
                 DU[0] = DU[0] + NEW_DU[0];
+                #pragma omp atomic update
                 DU[1] = DU[1] + NEW_DU[1];
+                #pragma omp atomic update
                 DU[2] = DU[2] + NEW_DU[2];
+                #pragma omp atomic update
                 DU[3] = DU[3] + NEW_DU[3];
         }
 
         void update_du_half(double NEW_DU[4]){
+                #pragma omp atomic update
                 DU_HALF[0] = DU_HALF[0] + NEW_DU[0];
+                #pragma omp atomic update
                 DU_HALF[1] = DU_HALF[1] + NEW_DU[1];
+                #pragma omp atomic update
                 DU_HALF[2] = DU_HALF[2] + NEW_DU[2];
+                #pragma omp atomic update
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
         }
 
@@ -167,6 +185,8 @@ public:
                 U_VARIABLES[1] = U_HALF[1] - DU[1];
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
                 U_VARIABLES[3] = U_HALF[3] - DU[3];
+                // if(U_VARIABLES[0] <= 0.0){U_VARIABLES[0] = 0.001;}
+                // if(U_VARIABLES[3] <= 0.0){U_VARIABLES[3] = 0.001;}
         }
 
         void update_u_half(){
@@ -175,6 +195,8 @@ public:
                 U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
+                // if(U_HALF[0] <= 0.0){U_HALF[0] = 0.0001;}
+                // if(U_HALF[3] <= 0.0){U_HALF[3] = 0.0001;}
         }
 
         // calculate sum of length and velocity (used to calculate dt)
@@ -187,26 +209,40 @@ public:
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
                 if (MASS_DENSITY <= 0.0){
+                        // MASS_DENSITY = 0.001;
                         std::cout << "B WARNING: Exiting on negative density\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
                         exit(0);
                 }
                 if (PRESSURE <= 0.0){
+                        PRESSURE = 0.0001;
                         std::cout << "B WARNING: Exiting on negative pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
-                        exit(0);
+                        // exit(0);
                 }
                 if (MASS_DENSITY_HALF <= 0.0){
+                        // MASS_DENSITY_HALF = 0.001;
                         std::cout << "B WARNING: Exiting on negative half state density\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
                         exit(0);
                 }
                 if (PRESSURE_HALF <= 0.0){
+                        PRESSURE_HALF = 0.0001;
                         std::cout << "B WARNING: Exiting on negative half state pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
-                        exit(0);
+                        // exit(0);
                 }
                 return ;
+        }
+
+        void accelerate(int STEP, double AX, double AY, double DT){
+                if(STEP == 0){
+                        U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
+                        U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
+                }else if(STEP == 1){
+                        U_HALF[1] = U_HALF[1] - AX*DT*MASS_DENSITY_HALF;
+                        U_HALF[2] = U_HALF[2] - AY*DT*MASS_DENSITY_HALF;
+                }
         }
 
         // void calc_newtonian_gravity(double DT, int HALF_STEP){
@@ -220,13 +256,7 @@ public:
         //         GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
         //         AX = DELTAX * GM;
         //         AY = DELTAY * GM;
-        //         if(HALF_STEP == 0){
-        //                 U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
-        //                 U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
-        //         }else if(HALF_STEP == 1){
-        //                 U_HALF[1] = U_HALF[1] - AX*DT*MASS_DENSITY_HALF;
-        //                 U_HALF[2] = U_HALF[2] - AY*DT*MASS_DENSITY_HALF;
-        //         }
+        //         accelerate(HALF_STEP, AX, AY)
         //         return ;
         // }
 
@@ -234,9 +264,7 @@ public:
         // calculate min timestep this cell requires
         double calc_next_dt(){
                 double NEXT_DT;
-
                 NEXT_DT = CFL*2.0*DUAL/LEN_VEL_SUM;
-
                 return NEXT_DT;
         }
 

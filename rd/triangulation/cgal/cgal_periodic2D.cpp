@@ -16,7 +16,6 @@ typedef PDT::Point                                          Point;
 typedef PDT::Iso_rectangle                                  Iso_rectangle;
 typedef PDT::Covering_sheets                                Covering_sheets;
 
-
 // #define RANDOMIC
 // #define UNIFORMIC
 #define UNIFORMOFFSETIC
@@ -31,6 +30,7 @@ int main(){
   int i,j;
   int nx = 64, ny = 64, count = nx*ny;
   float x,y;
+
 #ifdef RANDOMIC
   for (int i = 0; i < count; ++i){
     x = xmax*(rand() % 10000)/10000.0;

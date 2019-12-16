@@ -522,7 +522,6 @@ public:
                 }
 
 #endif
-
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);

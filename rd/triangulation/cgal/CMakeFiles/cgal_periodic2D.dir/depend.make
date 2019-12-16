@@ -2320,4 +2320,5 @@ CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.o: /opt/local/include/gmpxx.h
 CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.o: /opt/local/include/mpfr.h
 CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.o: /usr/local/include/mpi.h
 CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.o: /usr/local/include/mpi_portable_platform.h
+CMakeFiles/cgal_periodic2D.dir/cgal_periodic2D.cpp.o: /usr/local/include/omp.h
 

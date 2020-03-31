@@ -28,7 +28,7 @@ int main(){
   std::list<Point> L;
 
   int i,j;
-  int nx = 64, ny = 64, count = nx*ny;
+  int nx=16, ny=16, count=nx*ny;
   float x,y;
 
 #ifdef RANDOMIC

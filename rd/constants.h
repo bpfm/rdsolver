@@ -1,9 +1,11 @@
-// #define IC 10
+//---------------OA--------------------------
+/* choose hydro test */
+//-----------------------------------------
 
 // #define SODX
 // #define SODY
 // #define SINEX
-// #define SEDOV
+// define SEDOV
 // #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
@@ -23,7 +25,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 10
+#define N_SNAP 20
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -174,7 +176,7 @@ double SIDE_LENGTH_Y = 1.0;
 // KH instability - smoothed (x flow)
 #ifdef KHXSMOOTH
 double CFL = 0.4;
-double T_TOT = 0.2;
+double T_TOT = 2.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;

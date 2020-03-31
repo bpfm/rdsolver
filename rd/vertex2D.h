@@ -218,7 +218,7 @@ public:
                         PRESSURE = 0.0001;
                         std::cout << "B WARNING: Exiting on negative pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
-                        // exit(0);
+                        exit(0);
                 }
                 if (MASS_DENSITY_HALF <= 0.0){
                         // MASS_DENSITY_HALF = 0.001;
@@ -230,7 +230,7 @@ public:
                         PRESSURE_HALF = 0.0001;
                         std::cout << "B WARNING: Exiting on negative half state pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
-                        // exit(0);
+                        exit(0);
                 }
                 return ;
         }

@@ -31,6 +31,7 @@ int main(){
         double DX, DY, DT, T = 0.0;                                // DX           = space step,DT = timestep,t = time
         double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
         double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;                       // NEXT_DT.     = timestep for upcoming time iteration
+        double MIN_DT;
         VERTEX                               NEW_VERTEX;           // NEW_VERTEX   = dummy variable for setting up vertices
         TRIANGLE                             NEW_TRIANGLE;         // NEW_TRIABLE  = dummy variable for setting up triangles
         std::vector<VERTEX>                  RAND_POINTS;             // X_POINTS     = vector of x vertices
@@ -255,11 +256,12 @@ int main(){
                         RAND_POINTS[i].reset_len_vel_sum();
                 }
 
-                for(i=0;i<N_POINTS;++i){
+                for(j=0;j<N_TRIANG;++j){
                         for(l=0;l<N_TBINS;++l){
-                                if(RAND_POINTS[i].get_dt_req() > float(l+1)*NEXT_DT and RAND_POINTS[i].get_dt_req() < float(l+2)*NEXT_DT){
-                                        RAND_POINTS[i].set_tbin(l);
-                                }
+                                MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
+                                if(RAND_MESH[j].get_vertex_1()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_1()->get_dt_req();}
+                                if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
+                                if(MIN_DT > float(l+1)*NEXT_DT and MIN_DT < float(l+2)*NEXT_DT){RAND_MESH[j].set_tbin(l);}
                         }
                 }
 

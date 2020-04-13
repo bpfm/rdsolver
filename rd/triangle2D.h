@@ -30,6 +30,7 @@ private:
         VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2;
 
         int BOUNDARY;
+        int TBIN;
 
         double AREA;
 
@@ -58,6 +59,7 @@ public:
         void set_vertex_2(VERTEX* NEW_VERTEX){VERTEX_2 = NEW_VERTEX;}
 
         void set_boundary(int NEW_BOUNDARY){BOUNDARY = NEW_BOUNDARY;}
+        void set_tbin(    int NEW_TBIN){TBIN = NEW_TBIN;}
 
         int get_id(){return ID;}
 
@@ -66,6 +68,7 @@ public:
         VERTEX* get_vertex_2(){return VERTEX_2;}
 
         int get_boundary(){return BOUNDARY;}
+        int get_tbin(){ return TBIN;}
 
         void print_triangle_state(){
                 std::cout << "U[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << std::endl;

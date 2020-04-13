@@ -29,7 +29,6 @@ private:
 
         double X, Y, DX, DY;
         double DT_REQ;
-        int    TBIN;
         double DUAL,LEN_VEL_SUM;
         double U_VARIABLES[4], DU[4];
         double MASS_DENSITY, X_VELOCITY, Y_VELOCITY;
@@ -48,7 +47,6 @@ public:
         void set_y(   double NEW_Y){Y   = NEW_Y;}
         void set_dx(  double NEW_DX){DX = NEW_DX;}
         void set_dy(  double NEW_DY){DY = NEW_DY;}
-        void set_tbin(int NEW_TBIN){TBIN = NEW_TBIN;}
         void set_dual(double NEW_DUAL){DUAL = NEW_DUAL;}
         void set_mass_density( double NEW_MASS_DENSITY){MASS_DENSITY  = NEW_MASS_DENSITY;}
         void set_x_velocity(   double NEW_X_VELOCITY){  X_VELOCITY    = NEW_X_VELOCITY;}
@@ -67,7 +65,6 @@ public:
         double get_dx(){     return DX;}
         double get_dy(){     return DY;}
         double get_dt_req(){ return DT_REQ;}
-        double get_tbin(){   return TBIN;}
         double get_dual(){   return DUAL;}
         double get_mass(){   return DUAL*MASS_DENSITY;}
 
@@ -221,7 +218,7 @@ public:
                         exit(0);
                 }
                 if (PRESSURE <= 0.0){
-                        PRESSURE = 0.0001;
+                        // PRESSURE = 0.0001;
                         std::cout << "B WARNING: Exiting on negative pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
                         exit(0);
@@ -233,7 +230,7 @@ public:
                         exit(0);
                 }
                 if (PRESSURE_HALF <= 0.0){
-                        PRESSURE_HALF = 0.0001;
+                        // PRESSURE_HALF = 0.0001;
                         std::cout << "B WARNING: Exiting on negative half state pressure\t";
                         std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
                         exit(0);

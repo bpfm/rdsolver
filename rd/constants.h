@@ -215,6 +215,8 @@ double GAMMA_2 = GAMMA - 2.0;
 double GRAV = 6.67e-11;
 double MSOLAR = 1.989e30;
 
+int N_TBINS = 2;
+
 #ifdef FIXED_DT
 double DT_FIX = 0.00001
 #endif

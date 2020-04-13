@@ -4,6 +4,7 @@
                 Y = y position of vertex
                 DX = change in x between vertices (should no longer be used)
                 DY = change in y between vertices
+                DT_REQ = timestep required by vertex state
                 DUAL = dual cell area
                 LEN_VEL_SUM = sum of product of edge length and velocity for every edge (ised in dt calc)
                 U_VARIABLES = vector of fluid variables
@@ -27,6 +28,8 @@ class VERTEX{
 private:
 
         double X, Y, DX, DY;
+        double DT_REQ;
+        int    TBIN;
         double DUAL,LEN_VEL_SUM;
         double U_VARIABLES[4], DU[4];
         double MASS_DENSITY, X_VELOCITY, Y_VELOCITY;
@@ -41,10 +44,11 @@ public:
 
         // setter functions preventing varaibles being changed accidentally
         // (no setter functions for U and F(U) as these are set by the other variables)
-        void set_x( double NEW_X){X   = NEW_X;}
-        void set_y( double NEW_Y){Y   = NEW_Y;}
-        void set_dx(double NEW_DX){DX = NEW_DX;}
-        void set_dy(double NEW_DY){DY = NEW_DY;}
+        void set_x(   double NEW_X){X   = NEW_X;}
+        void set_y(   double NEW_Y){Y   = NEW_Y;}
+        void set_dx(  double NEW_DX){DX = NEW_DX;}
+        void set_dy(  double NEW_DY){DY = NEW_DY;}
+        void set_tbin(int NEW_TBIN){TBIN = NEW_TBIN;}
         void set_dual(double NEW_DUAL){DUAL = NEW_DUAL;}
         void set_mass_density( double NEW_MASS_DENSITY){MASS_DENSITY  = NEW_MASS_DENSITY;}
         void set_x_velocity(   double NEW_X_VELOCITY){  X_VELOCITY    = NEW_X_VELOCITY;}
@@ -58,12 +62,14 @@ public:
 
 
         // getter functions for eXtracting values of variables
-        double get_x(){   return X;}
-        double get_y(){   return Y;}
-        double get_dx(){  return DX;}
-        double get_dy(){  return DY;}
-        double get_dual(){return DUAL;}
-        double get_mass(){return DUAL*MASS_DENSITY;}
+        double get_x(){      return X;}
+        double get_y(){      return Y;}
+        double get_dx(){     return DX;}
+        double get_dy(){     return DY;}
+        double get_dt_req(){ return DT_REQ;}
+        double get_tbin(){   return TBIN;}
+        double get_dual(){   return DUAL;}
+        double get_mass(){   return DUAL*MASS_DENSITY;}
 
         double get_specific_energy(){return SPECIFIC_ENERGY;}
         double get_mass_density(){   return MASS_DENSITY;}
@@ -265,6 +271,7 @@ public:
         double calc_next_dt(){
                 double NEXT_DT;
                 NEXT_DT = CFL*2.0*DUAL/LEN_VEL_SUM;
+                DT_REQ  = NEXT_DT;
                 return NEXT_DT;
         }
 

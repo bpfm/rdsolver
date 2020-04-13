@@ -176,9 +176,7 @@ int main(){
         }
 
         std::cout << "Checking mesh size ..." << std::endl;
-
         std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
-
         std::cout << "Evolving fluid ..." << std::endl;
 
         /****** Loop over time until total time T_TOT is reached ******/
@@ -255,6 +253,14 @@ int main(){
                         POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
                         if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                         RAND_POINTS[i].reset_len_vel_sum();
+                }
+
+                for(i=0;i<N_POINTS;++i){
+                        for(l=0;l<N_TBINS;++l){
+                                if(RAND_POINTS[i].get_dt_req() > float(l+1)*NEXT_DT and RAND_POINTS[i].get_dt_req() < float(l+2)*NEXT_DT){
+                                        RAND_POINTS[i].set_tbin(l);
+                                }
+                        }
                 }
 
                 T+=DT;                                                         // increment time

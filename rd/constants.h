@@ -5,14 +5,14 @@
 // #define SODX
 // #define SODY
 // #define SINEX
-// define SEDOV
+#define SEDOV
 // #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
 // #define NOH
 // #define KHX
 // #define KHY
-#define KHXSMOOTH
+// #define KHXSMOOTH
 // #define KHYSMOOTH
 // #define BLOB
 // #define GRAVITY
@@ -65,14 +65,14 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-#define LDA_SCHEME
-// #define N_SCHEME
+// #define LDA_SCHEME
+#define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-#define FIRST_ORDER
+// #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 #define PARA_RES

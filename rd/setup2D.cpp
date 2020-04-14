@@ -86,6 +86,7 @@ VERTEX setup_vertex(double X, double Y){
 
         if(R < R_BLAST){
                 P = 1000000.0;
+                // P = 1000.0;
                 std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\t" << P << std::endl;
                 POINT_CHECK ++;
         }

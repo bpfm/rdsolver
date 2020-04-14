@@ -27,7 +27,7 @@ int main(){
         Setup and run simulation from input file constants.h, using precalculated triangulation
         */
 
-        int i, j, l = 0;                                           // ******* decalare varaibles and vectors ******
+        int i, j, l = 0, m;                                           // ******* decalare varaibles and vectors ******
         double DX, DY, DT, T = 0.0;                                // DX           = space step,DT = timestep,t = time
         double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
         double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;                       // NEXT_DT.     = timestep for upcoming time iteration
@@ -107,6 +107,7 @@ int main(){
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = qhull_read_triangles_line(TRIANGLES_FILE,RAND_POINTS);
+                NEW_TRIANGLE.set_tbin(1);
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
@@ -146,6 +147,7 @@ int main(){
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS);
+                NEW_TRIANGLE.set_tbin(1);
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
@@ -180,9 +182,10 @@ int main(){
         std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
         std::cout << "Evolving fluid ..." << std::endl;
 
-        /****** Loop over time until total time T_TOT is reached ******/
+        /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
-        // int nthreads, tid;
+        int TBIN_CURRENT = 0;
+        int ACTIVE, ACTIVE_ID = 0;
 
         while(T<T_TOT){
 
@@ -192,7 +195,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
+                // std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID);
@@ -206,14 +209,24 @@ int main(){
                 // std::cout << std::setprecision(6);
                 // std::cout << "Calculating first half time step change" << std::endl;
 // #endif
+                ACTIVE = 0;
 
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
-                for(j=0;j<N_TRIANG;++j){                                        // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_first_half(T, DT);               // calculate flux through TRIANGLE
+                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
+                        if(TBIN_CURRENT == 0 or RAND_MESH[j].get_tbin() <= TBIN_CURRENT){
+                                // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
+                                RAND_MESH[j].calculate_first_half(T);
+                                ACTIVE += 1;
+                        }
+                        // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update_half(DT);
                 }
 
+                std::cout << l << "\t" << ACTIVE << std::endl;
+                // write_active(RAND_MESH, N_TRIANG, ACTIVE_ID, TBIN_CURRENT);
+                // ACTIVE_ID += 1;
 
 #ifdef PARA_UP
                 #pragma omp parallel for
@@ -221,7 +234,7 @@ int main(){
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                         RAND_POINTS[i].update_u_half();                        // update the half time state
                         RAND_POINTS[i].con_to_prim_half();
-                        RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep 
+                        RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep
                 }
 
 #ifdef PARA_RES
@@ -256,17 +269,24 @@ int main(){
                         RAND_POINTS[i].reset_len_vel_sum();
                 }
 
-                for(j=0;j<N_TRIANG;++j){
-                        for(l=0;l<N_TBINS;++l){
+                if(TBIN_CURRENT == 0){
+                        for(j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
                                 MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
                                 if(RAND_MESH[j].get_vertex_1()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_1()->get_dt_req();}
                                 if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
-                                if(MIN_DT > float(l+1)*NEXT_DT and MIN_DT < float(l+2)*NEXT_DT){RAND_MESH[j].set_tbin(l);}
+                                if(MIN_DT < 2.0*NEXT_DT){
+                                        RAND_MESH[j].set_tbin(1);
+                                }else{
+                                        RAND_MESH[j].set_tbin(2);
+                                }
                         }
                 }
 
-                T+=DT;                                                         // increment time
-                l+=1;                                                          // increment step number
+                // std::cout << TBIN_CURRENT << std::endl;
+
+                TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;       // increment time step bin
+                T += DT;                                                         // increment time
+                l += 1;                                                          // increment step number
 
         }
 

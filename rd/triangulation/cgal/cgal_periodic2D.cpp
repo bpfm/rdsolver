@@ -16,9 +16,9 @@ typedef PDT::Point                                          Point;
 typedef PDT::Iso_rectangle                                  Iso_rectangle;
 typedef PDT::Covering_sheets                                Covering_sheets;
 
-// #define RANDOMIC
+#define RANDOMIC
 // #define UNIFORMIC
-#define UNIFORMOFFSETIC
+// #define UNIFORMOFFSETIC
 
 int main(){
   float xmax=1.0,ymax=1.0;

@@ -8,6 +8,11 @@ void open_snap(std::ofstream &SNAPFILE, int i){
         return;
 }
 
+void open_active(std::ofstream &SNAPFILE, int i){
+        SNAPFILE.open("output/active_"+std::to_string(i)+".txt");
+        return;
+}
+
 void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, int SNAP_ID){
         std::ofstream SNAPFILE;
         open_snap(SNAPFILE,SNAP_ID);
@@ -24,6 +29,28 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         std::cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY << " \t-> total energy =\t" << TOTAL_ENERGY << "\ttime step = \t" << DT << std::endl;
         SNAPFILE.close();
         return;
+}
+
+void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBIN_CURRENT){
+        std::ofstream SNAPFILE;
+        int ACTIVE;
+        double X0,X1,X2,Y0,Y1,Y2;
+        open_active(SNAPFILE,SNAP_ID);
+        SNAPFILE << N_TRIANG << "\t" << std::endl;
+        for(int j=0;j<N_TRIANG;++j){
+                if(MESH[j].get_boundary() == 0){
+                        ACTIVE = 0;
+                        X0 = MESH[j].get_vertex_0()->get_x();
+                        X1 = MESH[j].get_vertex_1()->get_x();
+                        X2 = MESH[j].get_vertex_2()->get_x();
+                        Y0 = MESH[j].get_vertex_0()->get_y();
+                        Y1 = MESH[j].get_vertex_1()->get_y();
+                        Y2 = MESH[j].get_vertex_2()->get_y();
+                        if(TBIN_CURRENT == 0 or MESH[j].get_tbin() <= TBIN_CURRENT){ACTIVE = 1;}
+                        // write         X        Y          ACTIVE/INNACTIVE
+                        SNAPFILE << X0 << "\t" << Y0 << "\t"  << X1 << "\t" << Y1 << "\t"  << X2 << "\t" << Y2 << "\t" <<  ACTIVE << std::endl;
+                }
+        }
 }
 
 // if using qhull triangulation (closed boundaries only), read vertex header info on triangulation

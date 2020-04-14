@@ -35,6 +35,7 @@ private:
         double AREA;
 
         double X[3],Y[3],DUAL[3];
+        double X_MOD[3],Y_MOD[3];
         double NORMAL[3][2];
 
         double U_N[4][3];
@@ -142,14 +143,10 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T, double DT_TOT){
+        void calculate_first_half(double T){
                 int i,j,m,p;
 
-                double DU0[4],DU1[4],DU2[4];
-
                 double INFLOW[4][4][3][3];
-                double DT = DT_TOT;
-
                 double C_SOUND[3];
 
                 // Import conditions and positions of vertices
@@ -461,30 +458,6 @@ public:
                 }
 #endif
 
-                DUAL[0] = VERTEX_0->get_dual();
-                DUAL[1] = VERTEX_1->get_dual();
-                DUAL[2] = VERTEX_2->get_dual();
-                
-                // Calculate change to be distributed
-
-#ifdef LDA_SCHEME
-                for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
-                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
-                }
-#endif
-
-#ifdef N_SCHEME
-                for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
-                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
-                }
-#endif
-
 #ifdef BLENDED
                 double THETA_E[4][4];
                 double IDENTITY[4][4];
@@ -518,32 +491,62 @@ public:
                         FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
                         FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
+                }
+#endif
+                return ;
+        }
 
+        void pass_update_half(double DT){
+                int i;
+                double DU0[4],DU1[4],DU2[4];
+
+                DUAL[0] = VERTEX_0->get_dual();
+                DUAL[1] = VERTEX_1->get_dual();
+                DUAL[2] = VERTEX_2->get_dual();
+
+#ifdef LDA_SCHEME
+                for(i=0;i<4;i++){
+                        DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
+                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
+                }
+#endif
+
+#ifdef N_SCHEME
+                for(i=0;i<4;i++){
+                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
+                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
+                }
+#endif
+
+#ifdef BLENDED 
+                for(i=0;i<4;i++){
                         DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
                         DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
                 }
 
 #endif
+
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
-
 #ifdef DEBUG
-                        // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
-                        std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
-                        std::cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
-                        std::cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
-                        std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
-                        std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
-                        std::cout << "-----------------------------------------------------------------" << std::endl;
+                // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
+                std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
+                std::cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
+                std::cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
+                std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
+                std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
+                std::cout << "-----------------------------------------------------------------" << std::endl;
 #endif
-
                 return ;
         }
 
         //**********************************************************************************************************************
-
 
 
         void calculate_second_half(double T, double DT_TOT){
@@ -1002,7 +1005,6 @@ public:
         void setup_normals(){
                 // Calculate normals (just in first timestep for static grid)
                 int m;
-                double X_MOD[3],Y_MOD[3];
 
                 setup_positions();
 
@@ -1101,9 +1103,9 @@ public:
 
                 setup_initial_state();
 
-                L02 = (X[1] - X[0])*(X[1] - X[0]) + (Y[1] - Y[0])*(Y[1] - Y[0]);
-                L12 = (X[2] - X[0])*(X[2] - X[0]) + (Y[2] - Y[0])*(Y[2] - Y[0]);
-                L22 = (X[2] - X[1])*(X[2] - X[1]) + (Y[2] - Y[1])*(Y[2] - Y[1]);
+                L02 = (X_MOD[1] - X_MOD[0])*(X_MOD[1] - X_MOD[0]) + (Y_MOD[1] - Y_MOD[0])*(Y_MOD[1] - Y_MOD[0]);
+                L12 = (X_MOD[2] - X_MOD[0])*(X_MOD[2] - X_MOD[0]) + (Y_MOD[2] - Y_MOD[0])*(Y_MOD[2] - Y_MOD[0]);
+                L22 = (X_MOD[2] - X_MOD[1])*(X_MOD[2] - X_MOD[1]) + (Y_MOD[2] - Y_MOD[1])*(Y_MOD[2] - Y_MOD[1]);
 
                 LMAX = max_val(L02,L12);
                 LMAX = max_val(LMAX,L22);

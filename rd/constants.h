@@ -5,7 +5,7 @@
 // #define SODX
 // #define SODY
 // #define SINEX
-// define SEDOV
+// #define SEDOV
 // #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
@@ -75,8 +75,8 @@
 #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
-#define PARA_RES
-#define PARA_UP
+// #define PARA_RES
+// #define PARA_UP
 
 
 // Sod Shock Tube (Varied in X)
@@ -109,7 +109,7 @@ double SIDE_LENGTH_Y = 2.0;
 // Sedov Blast Wave
 #ifdef SEDOV
 double CFL = 0.1;
-double T_TOT = 0.1;
+double T_TOT = 0.001;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;

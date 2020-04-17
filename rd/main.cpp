@@ -185,7 +185,10 @@ int main(){
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
         int TBIN_CURRENT = 0;
+        int TBIN;
         int ACTIVE, ACTIVE_ID = 0;
+
+        NEXT_DT = 0.0;
 
         while(T<T_TOT){
 
@@ -195,10 +198,11 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                // std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID);
+                        write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
@@ -215,7 +219,15 @@ int main(){
                 #pragma omp parallel for
 #endif
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        if(TBIN_CURRENT == 0 or RAND_MESH[j].get_tbin() <= TBIN_CURRENT){
+                        TBIN = RAND_MESH[j].get_tbin();
+                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1) \
+                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1)) \
+                                             or (TBIN_CURRENT == 3 and  TBIN == 1)\
+                                             or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
+                                             or (TBIN_CURRENT == 5 and  TBIN == 1)\
+                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1)) \
+                                             or (TBIN_CURRENT == 7 and  TBIN == 1)\
+                                             ){
                                 // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
                                 RAND_MESH[j].calculate_first_half(T);
                                 ACTIVE += 1;
@@ -224,7 +236,7 @@ int main(){
                         RAND_MESH[j].pass_update_half(DT);
                 }
 
-                std::cout << l << "\t" << ACTIVE << std::endl;
+                // std::cout << l << "\t" << ACTIVE << std::endl;
                 // write_active(RAND_MESH, N_TRIANG, ACTIVE_ID, TBIN_CURRENT);
                 // ACTIVE_ID += 1;
 
@@ -276,18 +288,22 @@ int main(){
                                 if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
                                 if(MIN_DT < 2.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(1);
-                                }else{
+                                }else if(MIN_DT > 2.0*NEXT_DT and MIN_DT < 4.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(2);
+                                }else if(MIN_DT > 4.0*NEXT_DT and MIN_DT < 8.0*NEXT_DT){
+                                        RAND_MESH[j].set_tbin(4);
+                                }else{
+                                        RAND_MESH[j].set_tbin(8);
                                 }
+
                         }
                 }
 
                 // std::cout << TBIN_CURRENT << std::endl;
 
-                TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;       // increment time step bin
+                TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;                     // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number
-
         }
 
         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID);

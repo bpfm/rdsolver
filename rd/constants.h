@@ -5,14 +5,14 @@
 // #define SODX
 // #define SODY
 // #define SINEX
-// #define SEDOV
+#define SEDOV
 // #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
 // #define NOH
 // #define KHX
 // #define KHY
-#define KHXSMOOTH
+// #define KHXSMOOTH
 // #define KHYSMOOTH
 // #define BLOB
 // #define GRAVITY
@@ -65,8 +65,8 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-#define LDA_SCHEME
-// #define N_SCHEME
+// #define LDA_SCHEME
+#define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
@@ -108,8 +108,8 @@ double SIDE_LENGTH_Y = 2.0;
 
 // Sedov Blast Wave
 #ifdef SEDOV
-double CFL = 0.1;
-double T_TOT = 0.001;
+double CFL = 0.5;
+double T_TOT = 0.05;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
@@ -215,7 +215,7 @@ double GAMMA_2 = GAMMA - 2.0;
 double GRAV = 6.67e-11;
 double MSOLAR = 1.989e30;
 
-int N_TBINS = 2;
+int N_TBINS = 8;
 
 #ifdef FIXED_DT
 double DT_FIX = 0.00001

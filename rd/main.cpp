@@ -148,6 +148,7 @@ int main(){
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS);
                 NEW_TRIANGLE.set_tbin(1);
+                NEW_TRIANGLE.set_id(j);
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
@@ -233,7 +234,7 @@ int main(){
                                 ACTIVE += 1;
                         }
                         // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
+                        RAND_MESH[j].pass_update_half(DT,T);
                 }
 
                 // std::cout << l << "\t" << ACTIVE << std::endl;
@@ -273,15 +274,18 @@ int main(){
                         RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
                 }
 
-                NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)
+                        // set next timestep to max possible value (time remaining to end)
 
-                for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
-                        POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
-                        if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
-                        RAND_POINTS[i].reset_len_vel_sum();
-                }
+                
 
                 if(TBIN_CURRENT == 0){
+                        NEXT_DT = T_TOT - (T + DT);
+                        for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
+                                POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
+                                if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
+                                RAND_POINTS[i].reset_len_vel_sum();
+                        }
+
                         for(j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
                                 MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
                                 if(RAND_MESH[j].get_vertex_1()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_1()->get_dt_req();}

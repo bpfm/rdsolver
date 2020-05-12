@@ -208,6 +208,8 @@ int main(){
                         SNAP_ID ++;
                 }
 
+                // std::cout << TBIN_CURRENT << std::endl;
+
 // #ifdef DEBUG
                 // std::cout << std::fixed;
                 // std::cout << std::setprecision(6);
@@ -220,20 +222,24 @@ int main(){
 #endif
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         TBIN = RAND_MESH[j].get_tbin();
-                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1) \
-                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1)) \
-                                             or (TBIN_CURRENT == 3 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 5 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1)) \
-                                             or (TBIN_CURRENT == 7 and  TBIN == 1)\
-                                             ){
+                        // std::cout << TBIN << std::endl;
+                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1) ){
+                                             // or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1)) \
+                                             // or (TBIN_CURRENT == 3 and  TBIN == 1)\
+                                             // or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
+                                             // or (TBIN_CURRENT == 5 and  TBIN == 1)\
+                                             // or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1)) \
+                                             // or (TBIN_CURRENT == 7 and  TBIN == 1)\
+                                             // ){
                                 // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
                                 RAND_MESH[j].calculate_first_half(T);
                                 ACTIVE += 1;
                         }
+                        if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+                        if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+                        if(TBIN_CURRENT == 1 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
                         // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
+                        // RAND_MESH[j].pass_update_half(DT);
                 }
 
                 // std::cout << l << "\t" << ACTIVE << std::endl;
@@ -288,12 +294,12 @@ int main(){
                                 if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
                                 if(MIN_DT < 2.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(1);
-                                }else if(MIN_DT > 2.0*NEXT_DT and MIN_DT < 4.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(2);
-                                }else if(MIN_DT > 4.0*NEXT_DT and MIN_DT < 8.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(4);
+                                // }else if(MIN_DT > 2.0*NEXT_DT and MIN_DT < 4.0*NEXT_DT){
+                                //         RAND_MESH[j].set_tbin(2);
+                                // }else if(MIN_DT > 4.0*NEXT_DT and MIN_DT < 8.0*NEXT_DT){
+                                //         RAND_MESH[j].set_tbin(4);
                                 }else{
-                                        RAND_MESH[j].set_tbin(8);
+                                        RAND_MESH[j].set_tbin(N_TBINS);
                                 }
 
                         }

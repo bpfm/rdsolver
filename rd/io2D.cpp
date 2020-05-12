@@ -13,7 +13,7 @@ void open_active(std::ofstream &SNAPFILE, int i){
         return;
 }
 
-void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, int SNAP_ID){
+void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, int SNAP_ID, std::ofstream &LOGFILE){
         std::ofstream SNAPFILE;
         open_snap(SNAPFILE,SNAP_ID);
         double TOTAL_DENSITY = 0.0;
@@ -27,7 +27,8 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         }
         std::cout << "*************************************************************************************************" << std::endl;            // right out time and total density to terminal
         std::cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY << " \t-> total energy =\t" << TOTAL_ENERGY << "\ttime step = \t" << DT << std::endl;
-        SNAPFILE.close();
+        LOGFILE << T << "\t" << TOTAL_DENSITY << "\t" << TOTAL_ENERGY << "\t" << DT << std::endl;
+	SNAPFILE.close();
         return;
 }
 

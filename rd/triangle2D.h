@@ -96,6 +96,8 @@ public:
 
         // import initial fluid state and pressure for all vertices
         void setup_initial_state(){
+                int m;
+
                 U_N[0][0] = VERTEX_0->get_u0();
                 U_N[0][1] = VERTEX_1->get_u0();
                 U_N[0][2] = VERTEX_2->get_u0();
@@ -115,6 +117,11 @@ public:
                 PRESSURE[0] = VERTEX_0->get_pressure();
                 PRESSURE[1] = VERTEX_1->get_pressure();
                 PRESSURE[2] = VERTEX_2->get_pressure();
+
+                for(m=0;m<3;++m){
+                        if(U_N[0][m]<=0.0){U_N[0][m]=0.00001;}
+                        if(PRESSURE[m]<=0.0){PRESSURE[m]=0.00001;}
+                }
         }
 
         // import intermediate fluid state and pressure for all vertices

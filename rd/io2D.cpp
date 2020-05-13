@@ -34,7 +34,8 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
 
 void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBIN_CURRENT){
         std::ofstream SNAPFILE;
-        double X0,X1,X2,Y0,Y1,Y2;
+	SNAPFILE << std::setprecision(12);
+	double X0,X1,X2,Y0,Y1,Y2;
         open_active(SNAPFILE,SNAP_ID);
         SNAPFILE << N_TRIANG << "\t" << std::endl;
         for(int j=0;j<N_TRIANG;++j){

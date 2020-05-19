@@ -27,6 +27,7 @@ class VERTEX{
 
 private:
 
+        int TBIN_LOCAL;
         double X, Y, DX, DY;
         double DT_REQ;
         double DUAL,LEN_VEL_SUM;
@@ -43,6 +44,7 @@ public:
 
         // setter functions preventing varaibles being changed accidentally
         // (no setter functions for U and F(U) as these are set by the other variables)
+        void set_tbin_local(int NEW_TBIN){TBIN_LOCAL = NEW_TBIN;}
         void set_x(   double NEW_X){X   = NEW_X;}
         void set_y(   double NEW_Y){Y   = NEW_Y;}
         void set_dx(  double NEW_DX){DX = NEW_DX;}
@@ -60,6 +62,7 @@ public:
 
 
         // getter functions for eXtracting values of variables
+        int get_tbin_local(){return TBIN_LOCAL;}
         double get_x(){      return X;}
         double get_y(){      return Y;}
         double get_dx(){     return DX;}
@@ -270,6 +273,10 @@ public:
                 NEXT_DT = CFL*2.0*DUAL/LEN_VEL_SUM;
                 DT_REQ  = NEXT_DT;
                 return NEXT_DT;
+        }
+
+        void reset_tbin_local(int INC_TBIN){
+                if(INC_TBIN < TBIN_LOCAL){TBIN_LOCAL = INC_TBIN;}
         }
 
         // maximum value between A and B 

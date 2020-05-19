@@ -1134,6 +1134,22 @@ public:
                 return ;
         }
 
+        void send_tbin_limit(){
+                VERTEX_0->reset_tbin_local(2*TBIN);
+                VERTEX_1->reset_tbin_local(2*TBIN);
+                VERTEX_2->reset_tbin_local(2*TBIN);
+        }
+
+        void check_tbin(){
+                int TBIN0,TBIN1,TBIN2;
+                TBIN0 = VERTEX_0->get_tbin_local();
+                TBIN1 = VERTEX_1->get_tbin_local();
+                TBIN2 = VERTEX_2->get_tbin_local();
+                if(TBIN0<TBIN){TBIN=TBIN0;}
+                if(TBIN1<TBIN){TBIN=TBIN1;}
+                if(TBIN2<TBIN){TBIN=TBIN2;}
+        }
+
         double max_val(double A, double B){
                 if(A>B){
                         return A;

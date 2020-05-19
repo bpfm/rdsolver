@@ -206,7 +206,7 @@ int main(){
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
 		  write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
-                        // write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
+                        write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
@@ -283,6 +283,7 @@ int main(){
                                 POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
                                 if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                                 RAND_POINTS[i].reset_len_vel_sum();
+                                RAND_POINTS[i].set_tbin_local(N_TBINS);
                         }
                         for(j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
                                 MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
@@ -290,13 +291,21 @@ int main(){
                                 if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
                                 if(MIN_DT < 2.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(1);
+                                        // std::cout << 1 << std::endl;
                                 }else if(MIN_DT > 2.0*NEXT_DT and MIN_DT < 4.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(2);
+                                        // std::cout << 2 << std::endl;
                                 }else if(MIN_DT > 4.0*NEXT_DT and MIN_DT < 8.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(4);
+                                        // std::cout << 4 << std::endl;
                                 }else{
                                         RAND_MESH[j].set_tbin(8);
+                                        // std::cout << 8 << std::endl
                                 }
+                                RAND_MESH[j].send_tbin_limit();
+                        }
+                        for(j=0;j<N_TRIANG;++j){
+                                RAND_MESH[j].check_tbin();
                         }
                 }
 

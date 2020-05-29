@@ -46,8 +46,8 @@ void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBI
                         Y0 = MESH[j].get_vertex_0()->get_y();
                         Y1 = MESH[j].get_vertex_1()->get_y();
                         Y2 = MESH[j].get_vertex_2()->get_y();
-                        // write         X        Y          ACTIVE/INNACTIVE
-                        SNAPFILE << X0 << "\t" << Y0 << "\t"  << X1 << "\t" << Y1 << "\t"  << X2 << "\t" << Y2 << "\t" << MESH[j].get_tbin() << std::endl;
+                        // write         X        Y          TBIN
+                        SNAPFILE << X0 << "\t" << Y0 << "\t"  << X1 << "\t" << Y1 << "\t"  << X2 << "\t" << Y2 << "\t" << MESH[j].get_tbin() << "\t" << MESH[j].get_un00() << "\t" << MESH[j].get_un01() << "\t" << MESH[j].get_un02() << std::endl;
                 }
         }
 }

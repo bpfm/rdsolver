@@ -71,6 +71,19 @@ public:
         int get_boundary(){return BOUNDARY;}
         int get_tbin(){ return TBIN;}
 
+        double get_un00(){
+                U_N[0][0] = VERTEX_0->get_u0();
+                return U_N[0][0];
+        }
+        double get_un01(){
+                U_N[0][1] = VERTEX_1->get_u0();
+                return U_N[0][1];
+        }
+        double get_un02(){
+                U_N[0][2] = VERTEX_2->get_u0();
+                return U_N[0][2];
+        }
+
         void print_triangle_state(){
                 std::cout << "U[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << std::endl;
                 std::cout << "U[1] =\t" << U_N[1][0] << "\t" << U_N[1][1] << "\t" << U_N[1][2] << std::endl;
@@ -334,18 +347,18 @@ public:
                                 INFLOW[3][1][m][p] = 0.5*MAG[m]*((W*N_X[m] - U - ALPHA_C*U_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*U_C*W)*VALUE12);
                                 INFLOW[3][2][m][p] = 0.5*MAG[m]*((W*N_Y[m] - V - ALPHA_C*V_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*V_C*W)*VALUE12);
                                 INFLOW[3][3][m][p] = 0.5*MAG[m]*(GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3);
-
+                        }
 #ifdef DEBUG
-                                for(i=0; i<4; ++i){
-                                        for (j=0; j<4; ++j){
-                                                std::cout << INFLOW[i][j][m][p] << "\t";
-                                        }
-                                        std::cout << std::endl;
+                        for(i=0; i<4; ++i){
+                                for (j=0; j<4; ++j){
+                                        std::cout << INFLOW[i][j][m][0] << "\t";
                                 }
                                 std::cout << std::endl;
-#endif
                         }
+                        std::cout << std::endl;
+#endif
                 }
+                // exit(0);
 
 
 #ifdef DEBUG

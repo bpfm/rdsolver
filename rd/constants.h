@@ -21,11 +21,12 @@
 /* set dimensionality */
 //-----------------------------------------
 #define TWO_D
+#define THREE_D
 
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 20
+#define N_SNAP 100
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -109,14 +110,14 @@ double SIDE_LENGTH_Y = 2.0;
 // Sedov Blast Wave
 #ifdef SEDOV
 double CFL = 0.5;
-double T_TOT = 0.05;
+double T_TOT = 0.01;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
 #endif
 
 double BLAST_E_TOT = 0.0;
-double R_BLAST = 0.2;
+double R_BLAST = 0.1;
 int POINT_CHECK = 0;
 
 // Gaussian pulse advection (x-direction)
@@ -133,7 +134,7 @@ double SIDE_LENGTH_Y = 1.0;
 double CFL = 0.1;
 double T_TOT = 0.1;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 0.05;
+double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
 #endif
 
@@ -176,7 +177,7 @@ double SIDE_LENGTH_Y = 1.0;
 // KH instability - smoothed (x flow)
 #ifdef KHXSMOOTH
 double CFL = 0.4;
-double T_TOT = 2.0;
+double T_TOT = 0.5;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
@@ -213,10 +214,10 @@ double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
 double GRAV = 6.67e-11;
-double MSOLAR = 1.989e30;
+double MSOLAR = 1.989e+30;
 
 int N_TBINS = 8;
 
 #ifdef FIXED_DT
-double DT_FIX = 0.00001
+double DT_FIX = 0.00005;
 #endif

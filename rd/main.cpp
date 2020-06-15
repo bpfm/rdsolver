@@ -69,8 +69,8 @@ int main(){
 
         std::cout << "Building grid of vertices" << std::endl;
 
-	std::ofstream LOGFILE;
-	LOGFILE << std::setprecision(12);
+        std::ofstream LOGFILE;
+        LOGFILE << std::setprecision(12);
         LOGFILE.open("output/log.txt");
 
         /****** Setup Vertices ******/
@@ -205,7 +205,7 @@ int main(){
                 std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
-		  write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
+                        write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
                         write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}

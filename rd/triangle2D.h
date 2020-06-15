@@ -88,12 +88,12 @@ public:
                 std::cout << "U[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << std::endl;
                 std::cout << "U[1] =\t" << U_N[1][0] << "\t" << U_N[1][1] << "\t" << U_N[1][2] << std::endl;
                 std::cout << "U[2] =\t" << U_N[2][0] << "\t" << U_N[2][1] << "\t" << U_N[2][2] << std::endl;
-                std::cout << "U[4] =\t" << U_N[3][0] << "\t" << U_N[3][1] << "\t" << U_N[3][2] << std::endl;
+                std::cout << "U[3] =\t" << U_N[3][0] << "\t" << U_N[3][1] << "\t" << U_N[3][2] << std::endl;
 
                 std::cout << "U_HALF[0] =\t" << U_HALF[0][0] << "\t" << U_HALF[0][1] << "\t" << U_HALF[0][2] << std::endl;
                 std::cout << "U_HALF[1] =\t" << U_HALF[1][0] << "\t" << U_HALF[1][1] << "\t" << U_HALF[1][2] << std::endl;
                 std::cout << "U_HALF[2] =\t" << U_HALF[2][0] << "\t" << U_HALF[2][1] << "\t" << U_HALF[2][2] << std::endl;
-                std::cout << "U_HALF[4] =\t" << U_HALF[3][0] << "\t" << U_HALF[3][1] << "\t" << U_HALF[3][2] << std::endl;
+                std::cout << "U_HALF[3] =\t" << U_HALF[3][0] << "\t" << U_HALF[3][1] << "\t" << U_HALF[3][2] << std::endl;
         }
 
         // import x and y for all vertices

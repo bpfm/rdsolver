@@ -73,7 +73,7 @@
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-#define FIRST_ORDER
+// #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 // #define PARA_RES

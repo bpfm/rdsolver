@@ -1,0 +1,712 @@
+/* class containing values and functions associated with triangles
+
+        ID = ID number of triangle
+        *VERTEX_0 => pointers to VERTEX 0 of triangle (counter clockwise order)
+        *VERTEX_1 => pointers to VERTEX 1 of triangle
+        *VERTEX_2 => pointers to VERTEX 2 of triangle
+        BOUNDARY  => 0 or 1, denoted whether triangle crosses boundary
+        AREA => area of triangle
+        X,Y  => vertex coordinates for 0,1,2
+        DUAL => area of dual cells corresponding to each vertex
+        U_N  => fluid state at each vertex at start of timestep
+        U_HALF => intermediate fluid state at each vertex
+        FLUC_LDA => nodal residuals for each fluid variable based on initial state (LDA scheme)
+        FLUC_N   => nodal residuals for each fluid variable based on initial state (N scheme)
+        FLUC_B   => nodal residuals for each fluid variable based on initial state (B scheme)
+        FLUC_HALF_LDA => nodal residuals for each fluid variable based on intermediate state (LDA scheme)
+        FLUC_HALF_N   => nodal residuals for each fluid variable based on intermediate state (N scheme)
+        FLUC_HALF_B   => nodal residuals for each fluid variable based on intermediate state (B scheme)
+        PRESSURE = pressure at position of each vertex
+        PRESSURE_HALF = pressure of iintermediate state at each vertex
+        PHI => element residual
+        BETA => distribution coefficient defined by chosen scheme
+        MAG => length of normal to each edge
+*/
+
+class TRIANGLE{
+
+private:
+        int ID;
+        VERTEX *VERTEX_0,*VERTEX_1,*VERTEX_2,*VERTEX_3;
+
+        int BOUNDARY;
+        int TBIN;
+
+        double AREA;
+
+        double X[4],Y[4],Z[4],DUAL[4];
+        double X_MOD[4],Y_MOD[4],Z_MOD[4];
+        double NORMAL[4][3];
+
+        double U_N[5][4];
+        double U_HALF[5][4];
+
+        double FLUC_LDA[5][4],FLUC_N[5][4],FLUC_B[5][4];
+        double FLUC_HALF_LDA[5][4],FLUC_HALF_N[5][4],FLUC_HALF_B[5][4];
+
+        double PRESSURE[4], PRESSURE_HALF[4];
+
+        double PHI[5];
+        double BETA[5][5][4];
+
+        double MAG[4];
+
+public:
+
+        void set_id(int NEW_ID){ID = NEW_ID;}
+
+        void set_vertex_0(VERTEX* NEW_VERTEX){VERTEX_0 = NEW_VERTEX;}
+        void set_vertex_1(VERTEX* NEW_VERTEX){VERTEX_1 = NEW_VERTEX;}
+        void set_vertex_2(VERTEX* NEW_VERTEX){VERTEX_2 = NEW_VERTEX;}
+        void set_vertex_3(VERTEX* NEW_VERTEX){VERTEX_3 = NEW_VERTEX;}
+
+        void set_boundary(int NEW_BOUNDARY){BOUNDARY = NEW_BOUNDARY;}
+        void set_tbin(    int NEW_TBIN){TBIN = NEW_TBIN;}
+
+        int get_id(){return ID;}
+
+        VERTEX* get_vertex_0(){return VERTEX_0;}
+        VERTEX* get_vertex_1(){return VERTEX_1;}
+        VERTEX* get_vertex_2(){return VERTEX_2;}
+        VERTEX* get_vertex_3(){return VERTEX_3;}
+
+        int get_boundary(){return BOUNDARY;}
+        int get_tbin(){ return TBIN;}
+
+        double get_un00(){
+                U_N[0][0] = VERTEX_0->get_u0();
+                return U_N[0][0];
+        }
+        double get_un01(){
+                U_N[0][1] = VERTEX_1->get_u0();
+                return U_N[0][1];
+        }
+        double get_un02(){
+                U_N[0][2] = VERTEX_2->get_u0();
+                return U_N[0][2];
+        }
+        double get_un03(){
+                U_N[0][3] = VERTEX_3->get_u0();
+                return U_N[0][3];
+        }
+
+        void print_triangle_state(){
+                std::cout << "U[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << "\t" << U_N[0][3] << std::endl;
+                std::cout << "U[1] =\t" << U_N[1][0] << "\t" << U_N[1][1] << "\t" << U_N[1][2] << "\t" << U_N[1][3] << std::endl;
+                std::cout << "U[2] =\t" << U_N[2][0] << "\t" << U_N[2][1] << "\t" << U_N[2][2] << "\t" << U_N[2][3]<< std::endl;
+                std::cout << "U[3] =\t" << U_N[3][0] << "\t" << U_N[3][1] << "\t" << U_N[3][2] << "\t" << U_N[3][3]<< std::endl;
+                std::cout << "U[4] =\t" << U_N[4][0] << "\t" << U_N[4][1] << "\t" << U_N[4][2] << "\t" << U_N[4][3]<< std::endl;
+
+                std::cout << "U_HALF[0] =\t" << U_HALF[0][0] << "\t" << U_HALF[0][1] << "\t" << U_HALF[0][2] << "\t" << U_HALF[0][3]<< std::endl;
+                std::cout << "U_HALF[1] =\t" << U_HALF[1][0] << "\t" << U_HALF[1][1] << "\t" << U_HALF[1][2] << "\t" << U_HALF[1][3]<< std::endl;
+                std::cout << "U_HALF[2] =\t" << U_HALF[2][0] << "\t" << U_HALF[2][1] << "\t" << U_HALF[2][2] << "\t" << U_HALF[2][3]<< std::endl;
+                std::cout << "U_HALF[3] =\t" << U_HALF[3][0] << "\t" << U_HALF[3][1] << "\t" << U_HALF[3][2] << "\t" << U_HALF[3][3]<< std::endl;
+                std::cout << "U_HALF[4] =\t" << U_HALF[4][0] << "\t" << U_HALF[4][1] << "\t" << U_HALF[4][2] << "\t" << U_HALF[4][3]<< std::endl;
+        }
+
+        // import x and y for all vertices
+        void setup_positions(){
+                X[0] = VERTEX_0->get_x();
+                X[1] = VERTEX_1->get_x();
+                X[2] = VERTEX_2->get_x();
+                X[3] = VERTEX_3->get_x();
+
+                Y[0] = VERTEX_0->get_y();
+                Y[1] = VERTEX_1->get_y();
+                Y[2] = VERTEX_2->get_y();
+                Y[3] = VERTEX_3->get_y();
+
+                Z[0] = VERTEX_0->get_y();
+                Z[1] = VERTEX_1->get_y();
+                Z[2] = VERTEX_2->get_y();
+                Z[3] = VERTEX_3->get_y();
+        }
+
+        // import initial fluid state and pressure for all vertices
+        void setup_initial_state(){
+                U_N[0][0] = VERTEX_0->get_u0();
+                U_N[0][1] = VERTEX_1->get_u0();
+                U_N[0][2] = VERTEX_2->get_u0();
+                U_N[0][3] = VERTEX_3->get_u0();
+
+                U_N[1][0] = VERTEX_0->get_u1();
+                U_N[1][1] = VERTEX_1->get_u1();
+                U_N[1][2] = VERTEX_2->get_u1();
+                U_N[1][3] = VERTEX_3->get_u1();
+
+                U_N[2][0] = VERTEX_0->get_u2();
+                U_N[2][1] = VERTEX_1->get_u2();
+                U_N[2][2] = VERTEX_2->get_u2();
+                U_N[2][3] = VERTEX_3->get_u2();
+
+                U_N[3][0] = VERTEX_0->get_u3();
+                U_N[3][1] = VERTEX_1->get_u3();
+                U_N[3][2] = VERTEX_2->get_u3();
+                U_N[3][3] = VERTEX_3->get_u3();
+
+                U_N[4][0] = VERTEX_0->get_u4();
+                U_N[4][1] = VERTEX_1->get_u4();
+                U_N[4][2] = VERTEX_2->get_u4();
+                U_N[4][3] = VERTEX_3->get_u4();
+
+                PRESSURE[0] = VERTEX_0->get_pressure();
+                PRESSURE[1] = VERTEX_1->get_pressure();
+                PRESSURE[2] = VERTEX_2->get_pressure();
+                PRESSURE[3] = VERTEX_3->get_pressure();
+        }
+
+        // import intermediate fluid state and pressure for all vertices
+        void setup_half_state(){
+                U_HALF[0][0] = VERTEX_0->get_u0_half();
+                U_HALF[0][1] = VERTEX_1->get_u0_half();
+                U_HALF[0][2] = VERTEX_2->get_u0_half();
+                U_HALF[0][3] = VERTEX_3->get_u0_half();
+
+                U_HALF[1][0] = VERTEX_0->get_u1_half();
+                U_HALF[1][1] = VERTEX_1->get_u1_half();
+                U_HALF[1][2] = VERTEX_2->get_u1_half();
+                U_HALF[1][3] = VERTEX_3->get_u1_half();
+
+                U_HALF[2][0] = VERTEX_0->get_u2_half();
+                U_HALF[2][1] = VERTEX_1->get_u2_half();
+                U_HALF[2][2] = VERTEX_2->get_u2_half();
+                U_HALF[2][3] = VERTEX_3->get_u2_half();
+
+                U_HALF[3][0] = VERTEX_0->get_u3_half();
+                U_HALF[3][1] = VERTEX_1->get_u3_half();
+                U_HALF[3][2] = VERTEX_2->get_u3_half();
+                U_HALF[3][3] = VERTEX_2->get_u3_half();
+
+                U_HALF[4][0] = VERTEX_0->get_u4_half();
+                U_HALF[4][1] = VERTEX_1->get_u4_half();
+                U_HALF[4][2] = VERTEX_2->get_u4_half();
+                U_HALF[4][3] = VERTEX_2->get_u4_half();
+
+                PRESSURE_HALF[0] = VERTEX_0->get_pressure_half();
+                PRESSURE_HALF[1] = VERTEX_1->get_pressure_half();
+                PRESSURE_HALF[2] = VERTEX_2->get_pressure_half();
+                PRESSURE_HALF[3] = VERTEX_3->get_pressure_half();
+        }
+
+        //**********************************************************************************************************************
+
+        // Calculate first half timestep change, passing change to vertice
+        void calculate_first_half(double T){
+                int i,j,m,p;
+
+                double INFLOW[5][5][4][3];        // K+, K-, K matrices for each vertex (m index for vertices, p index for +,-,0)
+                double C_SOUND[4];
+
+                // Import conditions and positions of vertices
+
+                setup_positions();
+                setup_initial_state();
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                // Calculate inflow parameters
+
+                double H[4];
+                double RHO,C,VX,VX_C,VY,VY_C,VZ,VZ_C,H_AVG,H_C,ALPHA,ALPHA_C,W,NORM;
+                double Z_ROE[5][4];
+                double VALUE1,VALUE2,VALUE3,VALUE12,VALUE123;
+                double PRESSURE_AVG,C_SOUND_AVG;
+                double LAMBDA[5][4],LAMBDA_PLUS[5][4],LAMBDA_MINUS[5][4];
+                double N_X[4],N_Y[4],N_Z[4];
+
+                double Z_BAR[5],W_HAT[5][4];
+
+                // Construct Roe vector Z
+
+                print_triangle_state();
+
+                for(m=0;m<4;++m){
+                        Z_ROE[0][m] = sqrt(U_N[0][m]);
+                        Z_ROE[1][m] = U_N[1][m]/Z_ROE[0][m];
+                        Z_ROE[2][m] = U_N[2][m]/Z_ROE[0][m];
+                        Z_ROE[3][m] = U_N[3][m]/Z_ROE[0][m];
+                        Z_ROE[4][m] = (U_N[4][m] + PRESSURE[m])/Z_ROE[0][m];
+
+                        N_X[m]  = NORMAL[m][0];
+                        N_Y[m]  = NORMAL[m][1];
+                        N_Z[m]  = NORMAL[m][2];
+
+                        H[m] = (U_N[4][m] + PRESSURE[m])/U_N[0][m];
+                }
+
+                for(i=0; i<5; ++i){Z_BAR[i] = (Z_ROE[i][0] + Z_ROE[i][1] + Z_ROE[i][2])/3.0;}
+
+
+                for(m=0; m<4; ++m){
+                        W_HAT[0][m] =  2.0*Z_BAR[0]*Z_ROE[0][m];
+                        W_HAT[1][m] =  Z_BAR[1]*Z_ROE[0][m] + Z_BAR[0]*Z_ROE[1][m];
+                        W_HAT[2][m] =  Z_BAR[2]*Z_ROE[0][m] + Z_BAR[0]*Z_ROE[2][m];
+                        W_HAT[3][m] =  Z_BAR[3]*Z_ROE[0][m] + Z_BAR[0]*Z_ROE[3][m];
+                        W_HAT[4][m] = (Z_BAR[4]*Z_ROE[0][m] + GAMMA_1*Z_BAR[1]*Z_ROE[1][m] + GAMMA_1*Z_BAR[2]*Z_ROE[2][m] + GAMMA_1*Z_BAR[3]*Z_ROE[3][m] + Z_BAR[0]*Z_ROE[4][m])/GAMMA;
+                }
+
+                // Construct average state for element
+
+                RHO   = pow((sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]))/4.0, 2);
+                VX     = (sqrt(U_N[0][0])*U_N[1][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[1][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[1][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[1][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VY     = (sqrt(U_N[0][0])*U_N[2][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[2][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[2][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[2][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VZ     = (sqrt(U_N[0][0])*U_N[3][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[3][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[3][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[3][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                H_AVG = (sqrt(U_N[0][0])*H[0] + sqrt(U_N[0][1])*H[1] + sqrt(U_N[0][2])*H[2] + sqrt(U_N[0][3])*H[3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+
+                PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
+                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
+
+                C = C_SOUND_AVG;
+
+                VX_C = VX/C;
+                VY_C = VY/C;
+                VZ_C = VZ/C;
+
+                H_C = H_AVG/C;
+
+                ALPHA   = GAMMA_1*(VX*VX + VY*VY + VZ*VZ)/2.0;
+                ALPHA_C = ALPHA/C;
+
+                // Calculate K+,K- and K matrices for each vertex i,j,k
+
+                for(m=0;m<4;++m){
+
+                        W = VX*N_X[m] + VY*N_Y[m] + VZ*N_Z[m];
+
+                        LAMBDA[0][m] = W + C;
+                        LAMBDA[1][m] = W - C;
+                        LAMBDA[2][m] = W;
+                        LAMBDA[3][m] = W;
+                        LAMBDA[4][m] = W;
+
+                        for(i=0;i<5;++i){
+                                LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
+                                LAMBDA_MINUS[i][m] = min_val(0.0,LAMBDA[i][m]);
+                        }
+
+                        for(p=0;p<3;++p){
+                                if(p==0){       // Identify and select positive eigenvalues
+                                        VALUE1 = LAMBDA_PLUS[0][m];
+                                        VALUE2 = LAMBDA_PLUS[1][m];
+                                        VALUE3 = LAMBDA_PLUS[2][m];
+#ifdef DEBUG
+                                        std::cout << "K+" << std::endl;
+#endif
+                                }else if(p==1){ // Identify and select negative eigenvalues
+                                        VALUE1 = LAMBDA_MINUS[0][m];
+                                        VALUE2 = LAMBDA_MINUS[1][m];
+                                        VALUE3 = LAMBDA_MINUS[2][m];
+#ifdef DEBUG
+                                        std::cout << "K-" << std::endl;
+#endif
+                                }else{          // Select all eigenvalues
+                                        VALUE1 = LAMBDA[0][m];
+                                        VALUE2 = LAMBDA[1][m];
+                                        VALUE3 = LAMBDA[2][m];
+#ifdef DEBUG
+                                        std::cout << "K" << std::endl;
+#endif
+                                }
+
+                                VALUE12  = (VALUE1 - VALUE2)/2.0;
+                                VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
+                                NORM = 1.0/3.0;
+
+                                INFLOW[0][0][m][p] = NORM * MAG[m]*(ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3);
+                                INFLOW[0][1][m][p] = NORM * MAG[m]*(-1.0*GAMMA_1*VX_C*VALUE123/C + N_X[m]*VALUE12/C);
+                                INFLOW[0][2][m][p] = NORM * MAG[m]*(-1.0*GAMMA_1*VY_C*VALUE123/C + N_Y[m]*VALUE12/C);
+                                INFLOW[0][3][m][p] = NORM * MAG[m]*(-1.0*GAMMA_1*VZ_C*VALUE123/C + N_Z[m]*VALUE12/C);
+                                INFLOW[0][4][m][p] = NORM * MAG[m]*(GAMMA_1*VALUE123/(C*C));
+
+                                INFLOW[1][0][m][p] = NORM * MAG[m]*((ALPHA_C*VX_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - VX_C*W)*VALUE12);
+                                INFLOW[1][1][m][p] = NORM * MAG[m]*((N_X[m]*N_X[m] - GAMMA_1*VX_C*VX_C)*VALUE123 - (GAMMA_2*VX_C*N_X[m]*VALUE12) + VALUE3);
+                                INFLOW[1][2][m][p] = NORM * MAG[m]*((N_X[m]*N_Y[m] - GAMMA_1*VX_C*VY_C)*VALUE123 + (VX_C*N_Y[m] - GAMMA_1*VY_C*N_X[m])*VALUE12);
+                                INFLOW[1][3][m][p] = NORM * MAG[m]*((N_X[m]*N_Z[m] - GAMMA_1*VX_C*VZ_C)*VALUE123 + (VX_C*N_Z[m] - GAMMA_1*VZ_C*N_X[m])*VALUE12);
+                                INFLOW[1][4][m][p] = NORM * MAG[m]*(GAMMA_1*VX_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C);
+
+                                INFLOW[2][0][m][p] = NORM * MAG[m]*((ALPHA_C*VY_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - VY_C*W)*VALUE12);
+                                INFLOW[2][1][m][p] = NORM * MAG[m]*((N_X[m]*N_Y[m] - GAMMA_1*VX_C*VY_C)*VALUE123 + (VY_C*N_X[m] - GAMMA_1*VX_C*N_Y[m])*VALUE12);
+                                INFLOW[2][2][m][p] = NORM * MAG[m]*((N_Y[m]*N_Y[m] - GAMMA_1*VY_C*VY_C)*VALUE123 - (GAMMA_2*VY_C*N_Y[m]*VALUE12) + VALUE3);
+                                INFLOW[2][3][m][p] = NORM * MAG[m]*((N_Z[m]*N_Y[m] - GAMMA_1*VZ_C*VY_C)*VALUE123 + (VY_C*N_Z[m] - GAMMA_1*VZ_C*N_Y[m])*VALUE12);
+                                INFLOW[2][4][m][p] = NORM * MAG[m]*(GAMMA_1*VY_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C);
+
+                                INFLOW[3][0][m][p] = NORM * MAG[m]*((ALPHA_C*VZ_C - W*N_Z[m])*VALUE123 + (ALPHA_C*N_Z[m] - VZ_C*W)*VALUE12);
+                                INFLOW[3][1][m][p] = NORM * MAG[m]*((N_X[m]*N_Z[m] - GAMMA_1*VX_C*VZ_C)*VALUE123 + (VZ_C*N_X[m] - GAMMA_1*VX_C*N_Z[m])*VALUE12);
+                                INFLOW[3][3][m][p] = NORM * MAG[m]*((N_Y[m]*N_Z[m] - GAMMA_1*VY_C*VZ_C)*VALUE123 + (VZ_C*N_Y[m] - GAMMA_1*VY_C*N_Z[m])*VALUE12);
+                                INFLOW[3][2][m][p] = NORM * MAG[m]*((N_Z[m]*N_Z[m] - GAMMA_1*VZ_C*VZ_C)*VALUE123 - (GAMMA_2*VZ_C*N_Z[m]*VALUE12) + VALUE3);
+                                INFLOW[3][4][m][p] = NORM * MAG[m]*(GAMMA_1*VZ_C*VALUE123/C + GAMMA_1*N_Z[m]*VALUE12/C);
+
+                                INFLOW[4][0][m][p] = NORM * MAG[m]*((ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12);
+                                INFLOW[4][1][m][p] = NORM * MAG[m]*((W*N_X[m] - VX - ALPHA_C*VX_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*VX_C*W)*VALUE12);
+                                INFLOW[4][2][m][p] = NORM * MAG[m]*((W*N_Y[m] - VY - ALPHA_C*VY_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*VY_C*W)*VALUE12);
+                                INFLOW[4][3][m][p] = NORM * MAG[m]*((W*N_Z[m] - VZ - ALPHA_C*VZ_C)*VALUE123 + (H_C*N_Z[m] - GAMMA_1*VZ_C*W)*VALUE12);
+                                INFLOW[4][4][m][p] = NORM * MAG[m]*(GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3);
+                        }
+                }
+
+                for(i=0;i<5;++i){
+                        PHI[i] = 0.0;
+                        for(m=0;m<4;++m){
+                                PHI[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m] + INFLOW[i][4][m][2]*W_HAT[3][m];
+                        }
+                }
+
+                std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
+
+                double INFLOW_MINUS_SUM[5][5];
+
+                for(i=0;i<5;++i){
+                        for(j=0;j<5;++j){
+                                INFLOW_MINUS_SUM[i][j] = 0.0;
+                                for(m=0;m<4;++m){
+                                        INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
+                                }
+                        }
+                }
+
+                matInv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0]);
+
+                // Calculate spatial splitting for first half timestep
+
+#if defined(LDA_SCHEME) or defined(BLENDED)
+
+                for(i=0;i<5;++i){
+                        for(j=0;j<5;++j){
+                                for(m=0;m<4;++m){
+                                        BETA[i][j][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][j] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][j] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][j] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][j] + INFLOW[i][4][m][0] * INFLOW_MINUS_SUM[4][j]);
+                                }
+                        }
+                }
+
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3] + BETA[i][4][m] * PHI[4];
+                        }
+                }
+#endif
+
+
+// #if defined(N_SCHEME) or defined(BLENDED)
+//                 double BRACKET[4][3];
+//                 double KZ_SUM[4];
+
+//                 for(i=0;i<4;++i){
+//                         KZ_SUM[i] = 0.0;
+//                         for(m=0;m<3;++m){
+//                                 KZ_SUM[i] += INFLOW[i][0][m][1] * W_HAT[0][m] + INFLOW[i][1][m][1] * W_HAT[1][m] + INFLOW[i][2][m][1] * W_HAT[2][m] + INFLOW[i][3][m][1] * W_HAT[3][m];
+//                         }
+//                 }
+
+//                 for(i=0;i<4;++i){
+//                         for(m=0;m<3;++m){
+//                                 BRACKET[i][m] = W_HAT[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
+//                         }
+//                 }
+
+//                 for(i=0;i<4;++i){
+//                         for(m=0;m<3;++m){
+//                                 FLUC_N[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
+//                         }
+//                 }
+// #endif
+
+// #ifdef BLENDED
+//                 double THETA_E[4][4];
+//                 double IDENTITY[4][4];
+//                 double SUM_FLUC_N[4];
+
+//                 THETA_E[0][0] = IDENTITY[0][0] = 1.0;
+//                 THETA_E[0][1] = IDENTITY[0][1] = 0.0;
+//                 THETA_E[0][2] = IDENTITY[0][2] = 0.0;
+//                 THETA_E[0][3] = IDENTITY[0][3] = 0.0;
+
+//                 THETA_E[1][0] = IDENTITY[1][0] = 0.0;
+//                 THETA_E[1][1] = IDENTITY[1][1] = 1.0;
+//                 THETA_E[1][2] = IDENTITY[1][2] = 0.0;
+//                 THETA_E[1][3] = IDENTITY[1][3] = 0.0;
+
+//                 THETA_E[2][0] = IDENTITY[2][0] = 0.0;
+//                 THETA_E[2][1] = IDENTITY[2][1] = 0.0;
+//                 THETA_E[2][2] = IDENTITY[2][2] = 1.0;
+//                 THETA_E[2][3] = IDENTITY[2][3] = 0.0;
+
+//                 THETA_E[3][0] = IDENTITY[3][0] = 0.0;
+//                 THETA_E[3][1] = IDENTITY[3][1] = 0.0;
+//                 THETA_E[3][2] = IDENTITY[3][2] = 0.0;
+//                 THETA_E[3][3] = IDENTITY[3][3] = 1.0;
+
+//                 for(i=0;i<4;i++){
+//                         SUM_FLUC_N[i] = abs(FLUC_N[i][0]) + abs(FLUC_N[i][1]) + abs(FLUC_N[i][2]);
+
+//                         THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+
+//                         FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
+//                         FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
+//                         FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
+//                 }
+// #endif
+                return ;
+        }
+
+        void pass_update_half(double DT){
+                int i;
+                double DU0[4],DU1[4],DU2[4],DU3[4];
+
+                DUAL[0] = VERTEX_0->get_dual();
+                DUAL[1] = VERTEX_1->get_dual();
+                DUAL[2] = VERTEX_2->get_dual();
+                DUAL[3] = VERTEX_3->get_dual();
+
+#ifdef LDA_SCHEME
+                for(i=0;i<4;i++){
+                        DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
+                        DU3[i] = DT*FLUC_LDA[i][3]/DUAL[3];
+                }
+#endif
+
+// #ifdef N_SCHEME
+//                 for(i=0;i<4;i++){
+//                         DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
+//                         DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
+//                         DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
+//                         // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
+//                 }
+// #endif
+
+// #ifdef BLENDED 
+//                 for(i=0;i<4;i++){
+//                         DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
+//                         DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
+//                         DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+//                 }
+// #endif
+
+                VERTEX_0->update_du_half(DU0);
+                VERTEX_1->update_du_half(DU1);
+                VERTEX_2->update_du_half(DU2);
+                VERTEX_3->update_du_half(DU2);
+
+                return ;
+        }
+
+        //**********************************************************************************************************************
+
+
+        // Returns Roe average of left and right states
+        // double roe_avg(double L1, double L2, double R1, double R2){
+        //         double AVG;
+        //         AVG = (sqrt(L1)*L2+sqrt(R1)*R2)/(sqrt(L1)+sqrt(R1));
+        //         return AVG;
+        // }
+
+        void setup_normals(){
+                // Calculate normals (just in first timestep for static grid)
+                int m;
+
+                setup_positions();
+
+                for(int m=0; m<4; ++m){X_MOD[m] = X[m]; Y_MOD[m] = Y[m]; Z_MOD[m] = Z[m];}
+
+// #ifdef PERIODIC
+//                 if(BOUNDARY == 1){
+//                         for(int i=0; i<4; ++i){
+//                                 for(int j=0; j<4; ++j){
+//                                         if(X[j] - X[i] > 0.5*SIDE_LENGTH_X){
+//                                                 X_MOD[i] = X[i] + SIDE_LENGTH_X;
+//                                         }
+//                                         if(Y[j] - Y[i] > 0.5*SIDE_LENGTH_Y){
+//                                                 Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+//                                         }
+//                                         if(Z[j] - Z[i] > 0.5*SIDE_LENGTH_Z){
+//                                                 Z_MOD[i] = Z[i] + SIDE_LENGTH_Z;
+//                                         }
+//                                 }
+//                         }
+//                 }
+// #endif
+
+                // check vertices are ordered counter-clockwise
+
+                // double X0,X1,X2,X3,Y0,Y1,Y2,Y3;
+                // double L1X,L1Y,L2X,L2Y,CROSS;
+
+                // X0 = X_MOD[0];
+                // X1 = X_MOD[1];
+                // X2 = X_MOD[2];
+                // X3 = X_MOD[3];
+
+                // Y0 = Y_MOD[0];
+                // Y1 = Y_MOD[1];
+                // Y2 = Y_MOD[2];
+                // Y3 = Y_MOD[3];
+
+                // Z0 = Y_MOD[0];
+                // Z1 = Y_MOD[1];
+                // Z2 = Y_MOD[2];
+                // Z3 = Y_MOD[3];
+
+                // L1X = X1 - X0;
+                // L1Y = Y1 - Y0;
+                // L1Z = Z1 - Z0;
+
+                // L2X = X2 - X0;
+                // L2Y = Y2 - Y0;
+                // L2Z = Z2 - Z0;
+
+                // L3X = X3 - X0;
+                // L3Y = Y3 - Y0;
+                // L3Z = Z3 - Z0;
+
+                // CROSS = L1X*L2Y - L1Y*L2X;
+
+                // if(CROSS < 0.0){
+                //         reorder_vertices();
+                // }
+
+                calculate_normals(X_MOD,Y_MOD,Z_MOD);
+
+                return ;
+
+        }
+
+        void calculate_normals(double X[4],double Y[4],double Z[4]){
+                int i;
+                double ADX,ADY,ADZ;
+                double BDX,BDY,BDZ;
+                double CDX,CDY,CDZ;
+                double CROSSX,CROSSY,CROSSZ,VOLUME;
+                double V0[3],V1[3],V2[3],V3[3];
+                double V21[3],V31[3],V20[3],V30[3],V10[3];
+                double PERP[4][3];
+
+                // calculate volume of tetrahedron and pass 1/4 to each vertex for dual
+
+                V0[0] = X[0];
+                V0[1] = Y[0];
+                V0[2] = Z[0];
+
+                V1[0] = X[1];
+                V1[1] = Y[1];
+                V1[2] = Z[1];
+
+                V2[0] = X[2];
+                V2[1] = Y[2];
+                V2[2] = Z[2];
+
+                V3[0] = X[3];
+                V3[1] = Y[3];
+                V3[2] = Z[3];
+
+                V21[0] = V2[0] - V1[0];
+                V21[1] = V2[1] - V1[1];
+                V21[2] = V2[2] - V1[2];
+
+                V31[0] = V3[0] - V1[0];
+                V31[1] = V3[1] - V1[1];
+                V31[2] = V3[2] - V1[2];
+
+                V20[0] = V2[0] - V0[0];
+                V20[1] = V2[1] - V0[1];
+                V20[2] = V2[2] - V0[2];
+
+                V30[0] = V3[0] - V0[0];
+                V30[1] = V3[1] - V0[1];
+                V30[2] = V3[2] - V0[2];
+
+                V10[0] = V1[0] - V0[0];
+                V10[1] = V1[1] - V0[1];
+                V10[2] = V1[2] - V0[2];
+
+                std::cout << V2[1] << "\t" << V1[1] << "\t" << V2[2] << "\t" << V1[2] << std::endl;
+                std::cout << V21[1] << "\t" << V31[2] << "\t" << V21[2]<< "\t" << V31[1] << std::endl;
+
+                PERP[0][0] = cross_product_x(V21,V31);        // normal opposite vertex 0
+                PERP[0][1] = cross_product_y(V21,V31);
+                PERP[0][2] = cross_product_z(V21,V31);
+
+                PERP[1][0] = cross_product_x(V20,V30);        // normal opposite vertex 1
+                PERP[1][1] = cross_product_y(V20,V30);
+                PERP[1][2] = cross_product_z(V20,V30);
+
+                PERP[2][0] = cross_product_x(V10,V30);        // normal opposite vertex 2
+                PERP[2][1] = cross_product_y(V10,V30);
+                PERP[2][2] = cross_product_z(V10,V30);
+
+                PERP[3][0] = cross_product_x(V20,V10);        // normal opposite vertex 3
+                PERP[3][1] = cross_product_y(V20,V10);
+                PERP[3][2] = cross_product_z(V20,V10);
+
+                ADX = X[0] - X[3];
+                ADY = Y[0] - Y[3];
+                ADZ = Z[0] - Z[3];
+
+                BDX = X[1] - X[3];
+                BDY = Y[1] - Y[3];
+                BDZ = Z[1] - Z[3];
+
+                CDX = X[2] - X[3];
+                CDY = Y[2] - Y[3];
+                CDZ = Z[2] - Z[3];
+
+                CROSSX = BDY*CDZ - BDZ*CDY;
+                CROSSY = -1.0*(BDX*CDZ - BDZ*CDX);
+                CROSSZ = BDX*CDY - BDY*CDX;
+
+                VOLUME = std::abs(ADX*CROSSX + ADY*CROSSY + ADZ*CROSSZ)/6.0;
+
+                VERTEX_0->calculate_dual(VOLUME/4.0);
+                VERTEX_1->calculate_dual(VOLUME/4.0);
+                VERTEX_2->calculate_dual(VOLUME/4.0);
+                VERTEX_3->calculate_dual(VOLUME/4.0);
+
+                for(i=0;i<4;i++){
+                        MAG[i] = sqrt(PERP[i][0]*PERP[i][0] + PERP[i][1]*PERP[i][1] + PERP[i][2]*PERP[i][2]);
+                        NORMAL[i][0] = PERP[i][0]/MAG[i];
+                        NORMAL[i][1] = PERP[i][1]/MAG[i];
+                        NORMAL[i][2] = PERP[i][2]/MAG[i];
+                        // std::cout << NORMAL[i][0] << "\t" << NORMAL[i][1] << "\t" << NORMAL[i][2] << "\t" << MAG[i] << std::endl;
+                }
+
+                return ;
+        }
+
+        double max_val(double A, double B){
+                if(A>B){
+                        return A;
+                }else{
+                        return B;
+                }
+        }
+
+        double min_val(double A, double B){
+                if(A<B){
+                        return A;
+                }else{
+                        return B;
+                }
+        }
+
+        double cross_product_x(double A[3], double B[3]){
+                // std::cout << A[1] << "\t" << B[2] << "\t" << A[2]<< "\t" << B[1] << std::endl;
+                return A[1]*B[2] - A[2]*B[1];
+        }
+        double cross_product_y(double A[3], double B[3]){
+                return A[0]*B[2] - A[2]*B[0];
+        }
+        double cross_product_z(double A[3], double B[3]){
+                return A[0]*B[1] - A[1]*B[0];
+        }
+
+        void reorder_vertices(){
+                VERTEX *TEMP_VERTEX;
+
+                TEMP_VERTEX = VERTEX_1;
+                VERTEX_1 = VERTEX_2;
+                VERTEX_2 = TEMP_VERTEX;
+
+                return;
+
+        }
+
+};

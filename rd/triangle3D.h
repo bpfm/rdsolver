@@ -116,10 +116,10 @@ public:
                 Y[2] = VERTEX_2->get_y();
                 Y[3] = VERTEX_3->get_y();
 
-                Z[0] = VERTEX_0->get_y();
-                Z[1] = VERTEX_1->get_y();
-                Z[2] = VERTEX_2->get_y();
-                Z[3] = VERTEX_3->get_y();
+                Z[0] = VERTEX_0->get_z();
+                Z[1] = VERTEX_1->get_z();
+                Z[2] = VERTEX_2->get_z();
+                Z[3] = VERTEX_3->get_z();
         }
 
         // import initial fluid state and pressure for all vertices
@@ -217,7 +217,7 @@ public:
 
                 // Construct Roe vector Z
 
-                print_triangle_state();
+                // print_triangle_state();
 
                 for(m=0;m<4;++m){
                         Z_ROE[0][m] = sqrt(U_N[0][m]);
@@ -350,7 +350,7 @@ public:
                         }
                 }
 
-                std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
+                // std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << "\t" << PHI[4] << std::endl;
 
                 double INFLOW_MINUS_SUM[5][5];
 
@@ -381,6 +381,7 @@ public:
                         for(m=0;m<4;++m){
                                 FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3] + BETA[i][4][m] * PHI[4];
                         }
+                        // std::cout << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;
                 }
 #endif
 
@@ -456,13 +457,17 @@ public:
                 DUAL[2] = VERTEX_2->get_dual();
                 DUAL[3] = VERTEX_3->get_dual();
 
+                // std::cout << "DUAL =\t" << DUAL[0] << "\t" << DUAL[1] << "\t" << DUAL[2] << "\t" << DUAL[3] << std::endl;
+
 #ifdef LDA_SCHEME
-                for(i=0;i<4;i++){
+                for(i=0;i<5;i++){
                         DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
                         DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
                         DU3[i] = DT*FLUC_LDA[i][3]/DUAL[3];
+                        // if(BOUNDARY == 0){std::cout << "i =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
+                // if(BOUNDARY == 0){std::cout << std::endl;}
 #endif
 
 // #ifdef N_SCHEME
@@ -485,13 +490,40 @@ public:
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
-                VERTEX_3->update_du_half(DU2);
+                VERTEX_3->update_du_half(DU3);
 
                 return ;
         }
 
         //**********************************************************************************************************************
 
+        void calculate_second_half(double T, double DT_TOT){
+                int i,j,m,p;
+                double DU0[4],DU1[4],DU2[4];
+
+                double INFLOW[4][4][3][3];
+                double DT = DT_TOT;
+
+                setup_half_state();
+
+#ifdef FIRST_ORDER
+                for(i=0;i<5;i++){
+                        DU0[i] = 0.0;
+                        DU1[i] = 0.0;
+                        DU2[i] = 0.0;
+                        DU3[i] = 0.0;
+                }
+
+                VERTEX_0->update_du(DU0);
+                VERTEX_1->update_du(DU1);
+                VERTEX_2->update_du(DU2);
+                VERTEX_3->update_du(DU2);
+
+                return ;
+#endif
+        }
+
+        //**********************************************************************************************************************
 
         // Returns Roe average of left and right states
         // double roe_avg(double L1, double L2, double R1, double R2){
@@ -500,69 +532,59 @@ public:
         //         return AVG;
         // }
 
+        void check_boundary(){
+#ifdef PERIODIC
+                if(BOUNDARY == 1){
+                        for(int i=0; i<4; ++i){
+                                for(int j=0; j<4; ++j){
+                                        if(X[j] - X[i] > 0.5*SIDE_LENGTH_X){
+                                                X_MOD[i] = X[i] + SIDE_LENGTH_X;
+                                        }
+                                        if(Y[j] - Y[i] > 0.5*SIDE_LENGTH_Y){
+                                                Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+                                        }
+                                        if(Z[j] - Z[i] > 0.5*SIDE_LENGTH_Z){
+                                                Z_MOD[i] = Z[i] + SIDE_LENGTH_Z;
+                                        }
+                                }
+                        }
+                }
+#endif
+                return;
+        }
+
+        void check_theta(double THETA){
+                if (THETA > 3.14/2.0 and THETA < 3.15/2.0){
+                        std::cout << "B ERROR: TRIANGLE EXTREMLY ELONGATED" << std::endl;
+                        exit(0);
+                }
+        }
+
         void setup_normals(){
                 // Calculate normals (just in first timestep for static grid)
                 int m;
 
                 setup_positions();
 
+                if(BOUNDARY == 1){
+                        std::cout << "0\t" << X[0] << "\t" << Y[0] << "\t" << Z[0] << std::endl;
+                        std::cout << "1\t" << X[1] << "\t" << Y[1] << "\t" << Z[1] << std::endl;
+                        std::cout << "2\t" << X[2] << "\t" << Y[2] << "\t" << Z[2] << std::endl;
+                        std::cout << "3\t" << X[3] << "\t" << Y[3] << "\t" << Z[3] << std::endl;
+                        std::cout << std::endl;
+                }
+
                 for(int m=0; m<4; ++m){X_MOD[m] = X[m]; Y_MOD[m] = Y[m]; Z_MOD[m] = Z[m];}
 
-// #ifdef PERIODIC
-//                 if(BOUNDARY == 1){
-//                         for(int i=0; i<4; ++i){
-//                                 for(int j=0; j<4; ++j){
-//                                         if(X[j] - X[i] > 0.5*SIDE_LENGTH_X){
-//                                                 X_MOD[i] = X[i] + SIDE_LENGTH_X;
-//                                         }
-//                                         if(Y[j] - Y[i] > 0.5*SIDE_LENGTH_Y){
-//                                                 Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
-//                                         }
-//                                         if(Z[j] - Z[i] > 0.5*SIDE_LENGTH_Z){
-//                                                 Z_MOD[i] = Z[i] + SIDE_LENGTH_Z;
-//                                         }
-//                                 }
-//                         }
-//                 }
-// #endif
+                check_boundary();
 
-                // check vertices are ordered counter-clockwise
-
-                // double X0,X1,X2,X3,Y0,Y1,Y2,Y3;
-                // double L1X,L1Y,L2X,L2Y,CROSS;
-
-                // X0 = X_MOD[0];
-                // X1 = X_MOD[1];
-                // X2 = X_MOD[2];
-                // X3 = X_MOD[3];
-
-                // Y0 = Y_MOD[0];
-                // Y1 = Y_MOD[1];
-                // Y2 = Y_MOD[2];
-                // Y3 = Y_MOD[3];
-
-                // Z0 = Y_MOD[0];
-                // Z1 = Y_MOD[1];
-                // Z2 = Y_MOD[2];
-                // Z3 = Y_MOD[3];
-
-                // L1X = X1 - X0;
-                // L1Y = Y1 - Y0;
-                // L1Z = Z1 - Z0;
-
-                // L2X = X2 - X0;
-                // L2Y = Y2 - Y0;
-                // L2Z = Z2 - Z0;
-
-                // L3X = X3 - X0;
-                // L3Y = Y3 - Y0;
-                // L3Z = Z3 - Z0;
-
-                // CROSS = L1X*L2Y - L1Y*L2X;
-
-                // if(CROSS < 0.0){
-                //         reorder_vertices();
-                // }
+                if(BOUNDARY == 1){
+                        std::cout << "0\t" << X_MOD[0] << "\t" << Y_MOD[0] << "\t" << Z_MOD[0] << std::endl;
+                        std::cout << "1\t" << X_MOD[1] << "\t" << Y_MOD[1] << "\t" << Z_MOD[1] << std::endl;
+                        std::cout << "2\t" << X_MOD[2] << "\t" << Y_MOD[2] << "\t" << Z_MOD[2] << std::endl;
+                        std::cout << "3\t" << X_MOD[3] << "\t" << Y_MOD[3] << "\t" << Z_MOD[3] << std::endl;
+                        std::cout << "-----------------------------------" << std::endl;
+                }
 
                 calculate_normals(X_MOD,Y_MOD,Z_MOD);
 
@@ -571,18 +593,19 @@ public:
         }
 
         void calculate_normals(double X[4],double Y[4],double Z[4]){
-                int i;
+                int m;
                 double ADX,ADY,ADZ;
                 double BDX,BDY,BDZ;
                 double CDX,CDY,CDZ;
                 double CROSSX,CROSSY,CROSSZ,VOLUME;
                 double V0[3],V1[3],V2[3],V3[3];
-                double V21[3],V31[3],V20[3],V30[3],V10[3];
+                double V21[3],V31[3],V20[3],V30[3],V10[3],V01[3];
                 double PERP[4][3];
+                double RPLUS[4],RMINUS[4];
 
                 // calculate volume of tetrahedron and pass 1/4 to each vertex for dual
 
-                V0[0] = X[0];
+                V0[0] = X[0];                                // vertices
                 V0[1] = Y[0];
                 V0[2] = Z[0];
 
@@ -598,7 +621,7 @@ public:
                 V3[1] = Y[3];
                 V3[2] = Z[3];
 
-                V21[0] = V2[0] - V1[0];
+                V21[0] = V2[0] - V1[0];                        // edge vectors
                 V21[1] = V2[1] - V1[1];
                 V21[2] = V2[2] - V1[2];
 
@@ -618,8 +641,9 @@ public:
                 V10[1] = V1[1] - V0[1];
                 V10[2] = V1[2] - V0[2];
 
-                std::cout << V2[1] << "\t" << V1[1] << "\t" << V2[2] << "\t" << V1[2] << std::endl;
-                std::cout << V21[1] << "\t" << V31[2] << "\t" << V21[2]<< "\t" << V31[1] << std::endl;
+                V01[0] = V0[0] - V1[0];
+                V01[1] = V0[1] - V1[1];
+                V01[2] = V0[2] - V1[2];
 
                 PERP[0][0] = cross_product_x(V21,V31);        // normal opposite vertex 0
                 PERP[0][1] = cross_product_y(V21,V31);
@@ -636,6 +660,70 @@ public:
                 PERP[3][0] = cross_product_x(V20,V10);        // normal opposite vertex 3
                 PERP[3][1] = cross_product_y(V20,V10);
                 PERP[3][2] = cross_product_z(V20,V10);
+
+                // Check if normals point inwards or outwards
+
+                double DOT001,DOT110,DOT220,DOT330;
+                double THETA0,THETA1,THETA2,THETA3;
+
+                DOT001 = PERP[0][0]*V01[0] + PERP[0][1]*V01[1] + PERP[0][2]*V01[2];
+                DOT110 = PERP[1][0]*V10[0] + PERP[1][1]*V10[1] + PERP[1][2]*V10[2];
+                DOT220 = PERP[2][0]*V20[0] + PERP[2][1]*V20[1] + PERP[2][2]*V20[2];
+                DOT330 = PERP[3][0]*V30[0] + PERP[3][1]*V30[1] + PERP[3][2]*V30[2];
+
+                THETA0 = acos(DOT001/(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1] + PERP[0][2]*PERP[0][2])*sqrt(V01[0]*V01[0] + V01[1]*V01[1] + V01[2]*V01[2])));
+                THETA1 = acos(DOT110/(sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1] + PERP[1][2]*PERP[1][2])*sqrt(V10[0]*V10[0] + V10[1]*V10[1] + V10[2]*V10[2])));
+                THETA2 = acos(DOT220/(sqrt(PERP[2][0]*PERP[2][0] + PERP[2][1]*PERP[2][1] + PERP[2][2]*PERP[2][2])*sqrt(V20[0]*V20[0] + V20[1]*V20[1] + V20[2]*V20[2])));
+                THETA3 = acos(DOT330/(sqrt(PERP[3][0]*PERP[3][0] + PERP[3][1]*PERP[3][1] + PERP[3][2]*PERP[3][2])*sqrt(V30[0]*V30[0] + V30[1]*V30[1] + V30[2]*V30[2])));
+
+                // std::cout << "n0\t" << PERP[0][0] << "\t" << PERP[0][1] << "\t" << PERP[0][2] << std::endl;
+                // std::cout << "n1\t" << PERP[1][0] << "\t" << PERP[1][1] << "\t" << PERP[1][2] << std::endl;
+                // std::cout << "n2\t" << PERP[2][0] << "\t" << PERP[2][1] << "\t" << PERP[2][2] << std::endl;
+                // std::cout << "n3\t" << PERP[3][0] << "\t" << PERP[3][1] << "\t" << PERP[3][2] << std::endl;
+                // std::cout << std::endl;
+
+                check_theta(THETA0);
+                check_theta(THETA1);
+                check_theta(THETA2);
+                check_theta(THETA3);
+
+                if(THETA0 > 3.1416/2.0){
+                        std::cout << "Flipping 0th Normal" << std::endl;
+                        PERP[0][0] = -1.0*PERP[0][0];
+                        PERP[0][1] = -1.0*PERP[0][1];
+                        PERP[0][2] = -1.0*PERP[0][2];
+                }
+                if(THETA1 > 3.1416/2.0){
+                        std::cout << "Flipping 1st Normal" << std::endl;
+                        PERP[1][0] = -1.0*PERP[1][0];
+                        PERP[1][1] = -1.0*PERP[1][1];
+                        PERP[1][2] = -1.0*PERP[1][2];
+                }
+                if(THETA2 > 3.1416/2.0){
+                        std::cout << "Flipping 2nd Normal" << std::endl;
+                        PERP[2][0] = -1.0*PERP[2][0];
+                        PERP[2][1] = -1.0*PERP[2][1];
+                        PERP[2][2] = -1.0*PERP[2][2];
+                }
+                if(THETA3 > 3.1416/2.0){
+                        std::cout << "Flipping 3rd Normal" << std::endl;
+                        PERP[3][0] = -1.0*PERP[3][0];
+                        PERP[3][1] = -1.0*PERP[3][1];
+                        PERP[3][2] = -1.0*PERP[3][2];
+                }
+
+                // std::cout << "V0\t" << V0[0] << "\t" << V0[1] << "\t" << V0[2] << std::endl;
+                // std::cout << "V1\t" << V1[0] << "\t" << V1[1] << "\t" << V1[2] << std::endl;
+                // std::cout << "V2\t" << V2[0] << "\t" << V2[1] << "\t" << V2[2] << std::endl;
+                // std::cout << "V3\t" << V3[0] << "\t" << V3[1] << "\t" << V3[2] << std::endl;
+                // std::cout << std::endl;
+
+                // std::cout << "n0\t" << PERP[0][0] << "\t" << PERP[0][1] << "\t" << PERP[0][2] << std::endl;
+                // std::cout << "n1\t" << PERP[1][0] << "\t" << PERP[1][1] << "\t" << PERP[1][2] << std::endl;
+                // std::cout << "n2\t" << PERP[2][0] << "\t" << PERP[2][1] << "\t" << PERP[2][2] << std::endl;
+                // std::cout << "n3\t" << PERP[3][0] << "\t" << PERP[3][1] << "\t" << PERP[3][2] << std::endl;
+                // std::cout << std::endl;
+                // exit(0);
 
                 ADX = X[0] - X[3];
                 ADY = Y[0] - Y[3];
@@ -660,13 +748,90 @@ public:
                 VERTEX_2->calculate_dual(VOLUME/4.0);
                 VERTEX_3->calculate_dual(VOLUME/4.0);
 
-                for(i=0;i<4;i++){
-                        MAG[i] = sqrt(PERP[i][0]*PERP[i][0] + PERP[i][1]*PERP[i][1] + PERP[i][2]*PERP[i][2]);
-                        NORMAL[i][0] = PERP[i][0]/MAG[i];
-                        NORMAL[i][1] = PERP[i][1]/MAG[i];
-                        NORMAL[i][2] = PERP[i][2]/MAG[i];
+                for(m=0;m<4;++m){
+                        MAG[m] = sqrt(PERP[m][0]*PERP[m][0] + PERP[m][1]*PERP[m][1] + PERP[m][2]*PERP[m][2]);
+                        NORMAL[m][0] = PERP[m][0]/MAG[m];
+                        NORMAL[m][1] = PERP[m][1]/MAG[m];
+                        NORMAL[m][2] = PERP[m][2]/MAG[m];
                         // std::cout << NORMAL[i][0] << "\t" << NORMAL[i][1] << "\t" << NORMAL[i][2] << "\t" << MAG[i] << std::endl;
                 }
+
+                return ;
+        }
+
+        double area_triangle(double V0[3], double V1[3], double V2[3]){
+                double AREA;
+
+                double L01 = sqrt((V1[0] - V0[0])*(V1[0] - V0[0]) + (V1[1] - V0[1])*(V1[1] - V0[1]) + (V1[2] - V0[2])*(V1[0] - V0[2]));
+                double L02 = sqrt((V2[0] - V0[0])*(V2[0] - V0[0]) + (V2[1] - V0[1])*(V2[1] - V0[1]) + (V2[2] - V0[2])*(V2[0] - V0[2]));
+
+                double THETA = acos(((V1[0] - V0[0])*(V2[0] - V0[0]) + (V1[1] - V0[1])*(V2[1] - V0[1]) + (V1[2] - V0[2])*(V2[2] - V0[2]))/(L01*L02));
+
+                // std::cout << THETA << std::endl;
+
+                if(THETA > 3.14159/2.0){THETA = 3.14159 - THETA;}
+
+                AREA = 0.5 * (sqrt((V1[0] - V0[0])*(V1[0] - V0[0]) + (V1[1] - V0[1])*(V1[1] - V0[1]) + (V1[2] - V0[2])*(V1[2] - V0[2])) * sqrt((V2[0] - V0[0])*(V2[0] - V0[0]) + (V2[1] - V0[1])*(V2[1] - V0[1]) + (V2[2] - V0[2])*(V2[2] - V0[2]))) * sin(THETA);
+
+                return AREA;
+        }
+
+        void calculate_len_vel_contribution(){
+                int m;
+                double A0,A1,A2,A3;
+                double H,VX,VY,VZ,VEL[4];
+                double C_SOUND[4];
+                double AMAX,VMAX,CONT;
+
+                setup_initial_state();
+
+                double V0[3],V1[3],V2[3],V3[3];
+
+                V0[0] = X_MOD[0];
+                V0[1] = Y_MOD[0];
+                V0[2] = Z_MOD[0];
+
+                V1[0] = X_MOD[1];
+                V1[1] = Y_MOD[1];
+                V1[2] = Z_MOD[1];
+
+                V2[0] = X_MOD[2];
+                V2[1] = Y_MOD[2];
+                V2[2] = Z_MOD[2];
+
+                V3[0] = X_MOD[3];
+                V3[1] = Y_MOD[3];
+                V3[2] = Z_MOD[3];
+
+                A0 = area_triangle(V1,V2,V3);
+                A1 = area_triangle(V0,V2,V3);
+                A2 = area_triangle(V0,V1,V3);
+                A3 = area_triangle(V0,V1,V2);
+
+                AMAX = max_val(A0,A1);
+                AMAX = max_val(AMAX,A2);
+                AMAX = max_val(AMAX,A3);
+
+                // std::cout << LMAX << std::endl;
+
+                for(m=0;m<4;++m){
+                        H = (U_N[4][m] + PRESSURE[m])/U_N[0][m];
+                        VX = U_N[1][m]/U_N[0][m];
+                        VY = U_N[2][m]/U_N[0][m];
+                        VZ = U_N[3][m]/U_N[0][m];
+                        VEL[m] = sqrt(VX*VX + VY*VY + VZ*VZ);
+                        C_SOUND[m] = sqrt((GAMMA-1.0) * H - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
+                }
+
+                VMAX = max_val((VEL[0] + C_SOUND[0]),(VEL[1] + C_SOUND[1]));
+                VMAX = max_val(VMAX,(VEL[2] + C_SOUND[2]));
+                VMAX = max_val(VMAX,(VEL[3] + C_SOUND[3]));
+
+                CONT = AMAX * VMAX;
+
+                VERTEX_0->update_len_vel_sum(CONT);
+                VERTEX_1->update_len_vel_sum(CONT);
+                VERTEX_2->update_len_vel_sum(CONT);
 
                 return ;
         }
@@ -688,11 +853,11 @@ public:
         }
 
         double cross_product_x(double A[3], double B[3]){
-                // std::cout << A[1] << "\t" << B[2] << "\t" << A[2]<< "\t" << B[1] << std::endl;
+                // std::cout << A[0] << "\t" << A[1] << "\t" << A[2] << "\t" << B[0] << "\t" << B[1] << "\t" << B[2] << "\t" <<  A[1]*B[2] - A[2]*B[1] << std::endl;
                 return A[1]*B[2] - A[2]*B[1];
         }
         double cross_product_y(double A[3], double B[3]){
-                return A[0]*B[2] - A[2]*B[0];
+                return -1.0*(A[0]*B[2] - A[2]*B[0]);
         }
         double cross_product_z(double A[3], double B[3]){
                 return A[0]*B[1] - A[1]*B[0];

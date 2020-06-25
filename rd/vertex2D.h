@@ -191,8 +191,8 @@ public:
                 U_VARIABLES[1] = U_HALF[1] - DU[1];
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
                 U_VARIABLES[3] = U_HALF[3] - DU[3];
-                if(U_VARIABLES[0] <= 0.0){U_VARIABLES[0] = 0.00001;}
-                if(U_VARIABLES[3] <= 0.0){U_VARIABLES[3] = 0.00001;}
+                if(U_VARIABLES[0] <= 0.0){U_VARIABLES[0] = 0.0001;}
+                if(U_VARIABLES[3] <= 0.0){U_VARIABLES[3] = 0.0001;}
         }
 
         void update_u_half(){
@@ -201,8 +201,8 @@ public:
                 U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
-                if(U_HALF[0] <= 0.0){U_HALF[0] = 0.00001;}
-                if(U_HALF[3] <= 0.0){U_HALF[3] = 0.00001;}
+                if(U_HALF[0] <= 0.0){U_HALF[0] = 0.0001;}
+                if(U_HALF[3] <= 0.0){U_HALF[3] = 0.0001;}
         }
 
         // calculate sum of length and velocity (used to calculate dt)

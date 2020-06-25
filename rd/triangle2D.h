@@ -407,16 +407,16 @@ public:
 
                 matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
 
-                // /std::cout << "Post-inversion =" << std::endl;
+                std::cout << "Post-inversion =" << std::endl;
 
-#ifdef DEBUG
+// #ifdef DEBUG
                 for(i=0;i<4;++i){
                         for(j=0;j<4;++j){
                                 std::cout << INFLOW_MINUS_SUM[i][j] << "\t";
                         }
                         std::cout << std::endl;
                 }
-#endif
+// #endif
 
                 // Calculate spatial splitting for first half timestep
 
@@ -1081,7 +1081,6 @@ public:
 
                 PERP[2][0] = (Y[0] - Y[1]);
                 PERP[2][1] = (X[1] - X[0]);
-
 
                 // calculate area of triangle and pass 1/3 to each vertex for dual
 

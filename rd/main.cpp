@@ -127,7 +127,7 @@ int main(){
 
         std::cout << "Reading CGAL vertex positions ..." << std::endl;
 
-        CGAL_FILE_NAME = "triangulation/cgal/output.txt";
+        CGAL_FILE_NAME = "triangulation/cgal/2d/output.txt";
 
         CGAL_FILE.open(CGAL_FILE_NAME);
 
@@ -188,11 +188,9 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
-        int TBIN_CURRENT = 0;
-        int TBIN;
-        int ACTIVE, ACTIVE_ID = 0;
+        int TBIN, TBIN_CURRENT = 0;
 
-        NEXT_DT = 0.0;
+        NEXT_DT = 0.0;                                                            // set first timestep to zero
 
         while(T<T_TOT){
 
@@ -217,7 +215,6 @@ int main(){
                 // std::cout << std::setprecision(6);
                 // std::cout << "Calculating first half time step change" << std::endl;
 // #endif
-                ACTIVE = 0;
 
 #ifdef PARA_RES
                 #pragma omp parallel for
@@ -234,15 +231,10 @@ int main(){
                                              ){
                                 // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
                                 RAND_MESH[j].calculate_first_half(T);
-                                ACTIVE += 1;
                         }
                         // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
                         RAND_MESH[j].pass_update_half(DT);
                 }
-
-                // std::cout << l << "\t" << ACTIVE << std::endl;
-                // write_active(RAND_MESH, N_TRIANG, ACTIVE_ID, TBIN_CURRENT);
-                // ACTIVE_ID += 1;
 
 #ifdef PARA_UP
                 #pragma omp parallel for

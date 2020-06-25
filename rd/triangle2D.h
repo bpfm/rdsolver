@@ -405,7 +405,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
+                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],1);
 
                 // std::cout << "Post-inversion =" << std::endl;
 
@@ -547,6 +547,7 @@ public:
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
+
 #ifdef DEBUG
                 // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
                 std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
@@ -797,7 +798,8 @@ public:
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                
+
+                // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
 
 #if defined(LDA_SCHEME) or defined(BLENDED)
 
@@ -900,7 +902,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
+                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],2);
 
                 double AREA_DIFF[4][3];
                 double BRACKET[4][3];
@@ -933,7 +935,13 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+                                if(DT == 0.0){
+                                        SECOND_FLUC_N[i][m] = 0.0;
+                                }else{
+                                        SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+                                }
+
+                                // std::cout << AREA_DIFF[i][m] << "\t" << FLUC_N[i][m] << "\t" << FLUC_HALF_N[i][m] << "\t" << SECOND_FLUC_N[i][m] << std::endl;
                         }
                 }
 
@@ -943,7 +951,7 @@ public:
                 DUAL[1] = VERTEX_1->get_dual();
                 DUAL[2] = VERTEX_2->get_dual();
 
-                
+                // std::cout << SECOND_FLUC_LDA[0][0] << "\t" << SECOND_FLUC_LDA[0][1] << "\t" << SECOND_FLUC_LDA[0][2] << std::endl;
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
@@ -953,11 +961,13 @@ public:
                 }
 #endif
 
+                // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
+
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
                         DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
                         DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];   
+                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];
                 }
 #endif
 
@@ -1004,6 +1014,10 @@ public:
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
+
+                // std::cout << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
+
+                // if(X[0] == 0.21875 and Y[0] == 0.078125){exit(0);}
 
                 return ;
         }

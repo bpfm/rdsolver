@@ -2,10 +2,10 @@
 /* choose hydro test */
 //-----------------------------------------
 
-// #define SODX
+#define SODX
 // #define SODY
 // #define SINEX
-#define SEDOV
+// #define SEDOV
 // #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
@@ -21,7 +21,7 @@
 /* set dimensionality */
 //-----------------------------------------
 #define TWO_D
-#define THREE_D
+// #define THREE_D
 
 //-----------------------------------------
 /* set umber of snapshots */
@@ -66,14 +66,14 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-// #define LDA_SCHEME
-#define N_SCHEME
+#define LDA_SCHEME
+// #define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-// #define FIRST_ORDER
+#define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 // #define PARA_RES
@@ -82,11 +82,11 @@
 
 // Sod Shock Tube (Varied in X)
 #ifdef SODX
-double CFL = 0.1;
-double T_TOT = 0.1;
+double CFL = 0.4;
+double T_TOT = 0.2;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Sod Shock Tube (Varied in Y)
@@ -117,7 +117,7 @@ double SIDE_LENGTH_Y = 10.0;
 #endif
 
 double BLAST_E_TOT = 0.0;
-double R_BLAST = 0.1;
+double R_BLAST = 0.2;
 int POINT_CHECK = 0;
 
 // Gaussian pulse advection (x-direction)
@@ -143,8 +143,8 @@ double SIDE_LENGTH_Y = 1.0;
 double CFL = 0.1;
 double T_TOT = 1.0;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // 2D Noh problem
@@ -216,7 +216,7 @@ double GAMMA_2 = GAMMA - 2.0;
 double GRAV = 6.67e-11;
 double MSOLAR = 1.989e+30;
 
-int N_TBINS = 8;
+int N_TBINS = 1;
 
 #ifdef FIXED_DT
 double DT_FIX = 0.00005;

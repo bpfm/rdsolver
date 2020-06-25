@@ -47,7 +47,7 @@ public:
         void set_tbin_local(int NEW_TBIN){TBIN_LOCAL = NEW_TBIN;}
         void set_x(   double NEW_X){X   = NEW_X;}
         void set_y(   double NEW_Y){Y   = NEW_Y;}
-        void set_z(   double NEW_Z){Y   = NEW_Z;}
+        void set_z(   double NEW_Z){Z   = NEW_Z;}
         void set_dx(  double NEW_DX){DX = NEW_DX;}
         void set_dy(  double NEW_DY){DY = NEW_DY;}
         void set_dz(  double NEW_DZ){DZ = NEW_DZ;}

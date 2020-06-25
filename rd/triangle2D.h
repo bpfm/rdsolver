@@ -874,7 +874,11 @@ public:
                 for(i=0;i<4;i++){
                         SUM_MASS[i] = 0.0;
                         for(m=0;m<3;++m){
-                                SUM_MASS[i] += MASS_DIFF[i][m]/DT;
+                                if(DT==0.0){
+                                        SUM_MASS[i] = 0.0;
+                                }else{
+                                        SUM_MASS[i] += MASS_DIFF[i][m]/DT;
+                                }
                         }
                 }
 

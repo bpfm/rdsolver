@@ -331,8 +331,8 @@ public:
 
                                 INFLOW[3][0][m][p] = NORM * MAG[m]*((ALPHA_C*VZ_C - W*N_Z[m])*VALUE123 + (ALPHA_C*N_Z[m] - VZ_C*W)*VALUE12);
                                 INFLOW[3][1][m][p] = NORM * MAG[m]*((N_X[m]*N_Z[m] - GAMMA_1*VX_C*VZ_C)*VALUE123 + (VZ_C*N_X[m] - GAMMA_1*VX_C*N_Z[m])*VALUE12);
-                                INFLOW[3][3][m][p] = NORM * MAG[m]*((N_Y[m]*N_Z[m] - GAMMA_1*VY_C*VZ_C)*VALUE123 + (VZ_C*N_Y[m] - GAMMA_1*VY_C*N_Z[m])*VALUE12);
-                                INFLOW[3][2][m][p] = NORM * MAG[m]*((N_Z[m]*N_Z[m] - GAMMA_1*VZ_C*VZ_C)*VALUE123 - (GAMMA_2*VZ_C*N_Z[m]*VALUE12) + VALUE3);
+                                INFLOW[3][2][m][p] = NORM * MAG[m]*((N_Y[m]*N_Z[m] - GAMMA_1*VY_C*VZ_C)*VALUE123 + (VZ_C*N_Y[m] - GAMMA_1*VY_C*N_Z[m])*VALUE12);
+                                INFLOW[3][3][m][p] = NORM * MAG[m]*((N_Z[m]*N_Z[m] - GAMMA_1*VZ_C*VZ_C)*VALUE123 - (GAMMA_2*VZ_C*N_Z[m]*VALUE12) + VALUE3);
                                 INFLOW[3][4][m][p] = NORM * MAG[m]*(GAMMA_1*VZ_C*VALUE123/C + GAMMA_1*N_Z[m]*VALUE12/C);
 
                                 INFLOW[4][0][m][p] = NORM * MAG[m]*((ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12);
@@ -343,14 +343,14 @@ public:
                         }
                 }
 
+                // for(i=0;i<5;++i){if(ID == 14){std::cout << INFLOW[i][0][0][2] << "\t" << INFLOW[i][1][0][2] << "\t" << INFLOW[i][2][0][2] << "\t" << INFLOW[i][3][0][2] << "\t" << INFLOW[i][4][0][2] << std::endl;}}
+
                 for(i=0;i<5;++i){
                         PHI[i] = 0.0;
                         for(m=0;m<4;++m){
                                 PHI[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m] + INFLOW[i][4][m][2]*W_HAT[3][m];
                         }
                 }
-
-                // std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << "\t" << PHI[4] << std::endl;
 
                 double INFLOW_MINUS_SUM[5][5];
 
@@ -363,7 +363,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0]);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],0);
 
                 // Calculate spatial splitting for first half timestep
 
@@ -381,7 +381,6 @@ public:
                         for(m=0;m<4;++m){
                                 FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3] + BETA[i][4][m] * PHI[4];
                         }
-                        // std::cout << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;
                 }
 #endif
 
@@ -465,9 +464,11 @@ public:
                         DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
                         DU3[i] = DT*FLUC_LDA[i][3]/DUAL[3];
-                        // if(BOUNDARY == 0){std::cout << "i =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
+                        // if(ID == 14){
+                        //         std::cout << ID << "\ti =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;
+                        // }
                 }
-                // if(BOUNDARY == 0){std::cout << std::endl;}
+                // if(ID == 14){std::cout << std::endl;}
 #endif
 
 // #ifdef N_SCHEME
@@ -499,7 +500,7 @@ public:
 
         void calculate_second_half(double T, double DT_TOT){
                 int i,j,m,p;
-                double DU0[4],DU1[4],DU2[4];
+                double DU0[4],DU1[4],DU2[4],DU3[4];
 
                 double INFLOW[4][4][3][3];
                 double DT = DT_TOT;
@@ -517,7 +518,7 @@ public:
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
-                VERTEX_3->update_du(DU2);
+                VERTEX_3->update_du(DU3);
 
                 return ;
 #endif
@@ -555,7 +556,7 @@ public:
 
         void check_theta(double THETA){
                 if (THETA > 3.14/2.0 and THETA < 3.15/2.0){
-                        std::cout << "B ERROR: TRIANGLE EXTREMLY ELONGATED" << std::endl;
+                        std::cout << "B ERROR: TRIANGLE EXTREMLY ELONGATED\t" << ID << std::endl;
                         exit(0);
                 }
         }
@@ -566,25 +567,25 @@ public:
 
                 setup_positions();
 
-                if(BOUNDARY == 1){
-                        std::cout << "0\t" << X[0] << "\t" << Y[0] << "\t" << Z[0] << std::endl;
-                        std::cout << "1\t" << X[1] << "\t" << Y[1] << "\t" << Z[1] << std::endl;
-                        std::cout << "2\t" << X[2] << "\t" << Y[2] << "\t" << Z[2] << std::endl;
-                        std::cout << "3\t" << X[3] << "\t" << Y[3] << "\t" << Z[3] << std::endl;
-                        std::cout << std::endl;
-                }
+                // if(BOUNDARY == 1){
+                //         std::cout << "0\t" << X[0] << "\t" << Y[0] << "\t" << Z[0] << std::endl;
+                //         std::cout << "1\t" << X[1] << "\t" << Y[1] << "\t" << Z[1] << std::endl;
+                //         std::cout << "2\t" << X[2] << "\t" << Y[2] << "\t" << Z[2] << std::endl;
+                //         std::cout << "3\t" << X[3] << "\t" << Y[3] << "\t" << Z[3] << std::endl;
+                //         std::cout << std::endl;
+                // }
 
                 for(int m=0; m<4; ++m){X_MOD[m] = X[m]; Y_MOD[m] = Y[m]; Z_MOD[m] = Z[m];}
 
                 check_boundary();
 
-                if(BOUNDARY == 1){
-                        std::cout << "0\t" << X_MOD[0] << "\t" << Y_MOD[0] << "\t" << Z_MOD[0] << std::endl;
-                        std::cout << "1\t" << X_MOD[1] << "\t" << Y_MOD[1] << "\t" << Z_MOD[1] << std::endl;
-                        std::cout << "2\t" << X_MOD[2] << "\t" << Y_MOD[2] << "\t" << Z_MOD[2] << std::endl;
-                        std::cout << "3\t" << X_MOD[3] << "\t" << Y_MOD[3] << "\t" << Z_MOD[3] << std::endl;
-                        std::cout << "-----------------------------------" << std::endl;
-                }
+                // if(BOUNDARY == 1){
+                //         std::cout << "0\t" << X_MOD[0] << "\t" << Y_MOD[0] << "\t" << Z_MOD[0] << std::endl;
+                //         std::cout << "1\t" << X_MOD[1] << "\t" << Y_MOD[1] << "\t" << Z_MOD[1] << std::endl;
+                //         std::cout << "2\t" << X_MOD[2] << "\t" << Y_MOD[2] << "\t" << Z_MOD[2] << std::endl;
+                //         std::cout << "3\t" << X_MOD[3] << "\t" << Y_MOD[3] << "\t" << Z_MOD[3] << std::endl;
+                //         std::cout << "-----------------------------------" << std::endl;
+                // }
 
                 calculate_normals(X_MOD,Y_MOD,Z_MOD);
 
@@ -688,25 +689,25 @@ public:
                 check_theta(THETA3);
 
                 if(THETA0 > 3.1416/2.0){
-                        std::cout << "Flipping 0th Normal" << std::endl;
+                        // std::cout << "Flipping 0th Normal" << std::endl;
                         PERP[0][0] = -1.0*PERP[0][0];
                         PERP[0][1] = -1.0*PERP[0][1];
                         PERP[0][2] = -1.0*PERP[0][2];
                 }
                 if(THETA1 > 3.1416/2.0){
-                        std::cout << "Flipping 1st Normal" << std::endl;
+                        // std::cout << "Flipping 1st Normal" << std::endl;
                         PERP[1][0] = -1.0*PERP[1][0];
                         PERP[1][1] = -1.0*PERP[1][1];
                         PERP[1][2] = -1.0*PERP[1][2];
                 }
                 if(THETA2 > 3.1416/2.0){
-                        std::cout << "Flipping 2nd Normal" << std::endl;
+                        // std::cout << "Flipping 2nd Normal" << std::endl;
                         PERP[2][0] = -1.0*PERP[2][0];
                         PERP[2][1] = -1.0*PERP[2][1];
                         PERP[2][2] = -1.0*PERP[2][2];
                 }
                 if(THETA3 > 3.1416/2.0){
-                        std::cout << "Flipping 3rd Normal" << std::endl;
+                        // std::cout << "Flipping 3rd Normal" << std::endl;
                         PERP[3][0] = -1.0*PERP[3][0];
                         PERP[3][1] = -1.0*PERP[3][1];
                         PERP[3][2] = -1.0*PERP[3][2];
@@ -723,7 +724,6 @@ public:
                 // std::cout << "n2\t" << PERP[2][0] << "\t" << PERP[2][1] << "\t" << PERP[2][2] << std::endl;
                 // std::cout << "n3\t" << PERP[3][0] << "\t" << PERP[3][1] << "\t" << PERP[3][2] << std::endl;
                 // std::cout << std::endl;
-                // exit(0);
 
                 ADX = X[0] - X[3];
                 ADY = Y[0] - Y[3];
@@ -742,6 +742,9 @@ public:
                 CROSSZ = BDX*CDY - BDY*CDX;
 
                 VOLUME = std::abs(ADX*CROSSX + ADY*CROSSY + ADZ*CROSSZ)/6.0;
+
+                // std::cout << VOLUME << std::endl;
+                // exit(0);
 
                 VERTEX_0->calculate_dual(VOLUME/4.0);
                 VERTEX_1->calculate_dual(VOLUME/4.0);

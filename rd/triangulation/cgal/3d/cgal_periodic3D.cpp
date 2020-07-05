@@ -18,8 +18,8 @@ typedef P3DT3::Cell_handle       Cell_handle;
 typedef P3DT3::Locate_type       Locate_type;
 
 
-// #define RANDOMIC
-#define UNIFORMIC
+#define RANDOMIC
+// #define UNIFORMIC
 // #define UNIFORMOFFSETIC
 // #define PERTUNIFORMOFFSETIC
 
@@ -31,7 +31,7 @@ int main(){
         std::list<Point> L;
 
         int i,j,k;
-        int nx=4, ny=4, nz=4, count=nx*ny*nz;
+        int nx=24, ny=24, nz=24, count=nx*ny*nz;
         float x,y,z,xmove,ymove,zmove;
 
 #ifdef RANDOMIC
@@ -46,11 +46,28 @@ int main(){
 
 #ifdef UNIFORMIC
         for(i=0; i < (nx); ++i){
-                x = (xmax) * float(i) / float(nx);
+                x = (xmax) * (float(i)+0.5) / float(nx);
                 for(j=0; j < (ny); ++j){
-                        y = (ymax) * float(j) / float(ny);
+                        y = (ymax) * (float(j)+0.5) / float(ny);
                         for(k=0; k < (nz); ++k){
-                                z = (zmax) * float(k) / float(nz);
+                                z = (zmax) * (float(k)+0.5) / float(nz);
+                                L.push_back(Point(x,y,z));
+                        }
+                }
+        }
+#endif
+
+#ifdef UNIFORMOFFSETIC        // check it works !!!!
+        for(i=0; i < (nx); ++i){
+                x = (xmax) * (float(i)+0.5) / float(nx);
+                for(j=0; j < (ny); ++j){
+                        y = (ymax) * (float(j)+0.5) / float(ny);
+                        for(k=0; k < (nz); ++k){
+                                if(k % 2 == 0){
+                                        z = (zmax) * (float(k)+0.5) / float(nz);
+                                }else{
+                                        z = (zmax) * (float(k)+1.0) / float(nz);
+                                }
                                 L.push_back(Point(x,y,z));
                         }
                 }

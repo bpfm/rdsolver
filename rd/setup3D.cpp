@@ -17,10 +17,9 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_y(Y);
         NEW_VERTEX.set_z(Z);
 
-        double DX = SIDE_LENGTH_X/1000.0;               // hot garbage
-
         NEW_VERTEX.set_dx(SIDE_LENGTH_X/1000.0);
         NEW_VERTEX.set_dy(SIDE_LENGTH_Y/1000.0);
+        NEW_VERTEX.set_dz(SIDE_LENGTH_Z/1000.0);
 
         NEW_VERTEX.set_dual(0.0);
 
@@ -98,48 +97,36 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
 #endif
-#ifdef GAUSSX
+#ifdef GAUSS3D
                 // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse" << std::endl;}
 
-        double CENTRE = 0.3;
+        double CENTREX = 0.5,CENTREY = 0.5,CENTREZ = 0.5;
         double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
         double X_VELOCITY = 2.0,PRESSURE = 100.0;
 
-        S = std::abs(CENTRE - X);                                       // distance from centre of pulse
+        S = sqrt((CENTREX - X)*(CENTREX - X) + (CENTREY - Y)*(CENTREY - Y) + (CENTREZ - Z)*(CENTREZ - Z));            // distance from centre of pulse
+
         W = 0.1;                                                 // characteristic width
 
         RHO = RHO_PULSE*exp(-S*S/(W*W)) + RHO_0*(1.0-exp(-S*S/(W*W)));
+
+        // if(S < 0.1){std::cout << X << "\t" << Y << "\t" << Z << "\t" << S << "\t" << RHO << std::endl;}
 
         NEW_VERTEX.set_mass_density(RHO);
         NEW_VERTEX.set_x_velocity(X_VELOCITY);
         NEW_VERTEX.set_y_velocity(0.00000001);
+        NEW_VERTEX.set_z_velocity(0.00000001);
         NEW_VERTEX.set_pressure(PRESSURE);
 
 #endif
-#ifdef GAUSSY
-                // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse (y-direction)" << std::endl;}
 
-        double CENTRE = 0.2;
-        double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
-        double Y_VELOCITY = 2.0,PRESSURE = 100.0;
-
-        S = std::abs(CENTRE - Y);                                       // distance from centre of pulse
-        W = 0.1;                                                 // characteristic width
-
-        RHO = RHO_PULSE*exp(-S*S/(W*W)) + RHO_0*(1.0-exp(-S*S/(W*W)));
-
-        NEW_VERTEX.set_mass_density(RHO);
-        NEW_VERTEX.set_x_velocity(0.00000001);
-        NEW_VERTEX.set_y_velocity(Y_VELOCITY);
-        NEW_VERTEX.set_pressure(PRESSURE);
-
-#endif
 #ifdef UNIFORM
                 // if(i==0 and j==0){std::cout << "Using Flat Start" << std::endl;}
 
         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
         NEW_VERTEX.set_x_velocity(10.0);                                 // units m/s
         NEW_VERTEX.set_y_velocity(0.00000001);                                 // units m/s
+        NEW_VERTEX.set_z_velocity(0.00000001);                                 // units m/s
         NEW_VERTEX.set_pressure(5.0);                                 // units N/m^2
 
 #endif

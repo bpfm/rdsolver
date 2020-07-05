@@ -86,7 +86,7 @@ int main(){
 
         std::cout << "Reading CGAL vertex positions ..." << std::endl;
 
-        CGAL_FILE_NAME = "triangulation/cgal/output.txt";
+        CGAL_FILE_NAME = "triangulation/cgal/3d/output.txt";
 
         CGAL_FILE.open(CGAL_FILE_NAME);
 
@@ -96,9 +96,16 @@ int main(){
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = cgal_read_positions_line(CGAL_FILE);
+                NEW_VERTEX.set_id(i);
                 NEW_VERTEX.reset_len_vel_sum();
                 RAND_POINTS.push_back(NEW_VERTEX);
         }
+
+        // std::cout << RAND_POINTS[935].get_x() << "\t" << RAND_POINTS[935].get_y() << "\t" << RAND_POINTS[935].get_z() << std::endl;
+        // std::cout << RAND_POINTS[86].get_x() << "\t" << RAND_POINTS[86].get_y() << "\t" << RAND_POINTS[86].get_z() << std::endl;
+        // std::cout << RAND_POINTS[794].get_x() << "\t" << RAND_POINTS[794].get_y() << "\t" << RAND_POINTS[794].get_z() << std::endl;
+        // std::cout << RAND_POINTS[882].get_x() << "\t" << RAND_POINTS[882].get_y() << "\t" << RAND_POINTS[882].get_z() << std::endl;
+        // std::cout << std::endl;
 
         /****** Setup mesh ******/
 
@@ -109,8 +116,7 @@ int main(){
         std::cout << "Number of triangles = " << N_TRIANG << std::endl;
 
         for(j=0; j<N_TRIANG; ++j){
-                NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS);
-                NEW_TRIANGLE.set_tbin(1);
+                NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS,j);
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
@@ -137,10 +143,6 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
-        int TBIN_CURRENT = 0;
-        int TBIN;
-        int ACTIVE, ACTIVE_ID = 0;
-
         NEXT_DT = 0.0;
 
         while(T<T_TOT){
@@ -151,11 +153,10 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
-                        write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
@@ -166,7 +167,6 @@ int main(){
                 // std::cout << std::setprecision(6);
                 // std::cout << "Calculating first half time step change" << std::endl;
 // #endif
-                ACTIVE = 0;
 
 #ifdef PARA_RES
                 #pragma omp parallel for

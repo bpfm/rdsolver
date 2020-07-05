@@ -4,7 +4,7 @@ IO routines to write simple ASCII output for python plotting
 */
 
 void open_snap(std::ofstream &SNAPFILE, int i){
-        SNAPFILE.open("output/snapshot_"+std::to_string(i)+".txt");
+        SNAPFILE.open("output/snapshot3D_"+std::to_string(i)+".txt");
         return;
 }
 
@@ -16,7 +16,7 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         SNAPFILE << N_POINTS << "\t" << T << std::endl;
         for(int i=0;i<N_POINTS;++i){
                 // write         X                           Y                                 rho                                   v_x                                    v_y                                 p                                      e                                         |S|
-                SNAPFILE << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_x_velocity() << "\t" << POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_specific_energy() << "\t" << POINTS[i].get_dual() << std::endl;
+                SNAPFILE << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_z() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_x_velocity() << "\t" << POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_specific_energy() << "\t" << POINTS[i].get_dual() << std::endl;
                 TOTAL_DENSITY += POINTS[i].get_mass_density()*POINTS[i].get_dual();
                 TOTAL_ENERGY += POINTS[i].get_specific_energy()*POINTS[i].get_dual() * POINTS[i].get_mass_density();
         }
@@ -37,7 +37,7 @@ int cgal_read_positions_header(std::ifstream &CGAL_FILE){
 
         // check boundaries match
         if(XLOW < 0.0 or YLOW < 0.0 or int(XHIGH) != SIDE_LENGTH_X or int(YHIGH) != SIDE_LENGTH_Y){
-                std::cout << "BWARNING: Exiting on mismatching boundaries." << std::endl;
+                std::cout << "BWARNING: Exiting on mismatching boundaries. Have (X): " << XLOW  << "\t" << XHIGH << "\tNeed (X): " << 0.0 << "\t" << SIDE_LENGTH_X << std::endl;
                 exit(0);
         }
 
@@ -70,22 +70,33 @@ VERTEX cgal_read_positions_line(std::ifstream &CGAL_FILE){
 
         CGAL_FILE >> X >> Y >> Z;
 
+        // std::cout << X << "\t" << Y << "\t" << Z << std::endl;
+
         NEW_VERTEX = setup_vertex(X,Y,Z);
+
+        // std::cout << NEW_VERTEX.get_x() << "\t" << NEW_VERTEX.get_y() << "\t" << NEW_VERTEX.get_z() << std::endl;
 
         return NEW_VERTEX;
 }
 
 // read indices of vertices for one CGAL triangle
-TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS){
+TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS, int ID){
         int VERT0,VERT1,VERT2,VERT3;
         TRIANGLE NEW_TRIANGLE;
 
         CGAL_FILE >> VERT0 >> VERT1 >> VERT2 >> VERT3;
 
+        if(VERT0 == VERT1 or VERT0 == VERT2 or VERT0 == VERT3 or VERT1 == VERT2 or VERT1 == VERT3 or VERT2 == VERT3){
+                std::cout << "Repeated vertex in triangle" << VERT0 << "\t" << VERT1 << "\t" << VERT2 << "\t" << VERT3 << std::endl;
+                exit(0);
+        }
+
         NEW_TRIANGLE.set_vertex_0(&POINTS[VERT0]);
         NEW_TRIANGLE.set_vertex_1(&POINTS[VERT1]);
         NEW_TRIANGLE.set_vertex_2(&POINTS[VERT2]);
         NEW_TRIANGLE.set_vertex_3(&POINTS[VERT3]);
+
+        NEW_TRIANGLE.set_id(ID);
 
         // std::cout << POINTS[VERT0].get_x() << "\t" << POINTS[VERT1].get_x() << "\t" << POINTS[VERT2].get_x() << std::endl;
 
@@ -103,15 +114,16 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
         Y2 = POINTS[VERT2].get_y();
         Y3 = POINTS[VERT3].get_y();
 
-        Z0 = POINTS[VERT0].get_y();
-        Z1 = POINTS[VERT1].get_y();
-        Z2 = POINTS[VERT2].get_y();
-        Z3 = POINTS[VERT3].get_y();
+        Z0 = POINTS[VERT0].get_z();
+        Z1 = POINTS[VERT1].get_z();
+        Z2 = POINTS[VERT2].get_z();
+        Z3 = POINTS[VERT3].get_z();
 
-        if(abs(X0 - X1) > 0.5*SIDE_LENGTH_X or abs(X0 - X2) > 0.5*SIDE_LENGTH_X or abs(X0 - X3) > 0.5*SIDE_LENGTH_X or abs(X1 - X2) > 0.5*SIDE_LENGTH_X or abs(X1 - X3) > 0.5*SIDE_LENGTH_X or abs(X2 - X3) > 0.5*SIDE_LENGTH_X or
-           abs(Y0 - Y1) > 0.5*SIDE_LENGTH_Y or abs(Y0 - Y2) > 0.5*SIDE_LENGTH_Y or abs(Y0 - Y3) > 0.5*SIDE_LENGTH_Y or abs(Y1 - Y2) > 0.5*SIDE_LENGTH_Y or abs(Y1 - Y3) > 0.5*SIDE_LENGTH_Y or abs(Y2 - Y3) > 0.5*SIDE_LENGTH_Y or
-           abs(Z0 - Z1) > 0.5*SIDE_LENGTH_Z or abs(Z0 - Z2) > 0.5*SIDE_LENGTH_Z or abs(Z0 - Z3) > 0.5*SIDE_LENGTH_Z or abs(Z1 - Z2) > 0.5*SIDE_LENGTH_Z or abs(Z1 - Z3) > 0.5*SIDE_LENGTH_Z or abs(Z2 - Z3) > 0.5*SIDE_LENGTH_Z){
+        if(abs(X0 - X1) > 0.6*SIDE_LENGTH_X or abs(X0 - X2) > 0.6*SIDE_LENGTH_X or abs(X0 - X3) > 0.6*SIDE_LENGTH_X or abs(X1 - X2) > 0.6*SIDE_LENGTH_X or abs(X1 - X3) > 0.6*SIDE_LENGTH_X or abs(X2 - X3) > 0.6*SIDE_LENGTH_X or
+           abs(Y0 - Y1) > 0.6*SIDE_LENGTH_Y or abs(Y0 - Y2) > 0.6*SIDE_LENGTH_Y or abs(Y0 - Y3) > 0.6*SIDE_LENGTH_Y or abs(Y1 - Y2) > 0.6*SIDE_LENGTH_Y or abs(Y1 - Y3) > 0.6*SIDE_LENGTH_Y or abs(Y2 - Y3) > 0.6*SIDE_LENGTH_Y or
+           abs(Z0 - Z1) > 0.6*SIDE_LENGTH_Z or abs(Z0 - Z2) > 0.6*SIDE_LENGTH_Z or abs(Z0 - Z3) > 0.6*SIDE_LENGTH_Z or abs(Z1 - Z2) > 0.6*SIDE_LENGTH_Z or abs(Z1 - Z3) > 0.6*SIDE_LENGTH_Z or abs(Z2 - Z3) > 0.6*SIDE_LENGTH_Z){
                 NEW_TRIANGLE.set_boundary(1);
+                // std::cout << "Boundary " << std::endl;
         }else{
                 NEW_TRIANGLE.set_boundary(0);
         } 

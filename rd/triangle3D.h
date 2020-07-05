@@ -343,7 +343,9 @@ public:
                         }
                 }
 
-                // for(i=0;i<5;++i){if(ID == 14){std::cout << INFLOW[i][0][0][2] << "\t" << INFLOW[i][1][0][2] << "\t" << INFLOW[i][2][0][2] << "\t" << INFLOW[i][3][0][2] << "\t" << INFLOW[i][4][0][2] << std::endl;}}
+                // for(i=0;i<5;++i){
+                //         if(ID == 14){std::cout << INFLOW[i][0][0][2] << "\t" << INFLOW[i][1][0][2] << "\t" << INFLOW[i][2][0][2] << "\t" << INFLOW[i][3][0][2] << "\t" << INFLOW[i][4][0][2] << std::endl;}
+                // }
 
                 for(i=0;i<5;++i){
                         PHI[i] = 0.0;
@@ -351,6 +353,9 @@ public:
                                 PHI[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m] + INFLOW[i][4][m][2]*W_HAT[3][m];
                         }
                 }
+
+                // if(ID == 14){std::cout << "14 PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << "\t" << PHI[4] << std::endl;}
+                // if(ID == 1350){std::cout << "1350 PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << "\t" << PHI[4] << std::endl;}
 
                 double INFLOW_MINUS_SUM[5][5];
 
@@ -363,26 +368,54 @@ public:
                         }
                 }
 
+                // if(ID == 14){std::cout << "14\tINFLOW_MINUS_SUM:" << std::endl;}
+                // if(ID == 1350){std::cout << "1350\tINFLOW_MINUS_SUM:" << std::endl;}
+                // for(i=0;i<5;++i){
+                //         if(ID == 14){std::cout << "14\t" << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << "\t" << INFLOW_MINUS_SUM[i][4] << std::endl;}
+                //         if(ID == 1350){std::cout << "1350\t" << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << "\t" << INFLOW_MINUS_SUM[i][4] << std::endl;}
+                // }
+
                 mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],0);
 
                 // Calculate spatial splitting for first half timestep
 
 #if defined(LDA_SCHEME) or defined(BLENDED)
 
+                // if(ID == 14){std::cout << "14\tINVERTED:" << std::endl;}
+                // if(ID == 1350){std::cout << "1350\tINVERTED:" << std::endl;}
+                // if(ID == 14){std::cout << "14\tBETA:" << std::endl;}
+                // if(ID == 1350){std::cout << "1350\tBETA:" << std::endl;}
                 for(i=0;i<5;++i){
                         for(j=0;j<5;++j){
                                 for(m=0;m<4;++m){
                                         BETA[i][j][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][j] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][j] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][j] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][j] + INFLOW[i][4][m][0] * INFLOW_MINUS_SUM[4][j]);
                                 }
                         }
+                        // if(ID == 14){std::cout << "14\t" << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << "\t" << INFLOW_MINUS_SUM[i][4] << std::endl;}
+                        // if(ID == 1350){std::cout << "1350\t" << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << "\t" << INFLOW_MINUS_SUM[i][4] << std::endl;}
+                        // if(ID == 14){std::cout << "14\t" << BETA[i][0][0] << "\t" << BETA[i][1][0] << "\t" << BETA[i][2][0] << "\t" << BETA[i][3][0] << "\t" << BETA[i][4][0] << std::endl;}
+                        // if(ID == 1350){std::cout << "1350\t" << BETA[i][0][0] << "\t" << BETA[i][1][0] << "\t" << BETA[i][2][0] << "\t" << BETA[i][3][0] << "\t" << BETA[i][4][0] << std::endl;}
                 }
 
+                // if(ID == 14){std::cout << "14\tFLUC_LDA:" << std::endl;}
+                // if(ID == 1350){std::cout << "1350\tFLUC_LDA:" << std::endl;}
                 for(i=0;i<5;++i){
                         for(m=0;m<4;++m){
                                 FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3] + BETA[i][4][m] * PHI[4];
                         }
+                        // if(ID == 14){std::cout << "14\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
+                        // if(ID == 1350){std::cout << "1350\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
                 }
 #endif
+                // if(ID == 1350){std::cout << "X_MOD =\t" << X_MOD[0] << "\t" << X_MOD[1] << "\t" << X_MOD[2] << "\t" << X_MOD[3] << std::endl;}
+                // if(ID == 1350){std::cout << "Y_MOD =\t" << Y_MOD[0] << "\t" << Y_MOD[1] << "\t" << Y_MOD[2] << "\t" << Y_MOD[3] << std::endl;}
+                // if(ID == 1350){std::cout << "Z_MOD =\t" << Z_MOD[0] << "\t" << Z_MOD[1] << "\t" << Z_MOD[2] << "\t" << Z_MOD[3] << std::endl;}
+
+                // if(ID == 1350){std::cout << "N_X =\t" << N_X[0] << "\t" << N_X[1] << "\t" << N_X[2] << "\t" << N_X[3] << std::endl;}
+                // if(ID == 1350){std::cout << "N_Y =\t" << N_Y[0] << "\t" << N_Y[1] << "\t" << N_Y[2] << "\t" << N_Y[3] << std::endl;}
+                // if(ID == 1350){std::cout << "N_Z =\t" << N_Z[0] << "\t" << N_Z[1] << "\t" << N_Z[2] << "\t" << N_Z[3] << std::endl;}
+
+                // if(ID == 1350){std::cout << "MAG =\t" << MAG[0] << "\t" << MAG[1] << "\t" << MAG[2] << "\t" << MAG[3] << std::endl;}
 
 
 // #if defined(N_SCHEME) or defined(BLENDED)
@@ -555,9 +588,9 @@ public:
         }
 
         void check_theta(double THETA){
-                if (THETA > 3.14/2.0 and THETA < 3.15/2.0){
-                        std::cout << "B ERROR: TRIANGLE EXTREMLY ELONGATED\t" << ID << std::endl;
-                        exit(0);
+                if (THETA > 3.14159/2.0 and THETA < 3.15/2.0){
+                        std::cout << "B ERROR: TRIANGLE EXTREMLY ELONGATED: THETA =\t" << THETA << "\tID =\t" << ID << std::endl;
+                        // exit(0);
                 }
         }
 

@@ -27,7 +27,7 @@ class VERTEX{
 
 private:
 
-        int TBIN_LOCAL;
+        int ID,TBIN_LOCAL;
         double X, Y, Z, DX, DY, DZ;
         double DT_REQ;
         double DUAL,LEN_VEL_SUM;
@@ -44,6 +44,7 @@ public:
 
         // setter functions preventing varaibles being changed accidentally
         // (no setter functions for U and F(U) as these are set by the other variables)
+        void set_id(int NEW_ID){ID = NEW_ID;};
         void set_tbin_local(int NEW_TBIN){TBIN_LOCAL = NEW_TBIN;}
         void set_x(   double NEW_X){X   = NEW_X;}
         void set_y(   double NEW_Y){Y   = NEW_Y;}
@@ -64,6 +65,7 @@ public:
         void add_triang(int NEW_TRIANGLE){ASSOC_TRIANG.push_back(NEW_TRIANGLE);} // not used yet
 
         // getter functions for eXtracting values of variables
+        int get_id(){return ID;}
         int get_tbin_local(){return TBIN_LOCAL;}
         double get_x(){      return X;}
         double get_y(){      return Y;}
@@ -176,28 +178,28 @@ public:
 
         // update DU with value from face
         void update_du(double NEW_DU[4]){
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[0] = DU[0] + NEW_DU[0];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[1] = DU[1] + NEW_DU[1];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[2] = DU[2] + NEW_DU[2];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[3] = DU[3] + NEW_DU[3];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[4] = DU[4] + NEW_DU[4];
         }
 
         void update_du_half(double NEW_DU[4]){
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU_HALF[0] = DU_HALF[0] + NEW_DU[0];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU_HALF[1] = DU_HALF[1] + NEW_DU[1];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU_HALF[2] = DU_HALF[2] + NEW_DU[2];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU_HALF[3] = DU_HALF[3] + NEW_DU[3];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU_HALF[4] = DU_HALF[4] + NEW_DU[4];
         }
 
@@ -240,7 +242,7 @@ public:
                         exit(0);
                 }
                 if (PRESSURE <= 0.0){
-                        PRESSURE = 0.0001;
+                        // PRESSURE = 0.0001;
                         // std::cout << "B WARNING: Exiting on negative pressure\t";
                         // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
                         // exit(0);
@@ -252,7 +254,7 @@ public:
                         exit(0);
                 }
                 if (PRESSURE_HALF <= 0.0){
-                        PRESSURE_HALF = 0.0001;
+                        // // PRESSURE_HALF = 0.0001;
                         // std::cout << "B WARNING: Exiting on negative half state pressure\t";
                         // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
                         // exit(0);

@@ -127,7 +127,7 @@ int main(){
 
         std::cout << "Reading CGAL vertex positions ..." << std::endl;
 
-        CGAL_FILE_NAME = "triangulation/cgal/2d/output.txt";
+        CGAL_FILE_NAME = "Delaunay2D.txt";
 
         CGAL_FILE.open(CGAL_FILE_NAME);
 
@@ -159,11 +159,20 @@ int main(){
 #endif
 
 #ifdef SEDOV
-        double ETOT = 0.0;
+        double ETOT = 0.0,ETOT_AIM = 300000.0,PRESSURE_AIM;
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
+                        AREA_CHECK = AREA_CHECK + RAND_POINTS[i].get_dual();
+                }
+        }
+        for(i=0; i<N_POINTS; ++i){
+                if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
+                        PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
+                        RAND_POINTS[i].set_pressure(PRESSURE_AIM);
                         ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
                         std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        RAND_POINTS[i].setup_specific_energy();
+                        RAND_POINTS[i].prim_to_con();
                 }
         }
 #endif
@@ -204,7 +213,7 @@ int main(){
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
-                        write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
+                        // write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
@@ -233,6 +242,9 @@ int main(){
                                 RAND_MESH[j].calculate_first_half(T);
                         }
                         // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
+                }
+
+                for(j=0;j<N_TRIANG;++j){
                         RAND_MESH[j].pass_update_half(DT);
                 }
 

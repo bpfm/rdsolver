@@ -175,12 +175,12 @@ public:
                 U_HALF[3][0] = VERTEX_0->get_u3_half();
                 U_HALF[3][1] = VERTEX_1->get_u3_half();
                 U_HALF[3][2] = VERTEX_2->get_u3_half();
-                U_HALF[3][3] = VERTEX_2->get_u3_half();
+                U_HALF[3][3] = VERTEX_3->get_u3_half();
 
                 U_HALF[4][0] = VERTEX_0->get_u4_half();
                 U_HALF[4][1] = VERTEX_1->get_u4_half();
                 U_HALF[4][2] = VERTEX_2->get_u4_half();
-                U_HALF[4][3] = VERTEX_2->get_u4_half();
+                U_HALF[4][3] = VERTEX_3->get_u4_half();
 
                 PRESSURE_HALF[0] = VERTEX_0->get_pressure_half();
                 PRESSURE_HALF[1] = VERTEX_1->get_pressure_half();
@@ -247,9 +247,9 @@ public:
                 // Construct average state for element
 
                 RHO   = pow((sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]))/4.0, 2);
-                VX     = (sqrt(U_N[0][0])*U_N[1][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[1][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[1][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[1][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
-                VY     = (sqrt(U_N[0][0])*U_N[2][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[2][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[2][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[2][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
-                VZ     = (sqrt(U_N[0][0])*U_N[3][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[3][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[3][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[3][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VX    = (sqrt(U_N[0][0])*U_N[1][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[1][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[1][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[1][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VY    = (sqrt(U_N[0][0])*U_N[2][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[2][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[2][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[2][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VZ    = (sqrt(U_N[0][0])*U_N[3][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[3][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[3][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[3][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
                 H_AVG = (sqrt(U_N[0][0])*H[0] + sqrt(U_N[0][1])*H[1] + sqrt(U_N[0][2])*H[2] + sqrt(U_N[0][3])*H[3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;

@@ -51,6 +51,8 @@ private:
 
         double MAG[4];
 
+        int PRINT;
+
 public:
 
         void set_id(int NEW_ID){ID = NEW_ID;}
@@ -91,17 +93,17 @@ public:
         }
 
         void print_triangle_state(){
-                std::cout << "U[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << "\t" << U_N[0][3] << std::endl;
-                std::cout << "U[1] =\t" << U_N[1][0] << "\t" << U_N[1][1] << "\t" << U_N[1][2] << "\t" << U_N[1][3] << std::endl;
-                std::cout << "U[2] =\t" << U_N[2][0] << "\t" << U_N[2][1] << "\t" << U_N[2][2] << "\t" << U_N[2][3]<< std::endl;
-                std::cout << "U[3] =\t" << U_N[3][0] << "\t" << U_N[3][1] << "\t" << U_N[3][2] << "\t" << U_N[3][3]<< std::endl;
-                std::cout << "U[4] =\t" << U_N[4][0] << "\t" << U_N[4][1] << "\t" << U_N[4][2] << "\t" << U_N[4][3]<< std::endl;
+                std::cout << ID << "\tU[0] =\t" << U_N[0][0] << "\t" << U_N[0][1] << "\t" << U_N[0][2] << "\t" << U_N[0][3] << std::endl;
+                std::cout << ID << "\tU[1] =\t" << U_N[1][0] << "\t" << U_N[1][1] << "\t" << U_N[1][2] << "\t" << U_N[1][3] << std::endl;
+                std::cout << ID << "\tU[2] =\t" << U_N[2][0] << "\t" << U_N[2][1] << "\t" << U_N[2][2] << "\t" << U_N[2][3]<< std::endl;
+                std::cout << ID << "\tU[3] =\t" << U_N[3][0] << "\t" << U_N[3][1] << "\t" << U_N[3][2] << "\t" << U_N[3][3]<< std::endl;
+                std::cout << ID << "\tU[4] =\t" << U_N[4][0] << "\t" << U_N[4][1] << "\t" << U_N[4][2] << "\t" << U_N[4][3]<< std::endl;
 
-                std::cout << "U_HALF[0] =\t" << U_HALF[0][0] << "\t" << U_HALF[0][1] << "\t" << U_HALF[0][2] << "\t" << U_HALF[0][3]<< std::endl;
-                std::cout << "U_HALF[1] =\t" << U_HALF[1][0] << "\t" << U_HALF[1][1] << "\t" << U_HALF[1][2] << "\t" << U_HALF[1][3]<< std::endl;
-                std::cout << "U_HALF[2] =\t" << U_HALF[2][0] << "\t" << U_HALF[2][1] << "\t" << U_HALF[2][2] << "\t" << U_HALF[2][3]<< std::endl;
-                std::cout << "U_HALF[3] =\t" << U_HALF[3][0] << "\t" << U_HALF[3][1] << "\t" << U_HALF[3][2] << "\t" << U_HALF[3][3]<< std::endl;
-                std::cout << "U_HALF[4] =\t" << U_HALF[4][0] << "\t" << U_HALF[4][1] << "\t" << U_HALF[4][2] << "\t" << U_HALF[4][3]<< std::endl;
+                std::cout << ID << "\tU_HALF[0] =\t" << U_HALF[0][0] << "\t" << U_HALF[0][1] << "\t" << U_HALF[0][2] << "\t" << U_HALF[0][3]<< std::endl;
+                std::cout << ID << "\tU_HALF[1] =\t" << U_HALF[1][0] << "\t" << U_HALF[1][1] << "\t" << U_HALF[1][2] << "\t" << U_HALF[1][3]<< std::endl;
+                std::cout << ID << "\tU_HALF[2] =\t" << U_HALF[2][0] << "\t" << U_HALF[2][1] << "\t" << U_HALF[2][2] << "\t" << U_HALF[2][3]<< std::endl;
+                std::cout << ID << "\tU_HALF[3] =\t" << U_HALF[3][0] << "\t" << U_HALF[3][1] << "\t" << U_HALF[3][2] << "\t" << U_HALF[3][3]<< std::endl;
+                std::cout << ID << "\tU_HALF[4] =\t" << U_HALF[4][0] << "\t" << U_HALF[4][1] << "\t" << U_HALF[4][2] << "\t" << U_HALF[4][3]<< std::endl;
         }
 
         // import x and y for all vertices
@@ -217,7 +219,17 @@ public:
 
                 // Construct Roe vector Z
 
-                // print_triangle_state();
+                if(((X[0] == 0.575 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.575 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.575 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.575 and Y[3] == 0.575 and Z[3] == 0.525)) and
+                   ((X[0] == 0.625 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.625 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.625 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.625 and Y[3] == 0.575 and Z[3] == 0.525)) and
+                   ID == 11079) {
+                        std::cout << ID << std::endl;
+                        PRINT = 1;
+                        for(i=0;i<4;++i){std::cout << "r =\t" << X[i] << "\t" << Y[i] << "\t" << Z[i] << std::endl;}
+                }else{
+                        PRINT = 0;
+                }
+
+                if(PRINT == 1){print_triangle_state();}
 
                 for(m=0;m<4;++m){
                         Z_ROE[0][m] = sqrt(U_N[0][m]);
@@ -231,9 +243,11 @@ public:
                         N_Z[m]  = NORMAL[m][2];
 
                         H[m] = (U_N[4][m] + PRESSURE[m])/U_N[0][m];
+                        if(PRINT == 1){std::cout << "\t" << Z_ROE[0][m] << "\t" << Z_ROE[1][m] << "\t" << Z_ROE[2][m] << "\t" << Z_ROE[3][m] << "\t" << Z_ROE[4][m] << std::endl;}
+                        if(PRINT == 1){std::cout << "\t" << MAG[m] << "\t" << NORMAL[m][0] << "\t" << NORMAL[m][1] << "\t" << NORMAL[m][2] << std::endl;}
                 }
 
-                for(i=0; i<5; ++i){Z_BAR[i] = (Z_ROE[i][0] + Z_ROE[i][1] + Z_ROE[i][2])/3.0;}
+                for(i=0; i<5; ++i){Z_BAR[i] = (Z_ROE[i][0] + Z_ROE[i][1] + Z_ROE[i][2] + Z_ROE[i][3])/4.0;}
 
 
                 for(m=0; m<4; ++m){
@@ -403,8 +417,8 @@ public:
                         for(m=0;m<4;++m){
                                 FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3] + BETA[i][4][m] * PHI[4];
                         }
-                        // if(ID == 14){std::cout << "14\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
-                        // if(ID == 1350){std::cout << "1350\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
+                        // if(ID == 14){std::cout << ID << "\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
+                        // if(PRINT == 1){std::cout << ID << "\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
                 }
 #endif
                 // if(ID == 1350){std::cout << "X_MOD =\t" << X_MOD[0] << "\t" << X_MOD[1] << "\t" << X_MOD[2] << "\t" << X_MOD[3] << std::endl;}
@@ -497,9 +511,7 @@ public:
                         DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
                         DU3[i] = DT*FLUC_LDA[i][3]/DUAL[3];
-                        // if(ID == 14){
-                        //         std::cout << ID << "\ti =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;
-                        // }
+                        if(PRINT == 1){std::cout << ID << "\ti =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
                 // if(ID == 14){std::cout << std::endl;}
 #endif

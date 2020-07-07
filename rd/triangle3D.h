@@ -219,17 +219,17 @@ public:
 
                 // Construct Roe vector Z
 
-                if(((X[0] == 0.575 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.575 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.575 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.575 and Y[3] == 0.575 and Z[3] == 0.525)) and
-                   ((X[0] == 0.625 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.625 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.625 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.625 and Y[3] == 0.575 and Z[3] == 0.525)) and
-                   ID == 11079) {
-                        std::cout << ID << std::endl;
-                        PRINT = 1;
-                        for(i=0;i<4;++i){std::cout << "r =\t" << X[i] << "\t" << Y[i] << "\t" << Z[i] << std::endl;}
-                }else{
-                        PRINT = 0;
-                }
+                // if(((X[0] == 0.575 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.575 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.575 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.575 and Y[3] == 0.575 and Z[3] == 0.525)) and
+                //    ((X[0] == 0.625 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.625 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.625 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.625 and Y[3] == 0.575 and Z[3] == 0.525)) and
+                //    ID == 11079) {
+                //         std::cout << ID << std::endl;
+                //         PRINT = 1;
+                //         for(i=0;i<4;++i){std::cout << "r =\t" << X[i] << "\t" << Y[i] << "\t" << Z[i] << std::endl;}
+                // }else{
+                //         PRINT = 0;
+                // }
 
-                if(PRINT == 1){print_triangle_state();}
+                // if(PRINT == 1){print_triangle_state();}
 
                 for(m=0;m<4;++m){
                         Z_ROE[0][m] = sqrt(U_N[0][m]);
@@ -243,12 +243,12 @@ public:
                         N_Z[m]  = NORMAL[m][2];
 
                         H[m] = (U_N[4][m] + PRESSURE[m])/U_N[0][m];
-                        if(PRINT == 1){std::cout << "\t" << Z_ROE[0][m] << "\t" << Z_ROE[1][m] << "\t" << Z_ROE[2][m] << "\t" << Z_ROE[3][m] << "\t" << Z_ROE[4][m] << std::endl;}
-                        if(PRINT == 1){std::cout << "\t" << MAG[m] << "\t" << NORMAL[m][0] << "\t" << NORMAL[m][1] << "\t" << NORMAL[m][2] << std::endl;}
+                        // if(PRINT == 1){std::cout << PRESSURE[m] << "\t" << H[m] << std::endl;}
+                        // if(PRINT == 1){std::cout << Z_ROE[0][m] << "\t" << Z_ROE[1][m] << "\t" << Z_ROE[2][m] << "\t" << Z_ROE[3][m] << "\t" << Z_ROE[4][m] << std::endl;}
+                        // if(PRINT == 1){std::cout << MAG[m] << "\t" << NORMAL[m][0] << "\t" << NORMAL[m][1] << "\t" << NORMAL[m][2] << std::endl;}
                 }
 
                 for(i=0; i<5; ++i){Z_BAR[i] = (Z_ROE[i][0] + Z_ROE[i][1] + Z_ROE[i][2] + Z_ROE[i][3])/4.0;}
-
 
                 for(m=0; m<4; ++m){
                         W_HAT[0][m] =  2.0*Z_BAR[0]*Z_ROE[0][m];
@@ -261,10 +261,10 @@ public:
                 // Construct average state for element
 
                 RHO   = pow((sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]))/4.0, 2);
-                VX    = (sqrt(U_N[0][0])*U_N[1][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[1][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[1][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[1][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
-                VY    = (sqrt(U_N[0][0])*U_N[2][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[2][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[2][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[2][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
-                VZ    = (sqrt(U_N[0][0])*U_N[3][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[3][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[3][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[3][3]/U_N[0][3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
-                H_AVG = (sqrt(U_N[0][0])*H[0] + sqrt(U_N[0][1])*H[1] + sqrt(U_N[0][2])*H[2] + sqrt(U_N[0][3])*H[3])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VX    = (sqrt(U_N[0][0])*U_N[1][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[1][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[1][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[1][3]/U_N[0][3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VY    = (sqrt(U_N[0][0])*U_N[2][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[2][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[2][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[2][3]/U_N[0][3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                VZ    = (sqrt(U_N[0][0])*U_N[3][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[3][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[3][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[3][3]/U_N[0][3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
+                H_AVG = (sqrt(U_N[0][0])*H[0] + sqrt(U_N[0][1])*H[1] + sqrt(U_N[0][2])*H[2] + sqrt(U_N[0][3])*H[3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
                 C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
@@ -279,6 +279,8 @@ public:
 
                 ALPHA   = GAMMA_1*(VX*VX + VY*VY + VZ*VZ)/2.0;
                 ALPHA_C = ALPHA/C;
+
+                // if(PRINT == 1){std::cout << H_AVG << "\t" << C << std::endl;}
 
                 // Calculate K+,K- and K matrices for each vertex i,j,k
 
@@ -364,7 +366,7 @@ public:
                 for(i=0;i<5;++i){
                         PHI[i] = 0.0;
                         for(m=0;m<4;++m){
-                                PHI[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m] + INFLOW[i][4][m][2]*W_HAT[3][m];
+                                PHI[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m] + INFLOW[i][4][m][2]*W_HAT[4][m];
                         }
                 }
 
@@ -511,7 +513,7 @@ public:
                         DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
                         DU3[i] = DT*FLUC_LDA[i][3]/DUAL[3];
-                        if(PRINT == 1){std::cout << ID << "\ti =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
+                        // if(PRINT == 1){std::cout << ID << "\ti =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
                 // if(ID == 14){std::cout << std::endl;}
 #endif

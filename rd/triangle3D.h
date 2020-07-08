@@ -294,6 +294,8 @@ public:
                         LAMBDA[3][m] = W;
                         LAMBDA[4][m] = W;
 
+                        // if(PRINT == 1){std::cout << "LAMBDA\t" << LAMBDA[0][m] << "\t" << LAMBDA[1][m] << "\t" << LAMBDA[2][m] << "\t" << LAMBDA[3][m] << "\t" << LAMBDA[4][m] << std::endl;}
+
                         for(i=0;i<5;++i){
                                 LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
                                 LAMBDA_MINUS[i][m] = min_val(0.0,LAMBDA[i][m]);
@@ -404,7 +406,7 @@ public:
                 for(i=0;i<5;++i){
                         for(j=0;j<5;++j){
                                 for(m=0;m<4;++m){
-                                        BETA[i][j][m] = -1.0*(INFLOW[i][0][m][0] * INFLOW_MINUS_SUM[0][j] + INFLOW[i][1][m][0] * INFLOW_MINUS_SUM[1][j] + INFLOW[i][2][m][0] * INFLOW_MINUS_SUM[2][j] + INFLOW[i][3][m][0] * INFLOW_MINUS_SUM[3][j] + INFLOW[i][4][m][0] * INFLOW_MINUS_SUM[4][j]);
+                                        BETA[i][j][m] = -1.0*(INFLOW[i][0][m][0]*INFLOW_MINUS_SUM[0][j] + INFLOW[i][1][m][0]*INFLOW_MINUS_SUM[1][j] + INFLOW[i][2][m][0]*INFLOW_MINUS_SUM[2][j] + INFLOW[i][3][m][0]*INFLOW_MINUS_SUM[3][j] + INFLOW[i][4][m][0]*INFLOW_MINUS_SUM[4][j]);
                                 }
                         }
                         // if(ID == 14){std::cout << "14\t" << INFLOW_MINUS_SUM[i][0] << "\t" << INFLOW_MINUS_SUM[i][1] << "\t" << INFLOW_MINUS_SUM[i][2] << "\t" << INFLOW_MINUS_SUM[i][3] << "\t" << INFLOW_MINUS_SUM[i][4] << std::endl;}
@@ -417,7 +419,7 @@ public:
                 // if(ID == 1350){std::cout << "1350\tFLUC_LDA:" << std::endl;}
                 for(i=0;i<5;++i){
                         for(m=0;m<4;++m){
-                                FLUC_LDA[i][m] = BETA[i][0][m] * PHI[0] + BETA[i][1][m] * PHI[1] + BETA[i][2][m] * PHI[2] + BETA[i][3][m] * PHI[3] + BETA[i][4][m] * PHI[4];
+                                FLUC_LDA[i][m] = BETA[i][0][m]*PHI[0] + BETA[i][1][m]*PHI[1] + BETA[i][2][m]*PHI[2] + BETA[i][3][m]*PHI[3] + BETA[i][4][m]*PHI[4];
                         }
                         // if(ID == 14){std::cout << ID << "\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
                         // if(PRINT == 1){std::cout << ID << "\t" << FLUC_LDA[i][0] << "\t" << FLUC_LDA[i][1] << "\t" << FLUC_LDA[i][2] << "\t" << FLUC_LDA[i][3] << std::endl;}
@@ -498,14 +500,15 @@ public:
 
         void pass_update_half(double DT){
                 int i;
-                double DU0[4],DU1[4],DU2[4],DU3[4];
+                double DU0[5],DU1[5],DU2[5],DU3[5];
 
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
                 DUAL[2] = VERTEX_2->get_dual();
                 DUAL[3] = VERTEX_3->get_dual();
 
-                // std::cout << "DUAL =\t" << DUAL[0] << "\t" << DUAL[1] << "\t" << DUAL[2] << "\t" << DUAL[3] << std::endl;
+                // if(PRINT == 1){std::cout << "DUAL =\t" << DUAL[0] << "\t" << DUAL[1] << "\t" << DUAL[2] << "\t" << DUAL[3] << std::endl;}
+                // if(PRINT == 1){std::cout << "DT =\t" << DT << std::endl;}
 
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
@@ -513,7 +516,7 @@ public:
                         DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
                         DU3[i] = DT*FLUC_LDA[i][3]/DUAL[3];
-                        // if(PRINT == 1){std::cout << ID << "\ti =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
+                        // if(PRINT == 1){std::cout << ID << "\tDU i =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
                 // if(ID == 14){std::cout << std::endl;}
 #endif
@@ -547,10 +550,10 @@ public:
 
         void calculate_second_half(double T, double DT_TOT){
                 int i,j,m,p;
-                double DU0[4],DU1[4],DU2[4],DU3[4];
+                double DU0[5],DU1[5],DU2[5],DU3[5];
 
-                double INFLOW[4][4][3][3];
-                double DT = DT_TOT;
+                // double INFLOW[4][4][3][3];
+                // double DT = DT_TOT;
 
                 setup_half_state();
 

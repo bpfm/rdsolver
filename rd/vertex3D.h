@@ -177,7 +177,7 @@ public:
         void reset_len_vel_sum(){LEN_VEL_SUM = 0.0;}
 
         // update DU with value from face
-        void update_du(double NEW_DU[4]){
+        void update_du(double NEW_DU[5]){
                 // #pragma omp atomic update
                 DU[0] = DU[0] + NEW_DU[0];
                 // #pragma omp atomic update
@@ -190,7 +190,7 @@ public:
                 DU[4] = DU[4] + NEW_DU[4];
         }
 
-        void update_du_half(double NEW_DU[4]){
+        void update_du_half(double NEW_DU[5]){
                 // #pragma omp atomic update
                 DU_HALF[0] = DU_HALF[0] + NEW_DU[0];
                 // #pragma omp atomic update
@@ -211,8 +211,8 @@ public:
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
                 U_VARIABLES[3] = U_HALF[3] - DU[3];
                 U_VARIABLES[4] = U_HALF[4] - DU[4];
-                if(U_VARIABLES[0] <= 0.0){U_VARIABLES[0] = 0.0001;}
-                if(U_VARIABLES[4] <= 0.0){U_VARIABLES[4] = 0.0001;}
+                // if(U_VARIABLES[0] <= 0.0){U_VARIABLES[0] = 0.0001;}
+                // if(U_VARIABLES[4] <= 0.0){U_VARIABLES[4] = 0.0001;}
         }
 
         void update_u_half(){
@@ -222,8 +222,8 @@ public:
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
                 U_HALF[4] = U_VARIABLES[4] - DU_HALF[4];
-                if(U_HALF[0] <= 0.0){U_HALF[0] = 0.0001;}
-                if(U_HALF[4] <= 0.0){U_HALF[4] = 0.0001;}
+                // if(U_HALF[0] <= 0.0){U_HALF[0] = 0.0001;}
+                // if(U_HALF[4] <= 0.0){U_HALF[4] = 0.0001;}
         }
 
         // calculate sum of length and velocity (used to calculate dt)
@@ -243,9 +243,9 @@ public:
                 }
                 if (PRESSURE <= 0.0){
                         // PRESSURE = 0.0001;
-                        // std::cout << "B WARNING: Exiting on negative pressure\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
-                        // exit(0);
+                        std::cout << "B WARNING: Exiting on negative pressure\t";
+                        std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
+                        exit(0);
                 }
                 if (MASS_DENSITY_HALF <= 0.0){
                         // MASS_DENSITY_HALF = 0.001;
@@ -254,10 +254,10 @@ public:
                         exit(0);
                 }
                 if (PRESSURE_HALF <= 0.0){
-                        // // PRESSURE_HALF = 0.0001;
-                        // std::cout << "B WARNING: Exiting on negative half state pressure\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
-                        // exit(0);
+                        // PRESSURE_HALF = 0.0001;
+                        std::cout << "B WARNING: Exiting on negative half state pressure\t";
+                        std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
+                        exit(0);
                 }
                 return ;
         }

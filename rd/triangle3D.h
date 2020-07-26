@@ -512,10 +512,10 @@ public:
 
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
-                        DU3[i] = DT*FLUC_LDA[i][3]/DUAL[3];
+                        DU0[i] = 0.5*DT*FLUC_LDA[i][0] / DUAL[0];
+                        DU1[i] = 0.5*DT*FLUC_LDA[i][1] / DUAL[1];
+                        DU2[i] = 0.5*DT*FLUC_LDA[i][2] / DUAL[2];
+                        DU3[i] = 0.5*DT*FLUC_LDA[i][3] / DUAL[3];
                         // if(PRINT == 1){std::cout << ID << "\tDU i =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
                 // if(ID == 14){std::cout << std::endl;}
@@ -815,16 +815,16 @@ public:
         double area_triangle(double V0[3], double V1[3], double V2[3]){
                 double AREA;
 
-                double L01 = sqrt((V1[0] - V0[0])*(V1[0] - V0[0]) + (V1[1] - V0[1])*(V1[1] - V0[1]) + (V1[2] - V0[2])*(V1[0] - V0[2]));
-                double L02 = sqrt((V2[0] - V0[0])*(V2[0] - V0[0]) + (V2[1] - V0[1])*(V2[1] - V0[1]) + (V2[2] - V0[2])*(V2[0] - V0[2]));
+                double L01 = sqrt((V1[0] - V0[0])*(V1[0] - V0[0]) + (V1[1] - V0[1])*(V1[1] - V0[1]) + (V1[2] - V0[2])*(V1[2] - V0[2]));
+                double L02 = sqrt((V2[0] - V0[0])*(V2[0] - V0[0]) + (V2[1] - V0[1])*(V2[1] - V0[1]) + (V2[2] - V0[2])*(V2[2] - V0[2]));
 
                 double THETA = acos(((V1[0] - V0[0])*(V2[0] - V0[0]) + (V1[1] - V0[1])*(V2[1] - V0[1]) + (V1[2] - V0[2])*(V2[2] - V0[2]))/(L01*L02));
-
-                // std::cout << THETA << std::endl;
 
                 if(THETA > 3.14159/2.0){THETA = 3.14159 - THETA;}
 
                 AREA = 0.5 * (sqrt((V1[0] - V0[0])*(V1[0] - V0[0]) + (V1[1] - V0[1])*(V1[1] - V0[1]) + (V1[2] - V0[2])*(V1[2] - V0[2])) * sqrt((V2[0] - V0[0])*(V2[0] - V0[0]) + (V2[1] - V0[1])*(V2[1] - V0[1]) + (V2[2] - V0[2])*(V2[2] - V0[2]))) * sin(THETA);
+
+                // std::cout << AREA << std::endl;
 
                 return AREA;
         }
@@ -885,6 +885,7 @@ public:
                 VERTEX_0->update_len_vel_sum(CONT);
                 VERTEX_1->update_len_vel_sum(CONT);
                 VERTEX_2->update_len_vel_sum(CONT);
+                VERTEX_3->update_len_vel_sum(CONT);
 
                 return ;
         }

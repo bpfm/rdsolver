@@ -293,7 +293,7 @@ public:
         // calculate min timestep this cell requires
         double calc_next_dt(){
                 double NEXT_DT;
-                NEXT_DT = CFL*2.0*DUAL/LEN_VEL_SUM;
+                NEXT_DT = CFL*3.0*DUAL/LEN_VEL_SUM;
                 DT_REQ  = NEXT_DT;
                 return NEXT_DT;
         }

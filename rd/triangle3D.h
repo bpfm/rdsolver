@@ -588,13 +588,13 @@ public:
                 if(BOUNDARY == 1){
                         for(int i=0; i<4; ++i){
                                 for(int j=0; j<4; ++j){
-                                        if(X[j] - X[i] > 0.5*SIDE_LENGTH_X){
+                                        if(X[j] - X[i] > BND_TOL*SIDE_LENGTH_X){
                                                 X_MOD[i] = X[i] + SIDE_LENGTH_X;
                                         }
-                                        if(Y[j] - Y[i] > 0.5*SIDE_LENGTH_Y){
+                                        if(Y[j] - Y[i] > BND_TOL*SIDE_LENGTH_Y){
                                                 Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
                                         }
-                                        if(Z[j] - Z[i] > 0.5*SIDE_LENGTH_Z){
+                                        if(Z[j] - Z[i] > BND_TOL*SIDE_LENGTH_Z){
                                                 Z_MOD[i] = Z[i] + SIDE_LENGTH_Z;
                                         }
                                 }

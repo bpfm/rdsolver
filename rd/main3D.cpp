@@ -45,8 +45,8 @@ int main(){
 
         /****** Setup initial conditions of one dimensional tube ******/
 
-        std::cout << std::fixed;
-        std::cout << std::setprecision(9);
+        // std::cout << std::fixed;
+        // std::cout << std::setprecision(9);
 
         std::cout << "*********************************************************" << std::endl;
 
@@ -100,12 +100,6 @@ int main(){
                 NEW_VERTEX.reset_len_vel_sum();
                 RAND_POINTS.push_back(NEW_VERTEX);
         }
-
-        // std::cout << RAND_POINTS[935].get_x() << "\t" << RAND_POINTS[935].get_y() << "\t" << RAND_POINTS[935].get_z() << std::endl;
-        // std::cout << RAND_POINTS[86].get_x() << "\t" << RAND_POINTS[86].get_y() << "\t" << RAND_POINTS[86].get_z() << std::endl;
-        // std::cout << RAND_POINTS[794].get_x() << "\t" << RAND_POINTS[794].get_y() << "\t" << RAND_POINTS[794].get_z() << std::endl;
-        // std::cout << RAND_POINTS[882].get_x() << "\t" << RAND_POINTS[882].get_y() << "\t" << RAND_POINTS[882].get_z() << std::endl;
-        // std::cout << std::endl;
 
         /****** Setup mesh ******/
 
@@ -208,6 +202,12 @@ int main(){
 
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                         RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
+                }
+
+                for(i=0; i<N_POINTS; ++i){
+                        NEXT_DT = RAND_POINTS[i].calc_next_dt();      // check dt is min required by CFL
+                        if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
+                        RAND_POINTS[i].reset_len_vel_sum();
                 }
 
                 T += DT;                                                         // increment time

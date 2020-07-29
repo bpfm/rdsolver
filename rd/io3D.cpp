@@ -119,9 +119,9 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
         Z2 = POINTS[VERT2].get_z();
         Z3 = POINTS[VERT3].get_z();
 
-        if(abs(X0 - X1) > 0.6*SIDE_LENGTH_X or abs(X0 - X2) > 0.6*SIDE_LENGTH_X or abs(X0 - X3) > 0.6*SIDE_LENGTH_X or abs(X1 - X2) > 0.6*SIDE_LENGTH_X or abs(X1 - X3) > 0.6*SIDE_LENGTH_X or abs(X2 - X3) > 0.6*SIDE_LENGTH_X or
-           abs(Y0 - Y1) > 0.6*SIDE_LENGTH_Y or abs(Y0 - Y2) > 0.6*SIDE_LENGTH_Y or abs(Y0 - Y3) > 0.6*SIDE_LENGTH_Y or abs(Y1 - Y2) > 0.6*SIDE_LENGTH_Y or abs(Y1 - Y3) > 0.6*SIDE_LENGTH_Y or abs(Y2 - Y3) > 0.6*SIDE_LENGTH_Y or
-           abs(Z0 - Z1) > 0.6*SIDE_LENGTH_Z or abs(Z0 - Z2) > 0.6*SIDE_LENGTH_Z or abs(Z0 - Z3) > 0.6*SIDE_LENGTH_Z or abs(Z1 - Z2) > 0.6*SIDE_LENGTH_Z or abs(Z1 - Z3) > 0.6*SIDE_LENGTH_Z or abs(Z2 - Z3) > 0.6*SIDE_LENGTH_Z){
+        if(abs(X0 - X1) > BND_TOL*SIDE_LENGTH_X or abs(X0 - X2) > BND_TOL*SIDE_LENGTH_X or abs(X0 - X3) > BND_TOL*SIDE_LENGTH_X or abs(X1 - X2) > BND_TOL*SIDE_LENGTH_X or abs(X1 - X3) > BND_TOL*SIDE_LENGTH_X or abs(X2 - X3) > BND_TOL*SIDE_LENGTH_X or
+           abs(Y0 - Y1) > BND_TOL*SIDE_LENGTH_Y or abs(Y0 - Y2) > BND_TOL*SIDE_LENGTH_Y or abs(Y0 - Y3) > BND_TOL*SIDE_LENGTH_Y or abs(Y1 - Y2) > BND_TOL*SIDE_LENGTH_Y or abs(Y1 - Y3) > BND_TOL*SIDE_LENGTH_Y or abs(Y2 - Y3) > BND_TOL*SIDE_LENGTH_Y or
+           abs(Z0 - Z1) > BND_TOL*SIDE_LENGTH_Z or abs(Z0 - Z2) > BND_TOL*SIDE_LENGTH_Z or abs(Z0 - Z3) > BND_TOL*SIDE_LENGTH_Z or abs(Z1 - Z2) > BND_TOL*SIDE_LENGTH_Z or abs(Z1 - Z3) > BND_TOL*SIDE_LENGTH_Z or abs(Z2 - Z3) > BND_TOL*SIDE_LENGTH_Z){
                 NEW_TRIANGLE.set_boundary(1);
                 // std::cout << "Boundary " << std::endl;
         }else{

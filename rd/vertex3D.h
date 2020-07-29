@@ -211,8 +211,8 @@ public:
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
                 U_VARIABLES[3] = U_HALF[3] - DU[3];
                 U_VARIABLES[4] = U_HALF[4] - DU[4];
-                // if(U_VARIABLES[0] <= 0.0){U_VARIABLES[0] = 0.0001;}
-                // if(U_VARIABLES[4] <= 0.0){U_VARIABLES[4] = 0.0001;}
+                if(U_VARIABLES[0] <= MASS_LIM){U_VARIABLES[0] = MASS_LIM;}
+                if(U_VARIABLES[4] <= PRES_LIM){U_VARIABLES[4] = PRES_LIM;}
         }
 
         void update_u_half(){
@@ -222,8 +222,8 @@ public:
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
                 U_HALF[4] = U_VARIABLES[4] - DU_HALF[4];
-                // if(U_HALF[0] <= 0.0){U_HALF[0] = 0.0001;}
-                // if(U_HALF[4] <= 0.0){U_HALF[4] = 0.0001;}
+                if(U_HALF[0] <= MASS_LIM){U_HALF[0] = MASS_LIM;}
+                if(U_HALF[4] <= PRES_LIM){U_HALF[4] = PRES_LIM;}
         }
 
         // calculate sum of length and velocity (used to calculate dt)
@@ -235,29 +235,29 @@ public:
 #ifdef DEBUG
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
-                if (MASS_DENSITY <= 0.0){
-                        // MASS_DENSITY = 0.001;
-                        std::cout << "B WARNING: Exiting on negative density\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
-                        exit(0);
+                if (MASS_DENSITY <= MASS_LIM){
+                        MASS_DENSITY = MASS_LIM;
+                        // std::cout << "B WARNING: Exiting on negative density\t";
+                        // std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
+                        // exit(0);
                 }
-                if (PRESSURE <= 0.0){
-                        // PRESSURE = 0.0001;
-                        std::cout << "B WARNING: Exiting on negative pressure\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
-                        exit(0);
+                if (PRESSURE <= PRES_LIM){
+                        PRESSURE = PRES_LIM;
+                        // std::cout << "B WARNING: Exiting on negative pressure\t";
+                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
+                        // exit(0);
                 }
-                if (MASS_DENSITY_HALF <= 0.0){
-                        // MASS_DENSITY_HALF = 0.001;
-                        std::cout << "B WARNING: Exiting on negative half state density\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
-                        exit(0);
+                if (MASS_DENSITY_HALF <= MASS_LIM){
+                        MASS_DENSITY_HALF = MASS_LIM;
+                        // std::cout << "B WARNING: Exiting on negative half state density\t";
+                        // std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
+                        // exit(0);
                 }
-                if (PRESSURE_HALF <= 0.0){
-                        // PRESSURE_HALF = 0.0001;
-                        std::cout << "B WARNING: Exiting on negative half state pressure\t";
-                        std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
-                        exit(0);
+                if (PRESSURE_HALF <= PRES_LIM){
+                        PRESSURE_HALF = PRES_LIM;
+                        // std::cout << "B WARNING: Exiting on negative half state pressure\t";
+                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
+                        // exit(0);
                 }
                 return ;
         }

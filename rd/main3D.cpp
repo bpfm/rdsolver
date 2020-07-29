@@ -117,6 +117,45 @@ int main(){
 #endif
 #endif
 
+#ifdef SEDOV2D
+        double ETOT = 0.0,ETOT_AIM = 3000.0,PRESSURE_AIM;
+        for(i=0; i<N_POINTS; ++i){
+                if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
+                        AREA_CHECK = AREA_CHECK + RAND_POINTS[i].get_dual();
+                        // std::cout << AREA_CHECK << "\t" << RAND_POINTS[0].get_dual() << std::endl;
+                }
+        }
+        for(i=0; i<N_POINTS; ++i){
+                if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
+                        PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
+                        RAND_POINTS[i].set_pressure(PRESSURE_AIM);
+                        ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
+                        std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        RAND_POINTS[i].setup_specific_energy();
+                        RAND_POINTS[i].prim_to_con();
+                }
+        }
+#endif
+#ifdef SEDOV3D
+        double ETOT = 0.0,ETOT_AIM = 3000.0,PRESSURE_AIM;
+        for(i=0; i<N_POINTS; ++i){
+                if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) + (RAND_POINTS[i].get_z()-5.0)*(RAND_POINTS[i].get_z()-5.0) < R_BLAST*R_BLAST){
+                        AREA_CHECK = AREA_CHECK + RAND_POINTS[i].get_dual();
+                        // std::cout << AREA_CHECK << "\t" << RAND_POINTS[0].get_dual() << std::endl;
+                }
+        }
+        for(i=0; i<N_POINTS; ++i){
+                if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) + (RAND_POINTS[i].get_z()-5.0)*(RAND_POINTS[i].get_z()-5.0) < R_BLAST*R_BLAST){
+                        PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
+                        RAND_POINTS[i].set_pressure(PRESSURE_AIM);
+                        ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
+                        std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        RAND_POINTS[i].setup_specific_energy();
+                        RAND_POINTS[i].prim_to_con();
+                }
+        }
+#endif
+
         /****** Set initial timestep  ******/
 
         std::cout << "Finding initial timestep ..." << std::endl;
@@ -147,7 +186,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -205,7 +244,8 @@ int main(){
                 }
 
                 for(i=0; i<N_POINTS; ++i){
-                        NEXT_DT = RAND_POINTS[i].calc_next_dt();      // check dt is min required by CFL
+                        NEXT_DT = T_TOT - (T + DT);
+                        POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();      // check dt is min required by CFL
                         if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                         RAND_POINTS[i].reset_len_vel_sum();
                 }

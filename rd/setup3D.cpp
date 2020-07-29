@@ -75,7 +75,7 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
 #endif
-#ifdef SEDOV
+#ifdef SEDOV2D
                  // if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
 
         double RHO = 1.0;
@@ -85,9 +85,31 @@ VERTEX setup_vertex(double X, double Y, double Z){
         double R = sqrt((X - 5.0)*(X - 5.0) + (Y - 5.0)*(Y - 5.0));
 
         if(R < R_BLAST){
-                P = 1000000.0;
+                // P = 1000000.0;
                 // P = 1000.0;
                 std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\t" << P << std::endl;
+                POINT_CHECK ++;
+        }
+
+        NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
+        NEW_VERTEX.set_x_velocity(V);                             // units m/s
+        NEW_VERTEX.set_y_velocity(V);
+        NEW_VERTEX.set_pressure(P);                             // units N/m^2
+
+#endif
+#ifdef SEDOV3D
+                 // if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
+
+        double RHO = 1.0;
+        double V = 0.00000001;
+        double P = 100.0;
+
+        double R = sqrt((X - 5.0)*(X - 5.0) + (Y - 5.0)*(Y - 5.0) + (Z - 5.0)*(Z - 5.0));
+
+        if(R < R_BLAST){
+                // P = 1000000.0;
+                // P = 1000.0;
+                std::cout << POINT_CHECK << "\tSetting blast pressure point at\t" << X << "\t" << Y << "\t" << Z << "\t" << P << std::endl;
                 POINT_CHECK ++;
         }
 
@@ -104,7 +126,8 @@ VERTEX setup_vertex(double X, double Y, double Z){
         double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
         double X_VELOCITY = 2.0,PRESSURE = 100.0;
 
-        S = sqrt((CENTREX - X)*(CENTREX - X) + (CENTREY - Y)*(CENTREY - Y) + (CENTREZ - Z)*(CENTREZ - Z));            // distance from centre of pulse
+        // S = sqrt((CENTREX - X)*(CENTREX - X) + (CENTREY - Y)*(CENTREY - Y) + (CENTREZ - Z)*(CENTREZ - Z));            // distance from centre of pulse
+        S = std::abs(CENTREX - X);
 
         W = 0.1;                                                 // characteristic width
 

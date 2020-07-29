@@ -86,7 +86,7 @@ int main(){
 
         std::cout << "Reading CGAL vertex positions ..." << std::endl;
 
-        CGAL_FILE_NAME = "triangulation/cgal/3d/output.txt";
+        CGAL_FILE_NAME = "Delaunay3D.txt";
 
         CGAL_FILE.open(CGAL_FILE_NAME);
 

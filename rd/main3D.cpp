@@ -244,7 +244,7 @@ int main(){
                 }
 
                 for(i=0; i<N_POINTS; ++i){
-                        NEXT_DT = T_TOT - (T + DT);
+                        NEXT_DT = NEXT_TIME - (T + DT);
                         POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();      // check dt is min required by CFL
                         if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                         RAND_POINTS[i].reset_len_vel_sum();

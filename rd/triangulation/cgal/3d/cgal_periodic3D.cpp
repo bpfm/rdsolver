@@ -13,9 +13,9 @@ typedef CGAL::Periodic_3_Delaunay_triangulation_traits_3<K>       Gt;
 typedef CGAL::Periodic_3_Delaunay_triangulation_3<Gt>             P3DT3;
 typedef P3DT3::Point             Point;
 typedef P3DT3::Iso_cuboid        Iso_cuboid;
-typedef P3DT3::Vertex_handle     Vertex_handle;
-typedef P3DT3::Cell_handle       Cell_handle;
-typedef P3DT3::Locate_type       Locate_type;
+// typedef P3DT3::Vertex_handle     Vertex_handle;
+// typedef P3DT3::Cell_handle       Cell_handle;
+// typedef P3DT3::Locate_type       Locate_type;
 
 
 #define RANDOMIC
@@ -24,14 +24,14 @@ typedef P3DT3::Locate_type       Locate_type;
 // #define PERTUNIFORMOFFSETIC
 
 int main(){
-        float xmax=1.0,ymax=1.0,zmax=1.0;
+        float xmax=10.0,ymax=10.0,zmax=10.0;
         Iso_cuboid domain(0, 0, 0, xmax, ymax, zmax); // The cube for the periodic domain
 
         // construction from a list of points :
         std::list<Point> L;
 
         int i,j,k;
-        int nx=24, ny=24, nz=24, count=nx*ny*nz;
+        int nx=64, ny=64, nz=64, count=nx*ny*nz;
         float x,y,z,xmove,ymove,zmove;
 
 #ifdef RANDOMIC
@@ -39,6 +39,14 @@ int main(){
                 x = xmax*(rand() % 10000)/10000.0;
                 y = ymax*(rand() % 10000)/10000.0;
                 z = zmax*(rand() % 10000)/10000.0;
+                // if(float(i) < count/3.0){
+                //         z = 2.5;
+                // }
+                // else if(float(i) < 2.0*count/3.0){
+                //         z = 5.0;
+                // }else{
+                //         z = 7.5;
+                // }
                 // std::cout << x << "\t" << y << "\t" << z << std::endl;
                 L.push_back(Point(x,y,z));
         }
@@ -76,9 +84,16 @@ int main(){
 
         P3DT3 T(L.begin(), L.end(), domain); // Put the domain with the constructor
 
+        assert( T.is_valid() ); // checking validity of T
+
+        // std::cout << T.number_of_sheets()[0] << "\t" << T.number_of_sheets()[1] << "\t" << T.number_of_sheets()[2] << std::endl;
+
         T.convert_to_1_sheeted_covering();
 
-        std::ofstream oFileT("output.txt", std::ios::out);
+        // std::cout << T.number_of_sheets()[0] << "\t" << T.number_of_sheets()[1] << "\t" << T.number_of_sheets()[2] << std::endl;
+
+
+        std::ofstream oFileT("../../../Delaunay3D.txt", std::ios::out);
         // writing file output;
         oFileT << T;
 

@@ -150,7 +150,7 @@ int main(){
         std::cout << "Number of triangles = " << N_TRIANG << std::endl;
 
         for(j=0; j<N_TRIANG; ++j){
-                NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS);
+                NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS,j);
                 NEW_TRIANGLE.set_tbin(1);
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
@@ -170,7 +170,7 @@ int main(){
                         PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
                         RAND_POINTS[i].set_pressure(PRESSURE_AIM);
                         ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
-                        std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        std::cout << POINT_CHECK << "\t" << PRESSURE_AIM << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
                         RAND_POINTS[i].setup_specific_energy();
                         RAND_POINTS[i].prim_to_con();
                 }
@@ -242,11 +242,12 @@ int main(){
                                 RAND_MESH[j].calculate_first_half(T);
                         }
                         // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                }
-
-                for(j=0;j<N_TRIANG;++j){
                         RAND_MESH[j].pass_update_half(DT);
                 }
+
+                // for(j=0;j<N_TRIANG;++j){
+                //         RAND_MESH[j].pass_update_half(DT);
+                // }
 
 #ifdef PARA_UP
                 #pragma omp parallel for

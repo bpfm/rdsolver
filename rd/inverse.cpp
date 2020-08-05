@@ -3,11 +3,9 @@ lapack_int mat_inv(double *A, unsigned n, double X, double Y, int step){
         lapack_int ret;
 
         ret =  LAPACKE_dgetrf(LAPACK_COL_MAJOR,n,n,A,n,ipiv);
-
 #ifdef DEBUG
         std::cout << "ret =\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular)" << std::endl;
 #endif
-
         if(ret !=0){
                 std::cout << "B WARNING: MATRIX CANNOT BE INVERTED\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular) at " << X << "\t" << Y << "\tPoint =\t" << step << std::endl;
                 for(int i=0;i<n*n;++i){
@@ -17,9 +15,9 @@ lapack_int mat_inv(double *A, unsigned n, double X, double Y, int step){
                 exit(0);
                 return ret;
         }
-
+        // std::cout << "ret =\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular)" << std::endl;
         ret = LAPACKE_dgetri(LAPACK_COL_MAJOR,n,A,n,ipiv);
-
+        // std::cout << "ret =\t" << ret << "\t(0 = done, <0 = illegal arguement, >0 = singular)" << std::endl;
         return ret;
 }
 

@@ -51,6 +51,8 @@ private:
 
         double MAG[3];
 
+        int PRINT;
+
 public:
 
         void set_id(int NEW_ID){ID = NEW_ID;}
@@ -261,9 +263,7 @@ public:
                 C   = C_SOUND_AVG;
 
                 U_C = U/C;
-
                 V_C = V/C;
-
                 H_C = H_AVG/C;
 
                 ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
@@ -358,7 +358,6 @@ public:
                         std::cout << std::endl;
 #endif
                 }
-                // exit(0);
 
 
 #ifdef DEBUG
@@ -405,7 +404,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],1);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],1);
 
                 // std::cout << "Post-inversion =" << std::endl;
 
@@ -522,7 +521,6 @@ public:
                         DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
                         DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
-                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
                 }
 #endif
 
@@ -531,7 +529,6 @@ public:
                         DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
                         DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
-                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
                 }
 #endif
 
@@ -906,7 +903,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],2);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],2);
 
                 double AREA_DIFF[4][3];
                 double BRACKET[4][3];
@@ -1025,6 +1022,11 @@ public:
 
                 return ;
         }
+
+        // void pass_update(double DT){
+
+
+        // }
 
         // Returns Roe average of left and right states
         double roe_avg(double L1, double L2, double R1, double R2){
@@ -1200,9 +1202,7 @@ public:
                 VERTEX *TEMP_VERTEX;
 
                 TEMP_VERTEX = VERTEX_1;
-
                 VERTEX_1 = VERTEX_2;
-
                 VERTEX_2 = TEMP_VERTEX;
 
                 return;

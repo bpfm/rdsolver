@@ -26,7 +26,7 @@ VERTEX setup_vertex(double X, double Y){
 #ifdef SODX
                 // std::cout << "Using 1D Sod Shock Tube (Varied in X)" << std::endl;}
 
-        if(X<0.5*SIDE_LENGTH_X){
+        if(X>0.25*SIDE_LENGTH_X and X<0.75*SIDE_LENGTH_X){
                 NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
                 NEW_VERTEX.set_x_velocity(0.000000001);                       // units m/s
                 NEW_VERTEX.set_y_velocity(0.000000001);                       // units m/s
@@ -100,7 +100,7 @@ VERTEX setup_vertex(double X, double Y){
 #ifdef GAUSSX
                 // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse" << std::endl;}
 
-        double CENTRE = 0.3;
+        double CENTRE = 0.5;
         double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
         double X_VELOCITY = 2.0,PRESSURE = 100.0;
 
@@ -118,7 +118,7 @@ VERTEX setup_vertex(double X, double Y){
 #ifdef GAUSSY
                 // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse (y-direction)" << std::endl;}
 
-        double CENTRE = 0.2;
+        double CENTRE = 0.3;
         double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
         double Y_VELOCITY = 2.0,PRESSURE = 100.0;
 
@@ -157,12 +157,12 @@ VERTEX setup_vertex(double X, double Y){
 
         if(X == X_C and Y == Y_C){X_VEL = Y_VEL = 0.00000001;}
 
-        std::cout << X << "\t" << Y << "\t" << X_VEL << "\t" << Y_VEL << std::endl;
+        std::cout << X << "\t" << Y << "\t" << X_VEL << "\t" << Y_VEL << "\t" << sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL) << std::endl;
 
-        NEW_VERTEX.set_mass_density(1.0);
+        NEW_VERTEX.set_mass_density(10.0);
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);
-        NEW_VERTEX.set_pressure(0.1);
+        NEW_VERTEX.set_pressure(1.0);
 
 #endif
 #ifdef KHX
@@ -177,7 +177,7 @@ VERTEX setup_vertex(double X, double Y){
         }
 
         NEW_VERTEX.set_y_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_X)*X));
-        NEW_VERTEX.set_pressure(1.0);
+        NEW_VERTEX.set_pressure(2.5);
 
 #endif
 #ifdef KHY
@@ -192,7 +192,7 @@ VERTEX setup_vertex(double X, double Y){
         }
 
         NEW_VERTEX.set_x_velocity(0.05*sin((2.0*3.1415/SIDE_LENGTH_Y)*Y));
-        NEW_VERTEX.set_pressure(1.0);
+        NEW_VERTEX.set_pressure(2.5);
 
 #endif
 #ifdef KHXSMOOTH

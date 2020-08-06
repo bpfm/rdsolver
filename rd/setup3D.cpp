@@ -94,7 +94,7 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
         NEW_VERTEX.set_x_velocity(V);                             // units m/s
         NEW_VERTEX.set_y_velocity(V);
-	NEW_VERTEX.set_z_velocity(V);
+        NEW_VERTEX.set_z_velocity(V);
         NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
 #endif

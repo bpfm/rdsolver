@@ -488,10 +488,10 @@ public:
 
 #ifdef N_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
-                        DU3[i] = DT*FLUC_N[i][3]/DUAL[3];
+                        DU0[i] = 0.5*DT*FLUC_N[i][0]/DUAL[0];
+                        DU1[i] = 0.5*DT*FLUC_N[i][1]/DUAL[1];
+                        DU2[i] = 0.5*DT*FLUC_N[i][2]/DUAL[2];
+                        DU3[i] = 0.5*DT*FLUC_N[i][3]/DUAL[3];
                 }
 #endif
 

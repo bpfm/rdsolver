@@ -118,7 +118,7 @@ int main(){
 #endif
 
 #ifdef SEDOV2D
-        double ETOT = 0.0,ETOT_AIM = 3000.0,PRESSURE_AIM;
+        double ETOT = 0.0,ETOT_AIM = 300000.0,PRESSURE_AIM;
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
                         AREA_CHECK = AREA_CHECK + RAND_POINTS[i].get_dual();

@@ -117,8 +117,8 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
         NEW_VERTEX.set_x_velocity(V);                             // units m/s
         NEW_VERTEX.set_y_velocity(V);
-	NEW_VERTEX.set_z_velocity(V);
-	NEW_VERTEX.set_pressure(P);                             // units N/m^2
+        NEW_VERTEX.set_z_velocity(V);
+        NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
 #endif
 #ifdef GAUSS3D
@@ -243,7 +243,7 @@ VERTEX setup_vertex(double X, double Y, double Z){
 
         double CENTRE_X = 0.25*SIDE_LENGTH_X;
         double CENTRE_Y = 0.50*SIDE_LENGTH_Y;
-	double CENTRE_Z = 0.50*SIDE_LENGTH_Z;
+        double CENTRE_Z = 0.50*SIDE_LENGTH_Z;
 
         double MACH = 1.5;
 
@@ -258,7 +258,7 @@ VERTEX setup_vertex(double X, double Y, double Z){
         }
 
         NEW_VERTEX.set_y_velocity(0.00000001);
-	NEW_VERTEX.set_z_velocity(0.00000001);
+        NEW_VERTEX.set_z_velocity(0.00000001);
         NEW_VERTEX.set_pressure(100.0);
 
 #endif

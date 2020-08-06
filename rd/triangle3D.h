@@ -487,7 +487,7 @@ public:
 #endif
 
 #ifdef N_SCHEME
-                for(i=0;i<4;i++){
+                for(i=0;i<5;i++){
                         DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
                         DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
                         DU2[i] = DT*FLUC_N[i][2]/DUAL[2];

@@ -238,25 +238,25 @@ public:
                 if (MASS_DENSITY <= MASS_LIM){
                         MASS_DENSITY = MASS_LIM;
                         std::cout << "B WARNING: Exiting on negative density\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
+                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
                         // exit(0);
                 }
                 if (PRESSURE <= PRES_LIM){
                         PRESSURE = PRES_LIM;
                         std::cout << "B WARNING: Exiting on negative pressure\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
+                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
                         // exit(0);
                 }
                 if (MASS_DENSITY_HALF <= MASS_LIM){
                         MASS_DENSITY_HALF = MASS_LIM;
                         std::cout << "B WARNING: Exiting on negative half state density\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
+                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
                         // exit(0);
                 }
                 if (PRESSURE_HALF <= PRES_LIM){
                         PRESSURE_HALF = PRES_LIM;
                         std::cout << "B WARNING: Exiting on negative half state pressure\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
+                        std::cout << ID <<  "\tPosition =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
                         // exit(0);
                 }
                 return ;

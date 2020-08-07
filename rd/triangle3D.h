@@ -204,6 +204,8 @@ public:
                 setup_positions();
                 setup_initial_state();
 
+		if(ID == 402){print_triangle_state();}
+		
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 // Calculate inflow parameters
 
@@ -380,7 +382,7 @@ public:
                         }
                 }
 
-                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],0);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],ID);
 
                 // Calculate spatial splitting for first half timestep
 

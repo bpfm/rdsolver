@@ -209,7 +209,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);

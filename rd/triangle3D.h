@@ -195,17 +195,16 @@ public:
         // Calculate first half timestep change, passing change to vertice
         void calculate_first_half(double T){
                 int i,j,m,p;
-
                 double INFLOW[5][5][4][3];        // K+, K-, K matrices for each vertex (m index for vertices, p index for +,-,0)
-                double C_SOUND[4];
 
                 // Import conditions and positions of vertices
 
                 setup_positions();
                 setup_initial_state();
 
-		if(ID == 402){print_triangle_state();}
-		
+                // if(ID == 402){std::cout << VERTEX_2->get_id() << std::endl;}
+                // if(ID == 402){print_triangle_state();}
+
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 // Calculate inflow parameters
 
@@ -213,7 +212,7 @@ public:
                 double RHO,C,VX,VX_C,VY,VY_C,VZ,VZ_C,H_AVG,H_C,ALPHA,ALPHA_C,W,NORM;
                 double Z_ROE[5][4];
                 double VALUE1,VALUE2,VALUE3,VALUE12,VALUE123;
-                double PRESSURE_AVG,C_SOUND_AVG;
+                double PRESSURE_AVG;
                 double LAMBDA[5][4],LAMBDA_PLUS[5][4],LAMBDA_MINUS[5][4];
                 double N_X[4],N_Y[4],N_Z[4];
 
@@ -232,6 +231,8 @@ public:
                 // }
 
                 // if(PRINT == 1){print_triangle_state();}
+
+                // if(ID == 402){std::cout << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << "\t" << PRESSURE[3] << std::endl;}
 
                 for(m=0;m<4;++m){
                         Z_ROE[0][m] = sqrt(U_N[0][m]);
@@ -268,10 +269,12 @@ public:
                 VZ    = (sqrt(U_N[0][0])*U_N[3][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[3][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[3][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[3][3]/U_N[0][3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
                 H_AVG = (sqrt(U_N[0][0])*H[0] + sqrt(U_N[0][1])*H[1] + sqrt(U_N[0][2])*H[2] + sqrt(U_N[0][3])*H[3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
 
-                PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
-                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
+                // if(ID == 402){std::cout << H[0] << "\t" << H[1] << "\t" << H[2] << "\t" << H[3] << std::endl;}
 
-                C = C_SOUND_AVG;
+                PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
+                C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
+
+                // if(ID == 402){std::cout << C << "\t" << H_AVG << "\t" << (VX*VX + VY*VY + VZ*VZ)/2.0 << "\t" << std::endl;}
 
                 VX_C = VX/C;
                 VY_C = VY/C;
@@ -372,6 +375,8 @@ public:
                 }
 
                 double INFLOW_MINUS_SUM[5][5];
+
+                // if(ID == 402){std::cout << INFLOW[0][0][0][1] << "\t" << INFLOW[0][0][1][1] << "\t" << INFLOW[0][0][2][1] << "\t" << INFLOW[0][0][3][1] << "\t" << std::endl;}
 
                 for(i=0;i<5;++i){
                         for(j=0;j<5;++j){
@@ -475,9 +480,6 @@ public:
                 DUAL[2] = VERTEX_2->get_dual();
                 DUAL[3] = VERTEX_3->get_dual();
 
-                // if(PRINT == 1){std::cout << "DUAL =\t" << DUAL[0] << "\t" << DUAL[1] << "\t" << DUAL[2] << "\t" << DUAL[3] << std::endl;}
-                // if(PRINT == 1){std::cout << "DT =\t" << DT << std::endl;}
-
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
                         DU0[i] = 0.5*DT*FLUC_LDA[i][0] / DUAL[0];
@@ -523,6 +525,8 @@ public:
                 // double DT = DT_TOT;
 
                 setup_half_state();
+
+                // if(ID == 402){print_triangle_state();}
 
 #ifdef FIRST_ORDER
                 for(i=0;i<5;i++){
@@ -572,7 +576,7 @@ public:
         }
 
         void check_theta(double THETA){
-                if (THETA > 3.14159/2.0 and THETA < 3.15/2.0){
+                if (THETA > 3.148/2.0 and THETA < 3.15/2.0){
                         std::cout << "B ERROR: TRIANGLE EXTREMLY ELONGATED: THETA =\t" << THETA << "\tID =\t" << ID << std::endl;
                         // exit(0);
                 }
@@ -700,10 +704,10 @@ public:
                 // std::cout << "n3\t" << PERP[3][0] << "\t" << PERP[3][1] << "\t" << PERP[3][2] << std::endl;
                 // std::cout << std::endl;
 
-                check_theta(THETA0);
-                check_theta(THETA1);
-                check_theta(THETA2);
-                check_theta(THETA3);
+                // check_theta(THETA0);
+                // check_theta(THETA1);
+                // check_theta(THETA2);
+                // check_theta(THETA3);
 
                 if(THETA0 > 3.1416/2.0){
                         // std::cout << "Flipping 0th Normal" << std::endl;

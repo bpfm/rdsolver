@@ -45,8 +45,8 @@ int main(){
 
         /****** Setup initial conditions of one dimensional tube ******/
 
-        // std::cout << std::fixed;
-        // std::cout << std::setprecision(9);
+        std::cout << std::fixed;
+        std::cout << std::setprecision(6);
 
         std::cout << "*********************************************************" << std::endl;
 
@@ -186,7 +186,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -215,9 +215,12 @@ int main(){
 #endif
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                         RAND_POINTS[i].update_u_half();                        // update the half time state
-                        RAND_POINTS[i].con_to_prim_half();
                         RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep
+                        RAND_POINTS[i].check_values_half(i);
+                        RAND_POINTS[i].con_to_prim_half();
                 }
+
+                // std::cout << "2nd STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
 
 #ifdef PARA_RES
                 #pragma omp parallel for
@@ -231,8 +234,9 @@ int main(){
 #endif
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                         RAND_POINTS[i].update_u_variables();                   // update the fluid state at vertex
-                        RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                         RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep
+                        RAND_POINTS[i].check_values(i);
+                        RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
 
 // #ifdef SELF_GRAVITY

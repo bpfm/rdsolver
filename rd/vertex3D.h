@@ -60,6 +60,12 @@ public:
         void set_pressure(     double NEW_PRESSURE){    PRESSURE      = NEW_PRESSURE;}
         void set_pressure_half(double NEW_PRESSURE){    PRESSURE_HALF = NEW_PRESSURE;}
 
+        void set_u0(double NEW){U_VARIABLES[0] = NEW;}
+        void set_u1(double NEW){U_VARIABLES[1] = NEW;}
+        void set_u2(double NEW){U_VARIABLES[2] = NEW;}
+        void set_u3(double NEW){U_VARIABLES[3] = NEW;}
+        void set_u4(double NEW){U_VARIABLES[4] = NEW;}
+
         // add triangle to list of those associated with this vertex
 
         void add_triang(int NEW_TRIANGLE){ASSOC_TRIANG.push_back(NEW_TRIANGLE);} // not used yet
@@ -108,6 +114,21 @@ public:
                 SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
         }
 
+        // recacluate pressure based on current primitive varaibles
+        void recalculate_pressure(){
+                double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY + Z_VELOCITY*Z_VELOCITY;
+                // if(ID == 497){std::cout << SPECIFIC_ENERGY << "\t" << VEL_SQ_SUM << std::endl;}
+                PRESSURE = (GAMMA-1.0) * MASS_DENSITY * (SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
+                if(PRESSURE <= PRES_LIM){PRESSURE = PRES_LIM;}
+        }
+
+        void recalculate_pressure_half(){
+                double VEL_SQ_SUM = X_VELOCITY_HALF*X_VELOCITY_HALF + Y_VELOCITY_HALF*Y_VELOCITY_HALF + Z_VELOCITY_HALF*Z_VELOCITY_HALF;
+                // if(ID == 497){std::cout << SPECIFIC_ENERGY_HALF << "\t" << VEL_SQ_SUM << std::endl;}
+                PRESSURE_HALF = (GAMMA-1.0) * MASS_DENSITY_HALF * (SPECIFIC_ENERGY_HALF - VEL_SQ_SUM/2.0);
+                if(PRESSURE_HALF <= PRES_LIM){PRESSURE_HALF = PRES_LIM;}
+        }
+
         void calculate_dual(double CONTRIBUTION){DUAL = DUAL + CONTRIBUTION;}
 
         void prim_to_con(){
@@ -143,31 +164,22 @@ public:
                 Z_VELOCITY      = U_VARIABLES[3]/MASS_DENSITY;
                 SPECIFIC_ENERGY = U_VARIABLES[4]/MASS_DENSITY;
                 recalculate_pressure();
-                check_values();
+                // check_values();
                 // prim_to_con();
         }
 
         void con_to_prim_half(){
+                // check_values();
                 MASS_DENSITY_HALF    = U_HALF[0];
-                X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY;
-                Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY;
-                Z_VELOCITY_HALF      = U_HALF[3]/MASS_DENSITY;
-                SPECIFIC_ENERGY_HALF = U_HALF[4]/MASS_DENSITY;
+                X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY_HALF;
+                Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY_HALF;
+                Z_VELOCITY_HALF      = U_HALF[3]/MASS_DENSITY_HALF;
+                SPECIFIC_ENERGY_HALF = U_HALF[4]/MASS_DENSITY_HALF;
                 recalculate_pressure_half();
-                check_values();
                 // prim_to_con_half();
         }
 
-        // recacluate pressure based on updated primitive varaibles
-        void recalculate_pressure(){
-                double VEL_SQ_SUM = X_VELOCITY*X_VELOCITY + Y_VELOCITY*Y_VELOCITY + Z_VELOCITY*Z_VELOCITY;
-                PRESSURE = (GAMMA-1.0) * MASS_DENSITY * (SPECIFIC_ENERGY - VEL_SQ_SUM/2.0);
-        }
 
-        void recalculate_pressure_half(){
-                double VEL_SQ_SUM = X_VELOCITY_HALF*X_VELOCITY_HALF + Y_VELOCITY_HALF*Y_VELOCITY_HALF + Z_VELOCITY_HALF*Z_VELOCITY_HALF;
-                PRESSURE_HALF = (GAMMA-1.0) * MASS_DENSITY_HALF * (SPECIFIC_ENERGY_HALF - VEL_SQ_SUM/2.0);
-        }
 
         // reset the changes in primative variables
         void reset_du(){DU[0] = DU[1] = DU[2] = DU[3] = DU[4] = 0.0;}
@@ -211,8 +223,9 @@ public:
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
                 U_VARIABLES[3] = U_HALF[3] - DU[3];
                 U_VARIABLES[4] = U_HALF[4] - DU[4];
-                if(U_VARIABLES[0] <= MASS_LIM){U_VARIABLES[0] = MASS_LIM;}
-                if(U_VARIABLES[4] <= PRES_LIM){U_VARIABLES[4] = PRES_LIM;}
+                // if(U_VARIABLES[0] <= MASS_LIM){U_VARIABLES[0] = MASS_LIM;}
+                // if(U_VARIABLES[4] <= PRES_LIM){U_VARIABLES[4] = PRES_LIM;}
+                // con_to_prim();
         }
 
         void update_u_half(){
@@ -222,8 +235,9 @@ public:
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
                 U_HALF[4] = U_VARIABLES[4] - DU_HALF[4];
-                if(U_HALF[0] <= MASS_LIM){U_HALF[0] = MASS_LIM;}
-                if(U_HALF[4] <= PRES_LIM){U_HALF[4] = PRES_LIM;}
+                // if(U_HALF[0] <= MASS_LIM){U_HALF[0] = MASS_LIM;}
+                // if(U_HALF[4] <= PRES_LIM){U_HALF[4] = PRES_LIM;}
+                // con_to_prim_half();
         }
 
         // calculate sum of length and velocity (used to calculate dt)
@@ -231,32 +245,37 @@ public:
                 LEN_VEL_SUM = LEN_VEL_SUM + CONTRIBUTION;
         }
 
-        void check_values(){
+        void check_values(int i){
 #ifdef DEBUG
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
-                if (MASS_DENSITY <= MASS_LIM){
-                        MASS_DENSITY = MASS_LIM;
-                        std::cout << "B WARNING: Exiting on negative density\t";
-                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
+                if (U_VARIABLES[0] <= MASS_LIM){
+                        U_VARIABLES[0] = MASS_LIM;
+                        U_VARIABLES[1] = U_VARIABLES[2] = U_VARIABLES[3] = 0.000001;
+                        // std::cout << "B WARNING: Exiting on negative density\t";
+                        // std::cout << i << "\t" << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
                         // exit(0);
                 }
-                if (PRESSURE <= PRES_LIM){
-                        PRESSURE = PRES_LIM;
-                        std::cout << "B WARNING: Exiting on negative pressure\t";
-                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
+                if (U_VARIABLES[4] <= PRES_LIM){
+                        U_VARIABLES[4] = PRES_LIM;
+                        // std::cout << "B WARNING: Exiting on negative energy\t";
+                        // std::cout << i << "\t" << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[4] << std::endl;
                         // exit(0);
                 }
-                if (MASS_DENSITY_HALF <= MASS_LIM){
-                        MASS_DENSITY_HALF = MASS_LIM;
-                        std::cout << "B WARNING: Exiting on negative half state density\t";
-                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
+        }
+        
+        void check_values_half(int i){
+                if (U_HALF[0] <= MASS_LIM){
+                        U_HALF[0] = MASS_LIM;
+                        U_HALF[1] = U_HALF[2] = U_HALF[3] = 0.000001;
+                        // std::cout << "B WARNING: Exiting on negative half state density\t";
+                        // std::cout << i << "\t" << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
                         // exit(0);
                 }
-                if (PRESSURE_HALF <= PRES_LIM){
-                        PRESSURE_HALF = PRES_LIM;
-                        std::cout << "B WARNING: Exiting on negative half state pressure\t";
-                        std::cout << ID <<  "\tPosition =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
+                if (U_HALF[4] <= PRES_LIM){
+                        U_HALF[4] = PRES_LIM;
+                        // std::cout << "B WARNING: Exiting on negative half state energy\t";
+                        // std::cout << i << "\t" << ID <<  "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY_HALF =\t" << U_HALF[4] << std::endl;
                         // exit(0);
                 }
                 return ;

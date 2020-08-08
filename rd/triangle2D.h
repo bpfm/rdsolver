@@ -253,6 +253,8 @@ public:
                 C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
+                if(std::isnan(C)){C = PRES_LIM;}
+
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
                 std::cout << "C_SOUND_AVG  =\t" << C_SOUND_AVG  << std::endl;

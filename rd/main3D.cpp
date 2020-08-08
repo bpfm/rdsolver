@@ -186,7 +186,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -246,7 +246,7 @@ int main(){
                 }
 
                 for(i=0; i<N_POINTS; ++i){
-                        NEXT_DT = NEXT_TIME - (T + DT);
+                        NEXT_DT = T_TOT - (T + DT);
                         POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();      // check dt is min required by CFL
                         if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                         RAND_POINTS[i].reset_len_vel_sum();

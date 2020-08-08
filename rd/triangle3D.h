@@ -262,6 +262,10 @@ public:
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
 
+		if(std::isnan(C)){C = PRES_LIM;}
+		
+		// if(ID == 643245){std::cout << C << std::endl;}
+		
                 VX_C = VX/C;
                 VY_C = VY/C;
                 VZ_C = VZ/C;

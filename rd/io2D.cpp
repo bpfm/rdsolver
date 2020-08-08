@@ -160,7 +160,7 @@ VERTEX cgal_read_positions_line(std::ifstream &CGAL_FILE){
 }
 
 // read indices of vertices for one CGAL triangle
-TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS){
+TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS, int ID){
         int VERT0,VERT1,VERT2;
         TRIANGLE NEW_TRIANGLE;
 
@@ -169,6 +169,8 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
         NEW_TRIANGLE.set_vertex_0(&POINTS[VERT0]);
         NEW_TRIANGLE.set_vertex_1(&POINTS[VERT1]);
         NEW_TRIANGLE.set_vertex_2(&POINTS[VERT2]);
+
+        NEW_TRIANGLE.set_id(ID);
 
         // std::cout << POINTS[VERT0].get_x() << "\t" << POINTS[VERT1].get_x() << "\t" << POINTS[VERT2].get_x() << std::endl;
 

@@ -215,6 +215,7 @@ public:
                 if (U_VARIABLES[0] <= MASS_LIM){
                         U_VARIABLES[0] = MASS_LIM;
                         U_VARIABLES[1] = U_VARIABLES[2] = U_VARIABLES[3] = 0.000001;
+                        U_VARIABLES[3] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
                         // exit(0);
@@ -231,6 +232,7 @@ public:
                 if (U_HALF[0] <= MASS_LIM){
                         U_HALF[0] = MASS_LIM;
                         U_HALF[1] = U_HALF[2] = U_HALF[3] = 0.000001;
+                        U_HALF[3] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
                         // exit(0);

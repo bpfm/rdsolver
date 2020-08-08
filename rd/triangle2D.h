@@ -195,7 +195,7 @@ public:
                 double RHO,C,U,U_C,V,V_C,H_AVG,H_C,ALPHA,ALPHA_C,W;
                 double Z[4][3];
                 double VALUE1,VALUE2,VALUE3,VALUE4,VALUE12,VALUE123;
-                double PRESSURE_AVG,C_SOUND_AVG;
+                double PRESSURE_AVG;
                 double LAMBDA[4][3],LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
 
@@ -250,19 +250,17 @@ public:
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+                C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
                 if(std::isnan(C)){C = PRES_LIM;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
-                std::cout << "C_SOUND_AVG  =\t" << C_SOUND_AVG  << std::endl;
+                std::cout << "C_SOUND_AVG  =\t" << C << std::endl;
 #endif
 
                 // Reassign variables to local equivalents
-
-                C   = C_SOUND_AVG;
 
                 U_C = U/C;
                 V_C = V/C;
@@ -325,7 +323,6 @@ public:
                                         std::cout << "K" << std::endl;
 #endif
                                 }
-
 
                                 VALUE12  = (VALUE1 - VALUE2)/2.0;
                                 VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
@@ -394,7 +391,6 @@ public:
                 std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
 #endif
 
-
                 double INFLOW_MINUS_SUM[4][4];
 
                 for(i=0;i<4;++i){
@@ -406,7 +402,7 @@ public:
                         }
                 }
 
-                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],1);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID);
 
                 // std::cout << "Post-inversion =" << std::endl;
 

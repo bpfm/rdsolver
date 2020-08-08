@@ -254,8 +254,9 @@ int main(){
 #endif
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                         RAND_POINTS[i].update_u_half();                        // update the half time state
-                        RAND_POINTS[i].con_to_prim_half();
                         RAND_POINTS[i].reset_du_half();                        // reset du value to zero for next timestep
+                        RAND_POINTS[i].check_values_half();
+                        RAND_POINTS[i].con_to_prim_half();
                 }
 
 #ifdef PARA_RES
@@ -270,8 +271,9 @@ int main(){
 #endif
                 for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                         RAND_POINTS[i].update_u_variables();                   // update the fluid state at vertex
-                        RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                         RAND_POINTS[i].reset_du();                             // reset du value to zero for next timestep
+                        RAND_POINTS[i].check_values();
+                        RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
 
 #ifdef SELF_GRAVITY

@@ -27,7 +27,7 @@ class VERTEX{
 
 private:
 
-        int TBIN_LOCAL;
+        int ID,TBIN_LOCAL;
         double X, Y, DX, DY;
         double DT_REQ;
         double DUAL,LEN_VEL_SUM;
@@ -44,6 +44,7 @@ public:
 
         // setter functions preventing varaibles being changed accidentally
         // (no setter functions for U and F(U) as these are set by the other variables)
+        void set_id(int NEW_ID){ID = NEW_ID;};
         void set_tbin_local(int NEW_TBIN){TBIN_LOCAL = NEW_TBIN;}
         void set_x(   double NEW_X){X   = NEW_X;}
         void set_y(   double NEW_Y){Y   = NEW_Y;}
@@ -62,6 +63,7 @@ public:
 
 
         // getter functions for eXtracting values of variables
+        int get_id(){return ID;}
         int get_tbin_local(){return TBIN_LOCAL;}
         double get_x(){      return X;}
         double get_y(){      return Y;}
@@ -129,17 +131,17 @@ public:
                 Y_VELOCITY      = U_VARIABLES[2]/MASS_DENSITY;
                 SPECIFIC_ENERGY = U_VARIABLES[3]/MASS_DENSITY;
                 recalculate_pressure();
-                check_values();
+                // check_values();
                 // prim_to_con();
         }
 
         void con_to_prim_half(){
                 MASS_DENSITY_HALF    = U_HALF[0];
-                X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY;
-                Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY;
-                SPECIFIC_ENERGY_HALF = U_HALF[3]/MASS_DENSITY;
+                X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY_HALF;
+                Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY_HALF;
+                SPECIFIC_ENERGY_HALF = U_HALF[3]/MASS_DENSITY_HALF;
                 recalculate_pressure_half();
-                check_values();
+                // check_values();
                 // prim_to_con_half();
         }
 
@@ -163,13 +165,13 @@ public:
 
         // update DU with value from face
         void update_du(double NEW_DU[4]){
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[0] = DU[0] + NEW_DU[0];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[1] = DU[1] + NEW_DU[1];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[2] = DU[2] + NEW_DU[2];
-                #pragma omp atomic update
+                // #pragma omp atomic update
                 DU[3] = DU[3] + NEW_DU[3];
         }
 
@@ -191,8 +193,6 @@ public:
                 U_VARIABLES[1] = U_HALF[1] - DU[1];
                 U_VARIABLES[2] = U_HALF[2] - DU[2];
                 U_VARIABLES[3] = U_HALF[3] - DU[3];
-                if(U_VARIABLES[0] <= MASS_LIM){U_VARIABLES[0] = MASS_LIM;}
-                if(U_VARIABLES[3] <= PRES_LIM){U_VARIABLES[3] = PRES_LIM;}
         }
 
         void update_u_half(){
@@ -201,8 +201,6 @@ public:
                 U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
                 U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
                 U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
-                if(U_HALF[0] <= MASS_LIM){U_HALF[0] = MASS_LIM;}
-                if(U_HALF[3] <= PRES_LIM){U_HALF[3] = PRES_LIM;}
         }
 
         // calculate sum of length and velocity (used to calculate dt)
@@ -214,28 +212,33 @@ public:
 #ifdef DEBUG
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
-                if (MASS_DENSITY <= MASS_LIM){
-                        MASS_DENSITY = MASS_LIM;
+                if (U_VARIABLES[0] <= MASS_LIM){
+                        U_VARIABLES[0] = MASS_LIM;
+                        U_VARIABLES[1] = U_VARIABLES[2] = U_VARIABLES[3] = 0.000001;
                         // std::cout << "B WARNING: Exiting on negative density\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << MASS_DENSITY << std::endl;
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
                         // exit(0);
                 }
-                if (PRESSURE <= PRES_LIM){
-                        PRESSURE = PRES_LIM;
-                        // std::cout << "B WARNING: Exiting on negative pressure\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE =\t" << PRESSURE << std::endl;
+                if (U_VARIABLES[3] <= PRES_LIM){
+                        U_VARIABLES[3] = PRES_LIM;
+                        // std::cout << "B WARNING: Exiting on negative energy\t";
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[4] << std::endl;
                         // exit(0);
                 }
-                if (MASS_DENSITY_HALF <= MASS_LIM){
-                        MASS_DENSITY_HALF = MASS_LIM;
+        }
+        
+        void check_values_half(){
+                if (U_HALF[0] <= MASS_LIM){
+                        U_HALF[0] = MASS_LIM;
+                        U_HALF[1] = U_HALF[2] = U_HALF[3] = 0.000001;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << MASS_DENSITY_HALF << std::endl;
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
                         // exit(0);
                 }
-                if (PRESSURE_HALF <= PRES_LIM){
-                        PRESSURE_HALF = PRES_LIM;
-                        // std::cout << "B WARNING: Exiting on negative half state pressure\t";
-                        // std::cout << "Position =\t" << X << "\t" << Y << "\tPRESSURE_HALF =\t" << PRESSURE_HALF << std::endl;
+                if (U_HALF[3] <= PRES_LIM){
+                        U_HALF[3] = PRES_LIM;
+                        // std::cout << "B WARNING: Exiting on negative half state energy\t";
+                        // std::cout << ID <<  "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY_HALF =\t" << U_HALF[4] << std::endl;
                         // exit(0);
                 }
                 return ;

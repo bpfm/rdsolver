@@ -193,7 +193,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T){
+        void calculate_first_half(){
                 int i,j,m,p;
                 double INFLOW[5][5][4][3];        // K+, K-, K matrices for each vertex (m index for vertices, p index for +,-,0)
 
@@ -201,9 +201,6 @@ public:
 
                 setup_positions();
                 setup_initial_state();
-
-                // if(ID == 402){std::cout << VERTEX_2->get_id() << std::endl;}
-                // if(ID == 402){print_triangle_state();}
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 // Calculate inflow parameters
@@ -230,10 +227,6 @@ public:
                 //         PRINT = 0;
                 // }
 
-                // if(PRINT == 1){print_triangle_state();}
-
-                // if(ID == 402){std::cout << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << "\t" << PRESSURE[3] << std::endl;}
-
                 for(m=0;m<4;++m){
                         Z_ROE[0][m] = sqrt(U_N[0][m]);
                         Z_ROE[1][m] = U_N[1][m]/Z_ROE[0][m];
@@ -246,9 +239,6 @@ public:
                         N_Z[m]  = NORMAL[m][2];
 
                         H[m] = (U_N[4][m] + PRESSURE[m])/U_N[0][m];
-                        // if(PRINT == 1){std::cout << PRESSURE[m] << "\t" << H[m] << std::endl;}
-                        // if(PRINT == 1){std::cout << Z_ROE[0][m] << "\t" << Z_ROE[1][m] << "\t" << Z_ROE[2][m] << "\t" << Z_ROE[3][m] << "\t" << Z_ROE[4][m] << std::endl;}
-                        // if(PRINT == 1){std::cout << MAG[m] << "\t" << NORMAL[m][0] << "\t" << NORMAL[m][1] << "\t" << NORMAL[m][2] << std::endl;}
                 }
 
                 for(i=0; i<5; ++i){Z_BAR[i] = (Z_ROE[i][0] + Z_ROE[i][1] + Z_ROE[i][2] + Z_ROE[i][3])/4.0;}
@@ -269,12 +259,8 @@ public:
                 VZ    = (sqrt(U_N[0][0])*U_N[3][0]/U_N[0][0] + sqrt(U_N[0][1])*U_N[3][1]/U_N[0][1] + sqrt(U_N[0][2])*U_N[3][2]/U_N[0][2] + sqrt(U_N[0][3])*U_N[3][3]/U_N[0][3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
                 H_AVG = (sqrt(U_N[0][0])*H[0] + sqrt(U_N[0][1])*H[1] + sqrt(U_N[0][2])*H[2] + sqrt(U_N[0][3])*H[3]) / (sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]) + sqrt(U_N[0][3]));
 
-                // if(ID == 402){std::cout << H[0] << "\t" << H[1] << "\t" << H[2] << "\t" << H[3] << std::endl;}
-
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
-
-                // if(ID == 402){std::cout << C << "\t" << H_AVG << "\t" << (VX*VX + VY*VY + VZ*VZ)/2.0 << "\t" << std::endl;}
 
                 VX_C = VX/C;
                 VY_C = VY/C;
@@ -284,8 +270,6 @@ public:
 
                 ALPHA   = GAMMA_1*(VX*VX + VY*VY + VZ*VZ)/2.0;
                 ALPHA_C = ALPHA/C;
-
-                // if(PRINT == 1){std::cout << H_AVG << "\t" << C << std::endl;}
 
                 // Calculate K+,K- and K matrices for each vertex i,j,k
 
@@ -298,8 +282,6 @@ public:
                         LAMBDA[2][m] = W;
                         LAMBDA[3][m] = W;
                         LAMBDA[4][m] = W;
-
-                        // if(PRINT == 1){std::cout << "LAMBDA\t" << LAMBDA[0][m] << "\t" << LAMBDA[1][m] << "\t" << LAMBDA[2][m] << "\t" << LAMBDA[3][m] << "\t" << LAMBDA[4][m] << std::endl;}
 
                         for(i=0;i<5;++i){
                                 LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
@@ -525,8 +507,6 @@ public:
                 // double DT = DT_TOT;
 
                 setup_half_state();
-
-                // if(ID == 402){print_triangle_state();}
 
 #ifdef FIRST_ORDER
                 for(i=0;i<5;i++){

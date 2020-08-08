@@ -245,7 +245,7 @@ public:
                 LEN_VEL_SUM = LEN_VEL_SUM + CONTRIBUTION;
         }
 
-        void check_values(int i){
+        void check_values(){
 #ifdef DEBUG
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
@@ -253,29 +253,29 @@ public:
                         U_VARIABLES[0] = MASS_LIM;
                         U_VARIABLES[1] = U_VARIABLES[2] = U_VARIABLES[3] = 0.000001;
                         // std::cout << "B WARNING: Exiting on negative density\t";
-                        // std::cout << i << "\t" << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
                         // exit(0);
                 }
                 if (U_VARIABLES[4] <= PRES_LIM){
                         U_VARIABLES[4] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative energy\t";
-                        // std::cout << i << "\t" << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[4] << std::endl;
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[4] << std::endl;
                         // exit(0);
                 }
         }
         
-        void check_values_half(int i){
+        void check_values_half(){
                 if (U_HALF[0] <= MASS_LIM){
                         U_HALF[0] = MASS_LIM;
                         U_HALF[1] = U_HALF[2] = U_HALF[3] = 0.000001;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
-                        // std::cout << i << "\t" << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
                         // exit(0);
                 }
                 if (U_HALF[4] <= PRES_LIM){
                         U_HALF[4] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state energy\t";
-                        // std::cout << i << "\t" << ID <<  "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY_HALF =\t" << U_HALF[4] << std::endl;
+                        // std::cout << ID <<  "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY_HALF =\t" << U_HALF[4] << std::endl;
                         // exit(0);
                 }
                 return ;

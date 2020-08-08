@@ -106,7 +106,7 @@ int main(){
 
         // std::cout << T << std::endl;
 
-        std::ofstream oFileT("output.txt", std::ios::out);
+        std::ofstream oFileT("../../../Delaunay2D.txt", std::ios::out);
         // writing file output;
         oFileT << T;
 

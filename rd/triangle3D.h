@@ -419,41 +419,52 @@ public:
                 }
 #endif
 
-// #ifdef BLENDED
-//                 double THETA_E[4][4];
-//                 double IDENTITY[4][4];
-//                 double SUM_FLUC_N[4];
+#ifdef BLENDED
+                double THETA_E[5][5];
+                double IDENTITY[5][5];
+                double SUM_FLUC_N[5];
 
-//                 THETA_E[0][0] = IDENTITY[0][0] = 1.0;
-//                 THETA_E[0][1] = IDENTITY[0][1] = 0.0;
-//                 THETA_E[0][2] = IDENTITY[0][2] = 0.0;
-//                 THETA_E[0][3] = IDENTITY[0][3] = 0.0;
+                THETA_E[0][0] = IDENTITY[0][0] = 1.0;
+                THETA_E[0][1] = IDENTITY[0][1] = 0.0;
+                THETA_E[0][2] = IDENTITY[0][2] = 0.0;
+                THETA_E[0][3] = IDENTITY[0][3] = 0.0;
+                THETA_E[0][4] = IDENTITY[0][4] = 0.0;
 
-//                 THETA_E[1][0] = IDENTITY[1][0] = 0.0;
-//                 THETA_E[1][1] = IDENTITY[1][1] = 1.0;
-//                 THETA_E[1][2] = IDENTITY[1][2] = 0.0;
-//                 THETA_E[1][3] = IDENTITY[1][3] = 0.0;
+                THETA_E[1][0] = IDENTITY[1][0] = 0.0;
+                THETA_E[1][1] = IDENTITY[1][1] = 1.0;
+                THETA_E[1][2] = IDENTITY[1][2] = 0.0;
+                THETA_E[1][3] = IDENTITY[1][3] = 0.0;
+                THETA_E[1][4] = IDENTITY[1][4] = 0.0;
 
-//                 THETA_E[2][0] = IDENTITY[2][0] = 0.0;
-//                 THETA_E[2][1] = IDENTITY[2][1] = 0.0;
-//                 THETA_E[2][2] = IDENTITY[2][2] = 1.0;
-//                 THETA_E[2][3] = IDENTITY[2][3] = 0.0;
+                THETA_E[2][0] = IDENTITY[2][0] = 0.0;
+                THETA_E[2][1] = IDENTITY[2][1] = 0.0;
+                THETA_E[2][2] = IDENTITY[2][2] = 1.0;
+                THETA_E[2][3] = IDENTITY[2][3] = 0.0;
+                THETA_E[2][4] = IDENTITY[2][4] = 0.0;
 
-//                 THETA_E[3][0] = IDENTITY[3][0] = 0.0;
-//                 THETA_E[3][1] = IDENTITY[3][1] = 0.0;
-//                 THETA_E[3][2] = IDENTITY[3][2] = 0.0;
-//                 THETA_E[3][3] = IDENTITY[3][3] = 1.0;
+                THETA_E[3][0] = IDENTITY[3][0] = 0.0;
+                THETA_E[3][1] = IDENTITY[3][1] = 0.0;
+                THETA_E[3][2] = IDENTITY[3][2] = 0.0;
+                THETA_E[3][3] = IDENTITY[3][3] = 1.0;
+                THETA_E[3][4] = IDENTITY[3][4] = 0.0;
 
-//                 for(i=0;i<4;i++){
-//                         SUM_FLUC_N[i] = abs(FLUC_N[i][0]) + abs(FLUC_N[i][1]) + abs(FLUC_N[i][2]);
+                THETA_E[4][0] = IDENTITY[4][0] = 0.0;
+                THETA_E[4][1] = IDENTITY[4][1] = 0.0;
+                THETA_E[4][2] = IDENTITY[4][2] = 0.0;
+                THETA_E[4][3] = IDENTITY[4][3] = 0.0;
+                THETA_E[4][4] = IDENTITY[4][4] = 1.0;
 
-//                         THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+                for(i=0;i<5;i++){
+                        SUM_FLUC_N[i] = abs(FLUC_N[i][0]) + abs(FLUC_N[i][1]) + abs(FLUC_N[i][2]) + abs(FLUC_N[i][3]);
 
-//                         FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
-//                         FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
-//                         FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
-//                 }
-// #endif
+                        THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+
+                        FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
+                        FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
+                        FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
+                        FLUC_B[i][3] = THETA_E[i][i]*FLUC_N[i][3] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][3];
+                }
+#endif
                 return ;
         }
 

@@ -496,13 +496,14 @@ public:
                 }
 #endif
 
-// #ifdef BLENDED 
-//                 for(i=0;i<4;i++){
-//                         DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-//                         DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-//                         DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
-//                 }
-// #endif
+#ifdef BLENDED 
+                for(i=0;i<5;i++){
+                        DU0[i] = 0.5*DT*FLUC_B[i][0]/DUAL[0];
+                        DU1[i] = 0.5*DT*FLUC_B[i][1]/DUAL[1];
+                        DU2[i] = 0.5*DT*FLUC_B[i][2]/DUAL[2];
+                        DU3[i] = 0.5*DT*FLUC_B[i][3]/DUAL[3];
+                }
+#endif
 
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);

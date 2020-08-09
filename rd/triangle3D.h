@@ -32,7 +32,7 @@ private:
         int BOUNDARY;
         int TBIN;
 
-        double AREA;
+        double VOLUME;
 
         double X[4],Y[4],Z[4],DUAL[4];
         double X_MOD[4],Y_MOD[4],Z_MOD[4];
@@ -206,7 +206,7 @@ public:
                 // Calculate inflow parameters
 
                 double H[4];
-                double RHO,C,VX,VX_C,VY,VY_C,VZ,VZ_C,H_AVG,H_C,ALPHA,ALPHA_C,W,NORM;
+                double RHO,C,VX,VX_C,VY,VY_C,VZ,VZ_C,H_AVG,H_C,ALPHA,ALPHA_C,W,NORM=1.0/3.0;
                 double Z_ROE[5][4];
                 double VALUE1,VALUE2,VALUE3,VALUE12,VALUE123;
                 double PRESSURE_AVG;
@@ -318,7 +318,6 @@ public:
 
                                 VALUE12  = (VALUE1 - VALUE2)/2.0;
                                 VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
-                                NORM = 1.0/3.0;
 
                                 INFLOW[0][0][m][p] = NORM * MAG[m]*(ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3);
                                 INFLOW[0][1][m][p] = NORM * MAG[m]*(-1.0*GAMMA_1*VX_C*VALUE123/C + N_X[m]*VALUE12/C);
@@ -539,6 +538,343 @@ public:
 
                 return ;
 #endif
+
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                // Calculate inflow parameters
+
+                double H[4];
+                double RHO,C,VX,VX_C,VY,VY_C,VZ,VZ_C,H_AVG,H_C,ALPHA,ALPHA_C,W,NORM=1.0/3.0;
+                double Z[5][4];
+                double VALUE1,VALUE2,VALUE3,VALUE12,VALUE123;
+                double PRESSURE_AVG;
+                double LAMBDA[5][4],LAMBDA_PLUS[5][4],LAMBDA_MINUS[5][4];
+                double N_X[4],N_Y[4],N_Z[4];
+
+                double Z_BAR[5],W_HAT[5][4];
+
+                // Construct Roe vector Z
+
+                for(m=0;m<4;++m){
+                        Z[0][m] = sqrt(U_HALF[0][m]);
+                        Z[1][m] = U_HALF[1][m]/Z[0][m];
+                        Z[2][m] = U_HALF[2][m]/Z[0][m];
+                        Z[3][m] = U_HALF[3][m]/Z[0][m];
+                        Z[4][m] = (U_HALF[4][m] + PRESSURE_HALF[m])/Z[0][m];
+
+                        N_X[m]  = NORMAL[m][0];
+                        N_Y[m]  = NORMAL[m][1];
+                        N_Z[m]  = NORMAL[m][2];
+
+                        H[m] = (U_HALF[4][m] + PRESSURE_HALF[m])/U_HALF[0][m];
+                }
+
+                for(i=0; i<5; ++i){Z_BAR[i] = (Z[i][0] + Z[i][1] + Z[i][2] + Z[i][3])/4.0;}
+
+
+                for(m=0; m<4; ++m){
+                        W_HAT[0][m] =  2.0*Z_BAR[0]*Z[0][m];
+                        W_HAT[1][m] =  Z_BAR[1]*Z[0][m] + Z_BAR[0]*Z[1][m];
+                        W_HAT[2][m] =  Z_BAR[2]*Z[0][m] + Z_BAR[0]*Z[2][m];
+                        W_HAT[3][m] =  Z_BAR[3]*Z[0][m] + Z_BAR[0]*Z[3][m];
+                        W_HAT[4][m] = (Z_BAR[4]*Z[0][m] + GAMMA_1*Z_BAR[1]*Z[1][m] + GAMMA_1*Z_BAR[2]*Z[2][m] + GAMMA_1*Z_BAR[3]*Z[3][m] + Z_BAR[0]*Z[4][m])/GAMMA;
+                        //std::cout << Z_BAR[1] << "\t" << Z[0][m] << "\t" << Z_BAR[0] << "\t" << Z[2][m] << std::endl;
+                }
+
+                // Construct average state for element
+
+                RHO   = pow((sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]))/4.0, 2);
+                VX    = (sqrt(U_HALF[0][0])*U_HALF[1][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[1][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[1][2]/U_HALF[0][2] + sqrt(U_HALF[0][3])*U_HALF[1][3]/U_HALF[0][3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]));
+                VY    = (sqrt(U_HALF[0][0])*U_HALF[2][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[2][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[2][2]/U_HALF[0][2] + sqrt(U_HALF[0][3])*U_HALF[2][3]/U_HALF[0][3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]));
+                VZ    = (sqrt(U_HALF[0][0])*U_HALF[3][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[3][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[3][2]/U_HALF[0][2] + sqrt(U_HALF[0][3])*U_HALF[3][3]/U_HALF[0][3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]));
+                H_AVG = (sqrt(U_HALF[0][0])*H[0] + sqrt(U_HALF[0][1])*H[1] + sqrt(U_HALF[0][2])*H[2] + sqrt(U_HALF[0][3])*H[3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));
+               
+                // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
+
+                PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/4.0;
+                C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
+                // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+
+                // Reassign variables to local equivalents
+
+                VX_C = VX/C;
+                VY_C = VY/C;
+                VZ_C = VZ/C;
+
+                H_C = H_AVG/C;
+
+                ALPHA   = GAMMA_1*(VX*VX + VY*VY + VZ*VZ)/2.0;
+                ALPHA_C = ALPHA/C;
+
+                // Calculate K+,K- and K matrices for each vertex i,j,k
+
+                for(m=0;m<4;++m){
+
+                        W = U*N_X[m] + V*N_Y[m];
+
+                        LAMBDA[0][m] = W + C;
+                        LAMBDA[1][m] = W - C;
+                        LAMBDA[2][m] = W;
+                        LAMBDA[3][m] = W;
+                        LAMBDA[4][m] = W;
+
+                        for(i=0;i<5;++i){
+                                LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
+                                LAMBDA_MINUS[i][m] = min_val(0.0,LAMBDA[i][m]);
+                        } 
+
+                        for(p=0;p<3;++p){
+                                if(p==0){       // Identify and select positive eigenvalues
+                                        VALUE1 = LAMBDA_PLUS[0][m];
+                                        VALUE2 = LAMBDA_PLUS[1][m];
+                                        VALUE3 = LAMBDA_PLUS[2][m];
+#ifdef DEBUG
+                                        std::cout << "K+" << std::endl;
+#endif
+                                }else if(p==1){ // Identify and select negative eigenvalues
+                                        VALUE1 = LAMBDA_MINUS[0][m];
+                                        VALUE2 = LAMBDA_MINUS[1][m];
+                                        VALUE3 = LAMBDA_MINUS[2][m];
+#ifdef DEBUG
+                                        std::cout << "K-" << std::endl;
+#endif
+                                }else{          // Select all eigenvalues
+                                        VALUE1 = LAMBDA[0][m];
+                                        VALUE2 = LAMBDA[1][m];
+                                        VALUE3 = LAMBDA[2][m];
+#ifdef DEBUG
+                                        std::cout << "K" << std::endl;
+#endif
+                                }
+
+                                VALUE12  = (VALUE1 - VALUE2)/2.0;
+                                VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
+
+                                INFLOW[0][0][m][p] = NORM * MAG[m]*(ALPHA_C*VALUE123/C - W*VALUE12/C + VALUE3);
+                                INFLOW[0][1][m][p] = NORM * MAG[m]*(-1.0*GAMMA_1*VX_C*VALUE123/C + N_X[m]*VALUE12/C);
+                                INFLOW[0][2][m][p] = NORM * MAG[m]*(-1.0*GAMMA_1*VY_C*VALUE123/C + N_Y[m]*VALUE12/C);
+                                INFLOW[0][3][m][p] = NORM * MAG[m]*(-1.0*GAMMA_1*VZ_C*VALUE123/C + N_Z[m]*VALUE12/C);
+                                INFLOW[0][4][m][p] = NORM * MAG[m]*(GAMMA_1*VALUE123/(C*C));
+
+                                INFLOW[1][0][m][p] = NORM * MAG[m]*((ALPHA_C*VX_C - W*N_X[m])*VALUE123 + (ALPHA_C*N_X[m] - VX_C*W)*VALUE12);
+                                INFLOW[1][1][m][p] = NORM * MAG[m]*((N_X[m]*N_X[m] - GAMMA_1*VX_C*VX_C)*VALUE123 - (GAMMA_2*VX_C*N_X[m]*VALUE12) + VALUE3);
+                                INFLOW[1][2][m][p] = NORM * MAG[m]*((N_X[m]*N_Y[m] - GAMMA_1*VX_C*VY_C)*VALUE123 + (VX_C*N_Y[m] - GAMMA_1*VY_C*N_X[m])*VALUE12);
+                                INFLOW[1][3][m][p] = NORM * MAG[m]*((N_X[m]*N_Z[m] - GAMMA_1*VX_C*VZ_C)*VALUE123 + (VX_C*N_Z[m] - GAMMA_1*VZ_C*N_X[m])*VALUE12);
+                                INFLOW[1][4][m][p] = NORM * MAG[m]*(GAMMA_1*VX_C*VALUE123/C + GAMMA_1*N_X[m]*VALUE12/C);
+
+                                INFLOW[2][0][m][p] = NORM * MAG[m]*((ALPHA_C*VY_C - W*N_Y[m])*VALUE123 + (ALPHA_C*N_Y[m] - VY_C*W)*VALUE12);
+                                INFLOW[2][1][m][p] = NORM * MAG[m]*((N_X[m]*N_Y[m] - GAMMA_1*VX_C*VY_C)*VALUE123 + (VY_C*N_X[m] - GAMMA_1*VX_C*N_Y[m])*VALUE12);
+                                INFLOW[2][2][m][p] = NORM * MAG[m]*((N_Y[m]*N_Y[m] - GAMMA_1*VY_C*VY_C)*VALUE123 - (GAMMA_2*VY_C*N_Y[m]*VALUE12) + VALUE3);
+                                INFLOW[2][3][m][p] = NORM * MAG[m]*((N_Z[m]*N_Y[m] - GAMMA_1*VZ_C*VY_C)*VALUE123 + (VY_C*N_Z[m] - GAMMA_1*VZ_C*N_Y[m])*VALUE12);
+                                INFLOW[2][4][m][p] = NORM * MAG[m]*(GAMMA_1*VY_C*VALUE123/C + GAMMA_1*N_Y[m]*VALUE12/C);
+
+                                INFLOW[3][0][m][p] = NORM * MAG[m]*((ALPHA_C*VZ_C - W*N_Z[m])*VALUE123 + (ALPHA_C*N_Z[m] - VZ_C*W)*VALUE12);
+                                INFLOW[3][1][m][p] = NORM * MAG[m]*((N_X[m]*N_Z[m] - GAMMA_1*VX_C*VZ_C)*VALUE123 + (VZ_C*N_X[m] - GAMMA_1*VX_C*N_Z[m])*VALUE12);
+                                INFLOW[3][2][m][p] = NORM * MAG[m]*((N_Y[m]*N_Z[m] - GAMMA_1*VY_C*VZ_C)*VALUE123 + (VZ_C*N_Y[m] - GAMMA_1*VY_C*N_Z[m])*VALUE12);
+                                INFLOW[3][3][m][p] = NORM * MAG[m]*((N_Z[m]*N_Z[m] - GAMMA_1*VZ_C*VZ_C)*VALUE123 - (GAMMA_2*VZ_C*N_Z[m]*VALUE12) + VALUE3);
+                                INFLOW[3][4][m][p] = NORM * MAG[m]*(GAMMA_1*VZ_C*VALUE123/C + GAMMA_1*N_Z[m]*VALUE12/C);
+
+                                INFLOW[4][0][m][p] = NORM * MAG[m]*((ALPHA_C*H_C - W*W)*VALUE123 + W*(ALPHA_C - H_C)*VALUE12);
+                                INFLOW[4][1][m][p] = NORM * MAG[m]*((W*N_X[m] - VX - ALPHA_C*VX_C)*VALUE123 + (H_C*N_X[m] - GAMMA_1*VX_C*W)*VALUE12);
+                                INFLOW[4][2][m][p] = NORM * MAG[m]*((W*N_Y[m] - VY - ALPHA_C*VY_C)*VALUE123 + (H_C*N_Y[m] - GAMMA_1*VY_C*W)*VALUE12);
+                                INFLOW[4][3][m][p] = NORM * MAG[m]*((W*N_Z[m] - VZ - ALPHA_C*VZ_C)*VALUE123 + (H_C*N_Z[m] - GAMMA_1*VZ_C*W)*VALUE12);
+                                INFLOW[4][4][m][p] = NORM * MAG[m]*(GAMMA_1*H_C*VALUE123/C + GAMMA_1*W*VALUE12/C + VALUE3);
+                        }
+                }
+
+//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+#if defined(LDA_SCHEME) or defined(BLENDED)
+
+                double PHI_HALF[5];
+                double SECOND_FLUC_LDA[5][4];
+
+                for(i=0;i<5;++i){
+                        PHI_HALF[i] = 0.0;
+                        for(m=0;m<4;++m){
+                                PHI_HALF[i] += INFLOW[i][0][m][2]*W_HAT[0][m] + INFLOW[i][1][m][2]*W_HAT[1][m] + INFLOW[i][2][m][2]*W_HAT[2][m] + INFLOW[i][3][m][2]*W_HAT[3][m] + INFLOW[i][4][m][2]*W_HAT[4][m];
+                        }
+                }
+
+                // Calculate spatial splitting for first half timestep
+
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                FLUC_HALF_LDA[i][m] = BETA[i][0][m] * PHI_HALF[0] + BETA[i][1][m] * PHI_HALF[1] + BETA[i][2][m] * PHI_HALF[2] + BETA[i][3][m] * PHI_HALF[3] + BETA[i][4][m] * PHI_HALF[4];
+                        }
+                }
+
+                double DIFF[5][4];
+                double MASS[5][5][4];
+                double MASS_DIFF[5][4];
+                double SUM_MASS[5];
+
+                for(i=0;i<5;++i){
+                        for(j=0;j<5;++j){
+                                for(m=0;m<4;++m){MASS[i][j][m] = VOLUME * BETA[i][j][m]/4.0;}
+                        }
+                }
+
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                DIFF[i][m] = U_HALF[i][m] - U_N[i][m];
+                        }
+                }
+
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                MASS_DIFF[i][m] = MASS[i][0][m] * DIFF[0][m] + MASS[i][1][m] * DIFF[1][m] + MASS[i][2][m] * DIFF[2][m] + MASS[i][3][m] * DIFF[3][m] + MASS[i][4][m] * DIFF[4][m];
+                        }
+                }
+
+                for(i=0;i<5;i++){
+                        SUM_MASS[i] = 0.0;
+                        for(m=0;m<4;++m){
+                                if(DT==0.0){
+                                        SUM_MASS[i] = 0.0;
+                                }else{
+                                        SUM_MASS[i] += MASS_DIFF[i][m]/DT;
+                                }
+                        }
+                }
+
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                SECOND_FLUC_LDA[i][m] = SUM_MASS[i] + 0.5*(FLUC_LDA[i][m] + FLUC_HALF_LDA[i][m]);
+                        }
+                }
+#endif
+
+// #if defined(N_SCHEME) or defined(BLENDED)
+
+//                 double INFLOW_MINUS_SUM[4][4];
+//                 double SECOND_FLUC_N[4][3];
+
+//                 for(i=0;i<4;++i){
+//                         for(j=0;j<4;++j){
+//                                 INFLOW_MINUS_SUM[i][j] = 0.0;
+//                                 for(m=0;m<3;++m){
+//                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
+//                                 }
+//                         }
+//                 }
+
+//                 mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],2);
+
+//                 double AREA_DIFF[4][3];
+//                 double BRACKET[4][3];
+//                 double KZ_SUM[4];
+
+//                 for(i=0;i<4;++i){
+//                         KZ_SUM[i] = 0.0;
+//                         for(m=0;m<3;++m){
+//                                 KZ_SUM[i] += INFLOW[i][0][m][1] * W_HAT[0][m] + INFLOW[i][1][m][1] * W_HAT[1][m] + INFLOW[i][2][m][1] * W_HAT[2][m] + INFLOW[i][3][m][1] * W_HAT[3][m];
+//                         }
+//                 }
+
+//                 for(i=0;i<4;++i){
+//                         for(m=0;m<3;++m){
+//                                 BRACKET[i][m] = W_HAT[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
+//                         }
+//                 }
+
+//                 for(i=0;i<4;++i){
+//                         for(m=0;m<3;++m){
+//                                 FLUC_HALF_N[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
+//                         }
+//                 }
+
+//                 for(i=0;i<4;++i){
+//                         for(m=0;m<3;++m){
+//                                 AREA_DIFF[i][m] = AREA*(U_HALF[i][m] - U_N[i][m])/3.0;
+//                         }
+//                 }
+
+//                 for(i=0;i<4;++i){
+//                         for(m=0;m<3;++m){
+//                                 if(DT == 0.0){
+//                                         SECOND_FLUC_N[i][m] = 0.0;
+//                                 }else{
+//                                         SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+//                                 }
+
+//                                 // std::cout << AREA_DIFF[i][m] << "\t" << FLUC_N[i][m] << "\t" << FLUC_HALF_N[i][m] << "\t" << SECOND_FLUC_N[i][m] << std::endl;
+//                         }
+//                 }
+// #endif
+
+                DUAL[0] = VERTEX_0->get_dual();
+                DUAL[1] = VERTEX_1->get_dual();
+                DUAL[2] = VERTEX_2->get_dual();
+                DUAL[3] = VERTEX_3->get_dual();
+
+                // std::cout << SECOND_FLUC_LDA[0][0] << "\t" << SECOND_FLUC_LDA[0][1] << "\t" << SECOND_FLUC_LDA[0][2] << std::endl;
+
+#ifdef LDA_SCHEME
+                for(i=0;i<5;i++){
+                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
+                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
+                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
+                        DU3[i] = (DT/DUAL[3])*SECOND_FLUC_LDA[i][3];
+                }
+#endif
+
+                // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
+
+// #ifdef N_SCHEME
+//                 for(i=0;i<4;i++){
+//                         DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
+//                         DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
+//                         DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];
+//                 }
+// #endif
+
+// #ifdef BLENDED
+//                 double THETA_E[4][4];
+//                 double IDENTITY[4][4];
+//                 double SUM_FLUC_N[4];
+
+//                 THETA_E[0][0] = IDENTITY[0][0] = 1.0;
+//                 THETA_E[0][1] = IDENTITY[0][1] = 0.0;
+//                 THETA_E[0][2] = IDENTITY[0][2] = 0.0;
+//                 THETA_E[0][3] = IDENTITY[0][3] = 0.0;
+
+//                 THETA_E[1][0] = IDENTITY[1][0] = 0.0;
+//                 THETA_E[1][1] = IDENTITY[1][1] = 1.0;
+//                 THETA_E[1][2] = IDENTITY[1][2] = 0.0;
+//                 THETA_E[1][3] = IDENTITY[1][3] = 0.0;
+
+//                 THETA_E[2][0] = IDENTITY[2][0] = 0.0;
+//                 THETA_E[2][1] = IDENTITY[2][1] = 0.0;
+//                 THETA_E[2][2] = IDENTITY[2][2] = 1.0;
+//                 THETA_E[2][3] = IDENTITY[2][3] = 0.0;
+
+//                 THETA_E[3][0] = IDENTITY[3][0] = 0.0;
+//                 THETA_E[3][1] = IDENTITY[3][1] = 0.0;
+//                 THETA_E[3][2] = IDENTITY[3][2] = 0.0;
+//                 THETA_E[3][3] = IDENTITY[3][3] = 1.0;
+
+//                 for(i=0;i<4;i++){
+//                         SUM_FLUC_N[i] = abs(SECOND_FLUC_N[i][0]) + abs(SECOND_FLUC_N[i][1]) + abs(SECOND_FLUC_N[i][2]);
+
+//                         THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+
+//                         FLUC_B[i][0] = THETA_E[i][i]*SECOND_FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][0];
+//                         FLUC_B[i][1] = THETA_E[i][i]*SECOND_FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][1];
+//                         FLUC_B[i][2] = THETA_E[i][i]*SECOND_FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][2];
+
+//                         DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
+//                         DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
+//                         DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+//                 }
+// #endif
+
+                VERTEX_0->update_du(DU0);
+                VERTEX_1->update_du(DU1);
+                VERTEX_2->update_du(DU2);
+                VERTEX_3->update_du(DU3);
+
+                return ;
         }
 
         //**********************************************************************************************************************
@@ -615,7 +951,7 @@ public:
                 double ADX,ADY,ADZ;
                 double BDX,BDY,BDZ;
                 double CDX,CDY,CDZ;
-                double CROSSX,CROSSY,CROSSZ,VOLUME;
+                double CROSSX,CROSSY,CROSSZ;
                 double V0[3],V1[3],V2[3],V3[3];
                 double V21[3],V31[3],V20[3],V30[3],V10[3],V01[3];
                 double PERP[4][3];

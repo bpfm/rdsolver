@@ -747,63 +747,61 @@ public:
                 }
 #endif
 
-// #if defined(N_SCHEME) or defined(BLENDED)
+#if defined(N_SCHEME) or defined(BLENDED)
 
-//                 double INFLOW_MINUS_SUM[4][4];
-//                 double SECOND_FLUC_N[4][3];
+                double INFLOW_MINUS_SUM[5][5];
+                double SECOND_FLUC_N[5][4];
 
-//                 for(i=0;i<4;++i){
-//                         for(j=0;j<4;++j){
-//                                 INFLOW_MINUS_SUM[i][j] = 0.0;
-//                                 for(m=0;m<3;++m){
-//                                         INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
-//                                 }
-//                         }
-//                 }
+                for(i=0;i<5;++i){
+                        for(j=0;j<5;++j){
+                                INFLOW_MINUS_SUM[i][j] = 0.0;
+                                for(m=0;m<4;++m){
+                                        INFLOW_MINUS_SUM[i][j] += INFLOW[i][j][m][1];
+                                }
+                        }
+                }
 
-//                 mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],2);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],ID);
 
-//                 double AREA_DIFF[4][3];
-//                 double BRACKET[4][3];
-//                 double KZ_SUM[4];
+                double AREA_DIFF[5][4];
+                double BRACKET[5][4];
+                double KZ_SUM[5];
 
-//                 for(i=0;i<4;++i){
-//                         KZ_SUM[i] = 0.0;
-//                         for(m=0;m<3;++m){
-//                                 KZ_SUM[i] += INFLOW[i][0][m][1] * W_HAT[0][m] + INFLOW[i][1][m][1] * W_HAT[1][m] + INFLOW[i][2][m][1] * W_HAT[2][m] + INFLOW[i][3][m][1] * W_HAT[3][m];
-//                         }
-//                 }
+                for(i=0;i<5;++i){
+                        KZ_SUM[i] = 0.0;
+                        for(m=0;m<4;++m){
+                                KZ_SUM[i] += INFLOW[i][0][m][1]*W_HAT[0][m] + INFLOW[i][1][m][1]*W_HAT[1][m] + INFLOW[i][2][m][1]*W_HAT[2][m] + INFLOW[i][3][m][1]*W_HAT[3][m] + INFLOW[i][4][m][1]*W_HAT[4][m];
+                        }
+                }
 
-//                 for(i=0;i<4;++i){
-//                         for(m=0;m<3;++m){
-//                                 BRACKET[i][m] = W_HAT[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3]);
-//                         }
-//                 }
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                BRACKET[i][m] = W_HAT[i][m] - (INFLOW_MINUS_SUM[i][0]*KZ_SUM[0] + INFLOW_MINUS_SUM[i][1]*KZ_SUM[1] + INFLOW_MINUS_SUM[i][2]*KZ_SUM[2] + INFLOW_MINUS_SUM[i][3]*KZ_SUM[3] + INFLOW_MINUS_SUM[i][4]*KZ_SUM[4]);
+                        }
+                }
 
-//                 for(i=0;i<4;++i){
-//                         for(m=0;m<3;++m){
-//                                 FLUC_HALF_N[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m];
-//                         }
-//                 }
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                FLUC_HALF_N[i][m] = 0.5*(INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m] + INFLOW[i][4][m][0]*BRACKET[4][m]);
+                        }
+                }
 
-//                 for(i=0;i<4;++i){
-//                         for(m=0;m<3;++m){
-//                                 AREA_DIFF[i][m] = AREA*(U_HALF[i][m] - U_N[i][m])/3.0;
-//                         }
-//                 }
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                AREA_DIFF[i][m] = VOLUME*(U_HALF[i][m] - U_N[i][m])/4.0;
+                        }
+                }
 
-//                 for(i=0;i<4;++i){
-//                         for(m=0;m<3;++m){
-//                                 if(DT == 0.0){
-//                                         SECOND_FLUC_N[i][m] = 0.0;
-//                                 }else{
-//                                         SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
-//                                 }
-
-//                                 // std::cout << AREA_DIFF[i][m] << "\t" << FLUC_N[i][m] << "\t" << FLUC_HALF_N[i][m] << "\t" << SECOND_FLUC_N[i][m] << std::endl;
-//                         }
-//                 }
-// #endif
+                for(i=0;i<5;++i){
+                        for(m=0;m<4;++m){
+                                if(DT == 0.0){
+                                        SECOND_FLUC_N[i][m] = 0.0;
+                                }else{
+                                        SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+                                }
+                        }
+                }
+#endif
 
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
@@ -823,13 +821,14 @@ public:
 
                 // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
 
-// #ifdef N_SCHEME
-//                 for(i=0;i<4;i++){
-//                         DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
-//                         DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
-//                         DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];
-//                 }
-// #endif
+#ifdef N_SCHEME
+                for(i=0;i<4;i++){
+                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
+                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
+                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];
+                        DU3[i] = (DT/DUAL[3])*SECOND_FLUC_N[i][3];
+                }
+#endif
 
 // #ifdef BLENDED
 //                 double THETA_E[4][4];

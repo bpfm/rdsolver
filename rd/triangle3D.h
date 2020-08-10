@@ -822,7 +822,7 @@ public:
                 // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
 
 #ifdef N_SCHEME
-                for(i=0;i<4;i++){
+                for(i=0;i<5;i++){
                         DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
                         DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
                         DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];

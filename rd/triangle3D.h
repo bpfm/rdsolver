@@ -808,8 +808,6 @@ public:
                 DUAL[2] = VERTEX_2->get_dual();
                 DUAL[3] = VERTEX_3->get_dual();
 
-                // std::cout << SECOND_FLUC_LDA[0][0] << "\t" << SECOND_FLUC_LDA[0][1] << "\t" << SECOND_FLUC_LDA[0][2] << std::endl;
-
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
                         DU0[i] = (DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
@@ -818,8 +816,6 @@ public:
                         DU3[i] = (DT/DUAL[3])*SECOND_FLUC_LDA[i][3];
                 }
 #endif
-
-                // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
 
 #ifdef N_SCHEME
                 for(i=0;i<5;i++){

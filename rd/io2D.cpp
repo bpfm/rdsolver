@@ -120,7 +120,7 @@ int cgal_read_positions_header(std::ifstream &CGAL_FILE){
 
         // check boundaries match
         if(XLOW < 0.0 or YLOW < 0.0 or int(XHIGH) != SIDE_LENGTH_X or int(YHIGH) != SIDE_LENGTH_Y){
-                std::cout << "BWARNING: Exiting on mismatching boundaries." << std::endl;
+                std::cout << "BWARNING: Exiting on mismatching boundaries. Have (X): " << XLOW  << "\t" << XHIGH << "\tNeed (X): " << 0.0 << "\t" << SIDE_LENGTH_X << std::endl;
                 exit(0);
         }
 

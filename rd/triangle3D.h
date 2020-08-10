@@ -262,10 +262,10 @@ public:
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
 
-		if(std::isnan(C)){C = PRES_LIM;}
-		
-		// if(ID == 643245){std::cout << C << std::endl;}
-		
+                if(std::isnan(C)){C = PRES_LIM;}
+                
+                // if(ID == 643245){std::cout << C << std::endl;}
+                
                 VX_C = VX/C;
                 VY_C = VY/C;
                 VZ_C = VZ/C;
@@ -388,7 +388,7 @@ public:
 
                 for(i=0;i<5;++i){
                         for(m=0;m<4;++m){
-                                FLUC_LDA[i][m] = BETA[i][0][m]*PHI[0] + BETA[i][1][m]*PHI[1] + BETA[i][2][m]*PHI[2] + BETA[i][3][m]*PHI[3] + BETA[i][4][m]*PHI[4];
+                                FLUC_LDA[i][m] = 0.5*(BETA[i][0][m]*PHI[0] + BETA[i][1][m]*PHI[1] + BETA[i][2][m]*PHI[2] + BETA[i][3][m]*PHI[3] + BETA[i][4][m]*PHI[4]);
                         }
                 }
 #endif
@@ -413,7 +413,7 @@ public:
 
                 for(i=0;i<5;++i){
                         for(m=0;m<4;++m){
-                                FLUC_N[i][m] = INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m] + INFLOW[i][4][m][0]*BRACKET[4][m];
+                                FLUC_N[i][m] = 0.5*(INFLOW[i][0][m][0]*BRACKET[0][m] + INFLOW[i][1][m][0]*BRACKET[1][m] + INFLOW[i][2][m][0]*BRACKET[2][m] + INFLOW[i][3][m][0]*BRACKET[3][m] + INFLOW[i][4][m][0]*BRACKET[4][m]);
                         }
                 }
 #endif
@@ -478,29 +478,29 @@ public:
 
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = 0.5*DT*FLUC_LDA[i][0] / DUAL[0];
-                        DU1[i] = 0.5*DT*FLUC_LDA[i][1] / DUAL[1];
-                        DU2[i] = 0.5*DT*FLUC_LDA[i][2] / DUAL[2];
-                        DU3[i] = 0.5*DT*FLUC_LDA[i][3] / DUAL[3];
+                        DU0[i] = DT*FLUC_LDA[i][0] / DUAL[0];
+                        DU1[i] = DT*FLUC_LDA[i][1] / DUAL[1];
+                        DU2[i] = DT*FLUC_LDA[i][2] / DUAL[2];
+                        DU3[i] = DT*FLUC_LDA[i][3] / DUAL[3];
                         // if(PRINT == 1){std::cout << ID << "\tDU i =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
 #endif
 
 #ifdef N_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = 0.5*DT*FLUC_N[i][0]/DUAL[0];
-                        DU1[i] = 0.5*DT*FLUC_N[i][1]/DUAL[1];
-                        DU2[i] = 0.5*DT*FLUC_N[i][2]/DUAL[2];
-                        DU3[i] = 0.5*DT*FLUC_N[i][3]/DUAL[3];
+                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
+                        DU3[i] = DT*FLUC_N[i][3]/DUAL[3];
                 }
 #endif
 
 #ifdef BLENDED 
                 for(i=0;i<5;i++){
-                        DU0[i] = 0.5*DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = 0.5*DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = 0.5*DT*FLUC_B[i][2]/DUAL[2];
-                        DU3[i] = 0.5*DT*FLUC_B[i][3]/DUAL[3];
+                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
+                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
+                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU3[i] = DT*FLUC_B[i][3]/DUAL[3];
                 }
 #endif
 
@@ -514,11 +514,11 @@ public:
 
         //**********************************************************************************************************************
 
-        void calculate_second_half(double T, double DT_TOT){
+        void calculate_second_half(double T, double DT){
                 int i,j,m,p;
+                double INFLOW[5][5][4][3];
                 double DU0[5],DU1[5],DU2[5],DU3[5];
 
-                // double INFLOW[4][4][3][3];
                 // double DT = DT_TOT;
 
                 setup_half_state();
@@ -594,6 +594,8 @@ public:
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
+                if(std::isnan(C)){C = PRES_LIM;}
+
                 // Reassign variables to local equivalents
 
                 VX_C = VX/C;
@@ -609,7 +611,7 @@ public:
 
                 for(m=0;m<4;++m){
 
-                        W = U*N_X[m] + V*N_Y[m];
+                        W = VX*N_X[m] + VY*N_Y[m] + VZ*N_Z[m];
 
                         LAMBDA[0][m] = W + C;
                         LAMBDA[1][m] = W - C;
@@ -700,7 +702,7 @@ public:
 
                 for(i=0;i<5;++i){
                         for(m=0;m<4;++m){
-                                FLUC_HALF_LDA[i][m] = BETA[i][0][m] * PHI_HALF[0] + BETA[i][1][m] * PHI_HALF[1] + BETA[i][2][m] * PHI_HALF[2] + BETA[i][3][m] * PHI_HALF[3] + BETA[i][4][m] * PHI_HALF[4];
+                                FLUC_HALF_LDA[i][m] = 0.5*(BETA[i][0][m] * PHI_HALF[0] + BETA[i][1][m] * PHI_HALF[1] + BETA[i][2][m] * PHI_HALF[2] + BETA[i][3][m] * PHI_HALF[3] + BETA[i][4][m] * PHI_HALF[4]);
                         }
                 }
 

@@ -26,7 +26,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 100
+#define N_SNAP 100000
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -55,7 +55,7 @@
 //-----------------------------------------
 /* define flag for fixed timestep */
 //-----------------------------------------
-// #define FIXED_DT
+#define FIXED_DT
 
 //-----------------------------------------
 /* define type of grid (none for square grid of vertices) */
@@ -73,14 +73,14 @@
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-#define FIRST_ORDER
+// #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 // #define PARA_RES
 // #define PARA_UP
 
-double MASS_LIM = 0.0001;
-double PRES_LIM = 0.0001;
+double M_LIM = 0.01;
+double E_LIM = 1.0;
 
 // Sod Shock Tube (Varied in X)
 #ifdef SODX
@@ -122,7 +122,7 @@ double SIDE_LENGTH_Z = 10.0;
 // Sedov Blast Wave 3D
 #ifdef SEDOV3D
 double CFL = 0.001;
-double T_TOT = 0.1;
+double T_TOT = 0.0001;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;

@@ -4,7 +4,7 @@ IO routines to write simple ASCII output for python plotting
 */
 
 void open_snap(std::ofstream &SNAPFILE, int i){
-        SNAPFILE.open("output/snapshot3D_"+std::to_string(i)+".txt");
+        SNAPFILE.open(OUT_DIR+"snapshot3D_"+std::to_string(i)+".txt");
         return;
 }
 
@@ -133,6 +133,3 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
         return NEW_TRIANGLE;
 }
 #endif
-
-
-

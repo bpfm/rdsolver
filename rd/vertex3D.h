@@ -164,12 +164,10 @@ public:
                 Z_VELOCITY      = U_VARIABLES[3]/MASS_DENSITY;
                 SPECIFIC_ENERGY = U_VARIABLES[4]/MASS_DENSITY;
                 recalculate_pressure();
-                // check_values();
                 // prim_to_con();
         }
 
         void con_to_prim_half(){
-                // check_values();
                 MASS_DENSITY_HALF    = U_HALF[0];
                 X_VELOCITY_HALF      = U_HALF[1]/MASS_DENSITY_HALF;
                 Y_VELOCITY_HALF      = U_HALF[2]/MASS_DENSITY_HALF;
@@ -246,21 +244,18 @@ public:
         }
 
         void check_values(){
-#ifdef DEBUG
-                std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
-#endif
                 if (U_VARIABLES[0] <= MASS_LIM){
-                        U_VARIABLES[0] = MASS_LIM;
-                        U_VARIABLES[1] = U_VARIABLES[2] = U_VARIABLES[3] = 0.000001;
-			U_VARIABLES[4] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
+                        U_VARIABLES[0] = MASS_LIM;
+                        U_VARIABLES[1] = U_VARIABLES[2] = U_VARIABLES[3] = 0.000001;
+                        U_VARIABLES[4] = PRES_LIM;
                         // exit(0);
                 }
                 if (U_VARIABLES[4] <= PRES_LIM){
-                        U_VARIABLES[4] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative energy\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[4] << std::endl;
+                        U_VARIABLES[4] = PRES_LIM;
                         // exit(0);
                 }
         }
@@ -269,7 +264,7 @@ public:
                 if (U_HALF[0] <= MASS_LIM){
                         U_HALF[0] = MASS_LIM;
                         U_HALF[1] = U_HALF[2] = U_HALF[3] = 0.000001;
-			U_HALF[4] = PRES_LIM;
+                        U_HALF[4] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
                         // exit(0);

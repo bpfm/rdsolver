@@ -138,6 +138,7 @@ int main(){
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = cgal_read_positions_line(CGAL_FILE);
                 NEW_VERTEX.reset_len_vel_sum();
+                NEW_VERTEX.set_id(i);
                 RAND_POINTS.push_back(NEW_VERTEX);
         }
 
@@ -209,7 +210,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;// std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -245,9 +246,6 @@ int main(){
                         RAND_MESH[j].pass_update_half(DT);
                 }
 
-                // for(j=0;j<N_TRIANG;++j){
-                //         RAND_MESH[j].pass_update_half(DT);
-                // }
 
 #ifdef PARA_UP
                 #pragma omp parallel for

@@ -253,7 +253,10 @@ public:
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
-                if(std::isnan(C)){C = PRES_LIM;}
+                // if(std::isnan(C)){C = sqrt(GAMMA*PRESSURE_AVG/RHO);}
+
+                // if(ID == 3086){print_triangle_state();}
+                // if(ID == 3086){std::cout << 1 << "\t" << C << "\t" << H_AVG << "\t" << U << "\t" << V << "\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << "\t" << RHO << std::endl;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -402,7 +405,7 @@ public:
                         }
                 }
 
-                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,1);
 
                 // std::cout << "Post-inversion =" << std::endl;
 
@@ -539,6 +542,10 @@ public:
 
 #endif
 
+                // if(VERTEX_0->get_id() == 3587){std::cout << "1st\t" << DU0[0] << "\t" <<  DU0[1] << "\t" <<  DU0[2] << "\t" <<  DU0[3] << std::endl;}
+                // if(VERTEX_1->get_id() == 3587){std::cout << "1st\t" << DU1[0] << "\t" <<  DU1[1] << "\t" <<  DU1[2] << "\t" <<  DU1[3] << std::endl;}
+                // if(VERTEX_2->get_id() == 3587){std::cout << "1st\t" << DU2[0] << "\t" <<  DU2[1] << "\t" <<  DU2[2] << "\t" <<  DU2[3] << std::endl;}
+
                 VERTEX_0->update_du_half(DU0);
                 VERTEX_1->update_du_half(DU1);
                 VERTEX_2->update_du_half(DU2);
@@ -662,8 +669,12 @@ public:
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/3.0;
-                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
-                // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+                C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+
+                // if(std::isnan(C)){C = sqrt(GAMMA*PRESSURE_AVG/RHO);}
+
+                // if(ID == 3086){print_triangle_state();}
+                // if(ID == 3086){std::cout << 2 << "\t" << C << "\t" << H_AVG << "\t" << U << "\t" << V << "\t" << sPRESSURE_AVG << "\t" << RHO << std::endl;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -672,12 +683,8 @@ public:
 
                 // Reassign variables to local equivalents
 
-                C   = C_SOUND_AVG;
-
                 U_C = U/C;
-
                 V_C = V/C;
-
                 H_C = H_AVG/C;
 
                 ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
@@ -901,7 +908,7 @@ public:
                         }
                 }
 
-                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],2);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,2);
 
                 double AREA_DIFF[4][3];
                 double BRACKET[4][3];
@@ -944,7 +951,6 @@ public:
                         }
                 }
 
-        
 #endif
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
@@ -1010,6 +1016,10 @@ public:
                 }
 #endif
 
+                // if(VERTEX_0->get_id() == 3587){std::cout << "2nd\t" << ID << "\t" << DU0[0] << "\t" <<  DU0[1] << "\t" <<  DU0[2] << "\t" <<  DU0[3] << std::endl;}
+                // if(VERTEX_1->get_id() == 3587){std::cout << "2nd\t" << ID << "\t" << DU1[0] << "\t" <<  DU1[1] << "\t" <<  DU1[2] << "\t" <<  DU1[3] << std::endl;}
+                // if(VERTEX_2->get_id() == 3587){std::cout << "2nd\t" << ID << "\t" << DU2[0] << "\t" <<  DU2[1] << "\t" <<  DU2[2] << "\t" <<  DU2[3] << std::endl;}
+
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
@@ -1022,7 +1032,6 @@ public:
         }
 
         // void pass_update(double DT){
-
 
         // }
 

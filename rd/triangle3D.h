@@ -124,6 +124,13 @@ public:
                 Z[3] = VERTEX_3->get_z();
         }
 
+        void setup_dual(){
+                DUAL[0] = VERTEX_0->get_dual();
+                DUAL[1] = VERTEX_1->get_dual();
+                DUAL[2] = VERTEX_2->get_dual();
+                DUAL[3] = VERTEX_3->get_dual();
+        }
+
         // import initial fluid state and pressure for all vertices
         void setup_initial_state(){
                 U_N[0][0] = VERTEX_0->get_u0();
@@ -200,6 +207,7 @@ public:
                 // Import conditions and positions of vertices
 
                 setup_positions();
+                setup_dual();
                 setup_initial_state();
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -262,10 +270,6 @@ public:
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
 
-                if(std::isnan(C)){C = PRES_LIM;}
-                
-                // if(ID == 643245){std::cout << C << std::endl;}
-                
                 VX_C = VX/C;
                 VY_C = VY/C;
                 VZ_C = VZ/C;
@@ -372,7 +376,7 @@ public:
                         }
                 }
 
-                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],ID);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],ID,1);
 
                 // Calculate spatial splitting for first half timestep
 
@@ -470,11 +474,6 @@ public:
         void pass_update_half(double DT){
                 int i;
                 double DU0[5],DU1[5],DU2[5],DU3[5];
-
-                DUAL[0] = VERTEX_0->get_dual();
-                DUAL[1] = VERTEX_1->get_dual();
-                DUAL[2] = VERTEX_2->get_dual();
-                DUAL[3] = VERTEX_3->get_dual();
 
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
@@ -586,15 +585,11 @@ public:
                 VX    = (sqrt(U_HALF[0][0])*U_HALF[1][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[1][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[1][2]/U_HALF[0][2] + sqrt(U_HALF[0][3])*U_HALF[1][3]/U_HALF[0][3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]));
                 VY    = (sqrt(U_HALF[0][0])*U_HALF[2][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[2][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[2][2]/U_HALF[0][2] + sqrt(U_HALF[0][3])*U_HALF[2][3]/U_HALF[0][3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]));
                 VZ    = (sqrt(U_HALF[0][0])*U_HALF[3][0]/U_HALF[0][0] + sqrt(U_HALF[0][1])*U_HALF[3][1]/U_HALF[0][1] + sqrt(U_HALF[0][2])*U_HALF[3][2]/U_HALF[0][2] + sqrt(U_HALF[0][3])*U_HALF[3][3]/U_HALF[0][3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]));
-                H_AVG = (sqrt(U_HALF[0][0])*H[0] + sqrt(U_HALF[0][1])*H[1] + sqrt(U_HALF[0][2])*H[2] + sqrt(U_HALF[0][3])*H[3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]));
-               
-                // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
+                H_AVG = (sqrt(U_HALF[0][0])*H[0] + sqrt(U_HALF[0][1])*H[1] + sqrt(U_HALF[0][2])*H[2] + sqrt(U_HALF[0][3])*H[3])/(sqrt(U_HALF[0][0]) + sqrt(U_HALF[0][1]) + sqrt(U_HALF[0][2]) + sqrt(U_HALF[0][3]));
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
-
-                if(std::isnan(C)){C = PRES_LIM;}
 
                 // Reassign variables to local equivalents
 
@@ -761,7 +756,7 @@ public:
                         }
                 }
 
-                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],ID);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],5,X[0],Y[0],ID,2);
 
                 double AREA_DIFF[5][4];
                 double BRACKET[5][4];
@@ -802,11 +797,6 @@ public:
                         }
                 }
 #endif
-
-                DUAL[0] = VERTEX_0->get_dual();
-                DUAL[1] = VERTEX_1->get_dual();
-                DUAL[2] = VERTEX_2->get_dual();
-                DUAL[3] = VERTEX_3->get_dual();
 
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){

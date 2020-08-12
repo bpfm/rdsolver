@@ -44,9 +44,6 @@ int main(){
 
         /****** Setup initial conditions of one dimensional tube ******/
 
-        std::cout << std::fixed;
-        std::cout << std::setprecision(9);
-
         std::cout << "*********************************************************" << std::endl;
 
 #ifdef LDA_SCHEME
@@ -198,6 +195,9 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
+        std::cout << std::fixed;
+        std::cout << std::setprecision(6);
+
         int TBIN, TBIN_CURRENT = 0;
 
         NEXT_DT = 0.0;                                                            // set first timestep to zero
@@ -214,17 +214,11 @@ int main(){
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
-                        // write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
+                        write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
                 }
-
-// #ifdef DEBUG
-                // std::cout << std::fixed;
-                // std::cout << std::setprecision(6);
-                // std::cout << "Calculating first half time step change" << std::endl;
-// #endif
 
 #ifdef PARA_RES
                 #pragma omp parallel for
@@ -278,17 +272,16 @@ int main(){
                 direct_gravity(RAND_POINTS, N_POINTS, DT);
 #endif
 
-                for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
-                }
-
                 if(TBIN_CURRENT == 0){
+                        for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
+                                RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
+                        }
                         NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)å
                         for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
                                 POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
-                                if(POSSIBLE_DT<NEXT_DT){NEXT_DT = POSSIBLE_DT;}
+                                if(POSSIBLE_DT < NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                                 RAND_POINTS[i].reset_len_vel_sum();
-                                RAND_POINTS[i].set_tbin_local(N_TBINS);
+                                // RAND_POINTS[i].set_tbin_local(N_TBINS);
                         }
                         for(j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
                                 MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
@@ -307,13 +300,13 @@ int main(){
                                         RAND_MESH[j].set_tbin(8);
                                         // std::cout << 8 << std::endl
                                 }
-                                RAND_MESH[j].send_tbin_limit();
+                                // RAND_MESH[j].send_tbin_limit();
                         }
-                        for(j=0;j<N_TRIANG;++j){
-                                RAND_MESH[j].check_tbin();
-                        }
+                        // for(j=0;j<N_TRIANG;++j){
+                        //         RAND_MESH[j].check_tbin();
+                        // }
                 }
-
+                // std::cout << NEXT_DT << std::endl;
                 // std::cout << TBIN_CURRENT << std::endl;
 
                 TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;                     // increment time step bin

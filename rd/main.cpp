@@ -192,11 +192,10 @@ int main(){
         std::cout << "Checking mesh size ..." << std::endl;
         std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
         std::cout << "Evolving fluid ..." << std::endl;
-
-        /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
-
         std::cout << std::fixed;
         std::cout << std::setprecision(6);
+
+        /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
         int TBIN, TBIN_CURRENT = 0;
 
@@ -223,14 +222,15 @@ int main(){
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
+#ifdef DRIFT
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         TBIN = RAND_MESH[j].get_tbin();
-                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1) \
-                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1)) \
+                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
+                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1))\
                                              or (TBIN_CURRENT == 3 and  TBIN == 1)\
                                              or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
                                              or (TBIN_CURRENT == 5 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1)) \
+                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
                                              or (TBIN_CURRENT == 7 and  TBIN == 1)\
                                              ){
                                 // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
@@ -239,7 +239,56 @@ int main(){
                         // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
                         RAND_MESH[j].pass_update_half(DT);
                 }
+#endif
+#ifdef JUMP
+                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
+                        TBIN = RAND_MESH[j].get_tbin();
+                        // std::cout << TBIN << std::endl;
+                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
+                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1))\
+                                             or (TBIN_CURRENT == 3 and  TBIN == 1)\
+                                             or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
+                                             or (TBIN_CURRENT == 5 and  TBIN == 1)\
+                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
+                                             or (TBIN_CURRENT == 7 and  TBIN == 1)\
+                                             ){
+                                // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
+                                RAND_MESH[j].calculate_first_half(T);
+                        }
+                        if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
 
+                        if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+                        if(TBIN_CURRENT == 1 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
+
+                        if(TBIN_CURRENT == 2 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+
+                        if(TBIN_CURRENT == 3 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+                        if(TBIN_CURRENT == 3 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
+                        if(TBIN_CURRENT == 3 and TBIN == 4){RAND_MESH[j].pass_update_half(4.0*DT);}
+
+                        if(TBIN_CURRENT == 4 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+
+                        if(TBIN_CURRENT == 5 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+                        if(TBIN_CURRENT == 5 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
+
+                        if(TBIN_CURRENT == 6 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+
+                        if(TBIN_CURRENT == 7 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
+                        if(TBIN_CURRENT == 7 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
+                        if(TBIN_CURRENT == 7 and TBIN == 4){RAND_MESH[j].pass_update_half(4.0*DT);}
+                        if(TBIN_CURRENT == 7 and TBIN == 8){RAND_MESH[j].pass_update_half(8.0*DT);}
+
+                        // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
+                        // RAND_MESH[j].pass_update_half(DT);
+                }
+#endif
+
+#if !defined(DRIFT) && !defined(JUMP)
+                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
+                        RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update_half(DT);
+                }
+#endif
 
 #ifdef PARA_UP
                 #pragma omp parallel for

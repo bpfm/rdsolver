@@ -195,12 +195,6 @@ int main(){
                         SNAP_ID ++;
                 }
 
-// #ifdef DEBUG
-                // std::cout << std::fixed;
-                // std::cout << std::setprecision(6);
-                // std::cout << "Calculating first half time step change" << std::endl;
-// #endif
-
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif

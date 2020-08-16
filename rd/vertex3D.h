@@ -1,5 +1,4 @@
 /*      class containing conserved and primative variables of fluid at the position of the vertex
-
                 X = x position of vertex
                 Y = y position of vertex
                 DX = change in x between vertices (should no longer be used)

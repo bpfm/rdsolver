@@ -1,5 +1,4 @@
 /* class containing values and functions associated with triangles
-
         ID = ID number of triangle
         *VERTEX_0 => pointers to VERTEX 0 of triangle (counter clockwise order)
         *VERTEX_1 => pointers to VERTEX 1 of triangle

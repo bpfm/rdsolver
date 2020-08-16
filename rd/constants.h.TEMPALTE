@@ -5,23 +5,23 @@
 // #define SODX
 // #define SODY
 // #define SINEX
-// #define SEDOV2D
-// #define SEDOV3D
-// #define GAUSS3D
+#define SEDOV
+// #define GAUSSX
+// #define GAUSSY
 // #define UNIFORM
 // #define NOH
 // #define KHX
 // #define KHY
 // #define KHXSMOOTH
 // #define KHYSMOOTH
-#define BLOB
+// #define BLOB
 // #define GRAVITY
 
 //-----------------------------------------
 /* set dimensionality */
 //-----------------------------------------
-// #define TWO_D
-#define THREE_D
+#define TWO_D
+// #define THREE_D
 
 //-----------------------------------------
 /* set umber of snapshots */
@@ -37,6 +37,7 @@
 /* define flag to read positions and triangles from file (only option currently) */
 //-----------------------------------------
 #define READ_IC           // doesn't work yet
+
 
 //-----------------------------------------
 /* define flag for using either QHULL or CGAL triangulation */
@@ -66,8 +67,8 @@
 /* define distribution scheme */
 //-----------------------------------------
 // #define LDA_SCHEME
-// #define N_SCHEME
-#define BLENDED
+#define N_SCHEME
+// #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
@@ -78,19 +79,21 @@
 // #define PARA_RES
 // #define PARA_UP
 
-double M_LIM = 0.1;
-double E_LIM = 0.1;
+int N_TBINS = 1;
 
-std::string OUT_DIR = "output64/";
-std::string LOG_DIR = OUT_DIR + "log.txt";  
+double GRAV = 6.67e-11;
+double MSOLAR = 1.989e+30;
+
+double M_LIM = 0.01;
+double E_LIM = 1.0;
 
 // Sod Shock Tube (Varied in X)
 #ifdef SODX
-double CFL = 0.1;
-double T_TOT = 0.1;
+double CFL = 0.4;
+double T_TOT = 0.2;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Sod Shock Tube (Varied in Y)
@@ -111,39 +114,36 @@ double SIDE_LENGTH_X = 2.0;
 double SIDE_LENGTH_Y = 2.0;
 #endif
 
-// Sedov Blast Wave 2D
-#ifdef SEDOV2D
+// Sedov Blast Wave
+#ifdef SEDOV
 double CFL = 0.4;
-double T_TOT = 0.1;
+double T_TOT = 0.01;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
 double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
 #endif
 
-// Sedov Blast Wave 3D
-#ifdef SEDOV3D
-double CFL = 0.4;
-double T_TOT = 0.04;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
-double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
-#endif
-
-double R_BLAST     = 0.25;
 double BLAST_E_TOT = 0.0;
+double R_BLAST     = 0.1;
 double AREA_CHECK  = 0.0;
 int POINT_CHECK    = 0;
 
 // Gaussian pulse advection (x-direction)
-#ifdef GAUSS3D
-double CFL = 0.5;
+#ifdef GAUSSX
+double CFL = 0.4;
 double T_TOT = 0.5;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
-double SIDE_LENGTH_Z = 1.0;
+#endif
+
+// Gaussian pulse advection (y-direction)
+#ifdef GAUSSY
+double CFL = 0.1;
+double T_TOT = 0.1;
+double GAMMA = 5.0/3.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Uniform flow
@@ -153,16 +153,15 @@ double T_TOT = 1.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
-double SIDE_LENGTH_Z = 1.0;
 #endif
 
 // 2D Noh problem
 #ifdef NOH
-double CFL = 0.4;
-double T_TOT = 0.1;
+double CFL = 0.1;
+double T_TOT = 1.0;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+double SIDE_LENGTH_X = 10.0;
+double SIDE_LENGTH_Y = 10.0;
 #endif
 
 // KH instability (x flow)
@@ -177,7 +176,7 @@ double SIDE_LENGTH_Y = 1.0;
 // KH instability (y flow)
 #ifdef KHY
 double CFL = 0.4;
-double T_TOT = 2.0;
+double T_TOT = 4.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
@@ -186,7 +185,7 @@ double SIDE_LENGTH_Y = 1.0;
 // KH instability - smoothed (x flow)
 #ifdef KHXSMOOTH
 double CFL = 0.4;
-double T_TOT = 0.5;
+double T_TOT = 4.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
@@ -195,7 +194,7 @@ double SIDE_LENGTH_Y = 1.0;
 // KH instability - smoothed (y flow)
 #ifdef KHYSMOOTH
 double CFL = 0.4;
-double T_TOT = 2.0;
+double T_TOT = 4.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
 double SIDE_LENGTH_Y = 1.0;
@@ -203,12 +202,11 @@ double SIDE_LENGTH_Y = 1.0;
 
 // Blob test
 #ifdef BLOB
-double CFL = 0.01;
-double T_TOT = 10.0;
+double CFL = 0.4;
+double T_TOT = 2.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0;
 double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
 #endif
 
 // Grav Test !!! NOT WORKING !!!
@@ -218,19 +216,11 @@ double T_TOT = 10.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0;
 double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
 #endif
 
 double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
-double GRAV = 6.67e-11;
-double MSOLAR = 1.989e+30;
-
-double BND_TOL = 0.75;
-
-int N_TBINS = 1;
-
 #ifdef FIXED_DT
-double DT_FIX = 0.00001;
+double DT_FIX = 0.0000001;
 #endif

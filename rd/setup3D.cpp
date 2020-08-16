@@ -30,11 +30,13 @@ VERTEX setup_vertex(double X, double Y, double Z){
                 NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
                 NEW_VERTEX.set_x_velocity(0.000000001);                       // units m/s
                 NEW_VERTEX.set_y_velocity(0.000000001);                       // units m/s
+                NEW_VERTEX.set_z_velocity(0.000000001);                       // units m/s
                 NEW_VERTEX.set_pressure(1.0);                                 // units N/m^2
         }else{
                 NEW_VERTEX.set_mass_density(0.125);                             // units kg/m^3
                 NEW_VERTEX.set_x_velocity(0.000000001);                       // units m/s
                 NEW_VERTEX.set_y_velocity(0.000000001);                       // units m/s
+                NEW_VERTEX.set_z_velocity(0.000000001);                       // units m/s
                 NEW_VERTEX.set_pressure(0.1);                                 // units N/m^2
         }
 

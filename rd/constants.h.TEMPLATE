@@ -2,10 +2,10 @@
 /* choose hydro test */
 //-----------------------------------------
 
-// #define SODX
+#define SODX
 // #define SODY
 // #define SINEX
-#define SEDOV
+// #define SEDOV
 // #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
@@ -56,6 +56,8 @@
 /* define flag for fixed timestep */
 //-----------------------------------------
 // #define FIXED_DT
+#define DRIFT
+// #define JUMP
 
 //-----------------------------------------
 /* define type of grid (none for square grid of vertices) */
@@ -66,14 +68,14 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-// #define LDA_SCHEME
-#define N_SCHEME
+#define LDA_SCHEME
+// #define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-// #define FIRST_ORDER
+#define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 // #define PARA_RES
@@ -84,16 +86,16 @@ int N_TBINS = 1;
 double GRAV = 6.67e-11;
 double MSOLAR = 1.989e+30;
 
-double M_LIM = 0.01;
-double E_LIM = 1.0;
+double M_LIM = 0.00001;    // change for different tests
+double E_LIM = 0.00001;
 
 // Sod Shock Tube (Varied in X)
 #ifdef SODX
-double CFL = 0.4;
+double CFL = 0.5;
 double T_TOT = 0.2;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+double SIDE_LENGTH_X = 2.0;
+double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sod Shock Tube (Varied in Y)

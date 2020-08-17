@@ -301,6 +301,8 @@ int main(){
                 }
 #endif
 
+
+
 #if !defined(DRIFT) && !defined(JUMP)
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE

@@ -301,8 +301,6 @@ int main(){
                 }
 #endif
 
-
-
 #if !defined(DRIFT) && !defined(JUMP)
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
@@ -336,11 +334,9 @@ int main(){
                         RAND_POINTS[i].check_values();
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
-
 #ifdef SELF_GRAVITY
                 direct_gravity(RAND_POINTS, N_POINTS, DT);
 #endif
-
                 if(TBIN_CURRENT == 0){
                         for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                                 RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE

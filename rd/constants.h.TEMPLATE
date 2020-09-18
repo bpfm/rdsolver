@@ -2,7 +2,7 @@
 /* choose hydro test */
 //-----------------------------------------
 
-#define SODX
+// #define SODX
 // #define SODY
 // #define SINEX
 // #define SEDOV
@@ -14,7 +14,7 @@
 // #define KHY
 // #define KHXSMOOTH
 // #define KHYSMOOTH
-// #define BLOB
+#define BLOB
 // #define GRAVITY
 
 //-----------------------------------------
@@ -26,7 +26,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 100
+#define N_SNAP 0
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -68,8 +68,8 @@
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-#define LDA_SCHEME
-// #define N_SCHEME
+// #define LDA_SCHEME
+#define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
@@ -78,8 +78,8 @@
 #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
-// #define PARA_RES
-// #define PARA_UP
+#define PARA_RES
+#define PARA_UP
 
 int N_TBINS = 1;
 
@@ -186,7 +186,7 @@ double SIDE_LENGTH_Y = 1.0;
 
 // KH instability - smoothed (x flow)
 #ifdef KHXSMOOTH
-double CFL = 0.4;
+double CFL = 0.1;
 double T_TOT = 4.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 1.0;
@@ -205,7 +205,7 @@ double SIDE_LENGTH_Y = 1.0;
 // Blob test
 #ifdef BLOB
 double CFL = 0.4;
-double T_TOT = 2.0;
+double T_TOT = 4.0;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0;
 double SIDE_LENGTH_Y = 10.0;
@@ -224,5 +224,5 @@ double GAMMA_1 = GAMMA - 1.0;
 double GAMMA_2 = GAMMA - 2.0;
 
 #ifdef FIXED_DT
-double DT_FIX = 0.0000001;
+double DT_FIX = 0.00001;
 #endif

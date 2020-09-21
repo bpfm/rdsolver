@@ -148,7 +148,7 @@ VERTEX setup_vertex(double X, double Y){
         double X_VEL,Y_VEL,X_VEL_NORM,Y_VEL_NORM;
         double X_C = SIDE_LENGTH_X/2.0;
         double Y_C = SIDE_LENGTH_Y/2.0;
-        double RHO0 = 10.0;
+        double RHO0 = 1.0;
 
         X_VEL = (X_C - X);
         Y_VEL = (Y_C - Y);

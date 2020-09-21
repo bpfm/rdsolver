@@ -66,9 +66,9 @@ int main(){
 
         std::cout << "Building grid of vertices" << std::endl;
 
-        std::ofstream LOGFILE;
+                std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
-        LOGFILE.open("output/log.txt");
+        LOGFILE.open(LOG_DIR);
 
         /****** Setup Vertices ******/
 

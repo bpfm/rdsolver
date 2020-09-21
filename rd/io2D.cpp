@@ -4,7 +4,7 @@ IO routines to write simple ASCII output for python plotting
 */
 
 void open_snap(std::ofstream &SNAPFILE, int i){
-        SNAPFILE.open("output/snapshot_"+std::to_string(i)+".txt");
+        SNAPFILE.open(OUT_DIR+"snapshot_"+std::to_string(i)+".txt");
         return;
 }
 

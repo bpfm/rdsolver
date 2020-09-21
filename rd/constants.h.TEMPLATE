@@ -89,6 +89,9 @@ double MSOLAR = 1.989e+30;
 double M_LIM = 0.00001;    // change for different tests
 double E_LIM = 0.00001;
 
+std::string OUT_DIR = "output256/";
+std::string LOG_DIR = OUT_DIR + "log.txt";  
+
 // Sod Shock Tube (Varied in X)
 #ifdef SODX
 double CFL = 0.5;

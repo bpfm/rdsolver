@@ -145,24 +145,30 @@ VERTEX setup_vertex(double X, double Y){
 #ifdef NOH
                 // if(i==0 and j==0){std::cout << "Using 2D Noh Problem" << std::endl;}
 
-        double X_VEL,Y_VEL;
+        double X_VEL,Y_VEL,X_VEL_NORM,Y_VEL_NORM;
         double X_C = SIDE_LENGTH_X/2.0;
         double Y_C = SIDE_LENGTH_Y/2.0;
+        double RHO0 = 10.0;
 
         X_VEL = (X_C - X);
         Y_VEL = (Y_C - Y);
 
-        X_VEL = X_VEL/sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL);
-        Y_VEL = Y_VEL/sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL);
+        X_VEL_NORM = X_VEL/sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL);
+        Y_VEL_NORM = Y_VEL/sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL);
 
         if(X == X_C and Y == Y_C){X_VEL = Y_VEL = 0.00000001;}
 
-        std::cout << X << "\t" << Y << "\t" << X_VEL << "\t" << Y_VEL << "\t" << sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL) << std::endl;
+        // std::cout << X << "\t" << Y << "\t" << X_VEL_NORM << "\t" << Y_VEL_NORM << "\t" << sqrt(X_VEL_NORM*X_VEL_NORM + Y_VEL_NORM*Y_VEL_NORM) << std::endl;
 
-        NEW_VERTEX.set_mass_density(10.0);
-        NEW_VERTEX.set_x_velocity(X_VEL);
-        NEW_VERTEX.set_y_velocity(Y_VEL);
+        NEW_VERTEX.set_mass_density(RHO0);
+        NEW_VERTEX.set_x_velocity(X_VEL_NORM);
+        NEW_VERTEX.set_y_velocity(Y_VEL_NORM);
         NEW_VERTEX.set_pressure(1.0);
+
+        NEW_VERTEX.RHO0  = RHO0;
+        NEW_VERTEX.VELX0 = X_VEL_NORM;
+        NEW_VERTEX.VELY0 = Y_VEL_NORM;
+        NEW_VERTEX.E0 = RHO0*(1.0/((GAMMA-1.0)*RHO0) + 0.5);
 
 #endif
 #ifdef KHX

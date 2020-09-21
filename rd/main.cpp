@@ -209,7 +209,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::flush;
+                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -371,9 +371,12 @@ int main(){
                         //         RAND_MESH[j].check_tbin();
                         // }
                 }
-                // std::cout << NEXT_DT << std::endl;
-                // std::cout << TBIN_CURRENT << std::endl;
 
+#ifdef NOH
+                for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
+                        RAND_MESH[j].check_boundary();             // calculate flux through TRIANGLE
+                }
+#endif
                 TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;                     // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number

@@ -1188,6 +1188,43 @@ public:
                 if(TBIN2<TBIN){TBIN=TBIN2;}
         }
 
+#ifdef NOH
+        void check_boundary(){
+                if(BOUNDARY == 1){
+                        VERTEX_0->set_u0(VERTEX_0->RHO0);
+                        VERTEX_1->set_u0(VERTEX_1->RHO0);
+                        VERTEX_2->set_u0(VERTEX_2->RHO0);
+                        VERTEX_0->set_u0_half(VERTEX_0->RHO0);
+                        VERTEX_1->set_u0_half(VERTEX_1->RHO0);
+                        VERTEX_2->set_u0_half(VERTEX_2->RHO0);
+                        VERTEX_0->set_u1(VERTEX_0->RHO0*VERTEX_0->VELX0);
+                        VERTEX_1->set_u1(VERTEX_1->RHO0*VERTEX_1->VELX0);
+                        VERTEX_2->set_u1(VERTEX_2->RHO0*VERTEX_2->VELX0);
+                        VERTEX_0->set_u1_half(VERTEX_0->RHO0*VERTEX_0->VELX0);
+                        VERTEX_1->set_u1_half(VERTEX_1->RHO0*VERTEX_1->VELX0);
+                        VERTEX_2->set_u1_half(VERTEX_2->RHO0*VERTEX_2->VELX0);
+                        VERTEX_0->set_u2(VERTEX_0->RHO0*VERTEX_0->VELY0);
+                        VERTEX_1->set_u2(VERTEX_1->RHO0*VERTEX_1->VELY0);
+                        VERTEX_2->set_u2(VERTEX_2->RHO0*VERTEX_2->VELY0);
+                        VERTEX_0->set_u2_half(VERTEX_0->RHO0*VERTEX_0->VELY0);
+                        VERTEX_1->set_u2_half(VERTEX_1->RHO0*VERTEX_1->VELY0);
+                        VERTEX_2->set_u2_half(VERTEX_2->RHO0*VERTEX_2->VELY0);
+                        VERTEX_0->set_u3(VERTEX_0->E0);
+                        VERTEX_1->set_u3(VERTEX_1->E0);
+                        VERTEX_2->set_u3(VERTEX_2->E0);
+                        VERTEX_0->set_u3_half(VERTEX_0->E0);
+                        VERTEX_1->set_u3_half(VERTEX_1->E0);
+                        VERTEX_2->set_u3_half(VERTEX_2->E0);
+                        VERTEX_0->con_to_prim();
+                        VERTEX_1->con_to_prim();
+                        VERTEX_2->con_to_prim();
+                        VERTEX_0->con_to_prim_half();
+                        VERTEX_1->con_to_prim_half();
+                        VERTEX_2->con_to_prim_half();
+                }
+        }
+#endif
+
         double max_val(double A, double B){
                 if(A>B){
                         return A;

@@ -9,12 +9,12 @@
 // #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
-// #define NOH
+#define NOH
 // #define KHX
 // #define KHY
 // #define KHXSMOOTH
 // #define KHYSMOOTH
-#define BLOB
+// #define BLOB
 // #define GRAVITY
 
 //-----------------------------------------
@@ -26,7 +26,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 0
+#define N_SNAP 100
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -78,8 +78,8 @@
 #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
-#define PARA_RES
-#define PARA_UP
+// #define PARA_RES
+// #define PARA_UP
 
 int N_TBINS = 1;
 
@@ -162,8 +162,8 @@ double SIDE_LENGTH_Y = 1.0;
 double CFL = 0.1;
 double T_TOT = 1.0;
 double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 10.0;
-double SIDE_LENGTH_Y = 10.0;
+double SIDE_LENGTH_X = 1.0;
+double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability (x flow)

@@ -257,15 +257,20 @@ VERTEX setup_vertex(double X, double Y){
 #ifdef GRAVITY
                 // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
 
-        NEW_VERTEX.set_mass_density(100.0);
+        double RHO0 = 1000.0;
+        double X_VEL = -1.0*MACH*0.0387;
+        double Y_VEL = 0.00000001;
+        double PRESSURE = 1.0;
 
-        double R = sqrt((X - 0.5)*(X - 0.5) + (Y - 0.5)*(Y - 0.5));
+        NEW_VERTEX.set_mass_density(RHO0);
+        NEW_VERTEX.set_x_velocity(X_VEL);
+        NEW_VERTEX.set_y_velocity(Y_VEL);
+        NEW_VERTEX.set_pressure(PRESSURE);
 
-        if(R<0.1){NEW_VERTEX.set_mass_density(1000.0);}
-
-        NEW_VERTEX.set_x_velocity(0.00000001);
-        NEW_VERTEX.set_y_velocity(0.00000001);
-        NEW_VERTEX.set_pressure(0.1);
+        NEW_VERTEX.RHO0  = RHO0;
+        NEW_VERTEX.VELX0 = X_VEL;
+        NEW_VERTEX.VELY0 = Y_VEL;
+        NEW_VERTEX.E0 = RHO0*(PRESSURE/((GAMMA-1.0)*RHO0) + 0.5*(X_VEL*X_VEL + Y_VEL*Y_VEL));
 
 #endif
 

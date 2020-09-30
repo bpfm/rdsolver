@@ -243,7 +243,7 @@ VERTEX setup_vertex(double X, double Y){
 
         if(RADIUS < 1.0){
                 NEW_VERTEX.set_mass_density(100.0);
-                NEW_VERTEX.set_x_velocity(0.0);
+                NEW_VERTEX.set_x_velocity(0.00000001);
         }else{
                 NEW_VERTEX.set_mass_density(10.0);
                 NEW_VERTEX.set_x_velocity(MACH*4.1);

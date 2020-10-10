@@ -11,11 +11,11 @@
 // #define UNIFORM
 // #define NOH
 // #define KHX
-// #define KHY
+#define KHY
 // #define KHXSMOOTH
 // #define KHYSMOOTH
 // #define BLOB
-#define GRAVITY
+// #define GRAVITY
 
 //-----------------------------------------
 /* set dimensionality */
@@ -57,6 +57,7 @@
 //-----------------------------------------
 // #define FIXED_DT
 #define DRIFT
+#define DRIFT_SHELL
 // #define JUMP
 
 //-----------------------------------------
@@ -78,11 +79,11 @@
 #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
-#define ANALYTIC_GRAVITY
+// #define ANALYTIC_GRAVITY
 // #define PARA_RES
 // #define PARA_UP
 
-int N_TBINS = 1;
+int N_TBINS = 8;
 
 double GRAV = 6.67e-11;
 double MSOLAR = 1.989e+30;
@@ -90,7 +91,7 @@ double MSOLAR = 1.989e+30;
 double M_LIM = 0.00001;    // change for different tests
 double E_LIM = 0.00001;
 
-std::string OUT_DIR = "output/";
+std::string OUT_DIR = "output128/";
 std::string LOG_DIR = OUT_DIR + "log.txt";  
 
 // Sod Shock Tube (Varied in X)

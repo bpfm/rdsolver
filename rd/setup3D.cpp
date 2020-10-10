@@ -276,6 +276,7 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_mass_density(RHO0);
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);
+	NEW_VERTEX.set_z_velocity(Z_VEL);
         NEW_VERTEX.set_pressure(PRESSURE);
 
 #endif

@@ -235,6 +235,12 @@ int main(){
 //                 direct_gravity(RAND_POINTS, N_POINTS, DT);
 // #endif
 
+#ifdef ANALYTIC_GRAVITY
+                for(i=0;i<N_POINTS;++i){
+                        RAND_POINTS[i].calc_newtonian_gravity(DT);
+                }
+#endif
+
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                         RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
                 }

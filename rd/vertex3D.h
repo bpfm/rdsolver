@@ -290,33 +290,30 @@ public:
                 return ;
         }
 
+        
+#ifdef ANALYTIC_GRAVITY
         void accelerate(int STEP, double AX, double AY, double AZ, double DT){
-                if(STEP == 0){
-                        U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
-                        U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
-                        U_VARIABLES[3] = U_VARIABLES[3] - AZ*DT*MASS_DENSITY;
-                }else if(STEP == 1){
-                        U_HALF[1] = U_HALF[1] - AX*DT*MASS_DENSITY_HALF;
-                        U_HALF[2] = U_HALF[2] - AY*DT*MASS_DENSITY_HALF;
-                        U_HALF[3] = U_HALF[3] - AZ*DT*MASS_DENSITY_HALF;
-                }
+                U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
+                U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
+                U_VARIABLES[3] = U_VARIABLES[3] - AZ*DT*MASS_DENSITY;
         }
 
-        // void calc_newtonian_gravity(double DT, int HALF_STEP){
-        //         // Fixed Plummer potential at (XC,YC)
-        //         double GM,AX,AY;
-        //         double MPERT = 1000;//2.5e4 * MSOLAR;
-        //         double XC = 0.5, YC = 0.5;
-        //         double DELTAX = X - XC, DELTAY = Y - YC;
-        //         double EPS = 0.1;
-        //         double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
-        //         GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
-        //         AX = DELTAX * GM;
-        //         AY = DELTAY * GM;
-        //         accelerate(HALF_STEP, AX, AY)
-        //         return ;
-        // }
-
+        void calc_newtonian_gravity(double DT){
+                // Fixed Plummer potential at (XC,YC)
+                double GM,AX,AY,AZ;
+                double MPERT = 3.28E+05;
+                double XC = 5.0, YC = 5.0, ZC = 5.0;
+                double DELTAX = X - XC, DELTAY = Y - YC, DELTAZ = Z - ZC;
+                double EPS = 0.145;
+                double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY + DELTAZ*DELTAZ;
+                GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
+                AX = DELTAX * GM;
+                AY = DELTAY * GM;
+                AZ = DELTAZ * GM;
+                accelerate(AX, AY, AZ, DT);
+                return ;
+        }
+#endif
 
         // calculate min timestep this cell requires
         double calc_next_dt(){

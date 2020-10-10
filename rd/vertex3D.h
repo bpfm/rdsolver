@@ -292,7 +292,7 @@ public:
 
         
 #ifdef ANALYTIC_GRAVITY
-        void accelerate(int STEP, double AX, double AY, double AZ, double DT){
+        void accelerate(double AX, double AY, double AZ, double DT){
                 U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
                 U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
                 U_VARIABLES[3] = U_VARIABLES[3] - AZ*DT*MASS_DENSITY;

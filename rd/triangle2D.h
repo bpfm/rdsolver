@@ -1172,6 +1172,7 @@ public:
                 return ;
         }
 
+#ifdef DRIFT_SHELL
         void send_tbin_limit(){
                 VERTEX_0->reset_tbin_local(2*TBIN);
                 VERTEX_1->reset_tbin_local(2*TBIN);
@@ -1187,6 +1188,7 @@ public:
                 if(TBIN1<TBIN){TBIN=TBIN1;}
                 if(TBIN2<TBIN){TBIN=TBIN2;}
         }
+#endif
 
 #ifdef NOH
         void check_boundary(){

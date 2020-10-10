@@ -352,7 +352,7 @@ int main(){
                                 POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
                                 if(POSSIBLE_DT < NEXT_DT){NEXT_DT = POSSIBLE_DT;}
                                 RAND_POINTS[i].reset_len_vel_sum();
-                                // RAND_POINTS[i].set_tbin_local(N_TBINS);
+                                RAND_POINTS[i].set_tbin_local(N_TBINS);
                         }
                         for(j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
                                 MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
@@ -371,16 +371,20 @@ int main(){
                                         RAND_MESH[j].set_tbin(8);
                                         // std::cout << 8 << std::endl
                                 }
-                                // RAND_MESH[j].send_tbin_limit();
+#ifdef DRIFT_SHELL
+                                RAND_MESH[j].send_tbin_limit();
+#endif
                         }
-                        // for(j=0;j<N_TRIANG;++j){
-                        //         RAND_MESH[j].check_tbin();
-                        // }
+#ifdef DRIFT_SHELL
+                        for(j=0;j<N_TRIANG;++j){
+                                RAND_MESH[j].check_tbin();
+                        }
+#endif
                 }
 
 #ifdef NOH
-                for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                        RAND_MESH[j].check_boundary();             // calculate flux through TRIANGLE
+                for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
+                        RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
                 }
 #endif
                 TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;                     // increment time step bin

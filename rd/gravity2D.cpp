@@ -13,7 +13,7 @@ void direct_gravity(std::vector<VERTEX> POINTS, int N_POINTS, double DT){
                                 Y_DIFF = Y1 - Y0;
                                 AX = AX - GRAV * MASS * X_DIFF/pow((sqrt(X_DIFF*X_DIFF + Y_DIFF*Y_DIFF)),3);
                                 AY = AY - GRAV * MASS * Y_DIFF/pow((sqrt(X_DIFF*X_DIFF + Y_DIFF*Y_DIFF)),3);
-                                POINTS[i].accelerate(0,AX,AY,DT);
+                                POINTS[i].accelerate(AX,AY,DT);
                         }
                 }
         }

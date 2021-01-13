@@ -1049,7 +1049,7 @@ public:
 
                 for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
 
-#ifdef PERIODIC
+#ifdef PERIODIC_BOUNDARY
                 if(BOUNDARY == 1){
                         for(int i=0; i<3; ++i){
                                 for(int j=0; j<3; ++j){
@@ -1227,52 +1227,46 @@ public:
         }
 #endif
 
-// #ifdef GRAVITY
-//         void check_boundary(){
-//                 double RHO0 = VERTEX_0->RHO0;
-//                 double MOMX0 = VERTEX_0->RHO0*VERTEX_0->VELX0;
-//                 double MOMY0 = VERTEX_0->RHO0*VERTEX_0->VELY0;
-//                 double E0 = VERTEX_0->E0;
-//                 if(BOUNDARY == 1){
-//                         if(VERTEX_0->get_x()>9.5){
-//                                 VERTEX_0->set_u0(RHO0);
-//                                 VERTEX_0->set_u0_half(RHO0);
-//                                 VERTEX_0->set_u1(MOMX0);
-//                                 VERTEX_0->set_u1_half(MOMX0);
-//                                 VERTEX_0->set_u2(MOMY0);
-//                                 VERTEX_0->set_u2_half(MOMY0);
-//                                 VERTEX_0->set_u3(E0);
-//                                 VERTEX_0->set_u3_half(E0);
-//                                 VERTEX_0->con_to_prim();
-//                                 VERTEX_0->con_to_prim_half();
-//                         }
-//                         if(VERTEX_1->get_x()>9.5){
-//                                 VERTEX_1->set_u0(RHO0);
-//                                 VERTEX_1->set_u0_half(RHO0);
-//                                 VERTEX_1->set_u1(MOMX0);
-//                                 VERTEX_1->set_u1_half(MOMX0);
-//                                 VERTEX_1->set_u2(MOMY0);
-//                                 VERTEX_1->set_u2_half(MOMY0);
-//                                 VERTEX_1->set_u3(E0);
-//                                 VERTEX_1->set_u3_half(E0);
-//                                 VERTEX_1->con_to_prim();
-//                                 VERTEX_1->con_to_prim_half();
-//                         }
-//                         if(VERTEX_2->get_x()>9.5){
-//                                 VERTEX_2->set_u0(RHO0);
-//                                 VERTEX_2->set_u0_half(RHO0);
-//                                 VERTEX_2->set_u1(MOMX0);
-//                                 VERTEX_2->set_u1_half(MOMX0);
-//                                 VERTEX_2->set_u2(MOMY0);
-//                                 VERTEX_2->set_u2_half(MOMY0);
-//                                 VERTEX_2->set_u3(E0);
-//                                 VERTEX_2->set_u3_half(E0);
-//                                 VERTEX_2->con_to_prim();
-//                                 VERTEX_2->con_to_prim_half();
-//                         }
-//                 }
-//         }
-// #endif
+#if defined(GRAVITY) && defined(FIXED_BOUNDARY)
+        void check_boundary(){
+                double RHO0 = VERTEX_0->RHO0;
+                double MOMX0 = VERTEX_0->RHO0*VERTEX_0->VELX0;
+                double MOMY0 = VERTEX_0->RHO0*VERTEX_0->VELY0;
+                double E0 = VERTEX_0->E0;
+                if(BOUNDARY == 1){
+                        VERTEX_0->set_u0(RHO0);
+                        VERTEX_0->set_u0_half(RHO0);
+                        VERTEX_0->set_u1(MOMX0);
+                        VERTEX_0->set_u1_half(MOMX0);
+                        VERTEX_0->set_u2(MOMY0);
+                        VERTEX_0->set_u2_half(MOMY0);
+                        VERTEX_0->set_u3(E0);
+                        VERTEX_0->set_u3_half(E0);
+                        VERTEX_0->con_to_prim();
+                        VERTEX_0->con_to_prim_half();
+                        VERTEX_1->set_u0(RHO0);
+                        VERTEX_1->set_u0_half(RHO0);
+                        VERTEX_1->set_u1(MOMX0);
+                        VERTEX_1->set_u1_half(MOMX0);
+                        VERTEX_1->set_u2(MOMY0);
+                        VERTEX_1->set_u2_half(MOMY0);
+                        VERTEX_1->set_u3(E0);
+                        VERTEX_1->set_u3_half(E0);
+                        VERTEX_1->con_to_prim();
+                        VERTEX_1->con_to_prim_half();
+                        VERTEX_2->set_u0(RHO0);
+                        VERTEX_2->set_u0_half(RHO0);
+                        VERTEX_2->set_u1(MOMX0);
+                        VERTEX_2->set_u1_half(MOMX0);
+                        VERTEX_2->set_u2(MOMY0);
+                        VERTEX_2->set_u2_half(MOMY0);
+                        VERTEX_2->set_u3(E0);
+                        VERTEX_2->set_u3_half(E0);
+                        VERTEX_2->con_to_prim();
+                        VERTEX_2->con_to_prim_half();
+                }
+        }
+#endif
 
 
         double max_val(double A, double B){

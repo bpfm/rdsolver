@@ -274,13 +274,13 @@ public:
                 return ;
         }
 
-#ifdef ANALYTIC_GRAVITY
         void accelerate(double AX, double AY, double DT){
                 U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
                 U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
         }
 
-        void calc_newtonian_gravity(double DT){
+#ifdef ANALYTIC_GRAVITY
+        void calc_plummer_gravity(double DT){
                 // Fixed Plummer potential at (XC,YC)
                 double GM,AX,AY;
                 double MPERT = 3.28E+05;
@@ -288,10 +288,14 @@ public:
                 double DELTAX = X - XC, DELTAY = Y - YC;
                 double EPS = 0.145;
                 double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
-                GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
+                GM = GRAV * MPERT / (sqrt(RAD2 + EPS*EPS)*sqrt(RAD2 + EPS*EPS)*sqrt(RAD2 + EPS*EPS));
                 AX = DELTAX * GM;
                 AY = DELTAY * GM;
                 accelerate(AX, AY, DT);
+                // if(ID == 121 and DT > 0.0){
+                //         std::cout << X << "\t" << Y << "\t" << AX << "\t" << AY << std::endl;
+                //         exit(0);
+                // }
                 return ;
         }
 #endif

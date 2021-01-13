@@ -193,7 +193,7 @@ int main(){
         std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
         std::cout << "Evolving fluid ..." << std::endl;
         std::cout << std::fixed;
-        std::cout << std::setprecision(6);
+        std::cout << std::setprecision(15);
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
@@ -340,7 +340,7 @@ int main(){
 
 #ifdef ANALYTIC_GRAVITY
                 for(i=0;i<N_POINTS;++i){
-                        RAND_POINTS[i].calc_newtonian_gravity(DT);
+                        RAND_POINTS[i].calc_plummer_gravity(DT);
                 }
 #endif
                 if(TBIN_CURRENT == 0){
@@ -382,7 +382,7 @@ int main(){
 #endif
                 }
 
-#ifdef NOH
+#if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(GRAVITY))
                 for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
                         RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
                 }

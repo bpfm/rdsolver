@@ -292,10 +292,6 @@ public:
                 AX = DELTAX * GM;
                 AY = DELTAY * GM;
                 accelerate(AX, AY, DT);
-                // if(ID == 121 and DT > 0.0){
-                //         std::cout << X << "\t" << Y << "\t" << AX << "\t" << AY << std::endl;
-                //         exit(0);
-                // }
                 return ;
         }
 #endif

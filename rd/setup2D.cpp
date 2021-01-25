@@ -24,7 +24,7 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.set_dual(0.0);
 
 #ifdef SODX
-                // std::cout << "Using 1D Sod Shock Tube (Varied in X)" << std::endl;}
+        // std::cout << "Using 1D Sod Shock Tube (Varied in X)" << std::endl;}
 
         if(X>0.25*SIDE_LENGTH_X and X<0.75*SIDE_LENGTH_X){
                 NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
@@ -40,7 +40,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef SODY
-                // if(i==0 and j==0){std::cout << "Using 1D Sod Shock Tube (Varied in Y)" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using 1D Sod Shock Tube (Varied in Y)" << std::endl;}
 
         if(Y<0.5*SIDE_LENGTH_Y){
                 NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
@@ -56,7 +56,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef SINEX
-                // if(i==0 and j==0){std::cout << "Using 1D Sine Wave" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using 1D Sine Wave" << std::endl;}
 
         double RHO,RHO_0 = 50.0;
         double P,P_0 = 3.0;
@@ -76,7 +76,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef SEDOV
-                 // if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
+         // if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
 
         double RHO = 1.0;
         double V = 0.00000001;
@@ -98,7 +98,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef GAUSSX
-                // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse" << std::endl;}
 
         double CENTRE = 0.5;
         double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
@@ -116,7 +116,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef GAUSSY
-                // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse (y-direction)" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using 1D Gaussian pulse (y-direction)" << std::endl;}
 
         double CENTRE = 0.3;
         double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
@@ -134,7 +134,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef UNIFORM
-                // if(i==0 and j==0){std::cout << "Using Flat Start" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using Flat Start" << std::endl;}
 
         NEW_VERTEX.set_mass_density(1.0);                               // units kg/m^3
         NEW_VERTEX.set_x_velocity(10.0);                                 // units m/s
@@ -143,7 +143,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef NOH
-                // if(i==0 and j==0){std::cout << "Using 2D Noh Problem" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using 2D Noh Problem" << std::endl;}
 
         double X_VEL,Y_VEL,X_VEL_NORM,Y_VEL_NORM;
         double X_C = SIDE_LENGTH_X/2.0;
@@ -173,7 +173,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef KHX
-                // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
 
         if(Y < 0.25*SIDE_LENGTH_Y or Y > 0.75*SIDE_LENGTH_Y){
                 NEW_VERTEX.set_x_velocity(0.5);
@@ -188,7 +188,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef KHY
-                // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
 
         if(X < 0.25*SIDE_LENGTH_X or X > 0.75*SIDE_LENGTH_X){
                 NEW_VERTEX.set_y_velocity(0.5);
@@ -203,7 +203,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef KHXSMOOTH
-                // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using KH instability test (x flow)" << std::endl;}
 
         double VEL0  = -0.5, RHOL = 1.0, RHOH = 2.0;
         double WIDTH = 0.1;
@@ -218,7 +218,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef KHYSMOOTH
-                // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
+        // if(i==0 and j==0){std::cout << "Using KH instability test (y flow)" << std::endl;}
 
         double VEL0  = -0.5, RHOL = 1.0, RHOH = 2.0;
         double WIDTH = 0.1;
@@ -233,11 +233,9 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef BLOB
-                // if(i==0 and j==0){std::cout << "Using Blob test" << std::endl;}
-
+        // if(i==0 and j==0){std::cout << "Using Blob test" << std::endl;}
         double CENTRE_X = 0.25*SIDE_LENGTH_X;
         double CENTRE_Y = 0.50*SIDE_LENGTH_Y;
-
         double MACH = 1.5;
 
         double RADIUS = sqrt((X - CENTRE_X)*(X - CENTRE_X) + (Y - CENTRE_Y)*(Y - CENTRE_Y));
@@ -255,12 +253,24 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef GRAVITY
-                // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
-
+        // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
         double RHO0 = 1000.0;
         double X_VEL = 0.00000001;//-1.0*MACH*0.0387;
         double Y_VEL = 0.00000001;
         double PRESSURE = 1.0;
+
+#ifdef STABLE_ORBITS
+        double RAD = sqrt((X - SIDE_LENGTH_X)*(X - SIDE_LENGTH_X) + (Y - SIDE_LENGTH_Y)*(Y - SIDE_LENGTH_Y));
+        double VEL = sqrt(GRAV*3.28E+05/RAD);
+        double THETA = atan(X/Y);
+
+        X_VEL = VEL*cos(THETA);
+        Y_VEL = VEL*sin(THETA);
+
+        if(X >= 0.0 and Y >= 0.0){X_VEL = -1.0*X_VEL;}
+        if(X <  0.0 and Y >= 0.0){X_VEL = -1.0*X_VEL; Y_VEL = -1.0*Y_VEL;}
+        if(X <  0.0 and Y <  0.0){Y_VEL = -1.0*Y_VEL;}
+#endif
 
         NEW_VERTEX.set_mass_density(RHO0);
         NEW_VERTEX.set_x_velocity(X_VEL);
@@ -273,6 +283,7 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.E0 = RHO0*(PRESSURE/((GAMMA-1.0)*RHO0) + 0.5*(X_VEL*X_VEL + Y_VEL*Y_VEL));
 
 #endif
+
 
         NEW_VERTEX.setup_specific_energy();
         NEW_VERTEX.prim_to_con();

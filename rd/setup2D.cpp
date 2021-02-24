@@ -259,19 +259,6 @@ VERTEX setup_vertex(double X, double Y){
         double Y_VEL = 0.00000001;
         double PRESSURE = 1.0;
 
-#ifdef STABLE_ORBITS
-        double RAD = sqrt((X - SIDE_LENGTH_X)*(X - SIDE_LENGTH_X) + (Y - SIDE_LENGTH_Y)*(Y - SIDE_LENGTH_Y));
-        double VEL = sqrt(GRAV*3.28E+05/RAD);
-        double THETA = atan(X/Y);
-
-        X_VEL = VEL*cos(THETA);
-        Y_VEL = VEL*sin(THETA);
-
-        if(X >= 0.0 and Y >= 0.0){X_VEL = -1.0*X_VEL;}
-        if(X <  0.0 and Y >= 0.0){X_VEL = -1.0*X_VEL; Y_VEL = -1.0*Y_VEL;}
-        if(X <  0.0 and Y <  0.0){Y_VEL = -1.0*Y_VEL;}
-#endif
-
         NEW_VERTEX.set_mass_density(RHO0);
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);
@@ -281,7 +268,6 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.VELX0 = X_VEL;
         NEW_VERTEX.VELY0 = Y_VEL;
         NEW_VERTEX.E0 = RHO0*(PRESSURE/((GAMMA-1.0)*RHO0) + 0.5*(X_VEL*X_VEL + Y_VEL*Y_VEL));
-
 #endif
 
 

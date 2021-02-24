@@ -13,7 +13,7 @@ void direct_gravity(std::vector<VERTEX> POINTS, int N_POINTS, double DT){
                                 Z1 = POINTS[j].get_z();
                                 X_DIFF = X1 - X0;
                                 Y_DIFF = Y1 - Y0;
-                                YZ_DIFF = Z1 - Z0;
+                                Z_DIFF = Z1 - Z0;
                                 AX = AX - GRAV * MASS * X_DIFF/pow((sqrt(X_DIFF*X_DIFF + Y_DIFF*Y_DIFF + Z_DIFF*Z_DIFF)),3);
                                 AY = AY - GRAV * MASS * Y_DIFF/pow((sqrt(X_DIFF*X_DIFF + Y_DIFF*Y_DIFF + Z_DIFF*Z_DIFF)),3);
                                 AZ = AZ - GRAV * MASS * Z_DIFF/pow((sqrt(X_DIFF*X_DIFF + Y_DIFF*Y_DIFF + Z_DIFF*Z_DIFF)),3);

@@ -22,51 +22,51 @@
 #include "gravity2D.cpp"
 #endif
 
-int main(){
+int main(int ARGC, char *ARGV[]){
         /*
         Setup and run simulation from input file constants.h, using precalculated triangulation
         */
-
-        int i, j, l = 0, m;                                           // ******* decalare varaibles and vectors ******
-        double DX, DY, DT, T = 0.0;                                // DX           = space step,DT = timestep,t = time
+        int i, j, l = 0, m;                                        // ******* decalare varaibles and vectors ******
+        int SNAP_ID = 0;
+        double DT, T = 0.0;                                        //
         double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
-        double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;                       // NEXT_DT.     = timestep for upcoming time iteration
+        double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;               // NEXT_DT.     = timestep for upcoming time iteration
         double MIN_DT;
         VERTEX                               NEW_VERTEX;           // NEW_VERTEX   = dummy variable for setting up vertices
         TRIANGLE                             NEW_TRIANGLE;         // NEW_TRIABLE  = dummy variable for setting up triangles
-        std::vector<VERTEX>                  RAND_POINTS;             // X_POINTS     = vector of x vertices
-        std::vector<TRIANGLE>                RAND_MESH;               // X_MESH       = vector of x triangles
-        double SNAP_ID = 0;
-
+        std::vector<VERTEX>                  RAND_POINTS;          // X_POINTS     = vector of x vertices
+        std::vector<TRIANGLE>                RAND_MESH;            // X_MESH       = vector of x triangles
 
         // Initialise seed for random number generator (rand)
         std::srand(68315);
 
-        /****** Setup initial conditions of one dimensional tube ******/
+        read_parameter_file(ARGC, ARGV[])
 
-        std::cout << "*********************************************************" << std::endl;
+        /****** Setup simulation options ******/
+
+        printf("*********************************************************");
 
 #ifdef LDA_SCHEME
-        std::cout << "Using LDA Scheme" << std::endl;
+        printf("Using LDA Scheme\n");
 #endif
 
 #ifdef N_SCHEME
-        std::cout << "Using N Scheme" << std::endl;
+        printf("Using N Scheme\n");
 #endif
 
 #ifdef BLENDED
-        std::cout << "Using B Scheme" << std::endl;
+        printf("Using B Scheme\n");
 #endif
 
 #ifdef FIRST_ORDER
-        std::cout << "Using 1st order" << std::endl;
+        printf("Using 1st order\n");
 #else
-        std::cout << "Using 2nd order" << std::endl;
+        printf("Using 2nd order\n");
 #endif
 
-        std::cout << "Building grid of vertices" << std::endl;
+        printf("Building vertices and mesh\n");
 
-                std::ofstream LOGFILE;
+        std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
         LOGFILE.open(LOG_DIR);
 
@@ -80,7 +80,7 @@ int main(){
 
         /****** Setup vertices ******/
 
-        std::cout << "Reading QHULL vertex positions ..." << std::endl;
+        printf("Reading QHULL vertex positions ...\n");
 
         POSITIONS_FILE_NAME = "triangulation/points.txt";
         TRIANGLES_FILE_NAME = "triangulation/ordered_triangles.txt";
@@ -91,7 +91,7 @@ int main(){
         N_POINTS = qhull_read_positions_header(POSITIONS_FILE);
         N_TRIANG = qhull_read_triangles_header(TRIANGLES_FILE);
 
-        std::cout << "Number of vertices = " << N_POINTS << std::endl;
+        printf("Number of vertices = %d\n", N_POINTS);
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = qhull_read_positions_line(POSITIONS_FILE);
@@ -102,9 +102,9 @@ int main(){
 
         /****** Setup mesh ******/
 
-        std::cout << "Reading QHULL triangles ..." << std::endl;
+        printf("Reading QHULL triangles ...");
 
-        std::cout << "Number of triangles = " << N_TRIANG << std::endl;
+        printf("Number of triangles = %d\n", N_TRIANG);
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = qhull_read_triangles_line(TRIANGLES_FILE,RAND_POINTS);
@@ -122,7 +122,7 @@ int main(){
 
         /****** Setup vertices ******/
 
-        std::cout << "Reading CGAL vertex positions ..." << std::endl;
+        printf("Reading CGAL vertex positions ...");
 
         CGAL_FILE_NAME = "Delaunay2D.txt";
 
@@ -130,7 +130,7 @@ int main(){
 
         N_POINTS = cgal_read_positions_header(CGAL_FILE);
 
-        std::cout << "Number of vertices = " << N_POINTS << std::endl;
+        printf("Number of vertices = %d\n", N_POINTS);
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = cgal_read_positions_line(CGAL_FILE);
@@ -141,11 +141,11 @@ int main(){
 
         /****** Setup mesh ******/
 
-        std::cout << "Reading CGAL triangles ..." << std::endl;
+        printf("Reading CGAL triangles ...");
 
         N_TRIANG = cgal_read_triangles_header(CGAL_FILE);
 
-        std::cout << "Number of triangles = " << N_TRIANG << std::endl;
+        printf("Number of triangles = %d\n", N_TRIANG);
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS,j);
@@ -168,7 +168,7 @@ int main(){
                         PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
                         RAND_POINTS[i].set_pressure(PRESSURE_AIM);
                         ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
-                        std::cout << POINT_CHECK << "\t" << PRESSURE_AIM << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        printf("%d\t%f\t%f\t%f\n", POINT_CHECK, PRESSURE_AIM, RAND_POINTS[i].get_pressure(), ETOT);
                         RAND_POINTS[i].setup_specific_energy();
                         RAND_POINTS[i].prim_to_con();
                 }
@@ -177,7 +177,7 @@ int main(){
 
         /****** Set initial timestep  ******/
 
-        std::cout << "Finding initial timestep ..." << std::endl;
+        printf("Finding initial timestep ...");
 
         for(j=0;j<N_TRIANG;++j){                                           // loop over all triangles in MESH
                 RAND_MESH[j].calculate_len_vel_contribution();             // calculate flux through TRIANGLE
@@ -189,11 +189,9 @@ int main(){
                 RAND_POINTS[i].reset_len_vel_sum();
         }
 
-        std::cout << "Checking mesh size ..." << std::endl;
-        std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
-        std::cout << "Evolving fluid ..." << std::endl;
-        std::cout << std::fixed;
-        std::cout << std::setprecision(15);
+        printf("Checking mesh size ...");
+        printf("Mesh Size = %d\n",RAND_MESH.size());
+        printf("Evolving fluid ...");
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
@@ -209,7 +207,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
+                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f%\r", l, T, DT, 100.0*T/T_TOT);
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -233,7 +231,6 @@ int main(){
                                              or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
                                              or (TBIN_CURRENT == 7 and  TBIN == 1)\
                                              ){
-                                // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
                                 RAND_MESH[j].calculate_first_half(T);
                         }
                         // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
@@ -243,7 +240,6 @@ int main(){
 #ifdef JUMP
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         TBIN = RAND_MESH[j].get_tbin();
-                        // std::cout << TBIN_CURRENT << std::endl;
                         if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
                                              or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1))\
                                              or (TBIN_CURRENT == 3 and  TBIN == 1)\
@@ -252,7 +248,6 @@ int main(){
                                              or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
                                              or (TBIN_CURRENT == 7 and  TBIN == 1)\
                                              ){
-                                // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
                                 RAND_MESH[j].calculate_first_half(T);
                         }
                         if(N_TBINS == 1){
@@ -360,16 +355,12 @@ int main(){
                                 if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
                                 if(MIN_DT < 2.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(1);
-                                        // std::cout << 1 << std::endl;
                                 }else if(MIN_DT > 2.0*NEXT_DT and MIN_DT < 4.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(2);
-                                        // std::cout << 2 << std::endl;
                                 }else if(MIN_DT > 4.0*NEXT_DT and MIN_DT < 8.0*NEXT_DT){
                                         RAND_MESH[j].set_tbin(4);
-                                        // std::cout << 4 << std::endl;
                                 }else{
                                         RAND_MESH[j].set_tbin(8);
-                                        // std::cout << 8 << std::endl
                                 }
 #ifdef DRIFT_SHELL
                                 RAND_MESH[j].send_tbin_limit();

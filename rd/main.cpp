@@ -382,7 +382,7 @@ int main(){
 #endif
                 }
 
-#if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(GRAVITY))
+#if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(DF))
                 for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
                         RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
                 }

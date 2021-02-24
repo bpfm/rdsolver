@@ -252,7 +252,7 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.set_pressure(100.0);
 
 #endif
-#ifdef GRAVITY
+#ifdef DF
         // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
         double RHO0 = 1000.0;
         double X_VEL = 0.00000001;//-1.0*MACH*0.0387;

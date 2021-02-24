@@ -1227,7 +1227,7 @@ public:
         }
 #endif
 
-#if defined(GRAVITY) && defined(FIXED_BOUNDARY)
+#if defined(DF) && defined(FIXED_BOUNDARY)
         void check_boundary(){
                 double RHO0 = VERTEX_0->RHO0;
                 double MOMX0 = VERTEX_0->RHO0*VERTEX_0->VELX0;

@@ -324,7 +324,7 @@ public:
         double E0;
 #endif
 
-#ifdef GRAVITY
+#ifdef DF
         double RHO0;
         double VELX0;
         double VELY0;

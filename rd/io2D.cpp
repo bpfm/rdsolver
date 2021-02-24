@@ -52,6 +52,10 @@ void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBI
         }
 }
 
+void read_parameter_file(int ARGC, char *ARGV[]){
+        printf("Parameter file = %s\n", ARGV[1]);
+}
+
 // if using qhull triangulation (closed boundaries only), read vertex header info on triangulation
 #ifdef QHULL_IC
 int qhull_read_positions_header(std::ifstream &POSITIONS_FILE){

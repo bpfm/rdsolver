@@ -40,11 +40,13 @@ int main(int ARGC, char *ARGV[]){
         // Initialise seed for random number generator (rand)
         std::srand(68315);
 
-        read_parameter_file(ARGC, ARGV[])
+        read_parameter_file(ARGC, ARGV);
 
         /****** Setup simulation options ******/
 
-        printf("*********************************************************");
+        printf("*********************************************************\n");
+
+        printf("LAIRDS 2D\n");
 
 #ifdef LDA_SCHEME
         printf("Using LDA Scheme\n");
@@ -69,8 +71,6 @@ int main(int ARGC, char *ARGV[]){
         std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
         LOGFILE.open(LOG_DIR);
-
-        /****** Setup Vertices ******/
 
 #ifdef READ_IC
 #ifdef QHULL_IC
@@ -125,9 +125,7 @@ int main(int ARGC, char *ARGV[]){
         printf("Reading CGAL vertex positions ...");
 
         CGAL_FILE_NAME = "Delaunay2D.txt";
-
         CGAL_FILE.open(CGAL_FILE_NAME);
-
         N_POINTS = cgal_read_positions_header(CGAL_FILE);
 
         printf("Number of vertices = %d\n", N_POINTS);
@@ -157,6 +155,7 @@ int main(int ARGC, char *ARGV[]){
 #endif
 
 #ifdef SEDOV
+        /****** Inject pressure for Sedov test  ******/
         double ETOT = 0.0,ETOT_AIM = 300000.0,PRESSURE_AIM;
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
@@ -190,24 +189,24 @@ int main(int ARGC, char *ARGV[]){
         }
 
         printf("Checking mesh size ...");
-        printf("Mesh Size = %d\n",RAND_MESH.size());
+        printf("Mesh Size = %d\n",int(RAND_MESH.size()));
         printf("Evolving fluid ...");
 
-        /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
-
         int TBIN, TBIN_CURRENT = 0;
-
         NEXT_DT = 0.0;                                                            // set first timestep to zero
 
+        /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
         while(T<T_TOT){
 
+                /****** Update time step to new value ******/
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
 
 #ifdef FIXED_DT
+                /****** Reset time step if fixed ******/
                 DT = DT_FIX;
 #endif
 
-                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f%\r", l, T, DT, 100.0*T/T_TOT);
+                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\r", l, T, DT, 100.0*T/T_TOT);
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -221,6 +220,7 @@ int main(int ARGC, char *ARGV[]){
                 #pragma omp parallel for
 #endif
 #ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         TBIN = RAND_MESH[j].get_tbin();
                         if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
@@ -238,6 +238,7 @@ int main(int ARGC, char *ARGV[]){
                 }
 #endif
 #ifdef JUMP
+                /****** Update residual for active bins (Jump method) ******/
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         TBIN = RAND_MESH[j].get_tbin();
                         if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
@@ -297,6 +298,7 @@ int main(int ARGC, char *ARGV[]){
 #endif
 
 #if !defined(DRIFT) && !defined(JUMP)
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                         RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
                         RAND_MESH[j].pass_update_half(DT);

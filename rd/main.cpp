@@ -20,6 +20,7 @@
 #include "setup2D.cpp"
 #include "io2D.cpp"
 #include "gravity2D.cpp"
+#include "timestep.cpp"
 #endif
 
 int main(int ARGC, char *ARGV[]){
@@ -221,21 +222,7 @@ int main(int ARGC, char *ARGV[]){
 #endif
 #ifdef DRIFT
                 /****** Update residual for active bins (Drift method) ******/
-                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        TBIN = RAND_MESH[j].get_tbin();
-                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 3 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 5 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 7 and  TBIN == 1)\
-                                             ){
-                                RAND_MESH[j].calculate_first_half(T);
-                        }
-                        // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
-                }
+                drift_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
 #endif
 #ifdef JUMP
                 /****** Update residual for active bins (Jump method) ******/

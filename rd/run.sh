@@ -8,11 +8,3 @@ clang++ -Xpreprocessor -fopenmp -lomp -I /usr/local/opt/openblas/include /usr/lo
 
 # clang++ -I /home/morton/local/include  -L /home/morton/local/lib -lopenblas -o lairds main.cpp
 
-# cd output
-# pythonw plot1D.py &
-
-# cd output
-# pythonw vor_plot2D.py
-
-# cd ../../../exact_sod
-# python sod_plot_rd.py &

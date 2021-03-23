@@ -27,7 +27,7 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         }
         std::cout << "*************************************************************************************************" << std::endl;            // right out time and total density to terminal
         std::cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY << " \t-> total energy =\t" << TOTAL_ENERGY << "\ttime step = \t" << DT << std::endl;
-        LOGFILE << T << "\t" << TOTAL_DENSITY << "\t" << TOTAL_ENERGY << "\t" << DT << "\t" << N_TBINS << "\t" << N_POINTS << std::endl;
+        LOGFILE << T << "\t" << TOTAL_DENSITY << "\t" << TOTAL_ENERGY << "\t" << DT << "\t" << MAX_TBIN << "\t" << N_POINTS << std::endl;
         SNAPFILE.close();
         return;
 }

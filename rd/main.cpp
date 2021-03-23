@@ -13,6 +13,7 @@
 #include "cblas.h"
 #include "lapacke.h"
 #include "inverse.cpp"
+#include "base.cpp"
 
 #ifdef TWO_D
 #include "vertex2D.h"
@@ -41,7 +42,7 @@ int main(int ARGC, char *ARGV[]){
         // Initialise seed for random number generator (rand)
         std::srand(68315);
 
-        read_parameter_file(ARGC, ARGV);
+        // read_parameter_file(ARGC, ARGV);
 
         /****** Setup simulation options ******/
 
@@ -272,39 +273,9 @@ int main(int ARGC, char *ARGV[]){
                         RAND_POINTS[i].calc_plummer_gravity(DT);
                 }
 #endif
+
                 if(TBIN_CURRENT == 0){
-                        for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                                RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
-                        }
-                        NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)å
-                        for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
-                                POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
-                                if(POSSIBLE_DT < NEXT_DT){NEXT_DT = POSSIBLE_DT;}
-                                RAND_POINTS[i].reset_len_vel_sum();
-                                RAND_POINTS[i].set_tbin_local(N_TBINS);
-                        }
-                        for(j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
-                                MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
-                                if(RAND_MESH[j].get_vertex_1()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_1()->get_dt_req();}
-                                if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
-                                if(MIN_DT < 2.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(1);
-                                }else if(MIN_DT > 2.0*NEXT_DT and MIN_DT < 4.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(2);
-                                }else if(MIN_DT > 4.0*NEXT_DT and MIN_DT < 8.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(4);
-                                }else{
-                                        RAND_MESH[j].set_tbin(8);
-                                }
-#ifdef DRIFT_SHELL
-                                RAND_MESH[j].send_tbin_limit();
-#endif
-                        }
-#ifdef DRIFT_SHELL
-                        for(j=0;j<N_TRIANG;++j){
-                                RAND_MESH[j].check_tbin();
-                        }
-#endif
+                        reset_tbins(T, DT, N_TRIANG, N_POINTS, NEXT_DT, RAND_MESH, RAND_POINTS);
                 }
 
 #if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(DF))
@@ -312,7 +283,7 @@ int main(int ARGC, char *ARGV[]){
                         RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
                 }
 #endif
-                TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;                     // increment time step bin
+                TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                     // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number
         }

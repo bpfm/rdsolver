@@ -207,7 +207,7 @@ int main(int ARGC, char *ARGV[]){
                 DT = DT_FIX;
 #endif
 
-                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\r", l, T, DT, 100.0*T/T_TOT);
+                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\n", l, T, DT, 100.0*T/T_TOT);
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -226,62 +226,7 @@ int main(int ARGC, char *ARGV[]){
 #endif
 #ifdef JUMP
                 /****** Update residual for active bins (Jump method) ******/
-                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        TBIN = RAND_MESH[j].get_tbin();
-                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 3 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 5 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 7 and  TBIN == 1)\
-                                             ){
-                                RAND_MESH[j].calculate_first_half(T);
-                        }
-                        if(N_TBINS == 1){
-                                RAND_MESH[j].pass_update_half(DT);
-                        }else if(N_TBINS == 2){
-                                if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 1 and (TBIN == 2 or TBIN == 4 or TBIN == 8)){RAND_MESH[j].pass_update_half(2.0*DT);}
-                        }else if(N_TBINS == 4){
-                                if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 1 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-
-                                if(TBIN_CURRENT == 3 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 3 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-                                if(TBIN_CURRENT == 3 and (TBIN == 4 or TBIN == 8)){RAND_MESH[j].pass_update_half(4.0*DT);}
-                        }else if(N_TBINS == 8){
-                                if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 1 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-
-                                if(TBIN_CURRENT == 2 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 3 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 3 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-                                if(TBIN_CURRENT == 3 and TBIN == 4){RAND_MESH[j].pass_update_half(4.0*DT);}
-
-                                if(TBIN_CURRENT == 4 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 5 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 5 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-
-                                if(TBIN_CURRENT == 6 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 7 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 7 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-                                if(TBIN_CURRENT == 7 and TBIN == 4){RAND_MESH[j].pass_update_half(4.0*DT);}
-                                if(TBIN_CURRENT == 7 and TBIN == 8){RAND_MESH[j].pass_update_half(8.0*DT);}
-                        }
-
-                        // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        // RAND_MESH[j].pass_update_half(DT);
-                }
+                jump_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
 #endif
 
 #if !defined(DRIFT) && !defined(JUMP)

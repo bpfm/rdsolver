@@ -200,11 +200,11 @@ int main(int ARGC, char *ARGV[]){
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
         while(T<T_TOT){
 
-                /****** Update time step to new value ******/
+        /****** Update time step to new value ******/
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
 
 #ifdef FIXED_DT
-                /****** Reset time step if fixed ******/
+        /****** Reset time step if fixed ******/
                 DT = DT_FIX;
 #endif
 
@@ -279,6 +279,7 @@ int main(int ARGC, char *ARGV[]){
                         RAND_POINTS[i].check_values();
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
+
 #ifdef SELF_GRAVITY
                 direct_gravity(RAND_POINTS, N_POINTS, DT);
 #endif

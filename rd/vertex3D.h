@@ -174,8 +174,6 @@ public:
                 // prim_to_con_half();
         }
 
-
-
         // reset the changes in primative variables
         void reset_du(){DU[0] = DU[1] = DU[2] = DU[3] = DU[4] = 0.0;}
         void reset_du_half(){DU_HALF[0] = DU_HALF[1] = DU_HALF[2] = DU_HALF[3] = DU_HALF[4] = 0.0;}

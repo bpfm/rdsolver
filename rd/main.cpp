@@ -210,6 +210,7 @@ int main(int ARGC, char *ARGV[]){
 
                 printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\n", l, T, DT, 100.0*T/T_TOT);
 
+        /****** Write snapshot *****************************************************************************************************/
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
                         write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
@@ -218,9 +219,8 @@ int main(int ARGC, char *ARGV[]){
                         SNAP_ID ++;
                 }
 
-#ifdef PARA_RES
-                #pragma omp parallel for
-#endif
+        /****** 1st order update ***************************************************************************************************/
+
 #ifdef DRIFT
                 /****** Update residual for active bins (Drift method) ******/
                 drift_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
@@ -230,11 +230,15 @@ int main(int ARGC, char *ARGV[]){
                 jump_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
 #endif
 
+
 #if !defined(DRIFT) && !defined(JUMP)
+#ifdef PARA_RES
+                #pragma omp parallel for
+#endif
                 /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
+                        RAND_MESH[j].calculate_first_half(T,DT);                                                 // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update_half();
                 }
 #endif
 
@@ -248,12 +252,23 @@ int main(int ARGC, char *ARGV[]){
                         RAND_POINTS[i].con_to_prim_half();
                 }
 
+        /****** 2nd order update ***************************************************************************************************/
+
+#ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
+                drift_update(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+
+#if !defined(DRIFT) && !defined(JUMP)
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].calculate_second_half(T,DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update();
                 }
+#endif
 
 #ifdef PARA_UP
                 #pragma omp parallel for

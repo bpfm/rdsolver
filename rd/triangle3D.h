@@ -48,6 +48,9 @@ private:
         double PHI[5];
         double BETA[5][5][4];
 
+        double DU0[5],DU1[5],DU2[5],DU3[5];
+        double DU0_HALF[5],DU1_HALF[5],DU2_HALF[5],DU3_HALF[5];
+
         double MAG[4];
 
         int PRINT;
@@ -199,7 +202,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(){
+        void calculate_first_half(double T, double DT){
                 int i,j,m,p;
                 double INFLOW[5][5][4][3];        // K+, K-, K matrices for each vertex (m index for vertices, p index for +,-,0)
 
@@ -223,16 +226,6 @@ public:
                 double Z_BAR[5],W_HAT[5][4];
 
                 // Construct Roe vector Z
-
-                // if(((X[0] == 0.575 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.575 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.575 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.575 and Y[3] == 0.575 and Z[3] == 0.525)) and
-                //    ((X[0] == 0.625 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.625 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.625 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.625 and Y[3] == 0.575 and Z[3] == 0.525)) and
-                //    ID == 11079) {
-                //         std::cout << ID << std::endl;
-                //         PRINT = 1;
-                //         for(i=0;i<4;++i){std::cout << "r =\t" << X[i] << "\t" << Y[i] << "\t" << Z[i] << std::endl;}
-                // }else{
-                //         PRINT = 0;
-                // }
 
                 for(m=0;m<4;++m){
                         Z_ROE[0][m] = sqrt(U_N[0][m]);
@@ -467,46 +460,42 @@ public:
                         FLUC_B[i][3] = THETA_E[i][i]*FLUC_N[i][3] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][3];
                 }
 #endif
-                return ;
-        }
-
-        void pass_update_half(double DT){
-                int i;
-                double DU0[5],DU1[5],DU2[5],DU3[5];
 
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_LDA[i][0] / DUAL[0];
-                        DU1[i] = DT*FLUC_LDA[i][1] / DUAL[1];
-                        DU2[i] = DT*FLUC_LDA[i][2] / DUAL[2];
-                        DU3[i] = DT*FLUC_LDA[i][3] / DUAL[3];
+                        DU0_HALF[i] = DT*FLUC_LDA[i][0] / DUAL[0];
+                        DU1_HALF[i] = DT*FLUC_LDA[i][1] / DUAL[1];
+                        DU2_HALF[i] = DT*FLUC_LDA[i][2] / DUAL[2];
+                        DU3_HALF[i] = DT*FLUC_LDA[i][3] / DUAL[3];
                         // if(PRINT == 1){std::cout << ID << "\tDU i =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
 #endif
 
 #ifdef N_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
-                        DU3[i] = DT*FLUC_N[i][3]/DUAL[3];
+                        DU0_HALF[i] = DT*FLUC_N[i][0]/DUAL[0];
+                        DU1_HALF[i] = DT*FLUC_N[i][1]/DUAL[1];
+                        DU2_HALF[i] = DT*FLUC_N[i][2]/DUAL[2];
+                        DU3_HALF[i] = DT*FLUC_N[i][3]/DUAL[3];
                 }
 #endif
 
 #ifdef BLENDED 
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
-                        DU3[i] = DT*FLUC_B[i][3]/DUAL[3];
+                        DU0_HALF[i] = DT*FLUC_B[i][0]/DUAL[0];
+                        DU1_HALF[i] = DT*FLUC_B[i][1]/DUAL[1];
+                        DU2_HALF[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU3_HALF[i] = DT*FLUC_B[i][3]/DUAL[3];
                 }
 #endif
+                return ;
+        }
 
-                VERTEX_0->update_du_half(DU0);
-                VERTEX_1->update_du_half(DU1);
-                VERTEX_2->update_du_half(DU2);
-                VERTEX_3->update_du_half(DU3);
-
+        void pass_update_half(){
+                VERTEX_0->update_du_half(DU0_HALF);
+                VERTEX_1->update_du_half(DU1_HALF);
+                VERTEX_2->update_du_half(DU2_HALF);
+                VERTEX_3->update_du_half(DU3_HALF);
                 return ;
         }
 
@@ -867,12 +856,14 @@ public:
                 }
 #endif
 
+                return ;
+        }
+
+        void pass_update(){
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
                 VERTEX_3->update_du(DU3);
-
-                return ;
         }
 
         //**********************************************************************************************************************

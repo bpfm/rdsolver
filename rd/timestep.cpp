@@ -3,12 +3,13 @@ void drift_update_half(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std:
         for(int j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                 TBIN = RAND_MESH[j].get_tbin();
                 if(TBIN_CURRENT % TBIN == 0){
-                        RAND_MESH[j].calculate_first_half(T);
+                        RAND_MESH[j].calculate_first_half(T,DT);
                 }
-                RAND_MESH[j].pass_update_half(DT);
+                RAND_MESH[j].pass_update_half();
         }
 }
 
+#ifdef JUMP
 void jump_update_half(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::vector<TRIANGLE> &RAND_MESH){
         int TBIN;
         for(int j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
@@ -64,6 +65,18 @@ void jump_update_half(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::
                                 if(TBIN_CURRENT == 7 and TBIN == 8){RAND_MESH[j].pass_update_half(8.0*DT);}
                         }
                 }
+}
+#endif
+
+void drift_update(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::vector<TRIANGLE> &RAND_MESH){
+        int TBIN;
+        for(int j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
+                TBIN = RAND_MESH[j].get_tbin();
+                if(TBIN_CURRENT % TBIN == 0){
+                        RAND_MESH[j].calculate_second_half(T,DT);
+                }
+                RAND_MESH[j].pass_update();
+        }
 }
 
 void reset_tbins(int T, int DT, int N_TRIANG, int N_POINTS, double &NEXT_DT, std::vector<TRIANGLE> &RAND_MESH, std::vector<VERTEX> &RAND_POINTS){

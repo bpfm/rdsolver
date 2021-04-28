@@ -194,14 +194,24 @@ int main(){
                         SNAP_ID ++;
                 }
 
+        /****** 1st order update ***************************************************************************************************/
+
+#ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
+                drift_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+
+
+#if !defined(DRIFT) && !defined(JUMP)
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_first_half();                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
+                        RAND_MESH[j].calculate_first_half(T,DT);                                                 // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update_half();
                 }
-
+#endif
 
 #ifdef PARA_UP
                 #pragma omp parallel for
@@ -213,12 +223,23 @@ int main(){
                         RAND_POINTS[i].con_to_prim_half();
                 }
 
+        /****** 2nd order update ***************************************************************************************************/
+
+#ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
+                drift_update(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+
+#if !defined(DRIFT) && !defined(JUMP)
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].calculate_second_half(T,DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update();
                 }
+#endif
 
 #ifdef PARA_UP
                 #pragma omp parallel for

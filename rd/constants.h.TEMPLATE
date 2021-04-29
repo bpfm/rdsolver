@@ -71,25 +71,25 @@ int MAX_TBIN = pow(2,6); // set maximum time bin (must be power of 2)
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-#define LDA_SCHEME
-// #define N_SCHEME
+// #define LDA_SCHEME
+#define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-#define FIRST_ORDER
+// #define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
-// #define ANALYTIC_GRAVITY
+#define ANALYTIC_GRAVITY
 // #define PARA_RES
 // #define PARA_UP
 
 double GRAV = 6.67e-11;
 double MSOLAR = 1.989e+30;
 
-double M_LIM = 0.00001;    // change for different tests
-double E_LIM = 0.00001;
+double M_LIM = 0.0001;    // change for different tests
+double E_LIM = 0.0001;
 
 std::string OUT_DIR = "output/";
 std::string LOG_DIR = OUT_DIR + "log.txt";  
@@ -123,7 +123,7 @@ double SIDE_LENGTH_Y = 2.0;
 
 // Sedov Blast Wave
 #ifdef SEDOV
-double CFL = 0.4;
+double CFL = 0.2;
 double T_TOT = 0.01;
 double GAMMA = 5.0/3.0;
 double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
@@ -131,7 +131,7 @@ double SIDE_LENGTH_Y = 10.0;
 #endif
 
 double BLAST_E_TOT = 0.0;
-double R_BLAST     = 0.1;
+double R_BLAST     = 0.25;
 double AREA_CHECK  = 0.0;
 int POINT_CHECK    = 0;
 

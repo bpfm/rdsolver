@@ -5,7 +5,6 @@ void plummer_gravity(std::vector<VERTEX> &MY_POINTS, double DT, int N_POINTS){
         double X, Y, GM, AX, AY, DU[4];
         double XC = 5.0, YC = 5.0, MPERT = 3.28E+05, EPS = 0.145;
         double MASS_DENSITY, DELTAX, DELTAY, RAD2;
-
         VERTEX MY_VERTEX;
 
         DU[0] = DU[3] = 0.0;

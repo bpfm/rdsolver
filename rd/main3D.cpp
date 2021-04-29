@@ -21,7 +21,9 @@
 #include "triangle3D.h"
 #include "setup3D.cpp"
 #include "io3D.cpp"
-// #include "gravity3D.cpp"
+#include "gravity3D.cpp"
+#include "source3D.cpp"
+#include "timestep.cpp"
 #endif
 
 int main(){
@@ -242,6 +244,12 @@ int main(){
                 }
 #endif
 
+#ifdef SELF_GRAVITY
+                direct_gravity(RAND_POINTS, N_POINTS, DT);
+#endif
+
+                sources(RAND_POINTS, DT, N_POINTS);
+
 #ifdef PARA_UP
                 #pragma omp parallel for
 #endif
@@ -251,16 +259,6 @@ int main(){
                         RAND_POINTS[i].check_values();
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
-
-// #ifdef SELF_GRAVITY
-//                 direct_gravity(RAND_POINTS, N_POINTS, DT);
-// #endif
-
-#ifdef ANALYTIC_GRAVITY
-                for(i=0;i<N_POINTS;++i){
-                        RAND_POINTS[i].calc_newtonian_gravity(DT);
-                }
-#endif
 
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                         RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE

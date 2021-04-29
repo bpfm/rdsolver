@@ -282,14 +282,13 @@ public:
                 return ;
         }
 
-        
-#ifdef ANALYTIC_GRAVITY
         void accelerate(double AX, double AY, double AZ, double DT){
                 U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
                 U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
                 U_VARIABLES[3] = U_VARIABLES[3] - AZ*DT*MASS_DENSITY;
         }
 
+#ifdef ANALYTIC_GRAVITY
         void calc_newtonian_gravity(double DT){
                 // Fixed Plummer potential at (XC,YC)
                 double GM,AX,AY,AZ;

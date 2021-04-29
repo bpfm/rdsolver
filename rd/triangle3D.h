@@ -909,25 +909,9 @@ public:
 
                 setup_positions();
 
-                // if(BOUNDARY == 1){
-                //         std::cout << "0\t" << X[0] << "\t" << Y[0] << "\t" << Z[0] << std::endl;
-                //         std::cout << "1\t" << X[1] << "\t" << Y[1] << "\t" << Z[1] << std::endl;
-                //         std::cout << "2\t" << X[2] << "\t" << Y[2] << "\t" << Z[2] << std::endl;
-                //         std::cout << "3\t" << X[3] << "\t" << Y[3] << "\t" << Z[3] << std::endl;
-                //         std::cout << std::endl;
-                // }
-
                 for(int m=0; m<4; ++m){X_MOD[m] = X[m]; Y_MOD[m] = Y[m]; Z_MOD[m] = Z[m];}
 
                 check_boundary();
-
-                // if(BOUNDARY == 1){
-                //         std::cout << "0\t" << X_MOD[0] << "\t" << Y_MOD[0] << "\t" << Z_MOD[0] << std::endl;
-                //         std::cout << "1\t" << X_MOD[1] << "\t" << Y_MOD[1] << "\t" << Z_MOD[1] << std::endl;
-                //         std::cout << "2\t" << X_MOD[2] << "\t" << Y_MOD[2] << "\t" << Z_MOD[2] << std::endl;
-                //         std::cout << "3\t" << X_MOD[3] << "\t" << Y_MOD[3] << "\t" << Z_MOD[3] << std::endl;
-                //         std::cout << "-----------------------------------" << std::endl;
-                // }
 
                 calculate_normals(X_MOD,Y_MOD,Z_MOD);
 
@@ -1182,22 +1166,6 @@ public:
                 return ;
         }
 
-        double max_val(double A, double B){
-                if(A>B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
-        double min_val(double A, double B){
-                if(A<B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
         double cross_product_x(double A[3], double B[3]){
                 // std::cout << A[0] << "\t" << A[1] << "\t" << A[2] << "\t" << B[0] << "\t" << B[1] << "\t" << B[2] << "\t" <<  A[1]*B[2] - A[2]*B[1] << std::endl;
                 return A[1]*B[2] - A[2]*B[1];
@@ -1217,7 +1185,6 @@ public:
                 VERTEX_2 = TEMP_VERTEX;
 
                 return;
-
         }
 
 };

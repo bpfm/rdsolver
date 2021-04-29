@@ -172,8 +172,6 @@ VERTEX setup_vertex(double X, double Y, double Z){
 
         if(X == X_C and Y == Y_C){X_VEL = Y_VEL = 0.00000001;}
 
-        std::cout << X << "\t" << Y << "\t" << X_VEL << "\t" << Y_VEL << std::endl;
-
         NEW_VERTEX.set_mass_density(1.0);
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);

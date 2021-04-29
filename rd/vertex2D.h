@@ -230,19 +230,15 @@ public:
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
                 if (U_VARIABLES[0] < M_LIM){
-                        // U_VARIABLES[3] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative density\t\t\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
                         U_VARIABLES[0] = M_LIM;
                         // std::cout << "B WARNING: Exiting on negative density\t\t\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
-                        // U_VARIABLES[1] = U_VARIABLES[2] = 0.0000001;
-                        // U_VARIABLES[3] = E_LIM;
                         // exit(0);
                 }
 
                 if (U_VARIABLES[3] < E_LIM){
-                        // U_VARIABLES[3] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative energy\t\t\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[3] << std::endl;
                         U_VARIABLES[3] = E_LIM;
@@ -255,14 +251,11 @@ public:
         
         void check_values_half(){
                 if (U_HALF[0] < M_LIM){
-                        // U_HALF[3] = PRES_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
                         U_HALF[0] = M_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
-                        // U_HALF[1] = U_HALF[2] = 0.0000001;
-                        // U_HALF[3] = E_LIM;
                         // exit(0);
                 }
 
@@ -311,28 +304,5 @@ public:
         void reset_tbin_local(int INC_TBIN){
                 if(INC_TBIN < TBIN_LOCAL){TBIN_LOCAL = INC_TBIN;}
         }
-
-        // maximum value between A and B 
-        double max_val(double A, double B){
-                if(A>B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
-#ifdef NOH
-        double RHO0;
-        double VELX0;
-        double VELY0;
-        double E0;
-#endif
-
-#ifdef DF
-        double RHO0;
-        double VELX0;
-        double VELY0;
-        double E0;
-#endif
 
 };

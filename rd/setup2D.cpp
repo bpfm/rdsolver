@@ -149,7 +149,7 @@ VERTEX setup_vertex(double X, double Y){
         double X_C = SIDE_LENGTH_X/2.0;
         double Y_C = SIDE_LENGTH_Y/2.0;
         double RHO0 = 1.0;
-	double PRESSURE = 0.000001;
+        double PRESSURE = 0.000001;
 
         X_VEL = (X_C - X);
         Y_VEL = (Y_C - Y);
@@ -165,11 +165,6 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.set_x_velocity(X_VEL_NORM);
         NEW_VERTEX.set_y_velocity(Y_VEL_NORM);
         NEW_VERTEX.set_pressure(PRESSURE);
-
-        NEW_VERTEX.RHO0  = RHO0;
-        NEW_VERTEX.VELX0 = X_VEL_NORM;
-        NEW_VERTEX.VELY0 = Y_VEL_NORM;
-        NEW_VERTEX.E0 = RHO0*(PRESSURE/((GAMMA-1.0)*RHO0) + 0.5);
 
 #endif
 #ifdef KHX
@@ -263,11 +258,6 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);
         NEW_VERTEX.set_pressure(PRESSURE);
-
-        NEW_VERTEX.RHO0  = RHO0;
-        NEW_VERTEX.VELX0 = X_VEL;
-        NEW_VERTEX.VELY0 = Y_VEL;
-        NEW_VERTEX.E0 = RHO0*(PRESSURE/((GAMMA-1.0)*RHO0) + 0.5*(X_VEL*X_VEL + Y_VEL*Y_VEL));
 #endif
 
 

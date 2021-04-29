@@ -218,7 +218,6 @@ public:
                 U_VARIABLES[4] = U_HALF[4] - DU[4];
                 // if(U_VARIABLES[0] <= MASS_LIM){U_VARIABLES[0] = MASS_LIM;}
                 // if(U_VARIABLES[4] <= PRES_LIM){U_VARIABLES[4] = PRES_LIM;}
-                // con_to_prim();
         }
 
         void update_u_half(){
@@ -230,7 +229,6 @@ public:
                 U_HALF[4] = U_VARIABLES[4] - DU_HALF[4];
                 // if(U_HALF[0] <= MASS_LIM){U_HALF[0] = MASS_LIM;}
                 // if(U_HALF[4] <= PRES_LIM){U_HALF[4] = PRES_LIM;}
-                // con_to_prim_half();
         }
 
         // calculate sum of length and velocity (used to calculate dt)
@@ -246,8 +244,6 @@ public:
                         U_VARIABLES[0] = M_LIM;
                         // std::cout << "B WARNING: Exiting on negative density\t\t\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
-                        // U_VARIABLES[1] = U_VARIABLES[2] = 0.0000001;
-                        // U_VARIABLES[3] = E_LIM;
                         // exit(0);
                 }
 
@@ -271,8 +267,6 @@ public:
                         U_HALF[0] = M_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
-                        // U_HALF[1] = U_HALF[2] = 0.0000001;
-                        // U_HALF[3] = E_LIM;
                         // exit(0);
                 }
 

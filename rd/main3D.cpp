@@ -14,6 +14,7 @@
 #include "cblas.h"
 #include "lapacke.h"
 #include "inverse.cpp"
+#include "base.cpp"
 
 #ifdef THREE_D
 #include "vertex3D.h"

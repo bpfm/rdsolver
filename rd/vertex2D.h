@@ -202,20 +202,20 @@ public:
         // update fluid varaiables based on sum of changes
         void update_u_variables(){
                 // std::cout << "DU =\t" << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << std::endl;
-                U_VARIABLES[0] = U_HALF[0] - DU[0];
-                U_VARIABLES[1] = U_HALF[1] - DU[1];
-                U_VARIABLES[2] = U_HALF[2] - DU[2];
-                U_VARIABLES[3] = U_HALF[3] - DU[3];
+                U_VARIABLES[0] = U_HALF[0] + DU[0];
+                U_VARIABLES[1] = U_HALF[1] + DU[1];
+                U_VARIABLES[2] = U_HALF[2] + DU[2];
+                U_VARIABLES[3] = U_HALF[3] + DU[3];
                 // if(U_VARIABLES[0] <= M_LIM){U_VARIABLES[0] = M_LIM;}
                 // if(U_VARIABLES[3] <= E_LIM){U_VARIABLES[3] = E_LIM;}
         }
 
         void update_u_half(){
                 // std::cout << "DU_HALF  =\t" << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << std::endl;
-                U_HALF[0] = U_VARIABLES[0] - DU_HALF[0];
-                U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
-                U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
-                U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
+                U_HALF[0] = U_VARIABLES[0] + DU_HALF[0];
+                U_HALF[1] = U_VARIABLES[1] + DU_HALF[1];
+                U_HALF[2] = U_VARIABLES[2] + DU_HALF[2];
+                U_HALF[3] = U_VARIABLES[3] + DU_HALF[3];
                 // if(U_HALF[0] <= M_LIM){U_HALF[0] = M_LIM;}
                 // if(U_HALF[3] <= E_LIM){U_HALF[3] = E_LIM;}
         }
@@ -270,28 +270,6 @@ public:
                 }
                 return ;
         }
-
-        void accelerate(double AX, double AY, double DT){
-                U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
-                U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
-        }
-
-#ifdef ANALYTIC_GRAVITY
-        void calc_plummer_gravity(double DT){
-                // Fixed Plummer potential at (XC,YC)
-                double GM,AX,AY;
-                double MPERT = 3.28E+05;
-                double XC = 5.0, YC = 5.0;
-                double DELTAX = X - XC, DELTAY = Y - YC;
-                double EPS = 0.145;
-                double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
-                GM = GRAV * MPERT / (sqrt(RAD2 + EPS*EPS)*sqrt(RAD2 + EPS*EPS)*sqrt(RAD2 + EPS*EPS));
-                AX = DELTAX * GM;
-                AY = DELTAY * GM;
-                accelerate(AX, AY, DT);
-                return ;
-        }
-#endif
 
         // calculate min timestep this cell requires
         double calc_next_dt(){

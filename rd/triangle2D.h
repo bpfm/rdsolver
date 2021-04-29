@@ -507,25 +507,25 @@ public:
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0_HALF[i] = DT*FLUC_LDA[i][0]/DUAL[0];
-                        DU1_HALF[i] = DT*FLUC_LDA[i][1]/DUAL[1];
-                        DU2_HALF[i] = DT*FLUC_LDA[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_LDA[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_LDA[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_LDA[i][2]/DUAL[2];
                 }
 #endif
 
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
-                        DU0_HALF[i] = DT*FLUC_N[i][0]/DUAL[0];
-                        DU1_HALF[i] = DT*FLUC_N[i][1]/DUAL[1];
-                        DU2_HALF[i] = DT*FLUC_N[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_N[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_N[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_N[i][2]/DUAL[2];
                 }
 #endif
 
 #ifdef BLENDED 
                 for(i=0;i<4;i++){
-                        DU0_HALF[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1_HALF[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2_HALF[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_B[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
 
 #endif
@@ -927,9 +927,9 @@ public:
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
-                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
+                        DU0[i] = -1.0*(DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
+                        DU1[i] = -1.0*(DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
+                        DU2[i] = -1.0*(DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
                 }
 #endif
 
@@ -937,9 +937,9 @@ public:
 
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
-                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];
+                        DU0[i] = -1.0*(DT/DUAL[0])*SECOND_FLUC_N[i][0];
+                        DU1[i] = -1.0*(DT/DUAL[1])*SECOND_FLUC_N[i][1];
+                        DU2[i] = -1.0*(DT/DUAL[2])*SECOND_FLUC_N[i][2];
                 }
 #endif
 
@@ -977,9 +977,9 @@ public:
                         FLUC_B[i][1] = THETA_E[i][i]*SECOND_FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*SECOND_FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][2];
 
-                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU0[i] = -1.0*DT*FLUC_B[i][0]/DUAL[0];
+                        DU1[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
+                        DU2[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
 #endif
 

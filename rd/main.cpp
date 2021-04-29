@@ -21,6 +21,7 @@
 #include "setup2D.cpp"
 #include "io2D.cpp"
 #include "gravity2D.cpp"
+#include "source2D.cpp"
 #include "timestep.cpp"
 #endif
 
@@ -270,6 +271,12 @@ int main(int ARGC, char *ARGV[]){
                 }
 #endif
 
+#ifdef SELF_GRAVITY
+                direct_gravity(RAND_POINTS, N_POINTS, DT);
+#endif
+
+                sources(RAND_POINTS, DT, N_POINTS);
+
 #ifdef PARA_UP
                 #pragma omp parallel for
 #endif
@@ -279,16 +286,6 @@ int main(int ARGC, char *ARGV[]){
                         RAND_POINTS[i].check_values();
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
-
-#ifdef SELF_GRAVITY
-                direct_gravity(RAND_POINTS, N_POINTS, DT);
-#endif
-
-#ifdef ANALYTIC_GRAVITY
-                for(i=0;i<N_POINTS;++i){
-                        RAND_POINTS[i].calc_plummer_gravity(DT);
-                }
-#endif
 
                 if(TBIN_CURRENT == 0){
                         reset_tbins(T, DT, N_TRIANG, N_POINTS, NEXT_DT, RAND_MESH, RAND_POINTS);

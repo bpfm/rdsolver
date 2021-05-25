@@ -244,10 +244,6 @@ int main(){
                 }
 #endif
 
-#ifdef SELF_GRAVITY
-                direct_gravity(RAND_POINTS, N_POINTS, DT);
-#endif
-
                 sources(RAND_POINTS, DT, N_POINTS);
 
 #ifdef PARA_UP

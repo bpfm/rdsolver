@@ -60,7 +60,8 @@
 #define DRIFT
 // #define DRIFT_SHELL
 // #define JUMP
-int MAX_TBIN = pow(2,6); // set maximum time bin (must be power of 2)
+double N_BINS = 4; // set maximum time bin (must be power of 2)
+int MAX_TBIN = pow(2,N_BINS);
 
 //-----------------------------------------
 /* define type of grid (none for square grid of vertices) */

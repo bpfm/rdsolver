@@ -20,7 +20,6 @@
 #include "triangle2D.h"
 #include "setup2D.cpp"
 #include "io2D.cpp"
-#include "gravity2D.cpp"
 #include "source2D.cpp"
 #include "timestep.cpp"
 #endif
@@ -287,11 +286,11 @@ int main(int ARGC, char *ARGV[]){
                         reset_tbins(T, DT, N_TRIANG, N_POINTS, NEXT_DT, RAND_MESH, RAND_POINTS);
                 }
 
-#if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(DF))
-                for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
-                        RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
-                }
-#endif
+// #if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(DF))
+//                 for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
+//                         RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
+//                 }
+// #endif
                 TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                     // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number

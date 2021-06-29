@@ -95,6 +95,9 @@ void reset_tbins(int T, int DT, int N_TRIANG, int N_POINTS, double &NEXT_DT, std
                 MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
                 if(RAND_MESH[j].get_vertex_1()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_1()->get_dt_req();}
                 if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
+#ifdef THREE_D
+                if(RAND_MESH[j].get_vertex_3()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_3()->get_dt_req();}
+#endif
                 RAND_MESH[j].set_tbin( min_val( MAX_TBIN,pow(2.0,int(log2(MIN_DT/NEXT_DT))) ) );
 #ifdef DRIFT_SHELL
                 RAND_MESH[j].send_tbin_limit();

@@ -21,7 +21,6 @@
 #include "triangle3D.h"
 #include "setup3D.cpp"
 #include "io3D.cpp"
-#include "gravity3D.cpp"
 #include "source3D.cpp"
 #include "timestep.cpp"
 #endif
@@ -178,6 +177,7 @@ int main(){
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
+        int TBIN, TBIN_CURRENT = 0;
         NEXT_DT = 0.0;
 
         while(T<T_TOT){
@@ -267,6 +267,7 @@ int main(){
                         RAND_POINTS[i].reset_len_vel_sum();
                 }
 
+                TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                    // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number
         }

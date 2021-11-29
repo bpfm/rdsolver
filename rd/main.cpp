@@ -13,64 +13,66 @@
 #include "cblas.h"
 #include "lapacke.h"
 #include "inverse.cpp"
+#include "base.cpp"
 
 #ifdef TWO_D
 #include "vertex2D.h"
 #include "triangle2D.h"
 #include "setup2D.cpp"
 #include "io2D.cpp"
-#include "gravity2D.cpp"
+#include "source2D.cpp"
+#include "timestep.cpp"
 #endif
 
-int main(){
+int main(int ARGC, char *ARGV[]){
         /*
         Setup and run simulation from input file constants.h, using precalculated triangulation
         */
-
-        int i, j, l = 0, m;                                           // ******* decalare varaibles and vectors ******
-        double DX, DY, DT, T = 0.0;                                // DX           = space step,DT = timestep,t = time
+        int i, j, l = 0, m;                                        // ******* decalare varaibles and vectors ******
+        int SNAP_ID = 0;
+        double DT, T = 0.0;                                        //
         double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
-        double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;                       // NEXT_DT.     = timestep for upcoming time iteration
+        double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;               // NEXT_DT.     = timestep for upcoming time iteration
         double MIN_DT;
         VERTEX                               NEW_VERTEX;           // NEW_VERTEX   = dummy variable for setting up vertices
         TRIANGLE                             NEW_TRIANGLE;         // NEW_TRIABLE  = dummy variable for setting up triangles
-        std::vector<VERTEX>                  RAND_POINTS;             // X_POINTS     = vector of x vertices
-        std::vector<TRIANGLE>                RAND_MESH;               // X_MESH       = vector of x triangles
-        double SNAP_ID = 0;
-
+        std::vector<VERTEX>                  RAND_POINTS;          // X_POINTS     = vector of x vertices
+        std::vector<TRIANGLE>                RAND_MESH;            // X_MESH       = vector of x triangles
 
         // Initialise seed for random number generator (rand)
         std::srand(68315);
 
-        /****** Setup initial conditions of one dimensional tube ******/
+        // read_parameter_file(ARGC, ARGV);
 
-        std::cout << "*********************************************************" << std::endl;
+        /****** Setup simulation options ******/
+
+        printf("*********************************************************\n");
+
+        printf("LAIRDS 2D\n");
 
 #ifdef LDA_SCHEME
-        std::cout << "Using LDA Scheme" << std::endl;
+        printf("Using LDA Scheme\n");
 #endif
 
 #ifdef N_SCHEME
-        std::cout << "Using N Scheme" << std::endl;
+        printf("Using N Scheme\n");
 #endif
 
 #ifdef BLENDED
-        std::cout << "Using B Scheme" << std::endl;
+        printf("Using B Scheme\n");
 #endif
 
 #ifdef FIRST_ORDER
-        std::cout << "Using 1st order" << std::endl;
+        printf("Using 1st order\n");
 #else
-        std::cout << "Using 2nd order" << std::endl;
+        printf("Using 2nd order\n");
 #endif
 
-        std::cout << "Building grid of vertices" << std::endl;
+        printf("Building vertices and mesh\n");
 
-                std::ofstream LOGFILE;
+        std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
         LOGFILE.open(LOG_DIR);
-
-        /****** Setup Vertices ******/
 
 #ifdef READ_IC
 #ifdef QHULL_IC
@@ -80,7 +82,7 @@ int main(){
 
         /****** Setup vertices ******/
 
-        std::cout << "Reading QHULL vertex positions ..." << std::endl;
+        printf("Reading QHULL vertex positions ...\n");
 
         POSITIONS_FILE_NAME = "triangulation/points.txt";
         TRIANGLES_FILE_NAME = "triangulation/ordered_triangles.txt";
@@ -91,7 +93,7 @@ int main(){
         N_POINTS = qhull_read_positions_header(POSITIONS_FILE);
         N_TRIANG = qhull_read_triangles_header(TRIANGLES_FILE);
 
-        std::cout << "Number of vertices = " << N_POINTS << std::endl;
+        printf("Number of vertices = %d\n", N_POINTS);
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = qhull_read_positions_line(POSITIONS_FILE);
@@ -102,9 +104,9 @@ int main(){
 
         /****** Setup mesh ******/
 
-        std::cout << "Reading QHULL triangles ..." << std::endl;
+        printf("Reading QHULL triangles ...");
 
-        std::cout << "Number of triangles = " << N_TRIANG << std::endl;
+        printf("Number of triangles = %d\n", N_TRIANG);
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = qhull_read_triangles_line(TRIANGLES_FILE,RAND_POINTS);
@@ -122,15 +124,13 @@ int main(){
 
         /****** Setup vertices ******/
 
-        std::cout << "Reading CGAL vertex positions ..." << std::endl;
+        printf("Reading CGAL vertex positions ...");
 
         CGAL_FILE_NAME = "Delaunay2D.txt";
-
         CGAL_FILE.open(CGAL_FILE_NAME);
-
         N_POINTS = cgal_read_positions_header(CGAL_FILE);
 
-        std::cout << "Number of vertices = " << N_POINTS << std::endl;
+        printf("Number of vertices = %d\n", N_POINTS);
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = cgal_read_positions_line(CGAL_FILE);
@@ -141,11 +141,11 @@ int main(){
 
         /****** Setup mesh ******/
 
-        std::cout << "Reading CGAL triangles ..." << std::endl;
+        printf("Reading CGAL triangles ...");
 
         N_TRIANG = cgal_read_triangles_header(CGAL_FILE);
 
-        std::cout << "Number of triangles = " << N_TRIANG << std::endl;
+        printf("Number of triangles = %d\n", N_TRIANG);
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS,j);
@@ -157,6 +157,7 @@ int main(){
 #endif
 
 #ifdef SEDOV
+        /****** Inject pressure for Sedov test  ******/
         double ETOT = 0.0,ETOT_AIM = 300000.0,PRESSURE_AIM;
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
@@ -168,7 +169,7 @@ int main(){
                         PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
                         RAND_POINTS[i].set_pressure(PRESSURE_AIM);
                         ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
-                        std::cout << POINT_CHECK << "\t" << PRESSURE_AIM << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        printf("%d\t%f\t%f\t%f\n", POINT_CHECK, PRESSURE_AIM, RAND_POINTS[i].get_pressure(), ETOT);
                         RAND_POINTS[i].setup_specific_energy();
                         RAND_POINTS[i].prim_to_con();
                 }
@@ -177,7 +178,7 @@ int main(){
 
         /****** Set initial timestep  ******/
 
-        std::cout << "Finding initial timestep ..." << std::endl;
+        printf("Finding initial timestep ...");
 
         for(j=0;j<N_TRIANG;++j){                                           // loop over all triangles in MESH
                 RAND_MESH[j].calculate_len_vel_contribution();             // calculate flux through TRIANGLE
@@ -189,28 +190,27 @@ int main(){
                 RAND_POINTS[i].reset_len_vel_sum();
         }
 
-        std::cout << "Checking mesh size ..." << std::endl;
-        std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
-        std::cout << "Evolving fluid ..." << std::endl;
-        std::cout << std::fixed;
-        std::cout << std::setprecision(6);
-
-        /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
+        printf("Checking mesh size ...");
+        printf("Mesh Size = %d\n",int(RAND_MESH.size()));
+        printf("Evolving fluid ...");
 
         int TBIN, TBIN_CURRENT = 0;
-
         NEXT_DT = 0.0;                                                            // set first timestep to zero
 
+        /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
         while(T<T_TOT){
 
+        /****** Update time step to new value ******/
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
 
 #ifdef FIXED_DT
+        /****** Reset time step if fixed ******/
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
+                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\n", l, T, DT, 100.0*T/T_TOT);
 
+        /****** Write snapshot *****************************************************************************************************/
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
                         write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
@@ -219,92 +219,26 @@ int main(){
                         SNAP_ID ++;
                 }
 
+        /****** 1st order update ***************************************************************************************************/
+
+#ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
+                drift_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+#ifdef JUMP
+                /****** Update residual for active bins (Jump method) ******/
+                jump_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+
+
+#if !defined(DRIFT) && !defined(JUMP)
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
-#ifdef DRIFT
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        TBIN = RAND_MESH[j].get_tbin();
-                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 3 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 5 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 7 and  TBIN == 1)\
-                                             ){
-                                // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
-                                RAND_MESH[j].calculate_first_half(T);
-                        }
-                        // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
-                }
-#endif
-#ifdef JUMP
-                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        TBIN = RAND_MESH[j].get_tbin();
-                        // std::cout << TBIN_CURRENT << std::endl;
-                        if(TBIN_CURRENT == 0 or (TBIN_CURRENT == 1 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 2 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 3 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 4 and (TBIN == 4 or TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 5 and  TBIN == 1)\
-                                             or (TBIN_CURRENT == 6 and (TBIN == 2 or TBIN == 1))\
-                                             or (TBIN_CURRENT == 7 and  TBIN == 1)\
-                                             ){
-                                // std::cout << TBIN_CURRENT << "\t" << RAND_MESH[j].get_tbin() <<std::endl;
-                                RAND_MESH[j].calculate_first_half(T);
-                        }
-                        if(N_TBINS == 1){
-                                RAND_MESH[j].pass_update_half(DT);
-                        }else if(N_TBINS == 2){
-                                if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 1 and (TBIN == 2 or TBIN == 4 or TBIN == 8)){RAND_MESH[j].pass_update_half(2.0*DT);}
-                        }else if(N_TBINS == 4){
-                                if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 1 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-
-                                if(TBIN_CURRENT == 3 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 3 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-                                if(TBIN_CURRENT == 3 and (TBIN == 4 or TBIN == 8)){RAND_MESH[j].pass_update_half(4.0*DT);}
-                        }else if(N_TBINS == 8){
-                                if(TBIN_CURRENT == 0 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 1 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 1 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-
-                                if(TBIN_CURRENT == 2 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 3 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 3 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-                                if(TBIN_CURRENT == 3 and TBIN == 4){RAND_MESH[j].pass_update_half(4.0*DT);}
-
-                                if(TBIN_CURRENT == 4 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 5 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 5 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-
-                                if(TBIN_CURRENT == 6 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-
-                                if(TBIN_CURRENT == 7 and TBIN == 1){RAND_MESH[j].pass_update_half(DT);}
-                                if(TBIN_CURRENT == 7 and TBIN == 2){RAND_MESH[j].pass_update_half(2.0*DT);}
-                                if(TBIN_CURRENT == 7 and TBIN == 4){RAND_MESH[j].pass_update_half(4.0*DT);}
-                                if(TBIN_CURRENT == 7 and TBIN == 8){RAND_MESH[j].pass_update_half(8.0*DT);}
-                        }
-
-                        // RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        // RAND_MESH[j].pass_update_half(DT);
-                }
-#endif
-
-#if !defined(DRIFT) && !defined(JUMP)
-                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_first_half(T);                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
+                        RAND_MESH[j].calculate_first_half(T,DT);                                                 // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update_half();
                 }
 #endif
 
@@ -318,12 +252,25 @@ int main(){
                         RAND_POINTS[i].con_to_prim_half();
                 }
 
+        /****** 2nd order update ***************************************************************************************************/
+
+#ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
+                drift_update(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+
+#if !defined(DRIFT) && !defined(JUMP)
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].calculate_second_half(T,DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update();
                 }
+#endif
+
+                sources(RAND_POINTS, DT, N_POINTS);
 
 #ifdef PARA_UP
                 #pragma omp parallel for
@@ -334,60 +281,17 @@ int main(){
                         RAND_POINTS[i].check_values();
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
-#ifdef SELF_GRAVITY
-                direct_gravity(RAND_POINTS, N_POINTS, DT);
-#endif
 
-#ifdef ANALYTIC_GRAVITY
-                for(i=0;i<N_POINTS;++i){
-                        RAND_POINTS[i].calc_newtonian_gravity(DT);
-                }
-#endif
                 if(TBIN_CURRENT == 0){
-                        for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                                RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
-                        }
-                        NEXT_DT = T_TOT - (T + DT);        // set next timestep to max possible value (time remaining to end)å
-                        for(i=0;i<N_POINTS;++i){                                       // loop over all vertices
-                                POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();           // calculate next timestep based on new state
-                                if(POSSIBLE_DT < NEXT_DT){NEXT_DT = POSSIBLE_DT;}
-                                RAND_POINTS[i].reset_len_vel_sum();
-                                RAND_POINTS[i].set_tbin_local(N_TBINS);
-                        }
-                        for(j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
-                                MIN_DT = RAND_MESH[j].get_vertex_0()->get_dt_req();
-                                if(RAND_MESH[j].get_vertex_1()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_1()->get_dt_req();}
-                                if(RAND_MESH[j].get_vertex_2()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_2()->get_dt_req();}
-                                if(MIN_DT < 2.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(1);
-                                        // std::cout << 1 << std::endl;
-                                }else if(MIN_DT > 2.0*NEXT_DT and MIN_DT < 4.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(2);
-                                        // std::cout << 2 << std::endl;
-                                }else if(MIN_DT > 4.0*NEXT_DT and MIN_DT < 8.0*NEXT_DT){
-                                        RAND_MESH[j].set_tbin(4);
-                                        // std::cout << 4 << std::endl;
-                                }else{
-                                        RAND_MESH[j].set_tbin(8);
-                                        // std::cout << 8 << std::endl
-                                }
-#ifdef DRIFT_SHELL
-                                RAND_MESH[j].send_tbin_limit();
-#endif
-                        }
-#ifdef DRIFT_SHELL
-                        for(j=0;j<N_TRIANG;++j){
-                                RAND_MESH[j].check_tbin();
-                        }
-#endif
+                        reset_tbins(T, DT, N_TRIANG, N_POINTS, NEXT_DT, RAND_MESH, RAND_POINTS);
                 }
 
-#ifdef NOH
-                for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
-                        RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
-                }
-#endif
-                TBIN_CURRENT = (TBIN_CURRENT + 1) % N_TBINS;                     // increment time step bin
+// #if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(DF))
+//                 for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
+//                         RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
+//                 }
+// #endif
+                TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                     // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number
         }

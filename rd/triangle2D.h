@@ -48,6 +48,9 @@ private:
         double PHI[4];
         double BETA[4][4][3];
 
+        double DU0[4],DU1[4],DU2[4];
+        double DU0_HALF[4],DU1_HALF[4],DU2_HALF[4];
+
         double MAG[3];
 
         int PRINT;
@@ -157,9 +160,8 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T){
+        void calculate_first_half(double T, double DT){
                 int i,j,m,p;
-
                 double INFLOW[4][4][3][3];
                 double C_SOUND[3];
 
@@ -251,11 +253,6 @@ public:
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
-
-                // if(std::isnan(C)){C = sqrt(GAMMA*PRESSURE_AVG/RHO);}
-
-                // if(ID == 3086){print_triangle_state();}
-                // if(ID == 3086){std::cout << 1 << "\t" << C << "\t" << H_AVG << "\t" << U << "\t" << V << "\t" << PRESSURE[0] << "\t" << PRESSURE[1] << "\t" << PRESSURE[2] << "\t" << RHO << std::endl;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -497,20 +494,12 @@ public:
 
                 for(i=0;i<4;i++){
                         SUM_FLUC_N[i] = abs(FLUC_N[i][0]) + abs(FLUC_N[i][1]) + abs(FLUC_N[i][2]);
-
                         THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
-
                         FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
                         FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
                 }
 #endif
-                return ;
-        }
-
-        void pass_update_half(double DT){
-                int i;
-                double DU0[4],DU1[4],DU2[4];
 
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
@@ -518,58 +507,44 @@ public:
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_LDA[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_LDA[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_LDA[i][2]/DUAL[2];
                 }
 #endif
 
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_N[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_N[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_N[i][2]/DUAL[2];
                 }
 #endif
 
 #ifdef BLENDED 
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_B[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
 
 #endif
+                return ;
+        }
 
-                // if(VERTEX_0->get_id() == 3587){std::cout << "1st\t" << DU0[0] << "\t" <<  DU0[1] << "\t" <<  DU0[2] << "\t" <<  DU0[3] << std::endl;}
-                // if(VERTEX_1->get_id() == 3587){std::cout << "1st\t" << DU1[0] << "\t" <<  DU1[1] << "\t" <<  DU1[2] << "\t" <<  DU1[3] << std::endl;}
-                // if(VERTEX_2->get_id() == 3587){std::cout << "1st\t" << DU2[0] << "\t" <<  DU2[1] << "\t" <<  DU2[2] << "\t" <<  DU2[3] << std::endl;}
-
-                VERTEX_0->update_du_half(DU0);
-                VERTEX_1->update_du_half(DU1);
-                VERTEX_2->update_du_half(DU2);
-
-#ifdef DEBUG
-                // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
-                std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
-                std::cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
-                std::cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
-                std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
-                std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
-                std::cout << "-----------------------------------------------------------------" << std::endl;
-#endif
+        void pass_update_half(){
+                VERTEX_0->update_du_half(DU0_HALF);
+                VERTEX_1->update_du_half(DU1_HALF);
+                VERTEX_2->update_du_half(DU2_HALF);
                 return ;
         }
 
         //**********************************************************************************************************************
 
 
-        void calculate_second_half(double T, double DT_TOT){
+        void calculate_second_half(double T, double DT){
                 int i,j,m,p;
-                double DU0[4],DU1[4],DU2[4];
-
                 double INFLOW[4][4][3][3];
-                double DT = DT_TOT;
 
                 setup_half_state();
 
@@ -669,11 +644,6 @@ public:
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
-
-                // if(std::isnan(C)){C = sqrt(GAMMA*PRESSURE_AVG/RHO);}
-
-                // if(ID == 3086){print_triangle_state();}
-                // if(ID == 3086){std::cout << 2 << "\t" << C << "\t" << H_AVG << "\t" << U << "\t" << V << "\t" << sPRESSURE_AVG << "\t" << RHO << std::endl;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -945,8 +915,6 @@ public:
                                 }else{
                                         SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
                                 }
-
-                                // std::cout << AREA_DIFF[i][m] << "\t" << FLUC_N[i][m] << "\t" << FLUC_HALF_N[i][m] << "\t" << SECOND_FLUC_N[i][m] << std::endl;
                         }
                 }
 
@@ -959,9 +927,9 @@ public:
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
-                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
+                        DU0[i] = -1.0*(DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
+                        DU1[i] = -1.0*(DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
+                        DU2[i] = -1.0*(DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
                 }
 #endif
 
@@ -969,9 +937,9 @@ public:
 
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
-                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];
+                        DU0[i] = -1.0*(DT/DUAL[0])*SECOND_FLUC_N[i][0];
+                        DU1[i] = -1.0*(DT/DUAL[1])*SECOND_FLUC_N[i][1];
+                        DU2[i] = -1.0*(DT/DUAL[2])*SECOND_FLUC_N[i][2];
                 }
 #endif
 
@@ -1009,30 +977,21 @@ public:
                         FLUC_B[i][1] = THETA_E[i][i]*SECOND_FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*SECOND_FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][2];
 
-                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU0[i] = -1.0*DT*FLUC_B[i][0]/DUAL[0];
+                        DU1[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
+                        DU2[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
 #endif
-
-                // if(VERTEX_0->get_id() == 3587){std::cout << "2nd\t" << ID << "\t" << DU0[0] << "\t" <<  DU0[1] << "\t" <<  DU0[2] << "\t" <<  DU0[3] << std::endl;}
-                // if(VERTEX_1->get_id() == 3587){std::cout << "2nd\t" << ID << "\t" << DU1[0] << "\t" <<  DU1[1] << "\t" <<  DU1[2] << "\t" <<  DU1[3] << std::endl;}
-                // if(VERTEX_2->get_id() == 3587){std::cout << "2nd\t" << ID << "\t" << DU2[0] << "\t" <<  DU2[1] << "\t" <<  DU2[2] << "\t" <<  DU2[3] << std::endl;}
-
-                VERTEX_0->update_du(DU0);
-                VERTEX_1->update_du(DU1);
-                VERTEX_2->update_du(DU2);
-
-                // std::cout << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
-
-                // if(X[0] == 0.21875 and Y[0] == 0.078125){exit(0);}
 
                 return ;
         }
 
-        // void pass_update(double DT){
-
-        // }
+        void pass_update(){
+                VERTEX_0->update_du(DU0);
+                VERTEX_1->update_du(DU1);
+                VERTEX_2->update_du(DU2);
+                return ;
+        }
 
         // Returns Roe average of left and right states
         double roe_avg(double L1, double L2, double R1, double R2){
@@ -1049,7 +1008,7 @@ public:
 
                 for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
 
-#ifdef PERIODIC
+#ifdef PERIODIC_BOUNDARY
                 if(BOUNDARY == 1){
                         for(int i=0; i<3; ++i){
                                 for(int j=0; j<3; ++j){
@@ -1189,107 +1148,6 @@ public:
                 if(TBIN2<TBIN){TBIN=TBIN2;}
         }
 #endif
-
-#ifdef NOH
-        void check_boundary(){
-                if(BOUNDARY == 1){
-                        VERTEX_0->set_u0(VERTEX_0->RHO0);
-                        VERTEX_1->set_u0(VERTEX_1->RHO0);
-                        VERTEX_2->set_u0(VERTEX_2->RHO0);
-                        VERTEX_0->set_u0_half(VERTEX_0->RHO0);
-                        VERTEX_1->set_u0_half(VERTEX_1->RHO0);
-                        VERTEX_2->set_u0_half(VERTEX_2->RHO0);
-                        VERTEX_0->set_u1(VERTEX_0->RHO0*VERTEX_0->VELX0);
-                        VERTEX_1->set_u1(VERTEX_1->RHO0*VERTEX_1->VELX0);
-                        VERTEX_2->set_u1(VERTEX_2->RHO0*VERTEX_2->VELX0);
-                        VERTEX_0->set_u1_half(VERTEX_0->RHO0*VERTEX_0->VELX0);
-                        VERTEX_1->set_u1_half(VERTEX_1->RHO0*VERTEX_1->VELX0);
-                        VERTEX_2->set_u1_half(VERTEX_2->RHO0*VERTEX_2->VELX0);
-                        VERTEX_0->set_u2(VERTEX_0->RHO0*VERTEX_0->VELY0);
-                        VERTEX_1->set_u2(VERTEX_1->RHO0*VERTEX_1->VELY0);
-                        VERTEX_2->set_u2(VERTEX_2->RHO0*VERTEX_2->VELY0);
-                        VERTEX_0->set_u2_half(VERTEX_0->RHO0*VERTEX_0->VELY0);
-                        VERTEX_1->set_u2_half(VERTEX_1->RHO0*VERTEX_1->VELY0);
-                        VERTEX_2->set_u2_half(VERTEX_2->RHO0*VERTEX_2->VELY0);
-                        VERTEX_0->set_u3(VERTEX_0->E0);
-                        VERTEX_1->set_u3(VERTEX_1->E0);
-                        VERTEX_2->set_u3(VERTEX_2->E0);
-                        VERTEX_0->set_u3_half(VERTEX_0->E0);
-                        VERTEX_1->set_u3_half(VERTEX_1->E0);
-                        VERTEX_2->set_u3_half(VERTEX_2->E0);
-                        VERTEX_0->con_to_prim();
-                        VERTEX_1->con_to_prim();
-                        VERTEX_2->con_to_prim();
-                        VERTEX_0->con_to_prim_half();
-                        VERTEX_1->con_to_prim_half();
-                        VERTEX_2->con_to_prim_half();
-                }
-        }
-#endif
-
-// #ifdef GRAVITY
-//         void check_boundary(){
-//                 double RHO0 = VERTEX_0->RHO0;
-//                 double MOMX0 = VERTEX_0->RHO0*VERTEX_0->VELX0;
-//                 double MOMY0 = VERTEX_0->RHO0*VERTEX_0->VELY0;
-//                 double E0 = VERTEX_0->E0;
-//                 if(BOUNDARY == 1){
-//                         if(VERTEX_0->get_x()>9.5){
-//                                 VERTEX_0->set_u0(RHO0);
-//                                 VERTEX_0->set_u0_half(RHO0);
-//                                 VERTEX_0->set_u1(MOMX0);
-//                                 VERTEX_0->set_u1_half(MOMX0);
-//                                 VERTEX_0->set_u2(MOMY0);
-//                                 VERTEX_0->set_u2_half(MOMY0);
-//                                 VERTEX_0->set_u3(E0);
-//                                 VERTEX_0->set_u3_half(E0);
-//                                 VERTEX_0->con_to_prim();
-//                                 VERTEX_0->con_to_prim_half();
-//                         }
-//                         if(VERTEX_1->get_x()>9.5){
-//                                 VERTEX_1->set_u0(RHO0);
-//                                 VERTEX_1->set_u0_half(RHO0);
-//                                 VERTEX_1->set_u1(MOMX0);
-//                                 VERTEX_1->set_u1_half(MOMX0);
-//                                 VERTEX_1->set_u2(MOMY0);
-//                                 VERTEX_1->set_u2_half(MOMY0);
-//                                 VERTEX_1->set_u3(E0);
-//                                 VERTEX_1->set_u3_half(E0);
-//                                 VERTEX_1->con_to_prim();
-//                                 VERTEX_1->con_to_prim_half();
-//                         }
-//                         if(VERTEX_2->get_x()>9.5){
-//                                 VERTEX_2->set_u0(RHO0);
-//                                 VERTEX_2->set_u0_half(RHO0);
-//                                 VERTEX_2->set_u1(MOMX0);
-//                                 VERTEX_2->set_u1_half(MOMX0);
-//                                 VERTEX_2->set_u2(MOMY0);
-//                                 VERTEX_2->set_u2_half(MOMY0);
-//                                 VERTEX_2->set_u3(E0);
-//                                 VERTEX_2->set_u3_half(E0);
-//                                 VERTEX_2->con_to_prim();
-//                                 VERTEX_2->con_to_prim_half();
-//                         }
-//                 }
-//         }
-// #endif
-
-
-        double max_val(double A, double B){
-                if(A>B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
-        double min_val(double A, double B){
-                if(A<B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
 
         void reorder_vertices(){
                 VERTEX *TEMP_VERTEX;

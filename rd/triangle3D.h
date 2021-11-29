@@ -48,6 +48,9 @@ private:
         double PHI[5];
         double BETA[5][5][4];
 
+        double DU0[5],DU1[5],DU2[5],DU3[5];
+        double DU0_HALF[5],DU1_HALF[5],DU2_HALF[5],DU3_HALF[5];
+
         double MAG[4];
 
         int PRINT;
@@ -199,7 +202,7 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(){
+        void calculate_first_half(double T, double DT){
                 int i,j,m,p;
                 double INFLOW[5][5][4][3];        // K+, K-, K matrices for each vertex (m index for vertices, p index for +,-,0)
 
@@ -223,16 +226,6 @@ public:
                 double Z_BAR[5],W_HAT[5][4];
 
                 // Construct Roe vector Z
-
-                // if(((X[0] == 0.575 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.575 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.575 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.575 and Y[3] == 0.575 and Z[3] == 0.525)) and
-                //    ((X[0] == 0.625 and Y[0] == 0.575 and Z[0] == 0.525) or (X[1] == 0.625 and Y[1] == 0.575 and Z[1] == 0.525) or (X[2] == 0.625 and Y[2] == 0.575 and Z[2] == 0.525) or (X[3] == 0.625 and Y[3] == 0.575 and Z[3] == 0.525)) and
-                //    ID == 11079) {
-                //         std::cout << ID << std::endl;
-                //         PRINT = 1;
-                //         for(i=0;i<4;++i){std::cout << "r =\t" << X[i] << "\t" << Y[i] << "\t" << Z[i] << std::endl;}
-                // }else{
-                //         PRINT = 0;
-                // }
 
                 for(m=0;m<4;++m){
                         Z_ROE[0][m] = sqrt(U_N[0][m]);
@@ -467,46 +460,42 @@ public:
                         FLUC_B[i][3] = THETA_E[i][i]*FLUC_N[i][3] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][3];
                 }
 #endif
-                return ;
-        }
-
-        void pass_update_half(double DT){
-                int i;
-                double DU0[5],DU1[5],DU2[5],DU3[5];
 
 #ifdef LDA_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_LDA[i][0] / DUAL[0];
-                        DU1[i] = DT*FLUC_LDA[i][1] / DUAL[1];
-                        DU2[i] = DT*FLUC_LDA[i][2] / DUAL[2];
-                        DU3[i] = DT*FLUC_LDA[i][3] / DUAL[3];
+                        DU0_HALF[i] = DT*FLUC_LDA[i][0] / DUAL[0];
+                        DU1_HALF[i] = DT*FLUC_LDA[i][1] / DUAL[1];
+                        DU2_HALF[i] = DT*FLUC_LDA[i][2] / DUAL[2];
+                        DU3_HALF[i] = DT*FLUC_LDA[i][3] / DUAL[3];
                         // if(PRINT == 1){std::cout << ID << "\tDU i =\t" << i << "\t" << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << "\t" << DU3[i] << std::endl;}
                 }
 #endif
 
 #ifdef N_SCHEME
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
-                        DU3[i] = DT*FLUC_N[i][3]/DUAL[3];
+                        DU0_HALF[i] = DT*FLUC_N[i][0]/DUAL[0];
+                        DU1_HALF[i] = DT*FLUC_N[i][1]/DUAL[1];
+                        DU2_HALF[i] = DT*FLUC_N[i][2]/DUAL[2];
+                        DU3_HALF[i] = DT*FLUC_N[i][3]/DUAL[3];
                 }
 #endif
 
 #ifdef BLENDED 
                 for(i=0;i<5;i++){
-                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
-                        DU3[i] = DT*FLUC_B[i][3]/DUAL[3];
+                        DU0_HALF[i] = DT*FLUC_B[i][0]/DUAL[0];
+                        DU1_HALF[i] = DT*FLUC_B[i][1]/DUAL[1];
+                        DU2_HALF[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU3_HALF[i] = DT*FLUC_B[i][3]/DUAL[3];
                 }
 #endif
+                return ;
+        }
 
-                VERTEX_0->update_du_half(DU0);
-                VERTEX_1->update_du_half(DU1);
-                VERTEX_2->update_du_half(DU2);
-                VERTEX_3->update_du_half(DU3);
-
+        void pass_update_half(){
+                VERTEX_0->update_du_half(DU0_HALF);
+                VERTEX_1->update_du_half(DU1_HALF);
+                VERTEX_2->update_du_half(DU2_HALF);
+                VERTEX_3->update_du_half(DU3_HALF);
                 return ;
         }
 
@@ -867,12 +856,14 @@ public:
                 }
 #endif
 
+                return ;
+        }
+
+        void pass_update(){
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
                 VERTEX_3->update_du(DU3);
-
-                return ;
         }
 
         //**********************************************************************************************************************
@@ -885,7 +876,7 @@ public:
         // }
 
         void check_boundary(){
-#ifdef PERIODIC
+#ifdef PERIODIC_BOUNDARY
                 if(BOUNDARY == 1){
                         for(int i=0; i<4; ++i){
                                 for(int j=0; j<4; ++j){
@@ -918,25 +909,9 @@ public:
 
                 setup_positions();
 
-                // if(BOUNDARY == 1){
-                //         std::cout << "0\t" << X[0] << "\t" << Y[0] << "\t" << Z[0] << std::endl;
-                //         std::cout << "1\t" << X[1] << "\t" << Y[1] << "\t" << Z[1] << std::endl;
-                //         std::cout << "2\t" << X[2] << "\t" << Y[2] << "\t" << Z[2] << std::endl;
-                //         std::cout << "3\t" << X[3] << "\t" << Y[3] << "\t" << Z[3] << std::endl;
-                //         std::cout << std::endl;
-                // }
-
                 for(int m=0; m<4; ++m){X_MOD[m] = X[m]; Y_MOD[m] = Y[m]; Z_MOD[m] = Z[m];}
 
                 check_boundary();
-
-                // if(BOUNDARY == 1){
-                //         std::cout << "0\t" << X_MOD[0] << "\t" << Y_MOD[0] << "\t" << Z_MOD[0] << std::endl;
-                //         std::cout << "1\t" << X_MOD[1] << "\t" << Y_MOD[1] << "\t" << Z_MOD[1] << std::endl;
-                //         std::cout << "2\t" << X_MOD[2] << "\t" << Y_MOD[2] << "\t" << Z_MOD[2] << std::endl;
-                //         std::cout << "3\t" << X_MOD[3] << "\t" << Y_MOD[3] << "\t" << Z_MOD[3] << std::endl;
-                //         std::cout << "-----------------------------------" << std::endl;
-                // }
 
                 calculate_normals(X_MOD,Y_MOD,Z_MOD);
 
@@ -1191,22 +1166,6 @@ public:
                 return ;
         }
 
-        double max_val(double A, double B){
-                if(A>B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
-        double min_val(double A, double B){
-                if(A<B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
         double cross_product_x(double A[3], double B[3]){
                 // std::cout << A[0] << "\t" << A[1] << "\t" << A[2] << "\t" << B[0] << "\t" << B[1] << "\t" << B[2] << "\t" <<  A[1]*B[2] - A[2]*B[1] << std::endl;
                 return A[1]*B[2] - A[2]*B[1];
@@ -1226,7 +1185,6 @@ public:
                 VERTEX_2 = TEMP_VERTEX;
 
                 return;
-
         }
 
 };

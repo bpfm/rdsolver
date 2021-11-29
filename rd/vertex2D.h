@@ -202,18 +202,22 @@ public:
         // update fluid varaiables based on sum of changes
         void update_u_variables(){
                 // std::cout << "DU =\t" << DU[0] << "\t" << DU[1] << "\t" << DU[2] << "\t" << DU[3] << std::endl;
-                U_VARIABLES[0] = U_HALF[0] - DU[0];
-                U_VARIABLES[1] = U_HALF[1] - DU[1];
-                U_VARIABLES[2] = U_HALF[2] - DU[2];
-                U_VARIABLES[3] = U_HALF[3] - DU[3];
+                U_VARIABLES[0] = U_HALF[0] + DU[0];
+                U_VARIABLES[1] = U_HALF[1] + DU[1];
+                U_VARIABLES[2] = U_HALF[2] + DU[2];
+                U_VARIABLES[3] = U_HALF[3] + DU[3];
+                // if(U_VARIABLES[0] <= M_LIM){U_VARIABLES[0] = M_LIM;}
+                // if(U_VARIABLES[3] <= E_LIM){U_VARIABLES[3] = E_LIM;}
         }
 
         void update_u_half(){
                 // std::cout << "DU_HALF  =\t" << DU_HALF[0] << "\t" << DU_HALF[1] << "\t" << DU_HALF[2] << "\t" << DU_HALF[3] << std::endl;
-                U_HALF[0] = U_VARIABLES[0] - DU_HALF[0];
-                U_HALF[1] = U_VARIABLES[1] - DU_HALF[1];
-                U_HALF[2] = U_VARIABLES[2] - DU_HALF[2];
-                U_HALF[3] = U_VARIABLES[3] - DU_HALF[3];
+                U_HALF[0] = U_VARIABLES[0] + DU_HALF[0];
+                U_HALF[1] = U_VARIABLES[1] + DU_HALF[1];
+                U_HALF[2] = U_VARIABLES[2] + DU_HALF[2];
+                U_HALF[3] = U_VARIABLES[3] + DU_HALF[3];
+                // if(U_HALF[0] <= M_LIM){U_HALF[0] = M_LIM;}
+                // if(U_HALF[3] <= E_LIM){U_HALF[3] = E_LIM;}
         }
 
         // calculate sum of length and velocity (used to calculate dt)
@@ -225,76 +229,47 @@ public:
 #ifdef DEBUG
                 std::cout << "Checking vertex state at " << X << "\t" << Y << std::endl;
 #endif
-                if (U_VARIABLES[0] < 0.0){
-                        // U_VARIABLES[3] = PRES_LIM;
-                        std::cout << "B WARNING: Exiting on negative density\t\t\t";
-                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
+                if (U_VARIABLES[0] < M_LIM){
+                        // std::cout << "B WARNING: Exiting on negative density\t\t\t";
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
                         U_VARIABLES[0] = M_LIM;
                         // std::cout << "B WARNING: Exiting on negative density\t\t\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY =\t" << U_VARIABLES[0] << std::endl;
-                        // U_VARIABLES[1] = U_VARIABLES[2] = 0.0000001;
-                        // U_VARIABLES[3] = E_LIM;
-                        exit(0);
+                        // exit(0);
                 }
 
-                if (U_VARIABLES[3] < 0.0){
-                        // U_VARIABLES[3] = PRES_LIM;
-                        std::cout << "B WARNING: Exiting on negative energy\t\t\t";
-                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[3] << std::endl;
+                if (U_VARIABLES[3] < E_LIM){
+                        // std::cout << "B WARNING: Exiting on negative energy\t\t\t";
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[3] << std::endl;
                         U_VARIABLES[3] = E_LIM;
                         // std::cout << "B WARNING: Exiting on negative energy\t\t\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[3] << std::endl;
-                        exit(0);
+                        // exit(0);
                 }
                 return ;
         }
         
         void check_values_half(){
-                if (U_HALF[0] < 0.0){
-                        // U_HALF[3] = PRES_LIM;
-                        std::cout << "B WARNING: Exiting on negative half state density\t";
-                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
+                if (U_HALF[0] < M_LIM){
+                        // std::cout << "B WARNING: Exiting on negative half state density\t";
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
                         U_HALF[0] = M_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state density\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tMASS_DENSITY_HALF =\t" << U_HALF[0] << std::endl;
-                        // U_HALF[1] = U_HALF[2] = 0.0000001;
-                        // U_HALF[3] = E_LIM;
-                        exit(0);
+                        // exit(0);
                 }
 
-                if (U_HALF[3] < 0.0){
+                if (U_HALF[3] < E_LIM){
                         // U_VARIABLES[3] = PRES_LIM;
-                        std::cout << "B WARNING: Exiting on negative half state energy\t\t\t";
-                        std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY_HALF =\t" << U_HALF[3] << std::endl;
+                        // std::cout << "B WARNING: Exiting on negative half state energy\t\t\t";
+                        // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY_HALF =\t" << U_HALF[3] << std::endl;
                         U_HALF[3] = E_LIM;
                         // std::cout << "B WARNING: Exiting on negative half state energy\t\t\t";
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY_HALF =\t" << U_HALF[3] << std::endl;
-                        exit(0);
+                        // exit(0);
                 }
                 return ;
         }
-
-#ifdef ANALYTIC_GRAVITY
-        void accelerate(double AX, double AY, double DT){
-                U_VARIABLES[1] = U_VARIABLES[1] - AX*DT*MASS_DENSITY;
-                U_VARIABLES[2] = U_VARIABLES[2] - AY*DT*MASS_DENSITY;
-        }
-
-        void calc_newtonian_gravity(double DT){
-                // Fixed Plummer potential at (XC,YC)
-                double GM,AX,AY;
-                double MPERT = 3.28E+05;
-                double XC = 5.0, YC = 5.0;
-                double DELTAX = X - XC, DELTAY = Y - YC;
-                double EPS = 0.145;
-                double RAD2 = DELTAX*DELTAX + DELTAY*DELTAY;
-                GM = GRAV * MPERT / sqrt((RAD2 + EPS*EPS) * (RAD2 + EPS*EPS) * (RAD2 + EPS*EPS));
-                AX = DELTAX * GM;
-                AY = DELTAY * GM;
-                accelerate(AX, AY, DT);
-                return ;
-        }
-#endif
 
         // calculate min timestep this cell requires
         double calc_next_dt(){
@@ -307,28 +282,5 @@ public:
         void reset_tbin_local(int INC_TBIN){
                 if(INC_TBIN < TBIN_LOCAL){TBIN_LOCAL = INC_TBIN;}
         }
-
-        // maximum value between A and B 
-        double max_val(double A, double B){
-                if(A>B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
-#ifdef NOH
-        double RHO0;
-        double VELX0;
-        double VELY0;
-        double E0;
-#endif
-
-#ifdef GRAVITY
-        double RHO0;
-        double VELX0;
-        double VELY0;
-        double E0;
-#endif
 
 };

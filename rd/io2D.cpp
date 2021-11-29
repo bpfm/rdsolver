@@ -27,7 +27,7 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         }
         std::cout << "*************************************************************************************************" << std::endl;            // right out time and total density to terminal
         std::cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY << " \t-> total energy =\t" << TOTAL_ENERGY << "\ttime step = \t" << DT << std::endl;
-        LOGFILE << T << "\t" << TOTAL_DENSITY << "\t" << TOTAL_ENERGY << "\t" << DT << "\t" << N_TBINS << "\t" << N_POINTS << std::endl;
+        LOGFILE << T << "\t" << TOTAL_DENSITY << "\t" << TOTAL_ENERGY << "\t" << DT << "\t" << MAX_TBIN << "\t" << N_POINTS << std::endl;
         SNAPFILE.close();
         return;
 }
@@ -50,6 +50,10 @@ void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBI
                         SNAPFILE << X0 << "\t" << Y0 << "\t"  << X1 << "\t" << Y1 << "\t"  << X2 << "\t" << Y2 << "\t" << MESH[j].get_tbin() << "\t" << MESH[j].get_un00() << "\t" << MESH[j].get_un01() << "\t" << MESH[j].get_un02() << std::endl;
                 }
         }
+}
+
+void read_parameter_file(int ARGC, char *ARGV[]){
+        printf("Parameter file = %s\n", ARGV[1]);
 }
 
 // if using qhull triangulation (closed boundaries only), read vertex header info on triangulation

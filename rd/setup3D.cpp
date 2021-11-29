@@ -172,8 +172,6 @@ VERTEX setup_vertex(double X, double Y, double Z){
 
         if(X == X_C and Y == Y_C){X_VEL = Y_VEL = 0.00000001;}
 
-        std::cout << X << "\t" << Y << "\t" << X_VEL << "\t" << Y_VEL << std::endl;
-
         NEW_VERTEX.set_mass_density(1.0);
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);
@@ -264,9 +262,8 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_pressure(100.0);
 
 #endif
-#ifdef GRAVITY
+#ifdef DF
                 // if(i==0 and j==0){std::cout << "Grav Test" << std::endl;}
-
         double RHO0 = 1000.0;
         double X_VEL = -1.0*MACH*0.0387;
         double Y_VEL = 0.00000001;
@@ -276,7 +273,7 @@ VERTEX setup_vertex(double X, double Y, double Z){
         NEW_VERTEX.set_mass_density(RHO0);
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);
-	NEW_VERTEX.set_z_velocity(Z_VEL);
+        NEW_VERTEX.set_z_velocity(Z_VEL);
         NEW_VERTEX.set_pressure(PRESSURE);
 
 #endif

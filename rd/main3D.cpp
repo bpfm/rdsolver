@@ -14,13 +14,15 @@
 #include "cblas.h"
 #include "lapacke.h"
 #include "inverse.cpp"
+#include "base.cpp"
 
 #ifdef THREE_D
 #include "vertex3D.h"
 #include "triangle3D.h"
 #include "setup3D.cpp"
 #include "io3D.cpp"
-// #include "gravity3D.cpp"
+#include "source3D.cpp"
+#include "timestep.cpp"
 #endif
 
 int main(){
@@ -50,26 +52,27 @@ int main(){
 
         std::cout << "*********************************************************" << std::endl;
 
+        printf("LAIRDS 3D\n");
+
 #ifdef LDA_SCHEME
-        std::cout << "Using LDA Scheme" << std::endl;
+        printf("Using LDA Scheme\n");
 #endif
 
 #ifdef N_SCHEME
-        std::cout << "Using N Scheme" << std::endl;
+        printf("Using N Scheme\n");
 #endif
 
 #ifdef BLENDED
-        std::cout << "Using B Scheme" << std::endl;
+        printf("Using B Scheme\n");
 #endif
 
 #ifdef FIRST_ORDER
-        std::cout << "Using 1st order" << std::endl;
+        printf("Using 1st order\n");
 #else
-        std::cout << "Using 2nd order" << std::endl;
+        printf("Using 2nd order\n");
 #endif
 
-        std::cout << "Building grid of vertices" << std::endl;
-
+        printf("Building vertices and mesh\n");
         std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
         LOGFILE.open(LOG_DIR);
@@ -84,7 +87,7 @@ int main(){
 
         /****** Setup vertices ******/
 
-        std::cout << "Reading CGAL vertex positions ..." << std::endl;
+        printf("Reading CGAL vertex positions ...");
 
         CGAL_FILE_NAME = "Delaunay3D.txt";
 
@@ -92,7 +95,7 @@ int main(){
 
         N_POINTS = cgal_read_positions_header(CGAL_FILE);
 
-        std::cout << "Number of vertices = " << N_POINTS << std::endl;
+        printf("Number of vertices = %d\n", N_POINTS);
 
         for(i=0; i<N_POINTS; ++i){
                 NEW_VERTEX = cgal_read_positions_line(CGAL_FILE);
@@ -103,11 +106,11 @@ int main(){
 
         /****** Setup mesh ******/
 
-        std::cout << "Reading CGAL triangles ..." << std::endl;
+        printf("Reading CGAL triangles ...");
 
         N_TRIANG = cgal_read_triangles_header(CGAL_FILE);
 
-        std::cout << "Number of triangles = " << N_TRIANG << std::endl;
+        printf("Number of triangles = %d\n", N_TRIANG);
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS,j);
@@ -122,7 +125,6 @@ int main(){
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
                         AREA_CHECK = AREA_CHECK + RAND_POINTS[i].get_dual();
-                        // std::cout << AREA_CHECK << "\t" << RAND_POINTS[0].get_dual() << std::endl;
                 }
         }
         for(i=0; i<N_POINTS; ++i){
@@ -130,7 +132,7 @@ int main(){
                         PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
                         RAND_POINTS[i].set_pressure(PRESSURE_AIM);
                         ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
-                        std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        printf("%d\t%f\t%f\t%f\n", POINT_CHECK, PRESSURE_AIM, RAND_POINTS[i].get_pressure(), ETOT);
                         RAND_POINTS[i].setup_specific_energy();
                         RAND_POINTS[i].prim_to_con();
                 }
@@ -141,7 +143,6 @@ int main(){
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) + (RAND_POINTS[i].get_z()-5.0)*(RAND_POINTS[i].get_z()-5.0) < R_BLAST*R_BLAST){
                         AREA_CHECK = AREA_CHECK + RAND_POINTS[i].get_dual();
-                        // std::cout << AREA_CHECK << "\t" << RAND_POINTS[0].get_dual() << std::endl;
                 }
         }
         for(i=0; i<N_POINTS; ++i){
@@ -149,16 +150,16 @@ int main(){
                         PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
                         RAND_POINTS[i].set_pressure(PRESSURE_AIM);
                         ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
-                        std::cout << POINT_CHECK << "\t" << RAND_POINTS[i].get_pressure() << "\t" << ETOT << std::endl;
+                        printf("%d\t%f\t%f\t%f\n", POINT_CHECK, PRESSURE_AIM, RAND_POINTS[i].get_pressure(), ETOT);
                         RAND_POINTS[i].setup_specific_energy();
                         RAND_POINTS[i].prim_to_con();
                 }
         }
 #endif
 
-        /****** Set initial timestep  ******/
+        /****** Set initial timestep  ********************************************************************************************************************************/
 
-        std::cout << "Finding initial timestep ..." << std::endl;
+        printf("Finding initial timestep ...");
 
         for(j=0;j<N_TRIANG;++j){                                           // loop over all triangles in MESH
                 RAND_MESH[j].calculate_len_vel_contribution();             // calculate flux through TRIANGLE
@@ -170,12 +171,13 @@ int main(){
                 RAND_POINTS[i].reset_len_vel_sum();
         }
 
-        std::cout << "Checking mesh size ..." << std::endl;
-        std::cout << "Mesh Size =\t" << RAND_MESH.size() << std::endl;
-        std::cout << "Evolving fluid ..." << std::endl;
+        printf("Checking mesh size ...");
+        printf("Mesh Size = %d\n",int(RAND_MESH.size()));
+        printf("Evolving fluid ...");
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
 
+        int TBIN, TBIN_CURRENT = 0;
         NEXT_DT = 0.0;
 
         while(T<T_TOT){
@@ -186,7 +188,7 @@ int main(){
                 DT = DT_FIX;
 #endif
 
-                std::cout << "STEP =\t" << l << "\tTIME =\t" << T << "\tTIMESTEP =\t" << DT << "\t" << 100.0*T/T_TOT << " %" <<  "\r" << std::endl;//std::flush;
+                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\r", l, T, DT, 100.0*T/T_TOT);
 
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
@@ -195,14 +197,24 @@ int main(){
                         SNAP_ID ++;
                 }
 
+        /****** 1st order update ***************************************************************************************************/
+
+#ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
+                drift_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+
+
+#if !defined(DRIFT) && !defined(JUMP)
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_first_half();                                                 // calculate flux through TRIANGLE
-                        RAND_MESH[j].pass_update_half(DT);
+                        RAND_MESH[j].calculate_first_half(T,DT);                                                 // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update_half();
                 }
-
+#endif
 
 #ifdef PARA_UP
                 #pragma omp parallel for
@@ -214,12 +226,25 @@ int main(){
                         RAND_POINTS[i].con_to_prim_half();
                 }
 
+        /****** 2nd order update ***************************************************************************************************/
+
+#ifdef DRIFT
+                /****** Update residual for active bins (Drift method) ******/
+                drift_update(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
+#endif
+
+#if !defined(DRIFT) && !defined(JUMP)
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
+                /****** Update residual for all bins (No adaptive method) ******/
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
-                        RAND_MESH[j].calculate_second_half(T, DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].calculate_second_half(T,DT);             // calculate flux through TRIANGLE
+                        RAND_MESH[j].pass_update();
                 }
+#endif
+
+                sources(RAND_POINTS, DT, N_POINTS);
 
 #ifdef PARA_UP
                 #pragma omp parallel for
@@ -230,16 +255,6 @@ int main(){
                         RAND_POINTS[i].check_values();
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
-
-// #ifdef SELF_GRAVITY
-//                 direct_gravity(RAND_POINTS, N_POINTS, DT);
-// #endif
-
-#ifdef ANALYTIC_GRAVITY
-                for(i=0;i<N_POINTS;++i){
-                        RAND_POINTS[i].calc_newtonian_gravity(DT);
-                }
-#endif
 
                 for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                         RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
@@ -252,9 +267,12 @@ int main(){
                         RAND_POINTS[i].reset_len_vel_sum();
                 }
 
+                TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                    // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number
         }
+
+        /*************************************************************************************************************************************************************/
 
         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
 

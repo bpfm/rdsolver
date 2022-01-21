@@ -9,26 +9,21 @@
 #include <omp.h> 
 
 #include "constants.h"
-
-#include "cblas.h"
-#include "lapacke.h"
-#include "inverse.cpp"
-#include "base.cpp"
-
+#include "all_functions.h"
 #ifdef TWO_D
 #include "vertex2D.h"
 #include "triangle2D.h"
-#include "setup2D.cpp"
-#include "io2D.cpp"
-#include "source2D.cpp"
-#include "timestep.cpp"
 #endif
+#ifdef SEDOV
+    int POINT_CHECK = 0;
+#endif
+//using namespace std;
 
 int main(int ARGC, char *ARGV[]){
         /*
         Setup and run simulation from input file constants.h, using precalculated triangulation
         */
-        int i, j, l = 0, m;                                        // ******* decalare varaibles and vectors ******
+        int i, j, l = 0, m;                                        // ******* declare variables and vectors ******
         int SNAP_ID = 0;
         double DT, T = 0.0;                                        //
         double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
@@ -124,6 +119,7 @@ int main(int ARGC, char *ARGV[]){
 
         /****** Setup vertices ******/
 
+
         printf("Reading CGAL vertex positions ...");
 
         CGAL_FILE_NAME = "Delaunay2D.txt";
@@ -158,6 +154,8 @@ int main(int ARGC, char *ARGV[]){
 
 #ifdef SEDOV
         /****** Inject pressure for Sedov test  ******/
+
+        double AREA_CHECK  = 0.0;
         double ETOT = 0.0,ETOT_AIM = 300000.0,PRESSURE_AIM;
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
@@ -192,7 +190,7 @@ int main(int ARGC, char *ARGV[]){
 
         printf("Checking mesh size ...");
         printf("Mesh Size = %d\n",int(RAND_MESH.size()));
-        printf("Evolving fluid ...");
+        printf("Evolving fluid ...\n");
 
         int TBIN, TBIN_CURRENT = 0;
         NEXT_DT = 0.0;                                                            // set first timestep to zero
@@ -201,16 +199,15 @@ int main(int ARGC, char *ARGV[]){
         while(T<T_TOT){
 
         /****** Update time step to new value ******/
-                DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
+                DT = NEXT_DT;                                                     // set timestep based on caclulation from previous timestep
 
 #ifdef FIXED_DT
         /****** Reset time step if fixed ******/
                 DT = DT_FIX;
 #endif
-
                 printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\n", l, T, DT, 100.0*T/T_TOT);
 
-        /****** Write snapshot *****************************************************************************************************/
+            /****** Write snapshot *****************************************************************************************************/
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
                         write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
@@ -229,6 +226,8 @@ int main(int ARGC, char *ARGV[]){
                 /****** Update residual for active bins (Jump method) ******/
                 jump_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
 #endif
+
+
 
 
 #if !defined(DRIFT) && !defined(JUMP)
@@ -293,10 +292,12 @@ int main(int ARGC, char *ARGV[]){
 // #endif
                 TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                     // increment time step bin
                 T += DT;                                                         // increment time
-                l += 1;                                                          // increment step number
+                l += 1;    // increment step number
+
         }
 
         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
+
 
         return 0;
 }

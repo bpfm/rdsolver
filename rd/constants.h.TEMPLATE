@@ -59,9 +59,9 @@
 /* define flag for timesteps */
 //-----------------------------------------
 // #define FIXED_DT
-// #define DRIFT
-//#define DRIFT_SHELL
-#define JUMP
+#define DRIFT
+// #define DRIFT_SHELL
+// #define JUMP
 #include<cmath>
 #include<string>
 

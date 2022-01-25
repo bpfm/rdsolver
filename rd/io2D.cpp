@@ -4,7 +4,7 @@ IO routines to write simple ASCII output for python plotting
 */
 
 void open_snap(std::ofstream &SNAPFILE, int i){
-        SNAPFILE.open("output/snapshot_"+std::to_string(i)+".txt");
+        SNAPFILE.open(OUT_DIR+"snapshot_"+std::to_string(i)+".txt");
         return;
 }
 
@@ -27,15 +27,15 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         }
         std::cout << "*************************************************************************************************" << std::endl;            // right out time and total density to terminal
         std::cout << "time\t" << T << " \t-> total mass =\t" << TOTAL_DENSITY << " \t-> total energy =\t" << TOTAL_ENERGY << "\ttime step = \t" << DT << std::endl;
-        LOGFILE << T << "\t" << TOTAL_DENSITY << "\t" << TOTAL_ENERGY << "\t" << DT << "\t" << N_TBINS << "\t" << N_POINTS << std::endl;
-	SNAPFILE.close();
+        LOGFILE << T << "\t" << TOTAL_DENSITY << "\t" << TOTAL_ENERGY << "\t" << DT << "\t" << MAX_TBIN << "\t" << N_POINTS << std::endl;
+        SNAPFILE.close();
         return;
 }
 
 void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBIN_CURRENT){
         std::ofstream SNAPFILE;
-	SNAPFILE << std::setprecision(12);
-	double X0,X1,X2,Y0,Y1,Y2;
+        SNAPFILE << std::setprecision(12);
+        double X0,X1,X2,Y0,Y1,Y2;
         open_active(SNAPFILE,SNAP_ID);
         SNAPFILE << N_TRIANG << "\t" << std::endl;
         for(int j=0;j<N_TRIANG;++j){
@@ -50,6 +50,10 @@ void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBI
                         SNAPFILE << X0 << "\t" << Y0 << "\t"  << X1 << "\t" << Y1 << "\t"  << X2 << "\t" << Y2 << "\t" << MESH[j].get_tbin() << "\t" << MESH[j].get_un00() << "\t" << MESH[j].get_un01() << "\t" << MESH[j].get_un02() << std::endl;
                 }
         }
+}
+
+void read_parameter_file(int ARGC, char *ARGV[]){
+        printf("Parameter file = %s\n", ARGV[1]);
 }
 
 // if using qhull triangulation (closed boundaries only), read vertex header info on triangulation
@@ -120,7 +124,7 @@ int cgal_read_positions_header(std::ifstream &CGAL_FILE){
 
         // check boundaries match
         if(XLOW < 0.0 or YLOW < 0.0 or int(XHIGH) != SIDE_LENGTH_X or int(YHIGH) != SIDE_LENGTH_Y){
-                std::cout << "BWARNING: Exiting on mismatching boundaries." << std::endl;
+                std::cout << "BWARNING: Exiting on mismatching boundaries. Have (X): " << XLOW  << "\t" << XHIGH << "\tNeed (X): " << 0.0 << "\t" << SIDE_LENGTH_X << std::endl;
                 exit(0);
         }
 
@@ -160,7 +164,7 @@ VERTEX cgal_read_positions_line(std::ifstream &CGAL_FILE){
 }
 
 // read indices of vertices for one CGAL triangle
-TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS){
+TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> &POINTS, int ID){
         int VERT0,VERT1,VERT2;
         TRIANGLE NEW_TRIANGLE;
 
@@ -169,6 +173,8 @@ TRIANGLE cgal_read_triangles_line(std::ifstream &CGAL_FILE, std::vector<VERTEX> 
         NEW_TRIANGLE.set_vertex_0(&POINTS[VERT0]);
         NEW_TRIANGLE.set_vertex_1(&POINTS[VERT1]);
         NEW_TRIANGLE.set_vertex_2(&POINTS[VERT2]);
+
+        NEW_TRIANGLE.set_id(ID);
 
         // std::cout << POINTS[VERT0].get_x() << "\t" << POINTS[VERT1].get_x() << "\t" << POINTS[VERT2].get_x() << std::endl;
 

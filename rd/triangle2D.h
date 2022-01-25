@@ -1,5 +1,4 @@
 /* class containing values and functions associated with triangles
-
         ID = ID number of triangle
         *VERTEX_0 => pointers to VERTEX 0 of triangle (counter clockwise order)
         *VERTEX_1 => pointers to VERTEX 1 of triangle
@@ -49,7 +48,12 @@ private:
         double PHI[4];
         double BETA[4][4][3];
 
+        double DU0[4],DU1[4],DU2[4];
+        double DU0_HALF[4],DU1_HALF[4],DU2_HALF[4];
+
         double MAG[3];
+
+        int PRINT;
 
 public:
 
@@ -156,9 +160,8 @@ public:
         //**********************************************************************************************************************
 
         // Calculate first half timestep change, passing change to vertice
-        void calculate_first_half(double T){
+        void calculate_first_half(double T, double DT){
                 int i,j,m,p;
-
                 double INFLOW[4][4][3][3];
                 double C_SOUND[3];
 
@@ -193,7 +196,7 @@ public:
                 double RHO,C,U,U_C,V,V_C,H_AVG,H_C,ALPHA,ALPHA_C,W;
                 double Z[4][3];
                 double VALUE1,VALUE2,VALUE3,VALUE4,VALUE12,VALUE123;
-                double PRESSURE_AVG,C_SOUND_AVG;
+                double PRESSURE_AVG;
                 double LAMBDA[4][3],LAMBDA_PLUS[4][3],LAMBDA_MINUS[4][3];
                 double N_X[3],N_Y[3];
 
@@ -248,22 +251,18 @@ public:
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+                C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
-                std::cout << "C_SOUND_AVG  =\t" << C_SOUND_AVG  << std::endl;
+                std::cout << "C_SOUND_AVG  =\t" << C << std::endl;
 #endif
 
                 // Reassign variables to local equivalents
 
-                C   = C_SOUND_AVG;
-
                 U_C = U/C;
-
                 V_C = V/C;
-
                 H_C = H_AVG/C;
 
                 ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
@@ -324,7 +323,6 @@ public:
 #endif
                                 }
 
-
                                 VALUE12  = (VALUE1 - VALUE2)/2.0;
                                 VALUE123 = (VALUE1 + VALUE2 - 2.0*VALUE3)/2.0;
 
@@ -358,7 +356,6 @@ public:
                         std::cout << std::endl;
 #endif
                 }
-                // exit(0);
 
 
 #ifdef DEBUG
@@ -393,7 +390,6 @@ public:
                 std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
 #endif
 
-
                 double INFLOW_MINUS_SUM[4][4];
 
                 for(i=0;i<4;++i){
@@ -405,9 +401,9 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,1);
 
-                // /std::cout << "Post-inversion =" << std::endl;
+                // std::cout << "Post-inversion =" << std::endl;
 
 #ifdef DEBUG
                 for(i=0;i<4;++i){
@@ -498,20 +494,12 @@ public:
 
                 for(i=0;i<4;i++){
                         SUM_FLUC_N[i] = abs(FLUC_N[i][0]) + abs(FLUC_N[i][1]) + abs(FLUC_N[i][2]);
-
                         THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
-
                         FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
                         FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
                 }
 #endif
-                return ;
-        }
-
-        void pass_update_half(double DT){
-                int i;
-                double DU0[4],DU1[4],DU2[4];
 
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
@@ -519,55 +507,44 @@ public:
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_LDA[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_LDA[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_LDA[i][2]/DUAL[2];
-                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
+                        DU0_HALF[i] = -1.0*DT*FLUC_LDA[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_LDA[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_LDA[i][2]/DUAL[2];
                 }
 #endif
 
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_N[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_N[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_N[i][2]/DUAL[2];
-                        // std::cout << DU0[i] << "\t" << DU1[i] << "\t" << DU2[i] << std::endl;
+                        DU0_HALF[i] = -1.0*DT*FLUC_N[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_N[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_N[i][2]/DUAL[2];
                 }
 #endif
 
 #ifdef BLENDED 
                 for(i=0;i<4;i++){
-                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_B[i][0]/DUAL[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
 
 #endif
+                return ;
+        }
 
-                VERTEX_0->update_du_half(DU0);
-                VERTEX_1->update_du_half(DU1);
-                VERTEX_2->update_du_half(DU2);
-#ifdef DEBUG
-                // for(i=0;i<4;i++){std::cout << "Element fluctuation =\t" << FLUC[i][0] << "\t" << FLUC[i][1] << "\t" << FLUC[i][2] << std::endl;}
-                std::cout << "Dual =\t" << VERTEX_0->get_dual() << "\t" << VERTEX_1->get_dual() << "\t" << VERTEX_2->get_dual() << std::endl;
-                std::cout << "Change (rho) =\t"    << DU0[0] << "\t" << DU1[0] << "\t" << DU2[0] << std::endl;
-                std::cout << "Change (x mom) =\t"  << DU0[1] << "\t" << DU1[1] << "\t" << DU2[1] << std::endl;
-                std::cout << "Change (y mom) =\t"  << DU0[2] << "\t" << DU1[2] << "\t" << DU2[2] << std::endl;
-                std::cout << "Change (energy) =\t" << DU0[3] << "\t" << DU1[3] << "\t" << DU2[3] << std::endl;
-                std::cout << "-----------------------------------------------------------------" << std::endl;
-#endif
+        void pass_update_half(){
+                VERTEX_0->update_du_half(DU0_HALF);
+                VERTEX_1->update_du_half(DU1_HALF);
+                VERTEX_2->update_du_half(DU2_HALF);
                 return ;
         }
 
         //**********************************************************************************************************************
 
 
-        void calculate_second_half(double T, double DT_TOT){
+        void calculate_second_half(double T, double DT){
                 int i,j,m,p;
-                double DU0[4],DU1[4],DU2[4];
-
                 double INFLOW[4][4][3][3];
-                double DT = DT_TOT;
 
                 setup_half_state();
 
@@ -666,8 +643,7 @@ public:
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/3.0;
-                C_SOUND_AVG = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
-                // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+                C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -676,12 +652,8 @@ public:
 
                 // Reassign variables to local equivalents
 
-                C   = C_SOUND_AVG;
-
                 U_C = U/C;
-
                 V_C = V/C;
-
                 H_C = H_AVG/C;
 
                 ALPHA   = GAMMA_1*(U*U + V*V)/2.0;
@@ -797,7 +769,8 @@ public:
 #endif
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                
+
+                // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
 
 #if defined(LDA_SCHEME) or defined(BLENDED)
 
@@ -872,7 +845,11 @@ public:
                 for(i=0;i<4;i++){
                         SUM_MASS[i] = 0.0;
                         for(m=0;m<3;++m){
-                                SUM_MASS[i] += MASS_DIFF[i][m]/DT;
+                                if(DT==0.0){
+                                        SUM_MASS[i] = 0.0;
+                                }else{
+                                        SUM_MASS[i] += MASS_DIFF[i][m]/DT;
+                                }
                         }
                 }
 
@@ -900,7 +877,7 @@ public:
                         }
                 }
 
-                matInv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0]);
+                mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,2);
 
                 double AREA_DIFF[4][3];
                 double BRACKET[4][3];
@@ -933,31 +910,36 @@ public:
 
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
-                                SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+                                if(DT == 0.0){
+                                        SECOND_FLUC_N[i][m] = 0.0;
+                                }else{
+                                        SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
+                                }
                         }
                 }
 
-        
 #endif
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
                 DUAL[2] = VERTEX_2->get_dual();
 
-                
+                // std::cout << SECOND_FLUC_LDA[0][0] << "\t" << SECOND_FLUC_LDA[0][1] << "\t" << SECOND_FLUC_LDA[0][2] << std::endl;
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
-                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
+                        DU0[i] = -1.0*(DT/DUAL[0])*SECOND_FLUC_LDA[i][0];
+                        DU1[i] = -1.0*(DT/DUAL[1])*SECOND_FLUC_LDA[i][1];
+                        DU2[i] = -1.0*(DT/DUAL[2])*SECOND_FLUC_LDA[i][2];
                 }
 #endif
 
+                // std::cout << SECOND_FLUC_N[0][0] << "\t" << SECOND_FLUC_N[0][1] << "\t" << SECOND_FLUC_N[0][2] << std::endl;
+
 #ifdef N_SCHEME
                 for(i=0;i<4;i++){
-                        DU0[i] = (DT/DUAL[0])*SECOND_FLUC_N[i][0];
-                        DU1[i] = (DT/DUAL[1])*SECOND_FLUC_N[i][1];
-                        DU2[i] = (DT/DUAL[2])*SECOND_FLUC_N[i][2];   
+                        DU0[i] = -1.0*(DT/DUAL[0])*SECOND_FLUC_N[i][0];
+                        DU1[i] = -1.0*(DT/DUAL[1])*SECOND_FLUC_N[i][1];
+                        DU2[i] = -1.0*(DT/DUAL[2])*SECOND_FLUC_N[i][2];
                 }
 #endif
 
@@ -995,16 +977,19 @@ public:
                         FLUC_B[i][1] = THETA_E[i][i]*SECOND_FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*SECOND_FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][2];
 
-                        DU0[i] = DT*FLUC_B[i][0]/DUAL[0];
-                        DU1[i] = DT*FLUC_B[i][1]/DUAL[1];
-                        DU2[i] = DT*FLUC_B[i][2]/DUAL[2];
+                        DU0[i] = -1.0*DT*FLUC_B[i][0]/DUAL[0];
+                        DU1[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
+                        DU2[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
 #endif
 
+                return ;
+        }
+
+        void pass_update(){
                 VERTEX_0->update_du(DU0);
                 VERTEX_1->update_du(DU1);
                 VERTEX_2->update_du(DU2);
-
                 return ;
         }
 
@@ -1023,7 +1008,7 @@ public:
 
                 for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
 
-#ifdef PERIODIC
+#ifdef PERIODIC_BOUNDARY
                 if(BOUNDARY == 1){
                         for(int i=0; i<3; ++i){
                                 for(int j=0; j<3; ++j){
@@ -1081,7 +1066,6 @@ public:
 
                 PERP[2][0] = (Y[0] - Y[1]);
                 PERP[2][1] = (X[1] - X[0]);
-
 
                 // calculate area of triangle and pass 1/3 to each vertex for dual
 
@@ -1147,6 +1131,7 @@ public:
                 return ;
         }
 
+#ifdef DRIFT_SHELL
         void send_tbin_limit(){
                 VERTEX_0->reset_tbin_local(2*TBIN);
                 VERTEX_1->reset_tbin_local(2*TBIN);
@@ -1162,34 +1147,16 @@ public:
                 if(TBIN1<TBIN){TBIN=TBIN1;}
                 if(TBIN2<TBIN){TBIN=TBIN2;}
         }
-
-        double max_val(double A, double B){
-                if(A>B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
-
-        double min_val(double A, double B){
-                if(A<B){
-                        return A;
-                }else{
-                        return B;
-                }
-        }
+#endif
 
         void reorder_vertices(){
                 VERTEX *TEMP_VERTEX;
 
                 TEMP_VERTEX = VERTEX_1;
-
                 VERTEX_1 = VERTEX_2;
-
                 VERTEX_2 = TEMP_VERTEX;
 
                 return;
-
         }
 
 };

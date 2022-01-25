@@ -8,29 +8,30 @@
 #include <stdio.h>
 #include <omp.h> 
 
-#include "constants.h"
+
+#include "constants3D.h"
 
 #include "cblas.h"
 #include "lapacke.h"
 #include "inverse.cpp"
 #include "base.cpp"
 
-#ifdef TWO_D
-#include "vertex2D.h"
-#include "triangle2D.h"
-#include "setup2D.cpp"
-#include "io2D.cpp"
-#include "source2D.cpp"
+#ifdef THREE_D
+#include "vertex3D.h"
+#include "triangle3D.h"
+#include "setup3D.cpp"
+#include "io3D.cpp"
+#include "source3D.cpp"
 #include "timestep.cpp"
 #endif
 
-int main(int ARGC, char *ARGV[]){
+int main(){
         /*
         Setup and run simulation from input file constants.h, using precalculated triangulation
         */
-        int i, j, l = 0, m;                                        // ******* decalare varaibles and vectors ******
-        int SNAP_ID = 0;
-        double DT, T = 0.0;                                        //
+
+        int i, j, k, l = 0, m;                                     // ******* decalare varaibles and vectors ******
+        double DT, T = 0.0;                                        // DT = timestep,t = time
         double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
         double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;               // NEXT_DT.     = timestep for upcoming time iteration
         double MIN_DT;
@@ -38,17 +39,20 @@ int main(int ARGC, char *ARGV[]){
         TRIANGLE                             NEW_TRIANGLE;         // NEW_TRIABLE  = dummy variable for setting up triangles
         std::vector<VERTEX>                  RAND_POINTS;          // X_POINTS     = vector of x vertices
         std::vector<TRIANGLE>                RAND_MESH;            // X_MESH       = vector of x triangles
+        double SNAP_ID = 0;
+
 
         // Initialise seed for random number generator (rand)
         std::srand(68315);
 
-        // read_parameter_file(ARGC, ARGV);
+        /****** Setup initial conditions of one dimensional tube ******/
 
-        /****** Setup simulation options ******/
+        std::cout << std::fixed;
+        std::cout << std::setprecision(6);
 
-        printf("*********************************************************\n");
+        std::cout << "*********************************************************" << std::endl;
 
-        printf("LAIRDS 2D\n");
+        printf("LAIRDS 3D\n");
 
 #ifdef LDA_SCHEME
         printf("Using LDA Scheme\n");
@@ -69,54 +73,13 @@ int main(int ARGC, char *ARGV[]){
 #endif
 
         printf("Building vertices and mesh\n");
-
         std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
         LOGFILE.open(LOG_DIR);
 
+        /****** Setup Vertices ******/
+
 #ifdef READ_IC
-#ifdef QHULL_IC
-        int N_POINTS, N_TRIANG;
-        std::string   POSITIONS_FILE_NAME, TRIANGLES_FILE_NAME;
-        std::ifstream POSITIONS_FILE, TRIANGLES_FILE;
-
-        /****** Setup vertices ******/
-
-        printf("Reading QHULL vertex positions ...\n");
-
-        POSITIONS_FILE_NAME = "triangulation/points.txt";
-        TRIANGLES_FILE_NAME = "triangulation/ordered_triangles.txt";
-
-        POSITIONS_FILE.open(POSITIONS_FILE_NAME);
-        TRIANGLES_FILE.open(TRIANGLES_FILE_NAME);
-
-        N_POINTS = qhull_read_positions_header(POSITIONS_FILE);
-        N_TRIANG = qhull_read_triangles_header(TRIANGLES_FILE);
-
-        printf("Number of vertices = %d\n", N_POINTS);
-
-        for(i=0; i<N_POINTS; ++i){
-                NEW_VERTEX = qhull_read_positions_line(POSITIONS_FILE);
-                NEW_VERTEX.reset_len_vel_sum();
-                RAND_POINTS.push_back(NEW_VERTEX);
-        }
-
-
-        /****** Setup mesh ******/
-
-        printf("Reading QHULL triangles ...");
-
-        printf("Number of triangles = %d\n", N_TRIANG);
-
-        for(j=0; j<N_TRIANG; ++j){
-                NEW_TRIANGLE = qhull_read_triangles_line(TRIANGLES_FILE,RAND_POINTS);
-                NEW_TRIANGLE.set_tbin(1);
-                RAND_MESH.push_back(NEW_TRIANGLE);
-        }
-
-        POSITIONS_FILE.close();
-        TRIANGLES_FILE.close();
-#endif
 #ifdef CGAL_IC
         int N_POINTS, N_TRIANG;
         std::string   CGAL_FILE_NAME;
@@ -126,8 +89,10 @@ int main(int ARGC, char *ARGV[]){
 
         printf("Reading CGAL vertex positions ...");
 
-        CGAL_FILE_NAME = "Delaunay2D.txt";
+        CGAL_FILE_NAME = "Delaunay3D.txt";
+
         CGAL_FILE.open(CGAL_FILE_NAME);
+
         N_POINTS = cgal_read_positions_header(CGAL_FILE);
 
         printf("Number of vertices = %d\n", N_POINTS);
@@ -149,15 +114,13 @@ int main(int ARGC, char *ARGV[]){
 
         for(j=0; j<N_TRIANG; ++j){
                 NEW_TRIANGLE = cgal_read_triangles_line(CGAL_FILE,RAND_POINTS,j);
-                NEW_TRIANGLE.set_tbin(1);
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
 #endif
 #endif
 
-#ifdef SEDOV
-        /****** Inject pressure for Sedov test  ******/
+#ifdef SEDOV2D
         double ETOT = 0.0,ETOT_AIM = 300000.0,PRESSURE_AIM;
         for(i=0; i<N_POINTS; ++i){
                 if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) < R_BLAST*R_BLAST){
@@ -175,8 +138,26 @@ int main(int ARGC, char *ARGV[]){
                 }
         }
 #endif
+#ifdef SEDOV3D
+        double ETOT = 0.0,ETOT_AIM = 300000.0,PRESSURE_AIM;
+        for(i=0; i<N_POINTS; ++i){
+                if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) + (RAND_POINTS[i].get_z()-5.0)*(RAND_POINTS[i].get_z()-5.0) < R_BLAST*R_BLAST){
+                        AREA_CHECK = AREA_CHECK + RAND_POINTS[i].get_dual();
+                }
+        }
+        for(i=0; i<N_POINTS; ++i){
+                if((RAND_POINTS[i].get_x()-5.0)*(RAND_POINTS[i].get_x()-5.0) + (RAND_POINTS[i].get_y()-5.0)*(RAND_POINTS[i].get_y()-5.0) + (RAND_POINTS[i].get_z()-5.0)*(RAND_POINTS[i].get_z()-5.0) < R_BLAST*R_BLAST){
+                        PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
+                        RAND_POINTS[i].set_pressure(PRESSURE_AIM);
+                        ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
+                        printf("%d\t%f\t%f\t%f\n", POINT_CHECK, PRESSURE_AIM, RAND_POINTS[i].get_pressure(), ETOT);
+                        RAND_POINTS[i].setup_specific_energy();
+                        RAND_POINTS[i].prim_to_con();
+                }
+        }
+#endif
 
-        /****** Set initial timestep  ******/
+        /****** Set initial timestep  ********************************************************************************************************************************/
 
         printf("Finding initial timestep ...");
 
@@ -194,26 +175,23 @@ int main(int ARGC, char *ARGV[]){
         printf("Mesh Size = %d\n",int(RAND_MESH.size()));
         printf("Evolving fluid ...");
 
-        int TBIN, TBIN_CURRENT = 0;
-        NEXT_DT = 0.0;                                                            // set first timestep to zero
-
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
+
+        int TBIN, TBIN_CURRENT = 0;
+        NEXT_DT = 0.0;
+
         while(T<T_TOT){
 
-        /****** Update time step to new value ******/
                 DT = NEXT_DT;                                                     // set timestep based oncaclulation from previous timestep
 
 #ifdef FIXED_DT
-        /****** Reset time step if fixed ******/
                 DT = DT_FIX;
 #endif
 
-                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\n", l, T, DT, 100.0*T/T_TOT);
+                printf("STEP =\t%d\tTIME =\t%f\tTIMESTEP =\t%f\t%f/100\r", l, T, DT, 100.0*T/T_TOT);
 
-        /****** Write snapshot *****************************************************************************************************/
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
-                        write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
@@ -224,10 +202,6 @@ int main(int ARGC, char *ARGV[]){
 #ifdef DRIFT
                 /****** Update residual for active bins (Drift method) ******/
                 drift_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
-#endif
-#ifdef JUMP
-                /****** Update residual for active bins (Jump method) ******/
-                jump_update_half(TBIN_CURRENT, N_TRIANG, T, DT, RAND_MESH);
 #endif
 
 
@@ -282,19 +256,23 @@ int main(int ARGC, char *ARGV[]){
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
 
-                if(TBIN_CURRENT == 0){
-                        reset_tbins(T, DT, N_TRIANG, N_POINTS, NEXT_DT, RAND_MESH, RAND_POINTS);
+                for(j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
+                        RAND_MESH[j].calculate_len_vel_contribution();         // calculate flux through TRIANGLE
                 }
 
-// #if defined(FIXED_BOUNDARY) && (defined(NOH) || defined(DF))
-//                 for(j=0;j<N_TRIANG;++j){                                         // loop over all triangles in MESH
-//                         RAND_MESH[j].check_boundary();                           // calculate flux through TRIANGLE
-//                 }
-// #endif
-                TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                     // increment time step bin
+                for(i=0; i<N_POINTS; ++i){
+                        NEXT_DT = T_TOT - (T + DT);
+                        POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();      // check dt is min required by CFL
+                        if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
+                        RAND_POINTS[i].reset_len_vel_sum();
+                }
+
+                TBIN_CURRENT = (TBIN_CURRENT + 1) % MAX_TBIN;                    // increment time step bin
                 T += DT;                                                         // increment time
                 l += 1;                                                          // increment step number
         }
+
+        /*************************************************************************************************************************************************************/
 
         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
 

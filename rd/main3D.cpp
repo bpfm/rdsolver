@@ -1,3 +1,7 @@
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ */
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>

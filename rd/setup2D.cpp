@@ -1,3 +1,7 @@
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ */
+
 double F(double X){
         double FUNC = exp(-1.0/X);
         if(X<0.0){FUNC = 0.0;}

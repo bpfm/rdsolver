@@ -1,3 +1,7 @@
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ */
+
 #ifdef ANALYTIC_GRAVITY
 void plummer_gravity(std::vector<VERTEX> &MY_POINTS, double DT, int N_POINTS){
         // Fixed Plummer potential at (XC,YC)

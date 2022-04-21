@@ -1,3 +1,7 @@
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ */
+
 lapack_int mat_inv(double *A, unsigned n, double X, double Y, int ID, int POINT){
         int ipiv[n+1];
         lapack_int ret;

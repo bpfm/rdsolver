@@ -39,15 +39,6 @@ int main(){
                 x = xmax*(rand() % 10000)/10000.0;
                 y = ymax*(rand() % 10000)/10000.0;
                 z = zmax*(rand() % 10000)/10000.0;
-                // if(float(i) < count/3.0){
-                //         z = 2.5;
-                // }
-                // else if(float(i) < 2.0*count/3.0){
-                //         z = 5.0;
-                // }else{
-                //         z = 7.5;
-                // }
-                // std::cout << x << "\t" << y << "\t" << z << std::endl;
                 L.push_back(Point(x,y,z));
         }
 #endif

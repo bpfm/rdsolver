@@ -2,7 +2,7 @@
  * This file was written by Ben Morton (bmorton@ed.ac.uk).
  * IO routines to write simple ASCII output for python plotting
         open_files => opens ouptut files to write positions, dens, pressure, vel maps, and column of values for 1D plot
-*/
+ */
 
 void open_snap(std::ofstream &SNAPFILE, int i){
         SNAPFILE.open(OUT_DIR+"snapshot_"+std::to_string(i)+".txt");

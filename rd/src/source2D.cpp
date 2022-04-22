@@ -1,3 +1,6 @@
+#include <vector>
+#include "vertex2D.h"
+#include "constants.h"
 #ifdef ANALYTIC_GRAVITY
 void plummer_gravity(std::vector<VERTEX> &MY_POINTS, double DT, int N_POINTS){
         // Fixed Plummer potential at (XC,YC)

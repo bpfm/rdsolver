@@ -1,11 +1,16 @@
 #include <vector>
 #include "triangle2D.h"
 #include "base.h"
-
+#include <cmath>
+using namespace std;
 void drift_update_half(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::vector<TRIANGLE> &RAND_MESH){
         int TBIN;
+#ifdef PARA_RES
+        #pragma omp parallel for
+#endif
         for(int j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                 TBIN = RAND_MESH[j].get_tbin();
+
                 if(TBIN_CURRENT % TBIN == 0){
                         RAND_MESH[j].calculate_first_half(T,DT);
                 }
@@ -74,8 +79,13 @@ void jump_update_half(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::
 
 void drift_update(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::vector<TRIANGLE> &RAND_MESH){
         int TBIN;
+
+#ifdef PARA_RES
+        #pragma omp parallel for
+#endif
         for(int j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                 TBIN = RAND_MESH[j].get_tbin();
+
                 if(TBIN_CURRENT % TBIN == 0){
                         RAND_MESH[j].calculate_second_half(T,DT);
                 }
@@ -91,8 +101,9 @@ void reset_tbins(double T, double DT, int N_TRIANG, int N_POINTS, double &NEXT_D
         NEXT_DT = T_TOT - (T + DT);                                        // set next timestep to max possible value (time remaining to end)å
         for(int i=0;i<N_POINTS;++i){                                       // loop over all vertices
                 POSSIBLE_DT = RAND_POINTS[i].calc_next_dt();               // calculate next timestep based on new state
+
                 if(POSSIBLE_DT < NEXT_DT){NEXT_DT = POSSIBLE_DT;}
-                RAND_POINTS[i].reset_len_vel_sum();
+//                RAND_POINTS[i].reset_len_vel_sum();
                 RAND_POINTS[i].set_tbin_local(MAX_TBIN);
         }
         for(int j=0;j<N_TRIANG;++j){                                        // bin triangles by minimum timestep of vertices
@@ -102,11 +113,18 @@ void reset_tbins(double T, double DT, int N_TRIANG, int N_POINTS, double &NEXT_D
 #ifdef THREE_D
                 if(RAND_MESH[j].get_vertex_3()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_3()->get_dt_req();}
 #endif
-                RAND_MESH[j].set_tbin( min_val( MAX_TBIN,int(pow(2.0,int(log2(MIN_DT/NEXT_DT)) ) ) ) );
+                int NEW_TBIN = min_val( MAX_TBIN,int(pow(2.0,int(log2(MIN_DT/NEXT_DT)) ) ) );
+                RAND_MESH[j].set_tbin(NEW_TBIN);
+
 #ifdef DRIFT_SHELL
                 RAND_MESH[j].send_tbin_limit();
 #endif
         }
+
+        for(int i=0;i<N_POINTS;++i){
+            RAND_POINTS[i].reset_len_vel_sum();
+        }
+
 #ifdef DRIFT_SHELL
         for(int j=0;j<N_TRIANG;++j){
                 RAND_MESH[j].check_tbin();

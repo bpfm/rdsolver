@@ -6,10 +6,48 @@
 #include <vector>
 #include <cstdlib>
 #include <stdio.h>
-#include <omp.h> 
-
+#include <omp.h>
+#include <chrono>
+#include <ctime>
+#include <filesystem>
+#include <exception>
 #include "constants.h"
 #include "all_functions.h"
+
+#include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
+#include <CGAL/Periodic_2_Delaunay_triangulation_2.h>
+#include <CGAL/Periodic_2_Delaunay_triangulation_traits_2.h>
+
+#include <CGAL/Periodic_2_triangulation_face_base_2.h>
+#include <CGAL/Periodic_2_triangulation_vertex_base_2.h>
+#include <CGAL/Triangulation_vertex_base_with_info_2.h>
+#include <iostream>
+#include <vector>
+#include <fstream>
+#include <cassert>
+#include <list>
+
+typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
+typedef CGAL::Periodic_2_Delaunay_triangulation_traits_2<K> GT;
+typedef CGAL::Periodic_2_Delaunay_triangulation_2<GT>       PDT;
+typedef CGAL::Iso_rectangle_2<K>                            IR;
+//typedef PDT::Face_handle                                    Face_handle;
+typedef PDT::Vertex_handle                                  Vertex_handle;
+typedef PDT::Locate_type                                    Locate_type;
+typedef PDT::Point                                          Point;
+typedef PDT::Iso_rectangle                                  Iso_rectangle;
+typedef PDT::Covering_sheets                                Covering_sheets;
+
+typedef CGAL::Periodic_2_triangulation_vertex_base_2<GT>    Vbb;
+typedef CGAL::Triangulation_vertex_base_with_info_2<unsigned, GT, Vbb>  Vb;
+typedef CGAL::Periodic_2_triangulation_face_base_2<GT>                  Fb;
+typedef CGAL::Triangulation_data_structure_2<Vb, Fb>                    Tds;
+typedef CGAL::Periodic_2_Delaunay_triangulation_2<GT, Tds>              Delaunay;
+typedef Delaunay::Point                                                 Point;
+typedef Delaunay::Face_handle                                       Face_handle;
+
+
+
 #ifdef TWO_D
 #include "vertex2D.h"
 #include "triangle2D.h"
@@ -17,14 +55,23 @@
 #ifdef SEDOV
     int POINT_CHECK = 0;
 #endif
+
+
+
 //using namespace std;
+namespace fs = std::filesystem;
 
 int main(int ARGC, char *ARGV[]){
         /*
         Setup and run simulation from input file constants.h, using precalculated triangulation
         */
+        auto program_start = std::chrono::system_clock::now();
+        std::time_t program_start_time = std::chrono::system_clock::to_time_t(program_start);
+        std::cout<<"start computation at "<<std::ctime(&program_start_time);
+
         int i, j, l = 0, m;                                        // ******* declare variables and vectors ******
         int SNAP_ID = 0;
+        int SNAP_MESH_ID = 0;
         double DT, T = 0.0;                                        //
         double NEXT_TIME = 0.0;                                    // NEXT_TIME    = time of next snapshot
         double NEXT_DT = T_TOT, POSSIBLE_DT = T_TOT;               // NEXT_DT.     = timestep for upcoming time iteration
@@ -65,9 +112,74 @@ int main(int ARGC, char *ARGV[]){
 
         printf("Building vertices and mesh\n");
 
+
+#ifdef PARA_RES
+        omp_set_dynamic(0);
+        omp_set_num_threads(8);
+#pragma omp parallel
+        {
+            int thread_ID = omp_get_num_threads();
+            cout<<"number of threads: "<<thread_ID<<endl;
+        }
+#endif
+
+        //create output directory
+        fs::path sourceFile = "src/constants.h";
+        fs::path targetParent = OUT_DIR;
+        auto target = targetParent / sourceFile.filename();
+        try // If you want to avoid exception handling, then use the error code overload of the following functions.
+        {
+            fs::create_directories(targetParent); // Recursively create target directory if not existing.
+            fs::copy_file(sourceFile, target, fs::copy_options::overwrite_existing);
+        }
+        catch (std::exception& e) // Not using fs::filesystem_error since std::bad_alloc can throw too.
+        {
+            std::cout << e.what();
+        }
+
         std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
         LOGFILE.open(LOG_DIR);
+
+
+
+#ifdef GENERATE_MESH   //(not used)
+//    float xmax=1.0,ymax=1.0;
+//    Iso_rectangle domain(0, 0, xmax, ymax); // The cube for the periodic domain
+//
+//    // construction from a list of points :
+//    std::list<std::pair<Point,unsigned>> PointList;
+//    //std::list<Point> PointList;
+//
+//    int nx=40, ny=40, count=nx*ny;
+//    float x,y,xmove,ymove;
+//
+//    #ifdef UNIFORMIC
+//        unsigned int point_count = 0;
+//            for(i=0; i < (nx); ++i){
+//                    x = (xmax) * float(i) / float(nx);
+//                    for(j=0; j < (ny); ++j){
+//                            y = (ymax) * float(j) / float(ny);
+//                            //L.push_back(Point(x,y));
+//                            PointList.push_back(std::make_pair( Point(x,y), point_count));
+//                            point_count += 1;
+//                    }
+//            }
+//            cout<<"point_count: "<<point_count<<endl;
+//    #endif
+//
+//    //PDT T; // Put the domain with the constructor
+//    Delaunay Delaunay_Triangulation;
+//    Delaunay_Triangulation.insert(PointList.begin(), PointList.end());
+//    size_t n_vertex = Delaunay_Triangulation.number_of_vertices();
+//    size_t n_triangle = Delaunay_Triangulation.number_of_faces();
+//    Delaunay_Triangulation.convert_to_1_sheeted_covering();
+//
+//    std::ofstream oFileT("./test.txt", std::ios::out);
+//    //writing file output;
+//    oFileT << Delaunay_Triangulation;
+
+#endif
 
 #ifdef READ_IC
 #ifdef QHULL_IC
@@ -114,7 +226,6 @@ int main(int ARGC, char *ARGV[]){
 #endif
 #ifdef CGAL_IC
         int N_POINTS, N_TRIANG;
-        std::string   CGAL_FILE_NAME;
         std::ifstream CGAL_FILE;
 
         /****** Setup vertices ******/
@@ -122,7 +233,6 @@ int main(int ARGC, char *ARGV[]){
 
         printf("Reading CGAL vertex positions ...");
 
-        CGAL_FILE_NAME = "Delaunay2D.txt";
         CGAL_FILE.open(CGAL_FILE_NAME);
         N_POINTS = cgal_read_positions_header(CGAL_FILE);
 
@@ -149,8 +259,11 @@ int main(int ARGC, char *ARGV[]){
                 RAND_MESH.push_back(NEW_TRIANGLE);
         }
 
+
 #endif
 #endif
+
+
 
 #ifdef SEDOV
         /****** Inject pressure for Sedov test  ******/
@@ -174,6 +287,8 @@ int main(int ARGC, char *ARGV[]){
         }
 #endif
 
+
+
         /****** Set initial timestep  ******/
 
         printf("Finding initial timestep ...");
@@ -187,6 +302,8 @@ int main(int ARGC, char *ARGV[]){
                 if(POSSIBLE_DT < NEXT_DT){NEXT_DT=POSSIBLE_DT;}
                 RAND_POINTS[i].reset_len_vel_sum();
         }
+
+
 
         printf("Checking mesh size ...");
         printf("Mesh Size = %d\n",int(RAND_MESH.size()));
@@ -214,9 +331,26 @@ int main(int ARGC, char *ARGV[]){
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
+
+                #ifdef MOVING_MESH
+                        write_mesh(RAND_POINTS,RAND_MESH,T,N_POINTS,N_TRIANG,SNAP_MESH_ID);
+                        SNAP_MESH_ID ++;
+                #endif
                 }
 
+
+
         /****** 1st order update ***************************************************************************************************/
+
+                //dual_halfdt is used to update resiual; while dual is used for CFL;
+                //before updating residual, we reset dual_halfdt and then calculate the new one.
+#ifdef PARA_UP
+#pragma omp parallel for
+#endif
+                for(i=0;i<N_POINTS;++i){
+                        RAND_POINTS[i].set_dual_halfdt(0.0);
+                }
+
 
 #ifdef DRIFT
                 /****** Update residual for active bins (Drift method) ******/
@@ -231,6 +365,16 @@ int main(int ARGC, char *ARGV[]){
 
 
 #if !defined(DRIFT) && !defined(JUMP)
+#ifdef PARA_RES
+#pragma omp parallel for
+#endif
+                /****** setup normal vectors for n+1/2 timestep, and calculate n+1/2 dual areas for vertices ******/
+                /****** warning: Before calculating residuals, we must set up normals for all triangles. ******/
+                for(j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
+                        RAND_MESH[j].setup_normals(DT);
+                }
+
+
 #ifdef PARA_RES
                 #pragma omp parallel for
 #endif
@@ -281,6 +425,31 @@ int main(int ARGC, char *ARGV[]){
                         RAND_POINTS[i].con_to_prim();                          // convert these to their corresponding conserved
                 }
 
+                //moving mesh: update positions of vertices
+#ifdef PARA_UP
+                #pragma omp parallel for
+#endif
+                for (i=0;i<N_POINTS;++i){
+                        double NEW_X = RAND_POINTS[i].get_x() + RAND_POINTS[i].get_sigma_x()*DT;
+                        NEW_X = std::fmod(NEW_X,SIDE_LENGTH_X);
+                        RAND_POINTS[i].set_x(NEW_X);
+                        double NEW_Y = RAND_POINTS[i].get_y() + RAND_POINTS[i].get_sigma_y()*DT;
+                        NEW_Y = std::fmod(NEW_Y,SIDE_LENGTH_Y);
+                        RAND_POINTS[i].set_y(NEW_Y);
+
+
+                        RAND_POINTS[i].set_dual(0.0);
+                        //setup new mesh velocity
+                        RAND_POINTS[i].set_sigma_x(1.5);
+                        RAND_POINTS[i].set_sigma_y(0.0);
+                }
+#ifdef PARA_UP
+                #pragma omp parallel for
+#endif
+                for (j=0;j<N_TRIANG;++j){
+                        RAND_MESH[j].setup_positions_area();
+                }
+
                 if(TBIN_CURRENT == 0){
                         reset_tbins(T, DT, N_TRIANG, N_POINTS, NEXT_DT, RAND_MESH, RAND_POINTS);
                 }
@@ -298,6 +467,11 @@ int main(int ARGC, char *ARGV[]){
 
         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
 
+        auto program_end = std::chrono::system_clock::now();
+        std::time_t program_end_time = std::chrono::system_clock::to_time_t(program_end);
+        std::cout<<"finish computation at "<<std::ctime(&program_end_time);
+        std::chrono::duration<double> elapsed_seconds = program_end-program_start;
+        std::cout<<"elapsed time: " << elapsed_seconds.count() << "s\n";
 
         return 0;
 }

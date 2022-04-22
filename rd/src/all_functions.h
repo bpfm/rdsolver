@@ -20,6 +20,7 @@ void open_snap(std::ofstream &, int);
 void open_active(std::ofstream &, int);
 void write_snap(std::vector<VERTEX>, double, double, int, int, std::ofstream &);
 void write_active(std::vector<TRIANGLE>, int, int, int);
+void write_mesh(std::vector<VERTEX>, std::vector<TRIANGLE>,double, int, int, int);
 void read_parameter_file(int ARGC, char *ARGV[]);
 int cgal_read_positions_header(std::ifstream &);
 int cgal_read_triangles_header(std::ifstream &);

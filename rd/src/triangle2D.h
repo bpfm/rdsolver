@@ -20,13 +20,21 @@
         PHI => element residual
         BETA => distribution coefficient defined by chosen scheme
         MAG => length of normal to each edge
-*/
+
+        SIGMA_X_AVG, SIGMA_Y_AVG => average mesh velocity of the three vertices (used for moving-mesh)
+        SIGMA_AVG = sqrt(SIGMA_X_AVG^2 + SIGMA_Y_AVG^2)
+        X_HALFDT, Y_HALFDT => vertices coordinates dt/2 later for 0,1,2
+        X_MOD_HALFDT, Y_MOD_HALFDT => modified X_HALFDT and Y_HALFDT according to periodic boundary conditionds
+        BOUNDARY_HALFDT => 0 or 1, denoted whether triangle crosses boundary dt/2 later
+        AREA_HALFDT => area of triangle dt/2 later
+ */
 #include "vertex2D.h"
 #include <iostream>
 #include "base.h"
 #include "inverse.h"
-using namespace std;
+#include <cmath>
 #pragma once
+using namespace std;
 
 class TRIANGLE{
 
@@ -37,11 +45,12 @@ private:
         int BOUNDARY;
         int TBIN;
 
-        double AREA;
+        double AREA, AREA_HALFDT;
 
         double X[3],Y[3],DUAL[3];
+        double DUAL_HALFDT[3]; //used for 1/2 dt
         double X_MOD[3],Y_MOD[3];
-        double NORMAL[3][2];
+        double NORMAL[3][2];  // used for 1/2 dt
 
         double U_N[4][3];
         double U_HALF[4][3];
@@ -57,7 +66,12 @@ private:
         double DU0[4],DU1[4],DU2[4];
         double DU0_HALF[4],DU1_HALF[4],DU2_HALF[4];
 
-        double MAG[3];
+        double MAG[3];  //used for 1/2 dt
+
+        double SIGMA_X_AVG, SIGMA_Y_AVG, SIGMA_AVG;
+        double X_HALFDT[3], Y_HALFDT[3];// used for 1/2 dt
+        double X_MOD_HALFDT[3], Y_MOD_HALFDT[3]; // used for 1/2 dt
+        int BOUNDARY_HALFDT; //used for 1/2 dt
 
         int PRINT;
 
@@ -70,6 +84,7 @@ public:
         void set_vertex_2(VERTEX* NEW_VERTEX){VERTEX_2 = NEW_VERTEX;}
 
         void set_boundary(int NEW_BOUNDARY){BOUNDARY = NEW_BOUNDARY;}
+        void set_boundary_halfdt(int NEW_BOUNDARY_HALFDT){BOUNDARY_HALFDT = NEW_BOUNDARY_HALFDT;}
         void set_tbin(    int NEW_TBIN){TBIN = NEW_TBIN;}
 
         int get_id(){return ID;}
@@ -79,6 +94,7 @@ public:
         VERTEX* get_vertex_2(){return VERTEX_2;}
 
         int get_boundary(){return BOUNDARY;}
+        int get_boundary_halfdt(){return BOUNDARY_HALFDT;}
         int get_tbin(){ return TBIN;}
 
         double get_un00(){
@@ -117,6 +133,18 @@ public:
                 Y[2] = VERTEX_2->get_y();
         }
 
+        //predict x and y 1/2 dt later for all vertices
+        void setup_positions_halfdt(double DT){
+                X_HALFDT[0] = VERTEX_0->get_x() + 0.5*VERTEX_0->get_sigma_x()*DT; X_HALFDT[0] = std::fmod(X_HALFDT[0],SIDE_LENGTH_X);
+                X_HALFDT[1] = VERTEX_1->get_x() + 0.5*VERTEX_1->get_sigma_x()*DT; X_HALFDT[1] = std::fmod(X_HALFDT[1],SIDE_LENGTH_X);
+                X_HALFDT[2] = VERTEX_2->get_x() + 0.5*VERTEX_2->get_sigma_x()*DT; X_HALFDT[2] = std::fmod(X_HALFDT[2],SIDE_LENGTH_X);
+
+                Y_HALFDT[0] = VERTEX_0->get_y() + 0.5*VERTEX_0->get_sigma_y()*DT; Y_HALFDT[0] = std::fmod(Y_HALFDT[0],SIDE_LENGTH_Y);
+                Y_HALFDT[1] = VERTEX_1->get_y() + 0.5*VERTEX_1->get_sigma_y()*DT; Y_HALFDT[1] = std::fmod(Y_HALFDT[1],SIDE_LENGTH_Y);
+                Y_HALFDT[2] = VERTEX_2->get_y() + 0.5*VERTEX_2->get_sigma_y()*DT; Y_HALFDT[2] = std::fmod(Y_HALFDT[2],SIDE_LENGTH_Y);
+
+        }
+
         // import initial fluid state and pressure for all vertices
         void setup_initial_state(){
                 U_N[0][0] = VERTEX_0->get_u0();
@@ -138,6 +166,14 @@ public:
                 PRESSURE[0] = VERTEX_0->get_pressure();
                 PRESSURE[1] = VERTEX_1->get_pressure();
                 PRESSURE[2] = VERTEX_2->get_pressure();
+
+        }
+
+        void setup_sigma(){
+                SIGMA_X_AVG = (VERTEX_0->get_sigma_x() + VERTEX_1->get_sigma_x()  + VERTEX_2->get_sigma_x())/3.0;
+                SIGMA_Y_AVG = (VERTEX_0->get_sigma_y() + VERTEX_1->get_sigma_y()  + VERTEX_2->get_sigma_y())/3.0;
+                SIGMA_AVG = sqrt(pow(SIGMA_X_AVG,2) + pow(SIGMA_Y_AVG, 2));
+
         }
 
         // import intermediate fluid state and pressure for all vertices
@@ -173,7 +209,6 @@ public:
 
                 // Import conditions and positions of vertices
 
-                setup_positions();
                 setup_initial_state();
 
 #ifdef CLOSED
@@ -207,6 +242,7 @@ public:
                 double N_X[3],N_Y[3];
 
                 double Z_BAR[4],W_HAT[4][3];
+                double SIGMA_N;
 
                 // Construct Roe vector Z
 
@@ -287,15 +323,18 @@ public:
                 for(m=0;m<3;++m){
 
                         W = U*N_X[m] + V*N_Y[m];
+                        SIGMA_N = SIGMA_X_AVG*N_X[m] + SIGMA_Y_AVG*N_Y[m];
 
 #ifdef DEBUG
                         std::cout << "W =\t" << W << std::endl;
 #endif
 
-                        LAMBDA[0][m] = W + C;
-                        LAMBDA[1][m] = W - C;
-                        LAMBDA[2][m] = W;
-                        LAMBDA[3][m] = W;
+
+
+                        LAMBDA[0][m] = W + C -SIGMA_N;
+                        LAMBDA[1][m] = W - C - SIGMA_N;
+                        LAMBDA[2][m] = W - SIGMA_N;
+                        LAMBDA[3][m] = W - SIGMA_N;
 
                         for(i=0;i<4;++i){
                                 LAMBDA_PLUS[i][m]  = max_val(0.0,LAMBDA[i][m]);
@@ -407,7 +446,12 @@ public:
                         }
                 }
 
+
+
                 mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,1);
+
+
+
 
                 // std::cout << "Post-inversion =" << std::endl;
 
@@ -501,21 +545,27 @@ public:
                 for(i=0;i<4;i++){
                         SUM_FLUC_N[i] = abs(FLUC_N[i][0]) + abs(FLUC_N[i][1]) + abs(FLUC_N[i][2]);
                         THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+                        if (SUM_FLUC_N[i] == 0){
+                            THETA_E[i][i] = 0;
+                        }
                         FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
                         FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
                 }
 #endif
 
-                DUAL[0] = VERTEX_0->get_dual();
-                DUAL[1] = VERTEX_1->get_dual();
-                DUAL[2] = VERTEX_2->get_dual();
+                DUAL_HALFDT[0] = VERTEX_0->get_dual_halfdt();
+                DUAL_HALFDT[1] = VERTEX_1->get_dual_halfdt();
+                DUAL_HALFDT[2] = VERTEX_2->get_dual_halfdt();
+
+
+
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
-                        DU0_HALF[i] = -1.0*DT*FLUC_LDA[i][0]/DUAL[0];
-                        DU1_HALF[i] = -1.0*DT*FLUC_LDA[i][1]/DUAL[1];
-                        DU2_HALF[i] = -1.0*DT*FLUC_LDA[i][2]/DUAL[2];
+                        DU0_HALF[i] = -1.0*DT*FLUC_LDA[i][0]/DUAL_HALFDT[0];
+                        DU1_HALF[i] = -1.0*DT*FLUC_LDA[i][1]/DUAL_HALFDT[1];
+                        DU2_HALF[i] = -1.0*DT*FLUC_LDA[i][2]/DUAL_HALFDT[2];
                 }
 #endif
 
@@ -882,6 +932,7 @@ public:
                         }
                 }
 
+
                 mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,2);
 
                 double AREA_DIFF[4][3];
@@ -916,6 +967,7 @@ public:
                 for(i=0;i<4;++i){
                         for(m=0;m<3;++m){
                                 if(DT == 0.0){
+                                        // warning: second_fluc_N = 0 leads to theta = inf in B2 scheme!
                                         SECOND_FLUC_N[i][m] = 0.0;
                                 }else{
                                         SECOND_FLUC_N[i][m] = AREA_DIFF[i][m]/DT + 0.5*(FLUC_N[i][m] + FLUC_HALF_N[i][m]);
@@ -975,8 +1027,13 @@ public:
 
                 for(i=0;i<4;i++){
                         SUM_FLUC_N[i] = abs(SECOND_FLUC_N[i][0]) + abs(SECOND_FLUC_N[i][1]) + abs(SECOND_FLUC_N[i][2]);
+                        //warning: PHI should include time-derivative term
+                        THETA_E[i][i] = abs(SECOND_FLUC_N[i][0]+SECOND_FLUC_N[i][1]+SECOND_FLUC_N[i][2])/SUM_FLUC_N[i];
+                        //THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
 
-                        THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+                        if (SUM_FLUC_N[i] == 0){
+                            THETA_E[i][i] = 0;
+                        }
 
                         FLUC_B[i][0] = THETA_E[i][i]*SECOND_FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][0];
                         FLUC_B[i][1] = THETA_E[i][i]*SECOND_FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][1];
@@ -986,6 +1043,7 @@ public:
                         DU1[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
                         DU2[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
+
 #endif
 
         }
@@ -1003,59 +1061,116 @@ public:
                 return AVG;
         }
 
-        void setup_normals(){
-                // Calculate normals (just in first timestep for static grid)
-
+        void setup_positions_area(){
                 setup_positions();
 
                 for(int m=0; m<3; ++m){X_MOD[m] = X[m];Y_MOD[m] = Y[m];}
 
+                if(abs(X[0] - X[1]) > 0.5*SIDE_LENGTH_X or abs(X[0] - X[2]) > 0.5*SIDE_LENGTH_X or abs(X[1] - X[2]) > 0.5*SIDE_LENGTH_X or
+                   abs(Y[0] - Y[1]) > 0.5*SIDE_LENGTH_Y or abs(Y[0] - Y[2]) > 0.5*SIDE_LENGTH_Y or abs(Y[1] - Y[2]) > 0.5*SIDE_LENGTH_Y){
+                    set_boundary(1);
+                }else{
+                    set_boundary(0);
+                }
+
+
 #ifdef PERIODIC_BOUNDARY
                 if(BOUNDARY == 1){
+                    for(int i=0; i<3; ++i){
+                        for(int j=0; j<3; ++j){
+                            if(X[j] - X[i] > 0.5*SIDE_LENGTH_X){
+                                X_MOD[i] = X[i] + SIDE_LENGTH_X;
+                            }
+                            if(Y[j] - Y[i] > 0.5*SIDE_LENGTH_Y){
+                                Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+                            }
+                        }
+                    }
+                }
+#endif
+
+                double PERP[3][2];
+                PERP[0][0] = (Y_MOD[1] - Y_MOD[2]);
+                PERP[0][1] = (X_MOD[2] - X_MOD[1]);
+
+                PERP[1][0] = (Y_MOD[2] - Y_MOD[0]);
+                PERP[1][1] = (X_MOD[0] - X_MOD[2]);
+
+                PERP[2][0] = (Y_MOD[0] - Y_MOD[1]);
+                PERP[2][1] = (X_MOD[1] - X_MOD[0]);
+                double THETA0 = atan(PERP[0][1]/PERP[0][0]);
+                double THETA1 = atan(PERP[1][1]/PERP[1][0]);
+                double THETA = std::abs(THETA0 - THETA1);
+                if(THETA > 3.14159/2.0){THETA = 3.14159 - THETA;}
+                AREA = 0.5*(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1])*sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1]))*sin(THETA);
+
+                VERTEX_0->calculate_dual(AREA/3.0);
+                VERTEX_1->calculate_dual(AREA/3.0);
+                VERTEX_2->calculate_dual(AREA/3.0);
+
+        }
+
+
+        void setup_normals(double DT){
+                // Calculate normals (just in first timestep for static grid)
+
+                setup_positions_halfdt(DT);
+
+                for(int m=0; m<3; ++m){X_MOD_HALFDT[m] = X_HALFDT[m];Y_MOD_HALFDT[m] = Y_HALFDT[m];}
+
+                //boundary for 1/2 dt not now
+                if(abs(X_HALFDT[0] - X_HALFDT[1]) > 0.5*SIDE_LENGTH_X or abs(X_HALFDT[0] - X_HALFDT[2]) > 0.5*SIDE_LENGTH_X or abs(X_HALFDT[1] - X_HALFDT[2]) > 0.5*SIDE_LENGTH_X or
+                   abs(Y_HALFDT[0] - Y_HALFDT[1]) > 0.5*SIDE_LENGTH_Y or abs(Y_HALFDT[0] - Y_HALFDT[2]) > 0.5*SIDE_LENGTH_Y or abs(Y_HALFDT[1] - Y_HALFDT[2]) > 0.5*SIDE_LENGTH_Y){
+                    set_boundary_halfdt(1);
+                }else{
+                    set_boundary_halfdt(0);
+                }
+
+
+#ifdef PERIODIC_BOUNDARY
+                if(BOUNDARY_HALFDT == 1){
                         for(int i=0; i<3; ++i){
                                 for(int j=0; j<3; ++j){
-                                        if(X[j] - X[i] > 0.5*SIDE_LENGTH_X){
-                                                X_MOD[i] = X[i] + SIDE_LENGTH_X;
+                                        if(X_HALFDT[j] - X_HALFDT[i] > 0.5*SIDE_LENGTH_X){
+                                                X_MOD_HALFDT[i] = X_HALFDT[i] + SIDE_LENGTH_X;
                                         }
-                                        if(Y[j] - Y[i] > 0.5*SIDE_LENGTH_Y){
-                                                Y_MOD[i] = Y[i] + SIDE_LENGTH_Y;
+                                        if(Y_HALFDT[j] - Y_HALFDT[i] > 0.5*SIDE_LENGTH_Y){
+                                                Y_MOD_HALFDT[i] = Y_HALFDT[i] + SIDE_LENGTH_Y;
                                         }
                                 }
                         }
                 }
 #endif
 
-                // check vertices are ordered counter-clockwise
+                // check vertices are ordered counter-clockwise (not used)
 
-                double X0,X1,X2,Y0,Y1,Y2;
-                double L1X,L1Y,L2X,L2Y,CROSS;
+//                double X0,X1,X2,Y0,Y1,Y2;
+//                double L1X,L1Y,L2X,L2Y,CROSS;
 
-                X0 = X_MOD[0];
-                X1 = X_MOD[1];
-                X2 = X_MOD[2];
-
-                Y0 = Y_MOD[0];
-                Y1 = Y_MOD[1];
-                Y2 = Y_MOD[2];
-
-                L1X = X1 - X0;
-                L1Y = Y1 - Y0;
-
-                L2X = X2 - X0;
-                L2Y = Y2 - Y0;
-
-                CROSS = L1X*L2Y - L1Y*L2X;
-
-                if(CROSS < 0.0){
-                        reorder_vertices();
-                }
-                
-                calculate_normals(X_MOD,Y_MOD);
-
+//                X0 = X_MOD[0];
+//                X1 = X_MOD[1];
+//                X2 = X_MOD[2];
+//
+//                Y0 = Y_MOD[0];
+//                Y1 = Y_MOD[1];
+//                Y2 = Y_MOD[2];
+//
+//                L1X = X1 - X0;
+//                L1Y = Y1 - Y0;
+//
+//                L2X = X2 - X0;
+//                L2Y = Y2 - Y0;
+//
+//                CROSS = L1X*L2Y - L1Y*L2X;
+//
+//                if(CROSS < 0.0){
+//                        reorder_vertices();
+//                }
+                calculate_normals(X_MOD_HALFDT,Y_MOD_HALFDT,DT);
 
         }
 
-        void calculate_normals(double X_input[3],double Y_input[3]){
+        void calculate_normals(double X_input[3],double Y_input[3],double DT){
                 int i;
                 double PERP[3][2];
 
@@ -1077,17 +1192,30 @@ public:
 
                 if(THETA > 3.14159/2.0){THETA = 3.14159 - THETA;}
 
-                AREA = 0.5*(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1])*sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1]))*sin(THETA);
-
-                VERTEX_0->calculate_dual(AREA/3.0);
-                VERTEX_1->calculate_dual(AREA/3.0);
-                VERTEX_2->calculate_dual(AREA/3.0);
+                AREA_HALFDT = 0.5*(sqrt(PERP[0][0]*PERP[0][0] + PERP[0][1]*PERP[0][1])*sqrt(PERP[1][0]*PERP[1][0] + PERP[1][1]*PERP[1][1]))*sin(THETA);
 
                 for(i=0;i<3;i++){
-                        MAG[i] = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
-                        NORMAL[i][0] = PERP[i][0]/MAG[i];
-                        NORMAL[i][1] = PERP[i][1]/MAG[i];
+                    MAG[i] = sqrt(PERP[i][0]*PERP[i][0]+PERP[i][1]*PERP[i][1]);
+                    NORMAL[i][0] = PERP[i][0]/MAG[i];
+                    NORMAL[i][1] = PERP[i][1]/MAG[i];
                 }
+
+                double DIVERGENCE_SIGMA = 0.0;
+                double SIGMA[3][2];
+                SIGMA[0][0] = VERTEX_0->get_sigma_x();SIGMA[0][1] = VERTEX_0->get_sigma_y();
+                SIGMA[1][0] = VERTEX_1->get_sigma_x();SIGMA[1][1] = VERTEX_1->get_sigma_y();
+                SIGMA[2][0] = VERTEX_2->get_sigma_x();SIGMA[2][1] = VERTEX_2->get_sigma_y();
+                for (i=0;i<3;i++){
+                    DIVERGENCE_SIGMA += SIGMA[i][0]*PERP[i][0] + SIGMA[i][1]*PERP[i][1];
+                }
+                DIVERGENCE_SIGMA = DIVERGENCE_SIGMA/(2.0*AREA_HALFDT);
+                double SHAPE_DISTORTION_FACTOR = 1.0 + 0.5*DT*DIVERGENCE_SIGMA;
+
+                VERTEX_0->calculate_dual_halfdt(SHAPE_DISTORTION_FACTOR*AREA_HALFDT/3.0);
+                VERTEX_1->calculate_dual_halfdt(SHAPE_DISTORTION_FACTOR*AREA_HALFDT/3.0);
+                VERTEX_2->calculate_dual_halfdt(SHAPE_DISTORTION_FACTOR*AREA_HALFDT/3.0);
+
+
 
         }
 
@@ -1100,6 +1228,7 @@ public:
 
                 setup_initial_state();
 
+                //warning: update X_MOD before using this function
                 L02 = (X_MOD[1] - X_MOD[0])*(X_MOD[1] - X_MOD[0]) + (Y_MOD[1] - Y_MOD[0])*(Y_MOD[1] - Y_MOD[0]);
                 L12 = (X_MOD[2] - X_MOD[0])*(X_MOD[2] - X_MOD[0]) + (Y_MOD[2] - Y_MOD[0])*(Y_MOD[2] - Y_MOD[0]);
                 L22 = (X_MOD[2] - X_MOD[1])*(X_MOD[2] - X_MOD[1]) + (Y_MOD[2] - Y_MOD[1])*(Y_MOD[2] - Y_MOD[1]);
@@ -1122,6 +1251,10 @@ public:
                 VMAX = max_val((VEL[0] + C_SOUND[0]),(VEL[1] + C_SOUND[1]));
                 VMAX = max_val(VMAX,(VEL[2] + C_SOUND[2]));
 
+#ifdef MOVING_MESH
+                setup_sigma();
+                VMAX += SIGMA_AVG;
+#endif
                 CONT = LMAX * VMAX;
 
                 VERTEX_0->update_len_vel_sum(CONT);

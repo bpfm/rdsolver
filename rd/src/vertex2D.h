@@ -5,7 +5,7 @@
                 DY = change in y between vertices
                 DT_REQ = timestep required by vertex state
                 DUAL = dual cell area
-                LEN_VEL_SUM = sum of product of edge length and velocity for every edge (ised in dt calc)
+                LEN_VEL_SUM = sum of product of edge length and velocity for every edge (used in dt calc)
                 U_VARIABLES = vector of fluid variables
                 DU = sum of change in fluid variables for first half timestep
                 MASS_DENSITY = mass_density of material at vertex
@@ -20,11 +20,17 @@
                 Y_VELOCITY_HALF = y velocity of material at vertex at intermediate state
                 PRESSURE_HALF = pressure at vertex at intermediate state
                 SPECIFIC_ENERGY_HALF = specific energy density at vertex at intermediate state
+                SIGMA_X, SIGMA_Y = X, Y velocity of the vertex relative to the stationery box (used for moving-mesh)
+                DUAL_HALFDT = dual cell area at n+1/2 timestep (used for moving-mesh)
+
 */
 
 #include "constants.h"
 #include <vector>
+#include <iostream>
 #pragma once
+using namespace std;
+
 class VERTEX{
 
 private:
@@ -32,13 +38,16 @@ private:
         int ID,TBIN_LOCAL;
         double X, Y, DX, DY;
         double DT_REQ;
-        double DUAL,LEN_VEL_SUM;
+        double DUAL; //used for timestep n
+        double LEN_VEL_SUM;
         double U_VARIABLES[4], DU[4];
         double MASS_DENSITY, X_VELOCITY, Y_VELOCITY;
         double PRESSURE, SPECIFIC_ENERGY;
         double U_HALF[4], DU_HALF[4];
         double MASS_DENSITY_HALF, X_VELOCITY_HALF, Y_VELOCITY_HALF;
         double PRESSURE_HALF, SPECIFIC_ENERGY_HALF;
+        double SIGMA_X, SIGMA_Y;
+        double DUAL_HALFDT; //used for timestep n+1/2
 
         std::vector<int> ASSOC_TRIANG; // not used yet
 
@@ -53,6 +62,8 @@ public:
         void set_dx(  double NEW_DX){DX = NEW_DX;}
         void set_dy(  double NEW_DY){DY = NEW_DY;}
         void set_dual(double NEW_DUAL){DUAL = NEW_DUAL;}
+        void set_dual_halfdt(double NEW_DUAL_HALFDT){DUAL_HALFDT = NEW_DUAL_HALFDT;}
+
         void set_mass_density( double NEW_MASS_DENSITY){MASS_DENSITY  = NEW_MASS_DENSITY;}
         void set_x_velocity(   double NEW_X_VELOCITY){  X_VELOCITY    = NEW_X_VELOCITY;}
         void set_y_velocity(   double NEW_Y_VELOCITY){  Y_VELOCITY    = NEW_Y_VELOCITY;}
@@ -69,6 +80,10 @@ public:
         void set_u2_half(double NEW){U_HALF[2] = NEW;}
         void set_u3_half(double NEW){U_HALF[3] = NEW;}
 
+        void set_sigma_x(double NEW_SIGMA_X){SIGMA_X = NEW_SIGMA_X;}
+        void set_sigma_y(double NEW_SIGMA_Y){SIGMA_Y = NEW_SIGMA_Y;}
+
+
         // add triangle to list of those associated with this vertex
 
         void add_triang(int NEW_TRIANGLE){ASSOC_TRIANG.push_back(NEW_TRIANGLE);} // not used yet
@@ -83,6 +98,8 @@ public:
         double get_dy(){     return DY;}
         double get_dt_req(){ return DT_REQ;}
         double get_dual(){   return DUAL;}
+        double get_dual_halfdt(){   return DUAL_HALFDT;}
+
         double get_mass(){   return DUAL*MASS_DENSITY;}
 
         double get_specific_energy(){return SPECIFIC_ENERGY;}
@@ -105,6 +122,11 @@ public:
         double get_u2_half(){return U_HALF[2];}
         double get_u3_half(){return U_HALF[3];}
 
+        double get_sigma_x(){return SIGMA_X;}
+        double get_sigma_y(){return SIGMA_Y;}
+
+
+
 
         // set up the specific energy varaible, as well as u and f arrays
         void setup_specific_energy(){
@@ -112,7 +134,8 @@ public:
                 SPECIFIC_ENERGY = PRESSURE/((GAMMA-1.0)*MASS_DENSITY) + VEL_SQ_SUM/2.0; // calculate specific energy
         }
 
-        void calculate_dual(double CONTRIBUTION){DUAL = DUAL + CONTRIBUTION;}
+        void calculate_dual(double CONTRIBUTION){DUAL += CONTRIBUTION;}
+        void calculate_dual_halfdt(double CONTRIBUTION){DUAL_HALFDT += CONTRIBUTION;}
 
         void prim_to_con(){
                 U_VARIABLES[0] = MASS_DENSITY;                          // U0 = mass density
@@ -249,6 +272,8 @@ public:
                         // std::cout << ID << "\tPosition =\t" << X << "\t" << Y << "\tSPECIFIC_ENERGY =\t" << U_VARIABLES[3] << std::endl;
                         // exit(0);
                 }
+
+
         }
         
         void check_values_half(){
@@ -276,6 +301,7 @@ public:
         double calc_next_dt(){
                 double NEXT_DT;
                 NEXT_DT = CFL*2.0*DUAL/LEN_VEL_SUM;
+
                 DT_REQ  = NEXT_DT;
                 return NEXT_DT;
         }

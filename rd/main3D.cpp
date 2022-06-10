@@ -12,7 +12,6 @@
 #include <stdio.h>
 #include <omp.h> 
 
-
 #include "constants3D.h"
 
 #include "cblas.h"

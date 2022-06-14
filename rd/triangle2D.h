@@ -253,7 +253,7 @@ public:
                 // E     = (sqrt(U_N[0][0])*H[0]/U_N[0][0] + sqrt(U_N[0][1])*H[1]/U_N[0][1] + sqrt(U_N[0][2])*H[2]/U_N[0][2])/(sqrt(U_N[0][0]) + sqrt(U_N[0][1]) + sqrt(U_N[0][2]));
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
-                C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+                C = sqrt(abs((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0));
                 // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
 
 #ifdef DEBUG

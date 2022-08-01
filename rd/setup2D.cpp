@@ -20,8 +20,6 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.set_x(X);
         NEW_VERTEX.set_y(Y);
 
-        double DX = SIDE_LENGTH_X/1000.0;               // hot garbage
-
         NEW_VERTEX.set_dx(SIDE_LENGTH_X/1000.0);
         NEW_VERTEX.set_dy(SIDE_LENGTH_Y/1000.0);
 
@@ -96,7 +94,7 @@ VERTEX setup_vertex(double X, double Y){
         }
 
         NEW_VERTEX.set_mass_density(RHO);                       // units kg/m^3
-        NEW_VERTEX.set_x_velocity(V);                             // units m/s
+        NEW_VERTEX.set_x_velocity(V);                           // units m/s
         NEW_VERTEX.set_y_velocity(V);
         NEW_VERTEX.set_pressure(P);                             // units N/m^2
 
@@ -161,7 +159,7 @@ VERTEX setup_vertex(double X, double Y){
         X_VEL_NORM = X_VEL/sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL);
         Y_VEL_NORM = Y_VEL/sqrt(X_VEL*X_VEL + Y_VEL*Y_VEL);
 
-        if(X == X_C and Y == Y_C){X_VEL = Y_VEL = 0.00000001;}
+        if(X == X_C and Y == Y_C){X_VEL = Y_VEL = 0.000001;}
 
         // std::cout << X << "\t" << Y << "\t" << X_VEL_NORM << "\t" << Y_VEL_NORM << "\t" << sqrt(X_VEL_NORM*X_VEL_NORM + Y_VEL_NORM*Y_VEL_NORM) << std::endl;
 

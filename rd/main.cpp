@@ -196,7 +196,7 @@ int main(int ARGC, char *ARGV[]){
 
         printf("Checking mesh size ...");
         printf("Mesh Size = %d\n",int(RAND_MESH.size()));
-        printf("Evolving fluid ...");
+        printf("Evolving fluid ...\n");
 
         int TBIN, TBIN_CURRENT = 0;
         NEXT_DT = 0.0;                                                            // set first timestep to zero

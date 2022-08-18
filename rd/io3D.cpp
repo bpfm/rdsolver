@@ -17,7 +17,7 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         SNAPFILE << N_POINTS << "\t" << T << std::endl;
         for(int i=0;i<N_POINTS;++i){
                 // write         X                           Y                                 rho                                   v_x                                    v_y                                 p                                      e                                         |S|
-                SNAPFILE << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_z() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_x_velocity() << "\t" << POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_specific_energy() << "\t" << POINTS[i].get_dual() << std::endl;
+                SNAPFILE << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_z() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_x_velocity() << "\t" << POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_z_velocity() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_specific_energy() << "\t" << POINTS[i].get_dual() << std::endl;
                 TOTAL_DENSITY += POINTS[i].get_mass_density()*POINTS[i].get_dual();
                 TOTAL_ENERGY += POINTS[i].get_specific_energy()*POINTS[i].get_dual() * POINTS[i].get_mass_density();
         }

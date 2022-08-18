@@ -263,7 +263,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
-                if(C <= C_LIM){C = C_LIM;}
+                // if(C <= C_LIM){C = C_LIM;}
 
                 VX_C = VX/C;
                 VY_C = VY/C;
@@ -580,7 +580,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
-                if(C <= C_LIM){C = C_LIM;}
+                // if(C <= C_LIM){C = C_LIM;}
 
                 // Reassign variables to local equivalents
 

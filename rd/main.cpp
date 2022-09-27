@@ -1,5 +1,5 @@
 /*
- * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zhenyu Wu (zhenyu.wu@ed.ac.uk).
  */
 
 #include <iostream>
@@ -18,10 +18,10 @@
 #include "vertex2D.h"
 #include "triangle2D.h"
 #endif
+
 #ifdef SEDOV
     int POINT_CHECK = 0;
 #endif
-//using namespace std;
 
 int main(int ARGC, char *ARGV[]){
         /*

@@ -203,7 +203,7 @@ public:
 
         //**********************************************************************************************************************
 
-        // Calculate first half timestep change, passing change to vertice
+        // Calculate first half timestep change, passing change to vertex
         void calculate_first_half(double T, double DT){
                 int i,j,m,p;
                 double INFLOW[5][5][4][3];        // K+, K-, K matrices for each vertex (m index for vertices, p index for +,-,0)
@@ -214,7 +214,7 @@ public:
                 setup_dual();
                 setup_initial_state();
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 // Calculate inflow parameters
 
                 double H[4];
@@ -263,6 +263,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2] + PRESSURE[3])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
+                // if(C <= C_LIM){C = C_LIM;}
 
                 VX_C = VX/C;
                 VY_C = VY/C;
@@ -579,7 +580,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/4.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (VX*VX + VY*VY + VZ*VZ)/2.0);
-                // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+                // if(C <= C_LIM){C = C_LIM;}
 
                 // Reassign variables to local equivalents
 

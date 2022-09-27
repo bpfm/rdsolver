@@ -261,8 +261,8 @@ VERTEX setup_vertex(double X, double Y, double Z){
                 NEW_VERTEX.set_x_velocity(MACH*4.1);
         }
 
-        NEW_VERTEX.set_y_velocity(0.00000001);
-        NEW_VERTEX.set_z_velocity(0.00000001);
+        NEW_VERTEX.set_y_velocity(0.0000001);
+        NEW_VERTEX.set_z_velocity(0.0000001);
         NEW_VERTEX.set_pressure(100.0);
 
 #endif

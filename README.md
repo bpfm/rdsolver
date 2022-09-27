@@ -1,4 +1,4 @@
-# Residual Distribution Hydrodynamics for Galaxy Formation Simulations
+# Residual Distribution Hydrodynamics Solver for Galaxy Formation Simulations
 ## WORK IN PROGRESS
 Residual distribution solver for 2D Euler equations:
 - 1st order LDA 

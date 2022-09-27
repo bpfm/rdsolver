@@ -1,26 +1,28 @@
-/*      class containing conserved and primative variables of fluid at the position of the vertex
-                X = x position of vertex
-                Y = y position of vertex
-                DX = change in x between vertices (should no longer be used)
-                DY = change in y between vertices
-                DT_REQ = timestep required by vertex state
-                DUAL = dual cell area
-                LEN_VEL_SUM = sum of product of edge length and velocity for every edge (ised in dt calc)
-                U_VARIABLES = vector of fluid variables
-                DU = sum of change in fluid variables for first half timestep
-                MASS_DENSITY = mass_density of material at vertex
-                X_VELOCITY = x velocity of material at vertex
-                Y_VELOCITY = y velocity of material at vertex
-                PRESSURE = pressure at vertex
-                SPECIFIC_ENERGY = specific energy density at vertex
-                U_HALF = vector of fluid variables for intermediate state
-                DU_HALF = sum of change in fluid variables for second half timestep
-                MASS_DENSIT_HALF = mass_density of material for vertex at intermediate state
-                X_VELOCITY_HALF = x velocity of material at vertex at intermediate state
-                Y_VELOCITY_HALF = y velocity of material at vertex at intermediate state
-                PRESSURE_HALF = pressure at vertex at intermediate state
-                SPECIFIC_ENERGY_HALF = specific energy density at vertex at intermediate state
-*/
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ * class containing conserved and primative variables of fluid at the position of the vertex
+        X = x position of vertex
+        Y = y position of vertex
+        DX = change in x between vertices (should no longer be used)
+        DY = change in y between vertices
+        DT_REQ = timestep required by vertex state
+        DUAL = dual cell area
+        LEN_VEL_SUM = sum of product of edge length and velocity for every edge (ised in dt calc)
+        U_VARIABLES = vector of fluid variables
+        DU = sum of change in fluid variables for first half timestep
+        MASS_DENSITY = mass_density of material at vertex
+        X_VELOCITY = x velocity of material at vertex
+        Y_VELOCITY = y velocity of material at vertex
+        PRESSURE = pressure at vertex
+        SPECIFIC_ENERGY = specific energy density at vertex
+        U_HALF = vector of fluid variables for intermediate state
+        DU_HALF = sum of change in fluid variables for second half timestep
+        MASS_DENSIT_HALF = mass_density of material for vertex at intermediate state
+        X_VELOCITY_HALF = x velocity of material at vertex at intermediate state
+        Y_VELOCITY_HALF = y velocity of material at vertex at intermediate state
+        PRESSURE_HALF = pressure at vertex at intermediate state
+        SPECIFIC_ENERGY_HALF = specific energy density at vertex at intermediate state
+ */
 
 class VERTEX{
 

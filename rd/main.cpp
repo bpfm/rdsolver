@@ -1,3 +1,7 @@
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ */
+
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -167,7 +171,7 @@ int main(int ARGC, char *ARGV[]){
                         PRESSURE_AIM = (ETOT_AIM * GAMMA_1 / RAND_POINTS[i].get_dual()) * (RAND_POINTS[i].get_dual() / (AREA_CHECK));
                         RAND_POINTS[i].set_pressure(PRESSURE_AIM);
                         ETOT = ETOT + RAND_POINTS[i].get_pressure()*RAND_POINTS[i].get_dual()/GAMMA_1;
-                        printf("%d\t%f\t%f\t%f\n", POINT_CHECK, PRESSURE_AIM, RAND_POINTS[i].get_pressure(), ETOT);
+                        printf("%f\t%f\t%f\n", PRESSURE_AIM, RAND_POINTS[i].get_pressure(), ETOT);
                         RAND_POINTS[i].setup_specific_energy();
                         RAND_POINTS[i].prim_to_con();
                 }

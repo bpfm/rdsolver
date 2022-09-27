@@ -1,7 +1,9 @@
-/*
-IO routines to write simple ASCII output for python plotting
+/*                                                                           
+ * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zhenyu Wu (zhenyu.wu@ed.ac.uk).
+ * IO routines to write simple ASCII output for python plotting
         open_files => opens ouptut files to write positions, dens, pressure, vel maps, and column of values for 1D plot
 */
+
 #include <iostream>
 #include <fstream>
 #include <vertex2D.h>

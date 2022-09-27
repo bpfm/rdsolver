@@ -1,9 +1,13 @@
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ */
+
 #ifdef ANALYTIC_GRAVITY
 void plummer_gravity(std::vector<VERTEX> &MY_POINTS, double DT, int N_POINTS){
         // Fixed Plummer potential at (XC,YC)
         int i;
         double X, Y, Z, GM, AX, AY, AZ, DU[5];
-        double XC = 5.0, YC = 5.0, MPERT = 3.28E+05, EPS = 0.145;
+        double XC = 5.0, YC = 5.0, ZC = 5.0, MPERT = 3.28E+05, EPS = 0.145;
         double MASS_DENSITY, DELTAX, DELTAY, DELTAZ, RAD2;
         VERTEX MY_VERTEX;
 

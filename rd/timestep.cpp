@@ -1,6 +1,10 @@
 /*
- * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zhenyu Wu (zhenyu.wu@ed.ac.uk).
  */
+
+#include <vector>
+#include "triangle2D.h"
+#include "base.h"
 
 void drift_update_half(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::vector<TRIANGLE> &RAND_MESH){
         int TBIN;
@@ -89,7 +93,7 @@ void drift_update(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::vect
         }
 }
 
-void reset_tbins(int T, int DT, int N_TRIANG, int N_POINTS, double &NEXT_DT, std::vector<TRIANGLE> &RAND_MESH, std::vector<VERTEX> &RAND_POINTS){
+void reset_tbins(double T, double DT, int N_TRIANG, int N_POINTS, double &NEXT_DT, std::vector<TRIANGLE> &RAND_MESH, std::vector<VERTEX> &RAND_POINTS){
         double POSSIBLE_DT, MIN_DT;
         for(int j=0;j<N_TRIANG;++j){                                       // loop over all triangles in MESH
                 RAND_MESH[j].calculate_len_vel_contribution();             // calculate contribution from each edge TRIANGLE
@@ -108,7 +112,7 @@ void reset_tbins(int T, int DT, int N_TRIANG, int N_POINTS, double &NEXT_DT, std
 #ifdef THREE_D
                 if(RAND_MESH[j].get_vertex_3()->get_dt_req() < MIN_DT){MIN_DT = RAND_MESH[j].get_vertex_3()->get_dt_req();}
 #endif
-                RAND_MESH[j].set_tbin( min_val( MAX_TBIN,pow(2.0,int(log2(MIN_DT/NEXT_DT))) ) );
+                RAND_MESH[j].set_tbin( min_val( MAX_TBIN,int(pow(2.0,int(log2(MIN_DT/NEXT_DT)) ) ) ) );
 #ifdef DRIFT_SHELL
                 RAND_MESH[j].send_tbin_limit();
 #endif

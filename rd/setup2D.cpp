@@ -1,6 +1,11 @@
 /*
- * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zenyu Wu (zhenyu.wu@ed.ac.uk).
  */
+
+#include "constants.h"
+#include "vertex2D.h"
+#include <iostream>
+extern int POINT_CHECK;
 
 double F(double X){
         double FUNC = exp(-1.0/X);
@@ -12,7 +17,6 @@ double G(double X){
         double FUNC = F(X)/(F(X) + F(1.0-X));
         return FUNC;
 }
-
 
 VERTEX setup_vertex(double X, double Y){
         VERTEX NEW_VERTEX;
@@ -78,8 +82,7 @@ VERTEX setup_vertex(double X, double Y){
 
 #endif
 #ifdef SEDOV
-         // if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
-
+    // if(i==0 and j==0){std::cout << "Using 2D Sedov Blast" << std::endl;}
         double RHO = 1.0;
         double V = 0.00000001;
         double P = 100.0;
@@ -97,7 +100,7 @@ VERTEX setup_vertex(double X, double Y){
 
         double CENTRE = 0.5;
         double S,W,RHO,RHO_0 = 10.0,RHO_PULSE = 50.0;
-        double X_VELOCITY = 2.0,PRESSURE = 100.0;
+        double X_VELOCITY = 2.0,PRESSURE = 10.0;
 
         S = std::abs(CENTRE - X);                                       // distance from centre of pulse
         W = 0.1;                                                 // characteristic width
@@ -106,7 +109,8 @@ VERTEX setup_vertex(double X, double Y){
 
         NEW_VERTEX.set_mass_density(RHO);
         NEW_VERTEX.set_x_velocity(X_VELOCITY);
-        NEW_VERTEX.set_y_velocity(0.00000001);
+        //NEW_VERTEX.set_y_velocity(0.00000001);
+        NEW_VERTEX.set_y_velocity(0.0);
         NEW_VERTEX.set_pressure(PRESSURE);
 
 #endif

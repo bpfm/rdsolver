@@ -6,8 +6,11 @@
 #include <vector>
 #include <cstdlib>
 #include <stdio.h>
-#include <omp.h> 
-
+#include <omp.h>
+#include <chrono>
+#include <ctime>
+#include <filesystem>
+#include <exception>
 #include "constants.h"
 #include "all_functions.h"
 #ifdef TWO_D
@@ -17,12 +20,23 @@
 #ifdef SEDOV
     int POINT_CHECK = 0;
 #endif
+
+double GLOBAL_PRESSURE_MAX, GLOBAL_PRESSURE_MIN = 0.0;
+double GLOBAL_VELOCITY_SCALE;
+double MESH_RESOLUTION = 0.0;
+
+
 //using namespace std;
+namespace fs = std::filesystem;
 
 int main(int ARGC, char *ARGV[]){
         /*
         Setup and run simulation from input file constants.h, using precalculated triangulation
         */
+        auto program_start = std::chrono::system_clock::now();
+        std::time_t program_start_time = std::chrono::system_clock::to_time_t(program_start);
+        std::cout<<"start computation at "<<std::ctime(&program_start_time);
+
         int i, j, l = 0, m;                                        // ******* declare variables and vectors ******
         int SNAP_ID = 0;
         double DT, T = 0.0;                                        //
@@ -57,6 +71,11 @@ int main(int ARGC, char *ARGV[]){
         printf("Using B Scheme\n");
 #endif
 
+#ifdef BLENDED_X
+    printf("Using Bx Scheme\n");
+#endif
+
+
 #ifdef FIRST_ORDER
         printf("Using 1st order\n");
 #else
@@ -64,6 +83,31 @@ int main(int ARGC, char *ARGV[]){
 #endif
 
         printf("Building vertices and mesh\n");
+
+
+#ifdef PARA_RES
+        omp_set_dynamic(0);
+        omp_set_num_threads(8);
+#pragma omp parallel
+        {
+            int thread_ID = omp_get_num_threads();
+            cout<<"number of threads: "<<thread_ID<<endl;
+        }
+#endif
+
+
+        fs::path sourceFile = "constants.h";
+        fs::path targetParent = OUT_DIR;
+        auto target = targetParent / sourceFile.filename();
+        try // If you want to avoid exception handling, then use the error code overload of the following functions.
+        {
+            fs::create_directories(targetParent); // Recursively create target directory if not existing.
+            fs::copy_file(sourceFile, target, fs::copy_options::overwrite_existing);
+        }
+        catch (std::exception& e) // Not using fs::filesystem_error since std::bad_alloc can throw too.
+        {
+            std::cout << e.what();
+        }
 
         std::ofstream LOGFILE;
         LOGFILE << std::setprecision(12);
@@ -114,7 +158,6 @@ int main(int ARGC, char *ARGV[]){
 #endif
 #ifdef CGAL_IC
         int N_POINTS, N_TRIANG;
-        std::string   CGAL_FILE_NAME;
         std::ifstream CGAL_FILE;
 
         /****** Setup vertices ******/
@@ -122,7 +165,6 @@ int main(int ARGC, char *ARGV[]){
 
         printf("Reading CGAL vertex positions ...");
 
-        CGAL_FILE_NAME = "Delaunay2D.txt";
         CGAL_FILE.open(CGAL_FILE_NAME);
         N_POINTS = cgal_read_positions_header(CGAL_FILE);
 
@@ -193,7 +235,7 @@ int main(int ARGC, char *ARGV[]){
         printf("Evolving fluid ...\n");
 
         int TBIN, TBIN_CURRENT = 0;
-        NEXT_DT = 0.0;                                                            // set first timestep to zero
+        //NEXT_DT = 0.0;                                                            // set first timestep to zero
 
         /****** Loop over time until total time T_TOT is reached *****************************************************************************************************/
         while(T<T_TOT){
@@ -210,13 +252,21 @@ int main(int ARGC, char *ARGV[]){
             /****** Write snapshot *****************************************************************************************************/
                 if(T >= NEXT_TIME){                                       // write out densities at given interval
                         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
-                        write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
+                        //write_active(RAND_MESH, N_TRIANG, SNAP_ID, TBIN_CURRENT);
+#if defined(BLENDED) or defined(BLENDED_X)
+                        write_vertex_list(RAND_POINTS, T, N_POINTS,SNAP_ID);
+                        write_blending_coeff(RAND_MESH, T, N_TRIANG, SNAP_ID);
+#endif
                         NEXT_TIME = NEXT_TIME + T_TOT/float(N_SNAP);
                         if(NEXT_TIME > T_TOT){NEXT_TIME = T_TOT;}
                         SNAP_ID ++;
                 }
 
         /****** 1st order update ***************************************************************************************************/
+#ifdef BLENDED_X
+                set_shock_sensor(N_POINTS,RAND_POINTS);
+#endif
+
 
 #ifdef DRIFT
                 /****** Update residual for active bins (Drift method) ******/
@@ -298,6 +348,30 @@ int main(int ARGC, char *ARGV[]){
 
         write_snap(RAND_POINTS,T,DT,N_POINTS,SNAP_ID,LOGFILE);
 
+        auto program_end = std::chrono::system_clock::now();
+        std::time_t program_end_time = std::chrono::system_clock::to_time_t(program_end);
+        std::cout<<"finish computation at "<<std::ctime(&program_end_time);
+        std::chrono::duration<double> elapsed_seconds = program_end-program_start;
+        std::cout<<"elapsed time: " << elapsed_seconds.count() << "s\n";
+
 
         return 0;
+}
+
+void set_shock_sensor(int N_POINTS, std::vector<VERTEX> &RAND_POINTS){
+    GLOBAL_PRESSURE_MIN = RAND_POINTS[0].get_pressure();
+    GLOBAL_PRESSURE_MAX = RAND_POINTS[0].get_pressure();
+    double TOTAL_MASS = 0.0;
+    for(int i=0;i<N_POINTS;++i){                                       // loop over all vertices
+        double PRESSURE =  RAND_POINTS[i].get_pressure();
+        if (PRESSURE > GLOBAL_PRESSURE_MAX){GLOBAL_PRESSURE_MAX = PRESSURE;}
+        if (PRESSURE < GLOBAL_PRESSURE_MIN){GLOBAL_PRESSURE_MIN = PRESSURE;}
+        double POINT_MASS = RAND_POINTS[i].get_dual()*RAND_POINTS[i].get_mass_density();
+        double POINT_VELOCITY_SCALE = sqrt(pow(RAND_POINTS[i].get_x_velocity(),2)+pow(RAND_POINTS[i].get_y_velocity(),2));
+        GLOBAL_VELOCITY_SCALE += POINT_MASS*POINT_VELOCITY_SCALE;
+        TOTAL_MASS += POINT_MASS;
+    }
+    GLOBAL_VELOCITY_SCALE /= TOTAL_MASS;
+
+    MESH_RESOLUTION = sqrt(SIDE_LENGTH_X*SIDE_LENGTH_Y/N_POINTS*4.0/M_PI);
 }

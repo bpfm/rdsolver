@@ -1,6 +1,8 @@
 #include "constants.h"
 #include "vertex2D.h"
 #include <iostream>
+#include <cmath>
+
 extern int POINT_CHECK;
 
 double F(double X){
@@ -115,8 +117,8 @@ VERTEX setup_vertex(double X, double Y){
 
         NEW_VERTEX.set_mass_density(RHO);
         NEW_VERTEX.set_x_velocity(X_VELOCITY);
-        //NEW_VERTEX.set_y_velocity(0.00000001);
-        NEW_VERTEX.set_y_velocity(0.0);
+        NEW_VERTEX.set_y_velocity(0.00000001);
+        //NEW_VERTEX.set_y_velocity(0.0);
         NEW_VERTEX.set_pressure(PRESSURE);
 
 #endif
@@ -262,6 +264,85 @@ VERTEX setup_vertex(double X, double Y){
         NEW_VERTEX.set_mass_density(RHO0);
         NEW_VERTEX.set_x_velocity(X_VEL);
         NEW_VERTEX.set_y_velocity(Y_VEL);
+        NEW_VERTEX.set_pressure(PRESSURE);
+#endif
+#ifdef GRESHO
+     // if(i==0 and j==0){std::cout << "Using 1D Gresho" << std::endl;}
+
+//        double X_CENTER = 1.0;
+//        double Y_CENTER = 1.0;
+        double X_CENTER = 0.5;
+        double Y_CENTER = 0.5;
+        double R = sqrt((X - X_CENTER)*(X - X_CENTER) + (Y - Y_CENTER)*(Y - Y_CENTER));
+        double RHO_0 = 1.0;
+
+        double COS_PHI = (X-X_CENTER)/R;
+        double SIN_PHI = (Y-Y_CENTER)/R;
+
+        double VEL_PHI, PRESSURE;
+        if (0.0 <= R and R < 0.2){
+            VEL_PHI = 5.0*R; PRESSURE = p0 + 25.0/2.0*R*R;
+        } else if (0.2 <= R and R < 0.4){
+            VEL_PHI = 2.0 - 5.0*R;
+            PRESSURE = p0 + 4.0 - 4.0*log(0.2) + 25.0/2.0*R*R - 20.0*R + 4.0*log(R);
+        } else{
+            VEL_PHI = 0.0; PRESSURE = p0 - 2.0 + 4.0*log(2.0);
+        }
+
+        //VEL_PHI = -VEL_PHI; //clockwise
+        //double X_VELOCITY = -VEL_PHI*SIN_PHI - 0.00000001;
+
+        double X_VELOCITY = -VEL_PHI*SIN_PHI;
+        double Y_VELOCITY = VEL_PHI*COS_PHI;
+
+        if (R == 0.0){
+            X_VELOCITY = 0.0; Y_VELOCITY = 0.0;
+        }
+
+        X_VELOCITY += 0.00000001;
+        //X_VELOCITY += 1.0;
+
+        NEW_VERTEX.set_mass_density(RHO_0);
+        NEW_VERTEX.set_x_velocity(X_VELOCITY);
+        NEW_VERTEX.set_y_velocity(Y_VELOCITY);
+        NEW_VERTEX.set_pressure(PRESSURE);
+
+#endif
+
+
+#ifdef SHOCK_SHOCK
+    double RHO, X_VELOCITY, Y_VELOCITY, PRESSURE;
+    double INF_SMALL = 0.00000001;
+    if (X>= 0.8 and Y>=0.8){
+        RHO = 1.5; X_VELOCITY = INF_SMALL; Y_VELOCITY = INF_SMALL; PRESSURE = 1.5;
+    }else if(X<0.8 and Y<0.8){
+        RHO = 0.1379928; X_VELOCITY = 1.2060454; Y_VELOCITY = 1.2060454; PRESSURE = 0.0290323;
+    }else if(X<0.8 and Y>=0.8){
+        RHO = 0.5322581; X_VELOCITY = 1.2060454; Y_VELOCITY = INF_SMALL; PRESSURE = 0.3;
+    }else{
+        RHO = 0.5322581; X_VELOCITY = INF_SMALL; Y_VELOCITY = 1.2060454; PRESSURE = 0.3;
+    }
+    NEW_VERTEX.set_mass_density(RHO);
+    NEW_VERTEX.set_x_velocity(X_VELOCITY);
+    NEW_VERTEX.set_y_velocity(Y_VELOCITY);
+    NEW_VERTEX.set_pressure(PRESSURE);
+
+#endif
+
+#ifdef YEE
+        double X_CENTER = 5.0;
+        double Y_CENTER = 5.0;
+        double R = sqrt((X - X_CENTER)*(X - X_CENTER) + (Y - Y_CENTER)*(Y - Y_CENTER));
+        double TEMPERATURE = T_INF - (GAMMA - 1)*pow(VORTEX_STRENGTH,2)/(8.0*GAMMA*pow(M_PI,2))*exp(1-pow(R,2));
+        double RHO = pow(TEMPERATURE,1.0/(GAMMA-1));
+        double PRESSURE = RHO*TEMPERATURE;
+        double VEL_PERTURBATION = VORTEX_STRENGTH/(2.0*M_PI)*exp(0.5*(1-R*R));
+        double X_VELOCITY = X_VEL_INF - VEL_PERTURBATION*(Y - Y_CENTER);
+        double Y_VELOCITY = Y_VEL_INF + VEL_PERTURBATION*(X - X_CENTER);
+
+        NEW_VERTEX.set_mass_density(RHO);
+        NEW_VERTEX.set_x_velocity(X_VELOCITY);
+        NEW_VERTEX.set_y_velocity(Y_VELOCITY);
         NEW_VERTEX.set_pressure(PRESSURE);
 #endif
 

@@ -5,9 +5,9 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
 
 include_directories(.)
-include_directories("/usr/local/Cellar/openblas/0.3.19/include")
+include_directories("/usr/local/Cellar/openblas/0.3.21/include")
 include_directories("/usr/local/Cellar/libomp/13.0.0/include")
-set(OpenBLAS_DIR "/usr/local/Cellar/openblas/0.3.19/lib/cmake/openblas")
+set(OpenBLAS_DIR "/usr/local/Cellar/openblas/0.3.21/lib/cmake/openblas")
 
 
 find_package(OpenBLAS REQUIRED)

@@ -13,7 +13,6 @@
 #include <omp.h> 
 
 #include "constants3D.h"
-
 #include "cblas.h"
 #include "lapacke.h"
 #include "inverse.cpp"

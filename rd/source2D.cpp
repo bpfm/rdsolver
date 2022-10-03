@@ -68,4 +68,5 @@ void sources(std::vector<VERTEX> &MY_POINTS, double DT, int N_POINTS){
 #ifdef SELF_GRAVITY
         direct_gravity(MY_POINTS, DT, N_POINTS);
 #endif
+        return ;
 }

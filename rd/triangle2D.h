@@ -1,4 +1,6 @@
-/* class containing values and functions associated with triangles
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zhenyu Wu (zhenyu.wu@ed.ac.uk).
+ * class containing values and functions associated with triangles
         ID = ID number of triangle
         *VERTEX_0 => pointers to VERTEX 0 of triangle (counter clockwise order)
         *VERTEX_1 => pointers to VERTEX 1 of triangle
@@ -20,6 +22,7 @@
         PHI => element residual
         BETA => distribution coefficient defined by chosen scheme
         MAG => length of normal to each edge
+
 */
 #include "vertex2D.h"
 #include <iostream>
@@ -272,7 +275,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
-                // C_SOUND_AVG = sqrt(GAMMA*PRESSURE_AVG/RHO);
+                // if(C <= C_LIM){C = C_LIM;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -648,7 +651,7 @@ public:
                 std::cout << "Pressure =\t" << PRESSURE_HALF[0] << "\t" << PRESSURE_HALF[1] << "\t" << PRESSURE_HALF[2] << std::endl;
 #endif
 
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                 // Calculate inflow parameters
 
                 double H[3];
@@ -711,6 +714,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+                // if(C <= C_LIM){C = C_LIM;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;

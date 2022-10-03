@@ -1,3 +1,7 @@
+/*
+ * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ */
+
 double F(double X){
         double FUNC = exp(-1.0/X);
         if(X<0.0){FUNC = 0.0;}
@@ -257,8 +261,8 @@ VERTEX setup_vertex(double X, double Y, double Z){
                 NEW_VERTEX.set_x_velocity(MACH*4.1);
         }
 
-        NEW_VERTEX.set_y_velocity(0.00000001);
-        NEW_VERTEX.set_z_velocity(0.00000001);
+        NEW_VERTEX.set_y_velocity(0.0000001);
+        NEW_VERTEX.set_z_velocity(0.0000001);
         NEW_VERTEX.set_pressure(100.0);
 
 #endif

@@ -24,6 +24,12 @@
         SPECIFIC_ENERGY_HALF = specific energy density at vertex at intermediate state
  */
 
+#include <vector>
+
+#include "constants3D.h"
+
+#pragma once
+
 class VERTEX{
 
 private:

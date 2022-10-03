@@ -2,9 +2,11 @@
  * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zenyu Wu (zhenyu.wu@ed.ac.uk).
  */
 
+#include <iostream>
+
 #include "constants.h"
 #include "vertex2D.h"
-#include <iostream>
+
 extern int POINT_CHECK;
 
 double F(double X){

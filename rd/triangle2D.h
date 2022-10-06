@@ -275,6 +275,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+
                 // if(C <= C_LIM){C = C_LIM;}
 
 #ifdef DEBUG
@@ -714,6 +715,7 @@ public:
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
+
                 // if(C <= C_LIM){C = C_LIM;}
 
 #ifdef DEBUG

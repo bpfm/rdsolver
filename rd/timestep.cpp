@@ -93,7 +93,7 @@ void drift_update(int TBIN_CURRENT, int N_TRIANG, double T, double DT, std::vect
 #endif
         for(int j=0;j<N_TRIANG;++j){                                                                         // loop over all triangles in MESH
                 TBIN = RAND_MESH[j].get_tbin();
-
+                
                 if(TBIN == 0){
                         RAND_MESH[j].calculate_second_half(T,DT);
                 }else if(TBIN_CURRENT % TBIN == 0){

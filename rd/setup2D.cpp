@@ -1,6 +1,6 @@
 /*
  * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zhenyu Wu (zhenyu.wu@ed.ac.uk).
- */
+*/
 
 #include "constants.h"
 #include "vertex2D.h"

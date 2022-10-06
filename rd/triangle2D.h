@@ -28,8 +28,14 @@
 #include <iostream>
 #include "base.h"
 #include "inverse.h"
-using namespace std;
+#include "constants.h"
+#include <cmath>
 #pragma once
+using namespace std;
+
+extern double GLOBAL_PRESSURE_MAX, GLOBAL_PRESSURE_MIN;
+extern double GLOBAL_VELOCITY_SCALE;
+extern double MESH_RESOLUTION;
 
 class TRIANGLE{
 
@@ -61,6 +67,10 @@ private:
         double DU0_HALF[4],DU1_HALF[4],DU2_HALF[4];
 
         double MAG[3];
+
+
+        double BLENDING_COEFF[4];
+
 
         int PRINT;
 
@@ -95,6 +105,10 @@ public:
         double get_un02(){
                 U_N[0][2] = VERTEX_2->get_u0();
                 return U_N[0][2];
+        }
+
+        double* get_blending_coeff(){
+                return BLENDING_COEFF;
         }
 
         void print_triangle_state(){
@@ -261,7 +275,8 @@ public:
 
                 PRESSURE_AVG = (PRESSURE[0] + PRESSURE[1] + PRESSURE[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
-                if(C <= C_LIM){C = C_LIM;}
+
+                // if(C <= C_LIM){C = C_LIM;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -396,6 +411,8 @@ public:
                 }
 
 #ifdef DEBUG
+
+
                 std::cout << "PHI =\t" << PHI[0] << "\t" << PHI[1] << "\t" << PHI[2] << "\t" << PHI[3] << std::endl;
 #endif
 
@@ -412,6 +429,9 @@ public:
 
                 mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,1);
 
+
+
+
                 // std::cout << "Post-inversion =" << std::endl;
 
 #ifdef DEBUG
@@ -425,7 +445,7 @@ public:
 
                 // Calculate spatial splitting for first half timestep
 
-#if defined(LDA_SCHEME) or defined(BLENDED)
+#if defined(LDA_SCHEME) or defined(BLENDED) or defined(BLENDED_X)
 
 #ifdef DEBUG
                 std::cout << "BETA_0 =" << std::endl;
@@ -451,7 +471,7 @@ public:
 #endif
 
 
-#if defined(N_SCHEME) or defined(BLENDED)
+#if defined(N_SCHEME) or defined(BLENDED) or defined(BLENDED_X)
                 double BRACKET[4][3];
                 double KZ_SUM[4];
 
@@ -476,7 +496,7 @@ public:
                 }
 #endif
 
-#ifdef BLENDED
+#if defined(BLENDED) or defined(BLENDED_X)
                 double THETA_E[4][4];
                 double IDENTITY[4][4];
                 double SUM_FLUC_N[4];
@@ -500,10 +520,52 @@ public:
                 THETA_E[3][1] = IDENTITY[3][1] = 0.0;
                 THETA_E[3][2] = IDENTITY[3][2] = 0.0;
                 THETA_E[3][3] = IDENTITY[3][3] = 1.0;
+#ifdef BLENDED_X
+                double SHOCK_SENSOR = 0.0;
+                double PRESSURE_GRADIENT[2] = {0.0};   //average pressure gradient in the triangle
+                for (m=0;m<3;m++){
+                    PRESSURE_GRADIENT[0] += (N_X[m]*MAG[m]*U_N[3][m])/(2.0*AREA);
+                    PRESSURE_GRADIENT[1] += (N_Y[m]*MAG[m]*U_N[3][m])/(2.0*AREA);
+
+                    PRESSURE_GRADIENT[0] -= (N_X[m]*MAG[m]*(U_N[1][m]*U - 0.5*U_N[0][m]*pow(U,2)))/(2.0*AREA);
+                    PRESSURE_GRADIENT[1] -= (N_Y[m]*MAG[m]*(U_N[1][m]*U - 0.5*U_N[0][m]*pow(U,2)))/(2.0*AREA);
+
+                    PRESSURE_GRADIENT[0] -= (N_X[m]*MAG[m]*(U_N[2][m]*V - 0.5*U_N[0][m]*pow(V,2)))/(2.0*AREA);
+                    PRESSURE_GRADIENT[1] -= (N_Y[m]*MAG[m]*(U_N[2][m]*V - 0.5*U_N[0][m]*pow(V,2)))/(2.0*AREA);
+                }
+
+                PRESSURE_GRADIENT[0] *= GAMMA_1; PRESSURE_GRADIENT[1] *= GAMMA_1;
+
+                if ((GLOBAL_PRESSURE_MAX - GLOBAL_PRESSURE_MIN == 0)||GLOBAL_VELOCITY_SCALE==0){
+                    SHOCK_SENSOR = 1.0;
+                }else{
+                    SHOCK_SENSOR = PRESSURE_GRADIENT[0]*U + PRESSURE_GRADIENT[1]*V;
+                    SHOCK_SENSOR /= ((GLOBAL_PRESSURE_MAX - GLOBAL_PRESSURE_MIN)*GLOBAL_VELOCITY_SCALE);
+                    SHOCK_SENSOR = abs(SHOCK_SENSOR);
+                }
+                double CENTROID_X = (VERTEX_0->get_x()+VERTEX_1->get_x()+VERTEX_2->get_x())/3.0;
+                double CENTROID_Y = (VERTEX_0->get_y()+VERTEX_1->get_y()+VERTEX_2->get_y())/3.0;
+
+                //cout<<"id,x_avg,y_avg,pmax,pmin,vscale: "<<ID <<" "<<CENTROID_X<<" "<<CENTROID_Y<< "   "
+                //    << GLOBAL_PRESSURE_MAX<< " "<< GLOBAL_PRESSURE_MIN<<" "<<GLOBAL_VELOCITY_SCALE<<" U,V:  "<<U<<" "<<V
+                //    <<" del_p: "<<PRESSURE_GRADIENT[0]<<" "<<PRESSURE_GRADIENT[1]<< "      shock_sensor: "<< SHOCK_SENSOR<<endl;
+
+                double THETA_BX = min(1.0, pow(SHOCK_SENSOR,2)*MESH_RESOLUTION);
+
+#endif
 
                 for(i=0;i<4;i++){
+#ifdef BLENDED
                         SUM_FLUC_N[i] = abs(FLUC_N[i][0]) + abs(FLUC_N[i][1]) + abs(FLUC_N[i][2]);
                         THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+                        if (SUM_FLUC_N[i] == 0){
+                            THETA_E[i][i] = 0.0;
+                        }
+#endif
+#ifdef BLENDED_X
+                        THETA_E[i][i] = THETA_BX;
+#endif
+                        BLENDING_COEFF[i] = THETA_E[i][i];
                         FLUC_B[i][0] = THETA_E[i][i]*FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][0];
                         FLUC_B[i][1] = THETA_E[i][i]*FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][1];
                         FLUC_B[i][2] = THETA_E[i][i]*FLUC_N[i][2] + (IDENTITY[i][i] - THETA_E[i][i])*FLUC_LDA[i][2];
@@ -513,6 +575,7 @@ public:
                 DUAL[0] = VERTEX_0->get_dual();
                 DUAL[1] = VERTEX_1->get_dual();
                 DUAL[2] = VERTEX_2->get_dual();
+
 
 #ifdef LDA_SCHEME
                 for(i=0;i<4;i++){
@@ -530,7 +593,7 @@ public:
                 }
 #endif
 
-#ifdef BLENDED 
+#if defined(BLENDED) or defined(BLENDED_X)
                 for(i=0;i<4;i++){
                         DU0_HALF[i] = -1.0*DT*FLUC_B[i][0]/DUAL[0];
                         DU1_HALF[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
@@ -652,7 +715,8 @@ public:
 
                 PRESSURE_AVG = (PRESSURE_HALF[0] + PRESSURE_HALF[1] + PRESSURE_HALF[2])/3.0;
                 C = sqrt((GAMMA-1.0) * H_AVG - (GAMMA-1.0) * (U*U + V*V)/2.0);
-                if(C <= C_LIM){C = C_LIM;}
+
+                // if(C <= C_LIM){C = C_LIM;}
 
 #ifdef DEBUG
                 std::cout << "PRESSURE_AVG =\t" << PRESSURE_AVG << std::endl;
@@ -886,6 +950,7 @@ public:
                         }
                 }
 
+
                 mat_inv(&INFLOW_MINUS_SUM[0][0],4,X[0],Y[0],ID,2);
 
                 double AREA_DIFF[4][3];
@@ -952,7 +1017,7 @@ public:
                 }
 #endif
 
-#ifdef BLENDED
+#if defined(BLENDED)
                 double THETA_E[4][4];
                 double IDENTITY[4][4];
                 double SUM_FLUC_N[4];
@@ -979,8 +1044,13 @@ public:
 
                 for(i=0;i<4;i++){
                         SUM_FLUC_N[i] = abs(SECOND_FLUC_N[i][0]) + abs(SECOND_FLUC_N[i][1]) + abs(SECOND_FLUC_N[i][2]);
+                        //numerator should include time-derivative term
+                        THETA_E[i][i] = abs(SECOND_FLUC_N[i][0]+SECOND_FLUC_N[i][1]+SECOND_FLUC_N[i][2])/SUM_FLUC_N[i];
+                        //THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
 
-                        THETA_E[i][i] = abs(PHI[i])/SUM_FLUC_N[i];
+                        if (SUM_FLUC_N[i] == 0){
+                            THETA_E[i][i] = 0;
+                        }
 
                         FLUC_B[i][0] = THETA_E[i][i]*SECOND_FLUC_N[i][0] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][0];
                         FLUC_B[i][1] = THETA_E[i][i]*SECOND_FLUC_N[i][1] + (IDENTITY[i][i] - THETA_E[i][i])*SECOND_FLUC_LDA[i][1];
@@ -990,6 +1060,7 @@ public:
                         DU1[i] = -1.0*DT*FLUC_B[i][1]/DUAL[1];
                         DU2[i] = -1.0*DT*FLUC_B[i][2]/DUAL[2];
                 }
+
 #endif
 
         }
@@ -1121,6 +1192,7 @@ public:
                         V = U_N[2][m]/U_N[0][m];
                         VEL[m] = sqrt(U*U + V*V);
                         C_SOUND[m] = sqrt((GAMMA-1.0) * H - (GAMMA-1.0) * (U*U + V*V)/2.0);
+
                 }
 
                 VMAX = max_val((VEL[0] + C_SOUND[0]),(VEL[1] + C_SOUND[1]));

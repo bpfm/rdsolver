@@ -6,19 +6,33 @@
 
 #include <iostream>
 #include <fstream>
-#include <vertex2D.h>
-#include <triangle2D.h>
+#include <iomanip>
+#include "vertex2D.h"
+#include "triangle2D.h"
 #include "all_functions.h"
+#include "constants.h"
 
 void open_snap(std::ofstream &SNAPFILE, int i){
-        SNAPFILE.open(OUT_DIR+"snapshot_"+std::to_string(i)+".txt");
+        SNAPFILE.open(OUT_DIR+"/snapshot_"+std::to_string(i)+".txt");
         return;
 }
 
 void open_active(std::ofstream &SNAPFILE, int i){
-        SNAPFILE.open("output/active_"+std::to_string(i)+".txt");
+        SNAPFILE.open(OUT_DIR+"/active_"+std::to_string(i)+".txt");
         return;
 }
+
+void open_blending_coeff(std::ofstream &SNAPFILE, int i){
+    SNAPFILE.open(OUT_DIR+"/blending_coeff_"+std::to_string(i)+".txt");
+    return;
+}
+
+
+void open_vertex_list(std::ofstream &SNAPFILE, int i){
+    SNAPFILE.open(OUT_DIR+"/vertex_list_"+std::to_string(i)+".txt");
+    return;
+}
+
 
 void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, int SNAP_ID, std::ofstream &LOGFILE){
         std::ofstream SNAPFILE;
@@ -28,7 +42,7 @@ void write_snap(std::vector<VERTEX> POINTS, double T, double DT, int N_POINTS, i
         SNAPFILE << N_POINTS << "\t" << T << std::endl;
         for(int i=0;i<N_POINTS;++i){
                 // write         X                           Y                                 rho                                   v_x                                    v_y                                 p                                      e                                         |S|
-                SNAPFILE << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" << POINTS[i].get_mass_density() << "\t" << POINTS[i].get_x_velocity() << "\t" << POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_specific_energy() << "\t" << POINTS[i].get_dual() << std::endl;
+                SNAPFILE << POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t" <<std::setprecision(8)<< POINTS[i].get_mass_density() << "\t" << POINTS[i].get_x_velocity() << "\t" << POINTS[i].get_y_velocity() << "\t" << POINTS[i].get_pressure() << "\t" << POINTS[i].get_specific_energy() << "\t" << POINTS[i].get_dual() << std::endl;
                 TOTAL_DENSITY += POINTS[i].get_mass_density()*POINTS[i].get_dual();
                 TOTAL_ENERGY += POINTS[i].get_specific_energy()*POINTS[i].get_dual() * POINTS[i].get_mass_density();
         }
@@ -57,6 +71,46 @@ void write_active(std::vector<TRIANGLE> MESH, int N_TRIANG, int SNAP_ID, int TBI
                         SNAPFILE << X0 << "\t" << Y0 << "\t"  << X1 << "\t" << Y1 << "\t"  << X2 << "\t" << Y2 << "\t" << MESH[j].get_tbin() << "\t" << MESH[j].get_un00() << "\t" << MESH[j].get_un01() << "\t" << MESH[j].get_un02() << std::endl;
                 }
         }
+}
+
+
+void write_blending_coeff(std::vector<TRIANGLE> MESH, double T, int N_TRIANG, int SNAP_ID){
+    std::ofstream SNAPFILE;
+    SNAPFILE << std::setprecision(12);
+    double X0,X1,X2,Y0,Y1,Y2; int vertexid0, vertexid1, vertexid2;
+    open_blending_coeff(SNAPFILE,SNAP_ID);
+    SNAPFILE <<"Time: "<<T<<"     Number of triangles: " << N_TRIANG << "\t" << std::endl;
+    for(int j=0;j<N_TRIANG;++j){
+        if(MESH[j].get_boundary() == 0){
+            X0 = MESH[j].get_vertex_0()->get_x();
+            X1 = MESH[j].get_vertex_1()->get_x();
+            X2 = MESH[j].get_vertex_2()->get_x();
+            Y0 = MESH[j].get_vertex_0()->get_y();
+            Y1 = MESH[j].get_vertex_1()->get_y();
+            Y2 = MESH[j].get_vertex_2()->get_y();
+            vertexid0 = MESH[j].get_vertex_0()->get_id();
+            vertexid1 = MESH[j].get_vertex_1()->get_id();
+            vertexid2 = MESH[j].get_vertex_2()->get_id();
+
+            double* BLENDING_COEFF = MESH[j].get_blending_coeff();
+            // write    vertexid     X        Y          Blending_coeff
+            SNAPFILE << vertexid0<<"\t"<<vertexid1<<"\t"<<vertexid2<<"\t"<<X0 << "\t" << Y0 << "\t"  << X1 << "\t" << Y1 << "\t"  << X2 << "\t" << Y2
+            << "\t" << BLENDING_COEFF[0] << "\t" << BLENDING_COEFF[1]  << "\t" << BLENDING_COEFF[2] << "\t" << BLENDING_COEFF[3] << std::endl;
+        }
+    }
+}
+
+
+void write_vertex_list(std::vector<VERTEX> POINTS, double T,  int N_POINTS, int SNAP_ID){
+    std::ofstream SNAPFILE;
+    open_vertex_list(SNAPFILE,SNAP_ID);
+    SNAPFILE << std::setprecision(12);
+    SNAPFILE << "time: "<< T << "\t" << "number of points: "<< N_POINTS << std::endl;
+    for(int i=0;i<N_POINTS;++i){
+        //write  vertexid, x, y
+        SNAPFILE << POINTS[i].get_id() <<"\t"<< POINTS[i].get_x() << "\t" << POINTS[i].get_y() << "\t"<< std::endl;
+    }
+    SNAPFILE.close();
 }
 
 void read_parameter_file(int ARGC, char *ARGV[]){

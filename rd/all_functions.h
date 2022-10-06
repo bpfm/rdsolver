@@ -4,6 +4,9 @@
 #include <fstream>
 #include "vertex2D.h"
 #include "triangle2D.h"
+//main.cpp
+void set_shock_sensor(int, std::vector<VERTEX> &);
+
 //source2D.cpp
 void sources(std::vector<VERTEX>&, double, int);
 void plummer_gravity(std::vector<VERTEX>&, double, int);
@@ -18,8 +21,12 @@ void reset_tbins(double, double, int, int, double &, std::vector<TRIANGLE>&, std
 //io2D.cpp
 void open_snap(std::ofstream &, int);
 void open_active(std::ofstream &, int);
+void open_blending_coeff(std::ofstream &, int);
+void open_vertex_list(std::ofstream &, int);
 void write_snap(std::vector<VERTEX>, double, double, int, int, std::ofstream &);
 void write_active(std::vector<TRIANGLE>, int, int, int);
+void write_blending_coeff(std::vector<TRIANGLE>, double, int, int);
+void write_vertex_list(std::vector<VERTEX>, double,  int, int);
 void read_parameter_file(int ARGC, char *ARGV[]);
 int cgal_read_positions_header(std::ifstream &);
 int cgal_read_triangles_header(std::ifstream &);

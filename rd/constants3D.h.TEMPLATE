@@ -1,3 +1,6 @@
+#ifndef RD_CONSTANTS_H
+#define RD_CONSTANTS_H
+
 //-----------------------------------------
 /* choose hydro test */
 //-----------------------------------------
@@ -14,8 +17,8 @@
 // #define KHY
 // #define KHXSMOOTH
 // #define KHYSMOOTH
-#define BLOB
-// #define GRAVITY
+// #define BLOB
+#define GRAVITY
 
 //-----------------------------------------
 /* set dimensionality */
@@ -57,8 +60,12 @@
 // #define FIXED_DT
 #define DRIFT
 // #define JUMP
-double N_TBINS = 1; // set maximum time bin (must be power of 2)
-int MAX_TBIN = pow(2,N_TBINS);
+
+#include<cmath>
+#include<string>
+
+const double N_TBINS = 1; // set maximum time bin (must be power of 2) ONLY USE 1 IN 3D
+const int MAX_TBIN = pow(2,N_TBINS);
 
 //-----------------------------------------
 /* define type of grid (none for square grid of vertices) */
@@ -83,162 +90,162 @@ int MAX_TBIN = pow(2,N_TBINS);
 // #define PARA_RES
 // #define PARA_UP
 
-double M_LIM = 0.0001;
-double E_LIM = 0.0001;
-double C_LIM = 0.0001;
+const double M_LIM = 0.0001;
+const double E_LIM = 0.0001;
+const double C_LIM = 0.0001;
 
-std::string OUT_DIR = "output64/";
-std::string LOG_DIR = OUT_DIR + "log.txt";  
+const std::string OUT_DIR = "output64/";
+const std::string LOG_DIR = OUT_DIR + "log.txt";  
 
 // Sod Shock Tube (Varied in X)
 #ifdef SODX
-double CFL = 0.4;
-double T_TOT = 0.2;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
-double SIDE_LENGTH_Z = 2.0;
+const double CFL = 0.4;
+const double T_TOT = 0.2;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 2.0;
+const double SIDE_LENGTH_Y = 2.0;
+const double SIDE_LENGTH_Z = 2.0;
 #endif
 
 // Sod Shock Tube (Varied in Y)
 #ifdef SODY
-double CFL = 0.1;
-double T_TOT = 0.1;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+const double CFL = 0.1;
+const double T_TOT = 0.1;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 2.0;
+const double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sine Wave Tube
 #ifdef SINX
-double CFL = 0.1;
-double T_TOT = 5.0;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+const double CFL = 0.1;
+const double T_TOT = 5.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 2.0;
+const double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // Sedov Blast Wave 2D
 #ifdef SEDOV2D
-double CFL = 0.4;
-double T_TOT = 0.1;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
-double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
+const double CFL = 0.4;
+const double T_TOT = 0.1;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
+const double SIDE_LENGTH_Y = 10.0;
+const double SIDE_LENGTH_Z = 10.0;
 #endif
 
 // Sedov Blast Wave 3D
 #ifdef SEDOV3D
-double CFL = 0.4;
-double T_TOT = 0.04;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
-double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
-#endif
+const double CFL = 0.4;
+const double T_TOT = 0.04;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 10.0; // if altered, change setup.cpp as well
+const double SIDE_LENGTH_Y = 10.0;
+const double SIDE_LENGTH_Z = 10.0;
 
-double R_BLAST     = 0.25;
-double BLAST_E_TOT = 0.0;
-double AREA_CHECK  = 0.0;
-int POINT_CHECK    = 0;
+const double R_BLAST     = 0.25;
+const double BLAST_E_TOT = 0.0;
+const double AREA_CHECK  = 0.0;
+const int POINT_CHECK    = 0;
+#endif
 
 // Gaussian pulse advection (x-direction)
 #ifdef GAUSS3D
-double CFL = 0.5;
-double T_TOT = 0.5;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
-double SIDE_LENGTH_Z = 1.0;
+const double CFL = 0.5;
+const double T_TOT = 0.5;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
+const double SIDE_LENGTH_Z = 1.0;
 #endif
 
 // Uniform flow
 #ifdef UNIFORM
-double CFL = 0.1;
-double T_TOT = 1.0;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
-double SIDE_LENGTH_Z = 1.0;
+const double CFL = 0.1;
+const double T_TOT = 1.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
+const double SIDE_LENGTH_Z = 1.0;
 #endif
 
 // 2D Noh problem
 #ifdef NOH
-double CFL = 0.4;
-double T_TOT = 0.1;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 2.0;
-double SIDE_LENGTH_Y = 2.0;
+const double CFL = 0.4;
+const double T_TOT = 0.1;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 2.0;
+const double SIDE_LENGTH_Y = 2.0;
 #endif
 
 // KH instability (x flow)
 #ifdef KHX
-double CFL = 0.4;
-double T_TOT = 2.0;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+const double CFL = 0.4;
+const double T_TOT = 2.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability (y flow)
 #ifdef KHY
-double CFL = 0.4;
-double T_TOT = 2.0;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+const double CFL = 0.4;
+const double T_TOT = 2.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability - smoothed (x flow)
 #ifdef KHXSMOOTH
-double CFL = 0.4;
-double T_TOT = 0.5;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+const double CFL = 0.4;
+const double T_TOT = 0.5;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // KH instability - smoothed (y flow)
 #ifdef KHYSMOOTH
-double CFL = 0.4;
-double T_TOT = 2.0;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 1.0;
-double SIDE_LENGTH_Y = 1.0;
+const double CFL = 0.4;
+const double T_TOT = 2.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
 #endif
 
 // Blob test
 #ifdef BLOB
-double CFL = 0.01;
-double T_TOT = 10.0;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 10.0;
-double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
+const double CFL = 0.01;
+const double T_TOT = 10.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 10.0;
+const double SIDE_LENGTH_Y = 10.0;
+const double SIDE_LENGTH_Z = 10.0;
 #endif
 
 // Grav Test !!! NOT WORKING !!!
 #ifdef GRAVITY
-double CFL = 0.4;
-double T_TOT = 120.0;
-double GAMMA = 5.0/3.0;
-double SIDE_LENGTH_X = 10.0;
-double SIDE_LENGTH_Y = 10.0;
-double SIDE_LENGTH_Z = 10.0;
-double MACH = 1.3;
+const double CFL = 0.4;
+const double T_TOT = 120.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 10.0;
+const double SIDE_LENGTH_Y = 10.0;
+const double SIDE_LENGTH_Z = 10.0;
+const double MACH = 1.3;
 #endif
 
-double GAMMA_1 = GAMMA - 1.0;
-double GAMMA_2 = GAMMA - 2.0;
+const double GAMMA_1 = GAMMA - 1.0;
+const double GAMMA_2 = GAMMA - 2.0;
 
-double GRAV = 6.67e-11;
-double MSOLAR = 1.989e+30;
+const double GRAV = 6.67e-11;
+const double MSOLAR = 1.989e+30;
 
-double BND_TOL = 0.75;
-
-int N_TBINS = 1;
+const double BND_TOL = 0.75;
 
 #ifdef FIXED_DT
-double DT_FIX = 0.00001;
+const double DT_FIX = 0.00001;
 #endif
+
+#endif // RD_CONSTANTS_H

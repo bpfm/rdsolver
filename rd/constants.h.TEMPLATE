@@ -1,5 +1,5 @@
-#ifndef RD_constants_H
-#define RD_constants_H
+#ifndef RD_CONSTANTS_H
+#define RD_CONSTANTS_H
 
 //-----------------------------------------
 /* choose hydro test */
@@ -8,14 +8,14 @@
 // #define SODY
 // #define SINEX
 // #define SEDOV
-#define GAUSSX
+// #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
 // #define NOH
 // #define KHX
 // #define KHY
 // #define KHXSMOOTH
-// #define KHYSMOOTH
+#define KHYSMOOTH
 // #define BLOB
 // #define DF
 
@@ -59,13 +59,13 @@
 /* define flag for timesteps */
 //-----------------------------------------
 // #define FIXED_DT
-#define DRIFT
+// #define DRIFT
 // #define DRIFT_SHELL
 // #define JUMP
 #include<cmath>
 #include<string>
 
-const double N_TBINS = 4; // set maximum time bin (must be power of 2)
+const double N_TBINS = 1; // set maximum time bin (must be power of 2)
 const int MAX_TBIN = pow(2,N_TBINS);
 
 //-----------------------------------------
@@ -77,14 +77,14 @@ const int MAX_TBIN = pow(2,N_TBINS);
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-// #define LDA_SCHEME
-#define N_SCHEME
+#define LDA_SCHEME
+// #define N_SCHEME
 // #define BLENDED
 
 //-----------------------------------------
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-//#define FIRST_ORDER
+#define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 // #define ANALYTIC_GRAVITY
@@ -142,7 +142,7 @@ const double R_BLAST     = 0.25;
 
 // Gaussian pulse advection (x-direction)
 #ifdef GAUSSX
-const double CFL = 0.4;
+const double CFL = 0.1;
 const double T_TOT = 0.5;
 const double GAMMA = 5.0/3.0;
 const double SIDE_LENGTH_X = 1.0;
@@ -188,7 +188,7 @@ const double SIDE_LENGTH_Y = 1.0;
 // KH instability (y flow)
 #ifdef KHY
 const double CFL = 0.4;
-const double T_TOT = 4.0;
+const double T_TOT = 2.0;
 const double GAMMA = 5.0/3.0;
 const double SIDE_LENGTH_X = 1.0;
 const double SIDE_LENGTH_Y = 1.0;
@@ -197,7 +197,7 @@ const double SIDE_LENGTH_Y = 1.0;
 // KH instability - smoothed (x flow)
 #ifdef KHXSMOOTH
 const double CFL = 0.4;
-const double T_TOT = 4.0;
+const double T_TOT = 2.0;
 const double GAMMA = 5.0/3.0;
 const double SIDE_LENGTH_X = 1.0;
 const double SIDE_LENGTH_Y = 1.0;
@@ -239,4 +239,4 @@ const double DT_FIX = 0.00001;
 #endif
 
 
-#endif //RD_constants_H
+#endif //RD_CONSTANTS_H

@@ -28,7 +28,7 @@
 
 #include "base.h"
 #include "inverse.h"
-#include "vertex2D.h"
+#include "vertex3D.h"
 
 using namespace std;
 #pragma once

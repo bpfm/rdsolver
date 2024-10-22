@@ -17,7 +17,7 @@ CGAL (stand alone to generate meshes)
 
 ## Run Guide
 
-1. Download repository using `git clone https://github.com/bpfm/rdsolver`
+1. Download repository using `git clone https://github.com/bpfm/rdsolver.git`
 2. Move to rd directory
 3. Edit CMakeLists.txt with the appropriate setting for your machine:
     -  Compiler

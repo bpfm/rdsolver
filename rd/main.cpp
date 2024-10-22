@@ -1,5 +1,5 @@
 /*
- * This file was written by Ben Morton (bmorton@ed.ac.uk).
+ * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zhenyu Wu (zhenyu.wu@ed.ac.uk).
  */
 
 #include <iostream>
@@ -17,10 +17,12 @@
 #include <exception>
 #include "constants.h"
 #include "all_functions.h"
+
 #ifdef TWO_D
 #include "vertex2D.h"
 #include "triangle2D.h"
 #endif
+
 #ifdef SEDOV
     int POINT_CHECK = 0;
 #endif
@@ -28,7 +30,6 @@
 double GLOBAL_PRESSURE_MAX, GLOBAL_PRESSURE_MIN = 0.0;
 double GLOBAL_VELOCITY_SCALE;
 double MESH_RESOLUTION = 0.0;
-
 
 //using namespace std;
 namespace fs = std::filesystem;

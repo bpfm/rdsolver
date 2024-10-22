@@ -85,6 +85,7 @@ int MAX_TBIN = pow(2,N_TBINS);
 
 double M_LIM = 0.0001;
 double E_LIM = 0.0001;
+double C_LIM = 0.0001;
 
 std::string OUT_DIR = "output64/";
 std::string LOG_DIR = OUT_DIR + "log.txt";  

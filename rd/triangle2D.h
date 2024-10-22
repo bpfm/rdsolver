@@ -22,14 +22,15 @@
         PHI => element residual
         BETA => distribution coefficient defined by chosen scheme
         MAG => length of normal to each edge
-
 */
-#include "vertex2D.h"
+
 #include <iostream>
+
 #include "base.h"
 #include "inverse.h"
 #include "constants.h"
 #include <cmath>
+
 #pragma once
 using namespace std;
 

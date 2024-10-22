@@ -3,8 +3,9 @@
  */
 
 #include <vector>
-#include "vertex2D.h"
+
 #include "constants.h"
+#include "vertex2D.h"
 
 #ifdef ANALYTIC_GRAVITY
 void plummer_gravity(std::vector<VERTEX> &MY_POINTS, double DT, int N_POINTS){
@@ -68,4 +69,5 @@ void sources(std::vector<VERTEX> &MY_POINTS, double DT, int N_POINTS){
 #ifdef SELF_GRAVITY
         direct_gravity(MY_POINTS, DT, N_POINTS);
 #endif
+        return ;
 }

@@ -2,10 +2,13 @@
  * This file was written by Ben Morton (bmorton@ed.ac.uk) and Zhenyu Wu (zhenyu.wu@ed.ac.uk).
 */
 
+#include <iostream>
+
 #include "constants.h"
 #include "vertex2D.h"
 #include <iostream>
 #include <cmath>
+
 
 extern int POINT_CHECK;
 

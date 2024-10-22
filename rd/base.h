@@ -1,4 +1,3 @@
-
 #ifndef RD_BASE_H
 #define RD_BASE_H
 
@@ -18,6 +17,5 @@ inline T const& min_val (T const& a, T const& b)
 {
     return a < b ? a:b;
 }
-
 
 #endif //RD_BASE_H

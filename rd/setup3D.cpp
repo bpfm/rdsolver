@@ -2,6 +2,13 @@
  * This file was written by Ben Morton (bmorton@ed.ac.uk).
  */
 
+#include <iostream>
+
+#include "constants3D.h"
+#include "vertex3D.h"
+
+extern int POINT_CHECK;
+
 double F(double X){
         double FUNC = exp(-1.0/X);
         if(X<0.0){FUNC = 0.0;}

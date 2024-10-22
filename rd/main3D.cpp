@@ -13,19 +13,15 @@
 #include <omp.h> 
 
 #include "constants3D.h"
-
-#include "cblas.h"
-#include "lapacke.h"
-#include "inverse.cpp"
-#include "base.cpp"
+#include "all_functions3D.h"
 
 #ifdef THREE_D
 #include "vertex3D.h"
 #include "triangle3D.h"
-#include "setup3D.cpp"
-#include "io3D.cpp"
-#include "source3D.cpp"
-#include "timestep.cpp"
+#endif
+
+#ifdef SEDOV
+    int POINT_CHECK = 0;
 #endif
 
 int main(){

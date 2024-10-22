@@ -24,6 +24,15 @@
         MAG => length of normal to each edge
  */
 
+#include <iostream>
+
+#include "base.h"
+#include "inverse.h"
+#include "vertex2D.h"
+
+using namespace std;
+#pragma once
+
 class TRIANGLE{
 
 private:

@@ -7,6 +7,11 @@
 *sedov
 *OpenBLAS/
 *output
+*.json
 *backup*
 copy_positions.sh
+rd/triangulation/cgal/2d/CMakeFiles*
+rd/triangulation/cgal/3d/CMakeFiles*
+rd/CMakeFiles*
+rd/build*
 .DS_Store

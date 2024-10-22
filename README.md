@@ -7,9 +7,13 @@ In summary, `rdsolver` will evolve a compressible baryonic gas forward in time, 
 ## Prerequisits
 
 OpenBLAS
+
 OpenMP
+
 C++ Compiler (tested most widely with clang)
+
 CGAL (stand alone to generate meshes)
+
 
 ## Run Guide
 

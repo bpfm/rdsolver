@@ -4,7 +4,7 @@ An implementation of the residual distriution (RD) partial differential equation
 
 In summary, `rdsolver` will evolve a compressible baryonic gas forward in time, within a static, periodic box, from some set of initial conditions (ICs). The intitial state requires the  density, velocity and internal energy distributions be defined across the box. At the time ICs are set up within the code, depending on the choice of case (outlined below). The domain is discretised into a static periodic Delaunay triangulation. The dual tesselation of this triangulation can be used to produce the piecewise uniform reconstruction of the fluid state at all positions, for the purposes of analyisis and visualisation.
 
-Quickstart Guide
+## Quickstart Guide
 
-Compile Time Options
+## Compile Time Options
 

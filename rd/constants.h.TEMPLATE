@@ -1,6 +1,7 @@
 #ifndef RD_constants_H
 #define RD_constants_H
-
+#include <string>
+#include <cmath>
 //-----------------------------------------
 /* choose hydro test */
 //-----------------------------------------
@@ -8,7 +9,7 @@
 // #define SODY
 // #define SINEX
 // #define SEDOV
-#define GAUSSX
+// #define GAUSSX
 // #define GAUSSY
 // #define UNIFORM
 // #define NOH
@@ -18,6 +19,9 @@
 // #define KHYSMOOTH
 // #define BLOB
 // #define DF
+// #define GRESHO  //(https://epubs.siam.org/doi/pdf/10.1137/S1064827502402120)
+// #define SHOCK_SHOCK
+#define YEE
 
 //-----------------------------------------
 /* set dimensionality */
@@ -28,7 +32,7 @@
 //-----------------------------------------
 /* set umber of snapshots */
 //-----------------------------------------
-#define N_SNAP 20
+#define N_SNAP 10
 
 //-----------------------------------------
 /* debug flag for debug output */
@@ -46,6 +50,8 @@
 //-----------------------------------------
 // #define QHULL_IC
 #define CGAL_IC
+const std::string CGAL_FILE_NAME = "triangulation_files/Uniform10/Delaunay2D_uniform_x0-10-160_y0-10-160.txt";
+
 
 //-----------------------------------------
 /* define boundar  y conditions (none for periodic) */
@@ -60,10 +66,8 @@
 //-----------------------------------------
 // #define FIXED_DT
 #define DRIFT
-// #define DRIFT_SHELL
-// #define JUMP
-#include<cmath>
-#include<string>
+//#define DRIFT_SHELL
+//#define JUMP
 
 const double N_TBINS = 4; // set maximum time bin (must be power of 2)
 const int MAX_TBIN = pow(2,N_TBINS);
@@ -77,19 +81,21 @@ const int MAX_TBIN = pow(2,N_TBINS);
 //-----------------------------------------
 /* define distribution scheme */
 //-----------------------------------------
-// #define LDA_SCHEME
-#define N_SCHEME
+#define LDA_SCHEME
+// #define N_SCHEME
 // #define BLENDED
+#define BLENDED_X
 
 //-----------------------------------------
+//
 /* set order of scheme (none for 2nd order) */
 //-----------------------------------------
-//#define FIRST_ORDER
+#define FIRST_ORDER
 
 // #define SELF_GRAVITY // !!! NOT PERIODIC !!!
 // #define ANALYTIC_GRAVITY
-// #define PARA_RES
-// #define PARA_UP
+ #define PARA_RES
+ #define PARA_UP
 
 const double GRAV = 6.67e-11;
 const double MSOLAR = 1.989e+30;
@@ -98,12 +104,13 @@ const double M_LIM = 0.0001;    // change for different tests
 const double E_LIM = 0.0001;
 const double C_LIM = 0.0001;
 
-const std::string OUT_DIR = "output/";
-const std::string LOG_DIR = OUT_DIR + "log.txt";
+// const std::string OUT_DIR = "output_Gresho_LDA1_uniformoffset_320_t10";
+const std::string OUT_DIR = "output_test";
+const std::string LOG_DIR = OUT_DIR + "/log.txt";
 
 // Sod Shock Tube (Varied in X)
 #ifdef SODX
-const double CFL = 0.5;
+const double CFL = 0.4;
 const double T_TOT = 0.2;
 const double GAMMA = 5.0/3.0;
 const double SIDE_LENGTH_X = 2.0;
@@ -231,8 +238,39 @@ const double SIDE_LENGTH_Y = 10.0;
 const double MACH = 0.0;
 #endif
 
+#ifdef GRESHO
+const double CFL = 0.4;
+const double p0 = 5.0;
+const double T_TOT = 3.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
+#endif
+
+#ifdef SHOCK_SHOCK
+const double CFL = 0.4;
+const double T_TOT = 1.0;
+const double GAMMA = 5.0/3.0;
+const double SIDE_LENGTH_X = 1.0;
+const double SIDE_LENGTH_Y = 1.0;
+#endif
+
+
+#ifdef YEE
+const double CFL = 0.4;
+const double T_TOT = 10.0;
+const double GAMMA = 1.4;
+const double VORTEX_STRENGTH = 5.0;
+const double T_INF = 1.0;
+const double X_VEL_INF = 0.0;
+const double Y_VEL_INF = 0.0;
+const double SIDE_LENGTH_X = 10.0;
+const double SIDE_LENGTH_Y = 10.0;
+#endif
+
 const double GAMMA_1 = GAMMA - 1.0;
 const double GAMMA_2 = GAMMA - 2.0;
+
 
 #ifdef FIXED_DT
 const double DT_FIX = 0.00001;

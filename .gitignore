@@ -10,6 +10,9 @@
 *.json
 *backup*
 copy_positions.sh
+rd/Makefile
+rd/constants.h
+rd/constants3D.h
 rd/cmake_install.cmake
 rd/triangulation/cgal/2d/CMakeFiles*
 rd/triangulation/cgal/3d/CMakeFiles*
